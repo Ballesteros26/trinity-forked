@@ -314,6 +314,8 @@ void EveMetaball::AddToBoundingBox( EveMetaballItemPtr item )
 // --------------------------------------------------------------------------------
 void EveMetaball::UpdateBuffers()
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// no update if no data
 	if( m_sourceItems.empty() )
 	{
@@ -336,28 +338,97 @@ void EveMetaball::UpdateBuffers()
 	D3DXVec3Subtract( &steps, &m_maxBounds, &m_minBounds );
 	D3DXVec3Scale( &steps, &steps, 1.0f / m_boxSize );
 	
+	int stepsX = int(steps.x);
+	int stepsY = int(steps.y);
+	int stepsZ = int(steps.z);
+
+	// Cache 2 layers in the grid.
+	const int cacheSize = ( stepsY + 1) * ( stepsZ + 1) * 2;
+	CellCorner* cachedCornerValues = new CellCorner[ cacheSize ];
+
+	int nextIsoCacheLayer = 0;
+	bool firstRun = true;
+
 	int startX = (int)floor( m_minBounds.x / m_boxSize );
-	for( int x = startX; x < steps.x; ++x )
+
+	for( int x = 0; x < stepsX; ++x )
 	{
-		int startY = (int)floor( m_minBounds.y / m_boxSize );
-		for( int y = startY; y < steps.y; ++y )
+		// { previous bottom (now top), new bottom layer }
+		int isoCacheLayers[2] = { (nextIsoCacheLayer + 1 ) % 2, nextIsoCacheLayer };
+		nextIsoCacheLayer = isoCacheLayers[0];
 		{
-			int startZ = (int)floor( m_minBounds.z / m_boxSize );
-			for( int z = startZ; z < steps.z; ++z )
+			CCP_STATS_ZONE( "Collect ISO values" );
+
+			int stepsYPP = stepsY + 1;
+			int stepsZPP = stepsZ + 1;
+			int stepsYZPP = stepsYPP * stepsZPP;
+
+			// Fill the cache. Both layers are filled in the first run.
+			for( int r = 0; r < 1 + firstRun; ++r )
 			{
-				Vector3 coordinate = Vector3( (float)x, (float)y, (float)z );
-				Cell cell = GetCellValues(coordinate );
+				int cacheBase = isoCacheLayers[1 - r] * stepsYZPP;
+				int xpp = x + 1 - r;
 
-				int nTriangles = 0;
-	            Triangle triangles[5];
-
-				Triangulate( cell, triangles, nTriangles );
-				for( int i = 0; i < nTriangles; ++i)
+				for( int y = 0; y < stepsYPP; ++y )
 				{
-					allTriangles.push_back( triangles[i] );
+					int cacheBaseY = cacheBase + y * stepsZPP;
+
+					for( int z = 0; z < stepsZPP; ++z )
+					{
+						Vector3 coordinate = Vector3( (float)xpp, (float)y, (float)z );
+						CellCorner &values = CellCorner();
+						GetCornerValues( coordinate, values);
+						cachedCornerValues[ cacheBaseY + z ] = values;
+					}
+				}
+			}	
+		} // CCP_STATS_ZONE
+
+		// Go over iso values and triangulate
+		{
+			CCP_STATS_ZONE( "Triangulate" );
+			for( int y = 0; y < stepsY; ++y )
+			{
+				for( int z = 0; z < stepsZ; ++z )
+				{
+					Cell cell;
+					unsigned int mask = 0;
+
+					// for each gridpoint
+					for( int i = 0; i < 8; ++i )
+					{
+						Vector3 cellCornerPos = Vector3((float)x, (float)y, (float)z) + s_vertexOffsetTable[ i ];
+						D3DXVec3Scale( &cell.position, &cellCornerPos, m_boxSize );
+						cell.position += m_minBounds;
+						// Sample iso value
+						int cacheBase = isoCacheLayers[ (int)s_vertexOffsetTable[ i ].x ] * (stepsY + 1) * (stepsZ + 1);
+						int cacheBaseY = cacheBase + (int)cellCornerPos.y * ( stepsZ + 1 );
+						float value = cachedCornerValues[ cacheBaseY + (int)cellCornerPos.z ].value;
+						Vector3 normal = cachedCornerValues[ cacheBaseY + (int)cellCornerPos.z ].normal;
+
+						cell.value[i] = value;
+						cell.normal[i] = normal;
+						if( value > m_isolevel )
+						{
+							mask |= 1 << i;
+						}
+					}
+					cell.mask = mask;
+				
+					int nTriangles = 0;
+					Triangle triangles[5];
+					Triangulate( cell, triangles, nTriangles );
+
+					for( int i = 0; i < nTriangles; ++i)
+					{
+						allTriangles.push_back( triangles[i] );
+					}
 				}
 			}
-		}
+		}// CCP_STATS_ZONE
+
+		// First run is over
+		firstRun = false;
 	}
 
 	// now we know the triangle count
@@ -394,44 +465,40 @@ void EveMetaball::UpdateBuffers()
 
 }
 
-EveMetaball::Cell EveMetaball::GetCellValues( Vector3 coordinate )
+// --------------------------------------------------------------------------------
+// Description:
+// --------------------------------------------------------------------------------
+void EveMetaball::GetCornerValues( Vector3 coordinate, CellCorner &values )
 {
-	Cell cell;
-	cell.mask = 0;
-	cell.position = coordinate * m_boxSize;
+	values.value = 0.0f;
+	values.normal = Vector3( 0.0f, 0.0f, 0.0f );
+
 	for( int p = 0; p < 8; ++p )
 	{
-		cell.value[p] = 0.0f;
-		cell.normal[p] = Vector3( 0.0f, 0.0f, 0.0f );
 		//Traverse all metball items
 		for( auto it = m_sourceItems.begin(); it != m_sourceItems.end(); ++it )
 		{
 			EveMetaballItemPtr item = (*it);
-			Vector3 position = cell.position + s_vertexOffsetTable[p] * m_boxSize;
-			Vector3 v = position - item->GetPosition();
+			values.position = ( coordinate + s_vertexOffsetTable[p] ) * m_boxSize + m_minBounds;
+			Vector3 v = values.position - item->GetPosition();
 			float radius = item->GetRadius();
 			float lengthSq = D3DXVec3LengthSq( &v );
 			float length = D3DXVec3Length( &v );
 
 			// normal
-			Vector3 normal;
-			D3DXVec3Scale( &normal, &v, radius * m_gooValue / lengthSq);
-			cell.normal[p] += normal;
+			Vector3 normalInfluence;
+			D3DXVec3Scale( &normalInfluence, &v, radius * m_gooValue / lengthSq);
+			values.normal += normalInfluence;
 			// iso value
-			//cell.value[p] += 1.0f / pointWeight;
-			cell.value[p] += pow( item->GetRadius() / length, m_gooValue );
-			// bitmask
-			if( cell.value[p] > m_isolevel )
-			{
-				cell.mask |= 1 << p;
-			}
-
+			values.value += pow( item->GetRadius() / length, m_gooValue );
 		}
-		D3DXVec3Normalize( &cell.normal[p], &cell.normal[p] );
+		D3DXVec3Normalize( &values.normal, &values.normal );
 	}
-	return cell;
 }
 
+// --------------------------------------------------------------------------------
+// Description:
+// --------------------------------------------------------------------------------
 void EveMetaball::Triangulate(Cell cell, Triangle *triangles, int &nTriangles)
 {
 	const int* edgesList = s_triTable[cell.mask];

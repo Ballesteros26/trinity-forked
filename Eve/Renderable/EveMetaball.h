@@ -67,6 +67,13 @@ public:
 	// update all the index and vertex buffers to the latest density field
 	void UpdateBuffers();
 
+	struct CellCorner
+	{
+		Vector3 position;
+		Vector3 normal;
+		float value;
+	};
+
 	struct Cell
 	{
 		unsigned int mask;
@@ -95,7 +102,7 @@ private:
 		Vector3 normal[3];
 	};
 
-	Cell GetCellValues( Vector3 postition );
+	void GetCornerValues( Vector3 coordinate, CellCorner &values );
 	void Triangulate( Cell cell, Triangle *triangles, int &nTriangles );
 
 	// general
