@@ -18,6 +18,9 @@ ClCompile:
   TreatWarningAsError: true
   BufferSecurityCheck: false
   EnableEnhancedInstructionSet: StreamingSIMDExtensions2
+  PrecompiledHeader: Use
+  PrecompiledHeaderFile: StdAfx.h
+  PrecompiledHeaderOutputFile: $(IntDir)trinityal.pch
   AdditionalIncludeDirectories:
   - ..
   PreprocessorDefinitions:

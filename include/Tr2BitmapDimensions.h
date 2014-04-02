@@ -19,6 +19,13 @@ struct Tr2BitmapDimensions
 						 uint32_t mipCount = 0,
 						 Tr2RenderContextEnum::PixelFormat format = Tr2RenderContextEnum::PIXEL_FORMAT_UNKNOWN );
 
+	Tr2BitmapDimensions( Tr2RenderContextEnum::TextureType type,
+						 Tr2RenderContextEnum::PixelFormat format,
+						 uint32_t width,
+						 uint32_t height,
+						 uint32_t depth,
+						 uint32_t mipCount );
+
 	uint32_t GetWidth() const;
 	uint32_t GetHeight() const;
 	uint32_t GetDepth() const;
@@ -66,6 +73,22 @@ inline Tr2BitmapDimensions::Tr2BitmapDimensions(
 	m_volumeDepth( 0 ),
 	m_mipCount( mipCount ),
 	m_type( Tr2RenderContextEnum::TEX_TYPE_INVALID ),
+	m_format( format )
+{
+}
+
+inline Tr2BitmapDimensions::Tr2BitmapDimensions( 
+	Tr2RenderContextEnum::TextureType type,
+	Tr2RenderContextEnum::PixelFormat format,
+	uint32_t width,
+	uint32_t height,
+	uint32_t depth,
+	uint32_t mipCount )
+:	m_width( width ),
+	m_height( height ),
+	m_volumeDepth( depth ),
+	m_mipCount( mipCount ),
+	m_type( type ),
 	m_format( format )
 {
 }

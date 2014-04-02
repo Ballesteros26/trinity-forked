@@ -4,6 +4,7 @@
 
 #include "Tr2RenderContextEnum.h"
 #include "include/Tr2BitmapDimensions.h"
+#include "include/Tr2CubemapFace.h"
 
 // -------------------------------------------------------------
 // Description:

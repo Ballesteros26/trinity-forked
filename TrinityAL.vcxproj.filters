@@ -284,6 +284,9 @@
     <ClInclude Include="include\Tr2BitmapDimensions.h">
       <Filter>Source Files\include</Filter>
     </ClInclude>
+    <ClInclude Include="include\Tr2CubemapFace.h">
+      <Filter>Source Files\include</Filter>
+    </ClInclude>
     <ClInclude Include="include\Tr2PixelFormat.h">
       <Filter>Source Files\include</Filter>
     </ClInclude>
