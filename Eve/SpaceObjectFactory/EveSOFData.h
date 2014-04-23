@@ -264,6 +264,7 @@ public:
 	// geometry
 	std::string m_geometryResFilePath;
 	Vector4 m_boundingSphere;
+	bool m_isSkinned;
 
 	// materials
 	PEveSOFDataHullAreaVector m_opaqueAreas;

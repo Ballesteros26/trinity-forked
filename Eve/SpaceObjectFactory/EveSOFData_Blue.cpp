@@ -237,6 +237,7 @@ const Be::ClassInfo* EveSOFDataHull::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "geometryResFilePath", m_geometryResFilePath, "The res file path to the gr2 file", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "boundingSphere", m_boundingSphere, "The actual size of the gemoetry", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "isSkinned", m_isSkinned, "Does this hull need skinned shaders?", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "opaqueAreas", m_opaqueAreas, "The opaque areas on this mesh", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "transparentAreas", m_transparentAreas, "The transparent areas on this mesh", Be::READWRITE | Be::PERSIST )

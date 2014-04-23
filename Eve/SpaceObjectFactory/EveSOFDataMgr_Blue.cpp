@@ -13,7 +13,8 @@ const Be::ClassInfo* EveSOFDataMgr::ExposeToBlue()
     EXPOSURE_BEGIN( EveSOFDataMgr, "" )
         MAP_INTERFACE( EveSOFDataMgr )
 
-		MAP_METHOD_AND_WRAP( "LoadData", LoadData, "Inject all the data into this mgr" )
+		MAP_METHOD_AND_WRAP( "LoadData", LoadData, "Inject all the data into this mgr, providing a redfile path" )
+//		MAP_METHOD_AND_WRAP( "SetData", SetData, "Inject all the data into this mgr, providing a blue object" )
 
 		MAP_METHOD_AND_WRAP( "HasFactionData", HasFactionData, "Does this faction exist?" )
 		MAP_METHOD_AND_WRAP( "HasHullData", HasHullData, "Does this hull exist?" )

@@ -78,7 +78,8 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 	PARENTLOCK( m_distortionAreas ),
 	PARENTLOCK( m_locatorTurrets ),
 	PARENTLOCK( m_locatorAudio ),
-	m_boundingSphere( 0.f, 0.f, 0.f, 0.f )
+	m_boundingSphere( 0.f, 0.f, 0.f, 0.f ),
+	m_isSkinned( false )
 {}
 
 

@@ -121,6 +121,7 @@ public:
 	{
 		std::string geometryResFilePath;
 		Vector4 boundingSphere;
+		bool isSkinned;
 		std::vector<HullSpriteSetData> spriteSets;
 		std::vector<HullSpotlightSetData> spotlightSets;
 		std::vector<HullPlaneSetData> planeSets;
@@ -179,6 +180,7 @@ public:
 
 	// loading all the data
 	bool LoadData( const char* filePath );
+	bool SetData( IRootPtr dbData );
 
 	// access to hull data
 	bool HasHullData( const char* hullName ) const;

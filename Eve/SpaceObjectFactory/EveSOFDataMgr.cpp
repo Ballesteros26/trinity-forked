@@ -98,6 +98,14 @@ const EveSOFDataMgr::RaceData* EveSOFDataMgr::GetRaceData( const char* raceName 
 
 // --------------------------------------------------------------------------------
 // Description:
+// --------------------------------------------------------------------------------
+bool EveSOFDataMgr::SetData( IRootPtr dbData )
+{
+	return true;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Here we load this blue object, read data from it to store it in this class
 //   internally and then release the blue object
 // --------------------------------------------------------------------------------
@@ -198,6 +206,7 @@ bool EveSOFDataMgr::LoadHullData( EveSOFDataPtr srcData )
 		HullData hd;
 		hd.geometryResFilePath = hullData->m_geometryResFilePath;
 		hd.boundingSphere = hullData->m_boundingSphere;
+		hd.isSkinned = hullData->m_isSkinned;
 
 		// boosters
 		if( hullData->m_booster )

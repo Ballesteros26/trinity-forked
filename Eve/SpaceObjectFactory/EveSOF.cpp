@@ -25,13 +25,18 @@
 EveSOF::EveSOF( IRoot* lockobj ) :
 	PARENTLOCK( m_dataMgr )
 {
-	// some shaders here
+	// some shared shaders here
 	m_spriteSetEffect.CreateInstance();
 	m_spriteSetEffect->SetEffectPathName( "res:/graphics/effect/managed/space/spaceobject/fx/blinkinglights.fx" );
 	m_spriteSetEffect->AddResourceTexture2D( "GradientMap", "res:/texture/particle/whitesharp_gradient.dds" );
 	m_spriteSetEffectSkinned.CreateInstance();
 	m_spriteSetEffectSkinned->SetEffectPathName( "res:/graphics/effect/managed/space/spaceobject/fx/skinned_blinkinglights.fx" );
 	m_spriteSetEffectSkinned->AddResourceTexture2D( "GradientMap", "res:/texture/particle/whitesharp_gradient.dds" );
+
+	m_shadowEffect.CreateInstance();
+	m_shadowEffect->SetEffectPathName( "res:/graphics/effect/managed/space/spaceobject/shadow/shadow.fx" );
+	m_shadowEffectSkinned.CreateInstance();
+	m_shadowEffectSkinned->SetEffectPathName( "res:/graphics/effect/managed/space/spaceobject/shadow/skinned_shadow.fx" );
 }
 
 // --------------------------------------------------------------------------------
@@ -153,6 +158,16 @@ void EveSOF::SetupGeometry( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hul
 
 	// beoundingsphere comes from data, is faster
 	ship->SetBoundingSphereInformation( &hullData->boundingSphere );
+
+	// shadow
+	if( hullData->isSkinned )
+	{
+		ship->SetShadowEffect( m_shadowEffectSkinned );
+	}
+	else
+	{
+		ship->SetShadowEffect( m_shadowEffect );
+	}
 }
 
 // --------------------------------------------------------------------------------

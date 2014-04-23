@@ -58,8 +58,9 @@ private:
 	// all the source data
 	PEveSOFDataMgr m_dataMgr;
 
-	Tr2EffectPtr m_spriteSetEffect;
-	Tr2EffectPtr m_spriteSetEffectSkinned;
+	// shared
+	Tr2EffectPtr m_spriteSetEffect, m_spriteSetEffectSkinned;
+	Tr2EffectPtr m_shadowEffect, m_shadowEffectSkinned;
 };
 
 TYPEDEF_BLUECLASS( EveSOF );
