@@ -11,6 +11,8 @@
 #include "ITr2GeometryProvider.h"
 #include "Eve/IEveSpaceObject2.h"
 #include "EveMetaballItem.h"
+#include "Tr2Renderer.h"
+#include "Tr2PersistentPerObjectData.h"
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -41,6 +43,13 @@ public:
 	void GetCurrentModelCenterWorldPosition( Vector3 &position ) {}
 	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max ) { return false; }
 	void GetLocalToWorldTransform( Matrix &transform ) { D3DXMatrixIdentity( &transform ); }
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// per-object data
+	Tr2PersistentPerObjectData<EveMetaball> m_perObjectDataVs;
+	Tr2PersistentPerObjectData<EveMetaball> m_perObjectDataPs;
+	uint32_t GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const;
+	void UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* );
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// ITr2GeometryProvider
@@ -126,8 +135,9 @@ private:
 	// metaball data
 	unsigned int m_triangleCount;
 
-	// shader
-	ITr2ShaderMaterialPtr m_effect;
+	// shaders
+	ITr2ShaderMaterialPtr m_distortionEffect;
+	ITr2ShaderMaterialPtr m_additiveEffect;
 
 	// resulting transform
 	Matrix m_worldTransform;

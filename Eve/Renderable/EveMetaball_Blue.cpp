@@ -24,7 +24,8 @@ const Be::ClassInfo* EveMetaball::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "triangleCount", m_triangleCount, "Used for culling", Be::READ )
 
-		MAP_ATTRIBUTE( "effect", m_effect, "Shader used for the rendering the surface of this metaball", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "additiveEffect", m_additiveEffect, "Shader used for the rendering the surface of this metaball", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "distortionEffect", m_distortionEffect, "Shader used for the rendering the surface of this metaball", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "sourceItems", m_sourceItems, "all the spheres", Be::READWRITE | Be::PERSIST )
 

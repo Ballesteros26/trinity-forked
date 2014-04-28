@@ -16,6 +16,7 @@
 #include "Eve/EveTransform.h"
 #include "Eve/Renderable/EveMetaballItem.h"
 #include "Eve/Renderable/EveMetaballTables.h"
+#include "Eve/SpaceObject/EveSpaceObject2.h"
 
 using namespace Tr2RenderContextEnum;
 
@@ -71,6 +72,8 @@ void EveMetaball::UpdateSyncronous( EveUpdateContext& updateContext )
 // --------------------------------------------------------------------------------
 void EveMetaball::UpdateAsyncronous( EveUpdateContext& updateContext )
 {
+	m_perObjectDataVs.InvalidateBufferData();
+	m_perObjectDataPs.InvalidateBufferData();
 }
 
 // --------------------------------------------------------------------------------
@@ -83,10 +86,7 @@ void EveMetaball::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Ren
 	{
 		return;
 	}
-	if( !m_effect )
-	{
-		return;
-	}
+
 	if( m_sourceItems.empty() )
 	{
 		return;
@@ -302,28 +302,33 @@ void EveMetaball::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType 
 	{
 		return;
 	}
-	if( !m_effect )
-	{
-		return;
-	}
+
 	if( m_sourceItems.empty() )
 	{
 		return;
 	}
 
-	// only opaque for now
-	if( batchType != TRIBATCHTYPE_OPAQUE )
+	if( batchType == TRIBATCHTYPE_ADDITIVE && m_additiveEffect )
 	{
-		return;
+		TriForwardingBatch* batch = batches->Allocate<TriForwardingBatch>();
+		if( batch )
+		{
+			batch->SetPerObjectData( perObjectData );
+			batch->SetShaderMaterial( m_additiveEffect );
+			batch->SetGeometryProvider( this );
+			batches->Commit( batch );
+		}
 	}
-
-	TriForwardingBatch* batch = batches->Allocate<TriForwardingBatch>();
-	if( batch )
+	if( batchType == TRIBATCHTYPE_DISTORTION && m_distortionEffect )
 	{
-		batch->SetPerObjectData( perObjectData );
-		batch->SetShaderMaterial( m_effect );
-		batch->SetGeometryProvider( this );
-		batches->Commit( batch );
+		TriForwardingBatch* batch = batches->Allocate<TriForwardingBatch>();
+		if( batch )
+		{
+			batch->SetPerObjectData( perObjectData );
+			batch->SetShaderMaterial( m_distortionEffect );
+			batch->SetGeometryProvider( this );
+			batches->Commit( batch );
+		}
 	}
 }
 
@@ -348,18 +353,44 @@ float EveMetaball::GetSortValue()
 // --------------------------------------------------------------------------------
 Tr2PerObjectData* EveMetaball::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )
 {
-	EveBasicPerObjectData* data = accumulator->Allocate<EveBasicPerObjectData>();
+	Tr2PerObjectDataWithPersistentBuffers<EveMetaball>* data = accumulator->Allocate<Tr2PerObjectDataWithPersistentBuffers<EveMetaball>>();
 
 	if( !data )
 	{
 		return nullptr;
 	}
 
-	// only two matrices for this one
-	D3DXMatrixTranspose( &data->m_world, &m_worldTransform );
-	D3DXMatrixInverse( &data->m_worldInverseTranspose, NULL, &m_worldTransform );
+	data->Initialize( this, &m_perObjectDataVs, &m_perObjectDataPs );
 
 	return data;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+// --------------------------------------------------------------------------------
+uint32_t EveMetaball::GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const
+{
+	if( shaderType == Tr2RenderContextEnum::PIXEL_SHADER )
+	{
+		return 16;
+	}
+	else
+	{
+		return
+			64 +				// m_vsWorldMatrix
+			16;				// m_vsSpaceObjectData
+	}
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+// --------------------------------------------------------------------------------
+void EveMetaball::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* data )
+{
+	if( shaderType == Tr2RenderContextEnum::VERTEX_SHADER)
+	{
+		D3DXMatrixTranspose( reinterpret_cast<Matrix*>( data ), &m_worldTransform );
+	}
 }
 
 // -------------------------------------------------------------
