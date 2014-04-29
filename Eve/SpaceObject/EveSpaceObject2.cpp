@@ -26,6 +26,7 @@
 #include "Eve/EveUpdateContext.h"
 #include "Eve/EveAnimationSequencer.h"
 #include "Tr2Effect.h"
+#include "Utils/EveCustomMask.h"
 
 #include <limits>
 
@@ -112,7 +113,6 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_animationSequencer.CreateInstance();
 	m_animationUpdater.CreateInstance();
 	m_persistedDamageLocators.SetStructureDefinition( EveDamageLocatorStructureDef );
-
 }
 
 EveSpaceObject2::~EveSpaceObject2()
@@ -344,6 +344,15 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 
 void EveSpaceObject2::RenderDebugInfo( Tr2RenderContext& renderContext )
 {
+	// debug info of custom maps stops all other debug info.
+	if( m_customMask )
+	{
+		Matrix customMaskTransform;
+		m_customMask->GetDebugDrawMatrix( &customMaskTransform, GetBoundingSphereRadius() );
+		Tr2Renderer::DrawOrientedBox( customMaskTransform, 0xff00ffff );
+		return;
+	}
+
 	if( m_debugShowBoundingBox )
 	{
 		Vector3 minBounds( -0.5f, -0.5f, -0.5f );
@@ -884,9 +893,12 @@ uint32_t EveSpaceObject2::GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType
 {
 	if( shaderType == Tr2RenderContextEnum::PIXEL_SHADER )
 	{
-
-		return 16 + 
-			m_psPointLightCount * sizeof( EveSpaceSceneLightMgr::PointLightData );	// m_psPointLights
+		uint32_t sz = 16; // m_spaceObjectData
+		if( m_customMask )
+		{
+			sz += 64 + 16;  // customMask data is optional for now
+		}
+		return sz;
 	}
 	else
 	{
@@ -910,24 +922,18 @@ void EveSpaceObject2::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType sh
 
 	if( shaderType == Tr2RenderContextEnum::PIXEL_SHADER )
 	{
-		memcpy( data, &m_spaceObjectData, sizeof( Vector4 ) );
+		uint8_t* perObjectPS = (uint8_t*)data;
 
-		if( m_lightManager && m_psPointLightCount )
+		memcpy( perObjectPS, &m_spaceObjectData, sizeof( Vector4 ) );
+		perObjectPS += sizeof( Vector4 );
+
+		if( m_customMask )
 		{
-			uint32_t pointLightCount = 0;
-			auto pointLights = reinterpret_cast<EveSpaceSceneLightMgr::PointLightData*>( static_cast<uint8_t*>( data ) + sizeof( Vector4 ) );
-			for( unsigned int i = 0; i < m_lightManager->GetStaticPointlightCount(); ++i )
-			{
-				const EveSpaceScenePointLightPtr pointLight = m_lightManager->GetStaticPointlight( i );
-				if( pointLight && pointLight->IsDisplay() )
-				{
-					// put data in perobject data buffers
-					EveSpaceSceneLightMgr::PointLightData& data = pointLights[pointLightCount++];
-					data.m_position = pointLight->GetPosition();
-					data.m_radius = pointLight->GetOuterRadius();
-					data.m_color = pointLight->GetColor();
-				}
-			}
+			m_customMask->GetInvCustomMaskTransform( (Matrix*)perObjectPS );
+			perObjectPS += sizeof( Matrix );
+
+			m_customMask->GetExtendedData( (Vector4*)perObjectPS );
+			perObjectPS += sizeof( Vector4 );
 		}
 	}
 	else

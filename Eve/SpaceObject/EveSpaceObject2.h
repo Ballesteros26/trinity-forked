@@ -41,6 +41,7 @@ BLUE_DECLARE( EvePlaneSet );
 BLUE_DECLARE_VECTOR( EvePlaneSet );
 BLUE_DECLARE( Tr2GrannyAnimation );
 BLUE_DECLARE( EveTransform );
+BLUE_DECLARE( EveCustomMask );
 
 BLUE_DECLARE( TriCurveSet );
 BLUE_DECLARE_VECTOR( TriCurveSet );
@@ -402,6 +403,11 @@ protected:
 	PIEveTransformVector m_children;
 	bool m_displayChildren;
 	virtual bool DisplayChildren() const;
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// custom masks
+	EveCustomMaskPtr m_customMask;
+
 
 	Be::Time m_lastCurveUpdateTime;
 	// Children transforms
