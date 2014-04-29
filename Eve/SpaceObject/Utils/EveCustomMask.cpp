@@ -15,7 +15,9 @@ EveCustomMask::EveCustomMask( IRoot* lockobj ) :
 	m_position( 0.f, 0.f, 0.f ),
 	m_scaling( 1.f, 1.f, 1.f ),
 	m_rotation( 0.f, 0.f, 0.f, 1.f ),
-	m_isMirrored( false )
+	m_isMirrored( false ),
+	m_isForMaskMap( false ),
+	m_isForSubmaskMap( false )
 {
 }
 
@@ -59,7 +61,11 @@ void EveCustomMask::GetInvCustomMaskTransform( Matrix* matrix ) const
 void EveCustomMask::GetExtendedData( Vector4* data ) const
 {
 	// some additional features
-	*data = Vector4( m_isMirrored ? 1.f : 0.f, 0.f, 0.f, 0.f );
+	*data = Vector4(
+		m_isMirrored ? 1.f : 0.f,
+		m_isForMaskMap ? 1.f : 0.f,
+		m_isForSubmaskMap ? 1.f : 0.f,
+		0.f );
 }
 
 
