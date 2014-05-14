@@ -63,17 +63,8 @@ void TriCurveSet::Update( double time )
 		{
 			m_scaledTime = m_endTime - m_startTime - 0.001f;
 			m_stopOnNextFrame = true;
-
-			if( m_callback )
-			{
-				m_callback.CallVoid();
-				m_callback.Destroy();
-			}
 		}
-	}
 
-	if( m_isPlaying )
-	{
 		for( ITriFunctionVector::const_iterator it = m_curves.begin(); it != m_curves.end(); ++it )
 		{
 			(*it)->UpdateValue( m_scaledTime );
@@ -87,6 +78,11 @@ void TriCurveSet::Update( double time )
 
 	if( m_stopOnNextFrame )
 	{
+		if( m_callback )
+		{
+			m_callback.CallVoid();
+			m_callback.Destroy();
+		}
 		m_isPlaying = false;
 		m_stopOnNextFrame = false;
 	}
