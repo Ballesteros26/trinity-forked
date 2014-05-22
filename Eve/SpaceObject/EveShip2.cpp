@@ -162,7 +162,7 @@ void EveShip2::RebuildBoosterSet()
 		if( strncmp( locatorName, kLocatorPrefix, kLocatorPrefixLength ) == 0 )
 		{
 			Vector4 functionality( 0.f, 1.f, 1.f, 1.f );
-			m_boosters->Add( &locator->GetTransform(), &functionality );
+			m_boosters->Add( &locator->GetTransform(), &functionality, true );
 		}
 	}
 

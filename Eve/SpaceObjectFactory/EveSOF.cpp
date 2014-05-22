@@ -585,7 +585,7 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hul
 	// add all the indiviual items
 	for( auto biit = hdata->items.begin(); biit != hdata->items.end(); ++biit )
 	{
-		set->Add( &biit->transform, &biit->functionality );
+		set->Add( &biit->transform, &biit->functionality, biit->hasTrail );
 	}
 
 	// add it to ship

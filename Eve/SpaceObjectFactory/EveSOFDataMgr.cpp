@@ -234,6 +234,7 @@ bool EveSOFDataMgr::LoadHullData( EveSOFDataPtr srcData )
 				HullBoosterItemData hbid;
 				hbid.transform = boosterItemData->m_transform;
 				hbid.functionality = boosterItemData->m_functionality;
+				hbid.hasTrail = boosterItemData->m_hasTrail;
 
 				hbd.items.push_back( hbid );
 			}

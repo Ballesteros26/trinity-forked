@@ -186,6 +186,7 @@ const Be::ClassInfo* EveSOFDataHullBoosterItem::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "transform", m_transform, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "functionality", m_functionality, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "hasTrail", m_hasTrail, "", Be::READWRITE | Be::PERSIST )
     EXPOSURE_END()
 }
 

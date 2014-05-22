@@ -172,6 +172,7 @@ public:
 	// per-hull data of a booster
 	Matrix m_transform;
 	Vector4 m_functionality;
+	bool m_hasTrail;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullBoosterItem );
 BLUE_DECLARE_VECTOR( EveSOFDataHullBoosterItem );

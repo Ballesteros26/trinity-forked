@@ -189,7 +189,8 @@ EveSOFDataHullBooster::EveSOFDataHullBooster( IRoot* lockobj ) :
 
 
 EveSOFDataHullBoosterItem::EveSOFDataHullBoosterItem( IRoot* lockobj ) :
-	m_functionality( 0.f, 1.f, 1.f, 1.f )
+	m_functionality( 0.f, 1.f, 1.f, 1.f ),
+	m_hasTrail( true )
 {
 	D3DXMatrixIdentity( &m_transform );
 }

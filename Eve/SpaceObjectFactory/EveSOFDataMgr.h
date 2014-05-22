@@ -40,6 +40,7 @@ public:
 	{
 		Matrix transform;
 		Vector4 functionality;
+		bool hasTrail;
 	};
 
 	struct HullBoosterData

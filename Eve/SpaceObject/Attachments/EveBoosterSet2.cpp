@@ -349,12 +349,13 @@ void EveBoosterSet2::Clear()
 //   lensflares handled in the EveSpriteSet.
 //   Also add a trail and keep track of the biggest size
 // Arguments:
-//   localMatrix - position/orientation of single turret in object-space
+//   localMatrix - position/orientation of booster in object-space
 //   parentLocatorName - name of the ship's locator this new booster belongs to
+//   hasTrail - does this new booster have a trail?
 // SeeAlso:
 //   EveSpriteSet
 // --------------------------------------------------------------------------------
-void EveBoosterSet2::Add( const Matrix* localMatrix, const Vector4* functionality )
+void EveBoosterSet2::Add( const Matrix* localMatrix, const Vector4* functionality, bool hasTrail )
 {
 	// keep it in our list of boosters
 	SingleBoosterData sbd;
@@ -383,7 +384,10 @@ void EveBoosterSet2::Add( const Matrix* localMatrix, const Vector4* functionalit
 	// also add it to the trails
 	if( m_trails )
 	{
-		m_trails->Add( localMatrix, scale );
+		if( hasTrail )
+		{
+			m_trails->Add( localMatrix, scale );
+		}
 	}
 
 

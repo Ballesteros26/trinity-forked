@@ -142,7 +142,7 @@ public:
 	void UpdateTrails( float deltaT, Be::Time t );
 	// manage individual exhaust points
 	void Clear();
-	void Add( const Matrix* localMatrix, const Vector4* functionality );
+	void Add( const Matrix* localMatrix, const Vector4* functionality, bool hasTrail );
 	// set internal visual data
 	void SetData( float glowScale, const Color* glowColor, float symHaloScale, float haloScaleX, float haloScaleY, const Color* haloColor, bool alwaysOn );
 	void SetEffect( Tr2EffectPtr effect );
