@@ -70,6 +70,7 @@ private:
 	bool m_playOnLoad;
 	bool m_useSimTimeRebase;
 	bool m_isUsingSimTimeRebase;
+	bool m_useRealTime;
 
 	double m_startTime;
 	double m_lastTime;

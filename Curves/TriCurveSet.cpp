@@ -13,6 +13,7 @@ TriCurveSet::TriCurveSet( IRoot* lockobj ) :
 	m_playOnLoad( true ),
 	m_useSimTimeRebase( false ),
 	m_isUsingSimTimeRebase( false ),
+	m_useRealTime( false ),
 	m_startTime( 0.0 ),
 	m_lastTime( 0.0 ),
 	m_endTime( 0.0 ),
@@ -31,7 +32,17 @@ TriCurveSet::~TriCurveSet()
 
 void TriCurveSet::Update(  Be::Time realTime, Be::Time simTime  )
 {
-	Update(TimeAsDouble( simTime ));
+	double time;
+	if( m_useRealTime )
+	{
+		time = TimeAsDouble( realTime );
+	}
+	else
+	{
+		time = TimeAsDouble( simTime );
+	}
+
+	Update( time );
 }
 
 
@@ -50,8 +61,21 @@ void TriCurveSet::Update( double time )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
+	if( m_endTime < 0.0 )
+	{
+		// StopAfter sets m_endTime to the negative value. Subtracting it here
+		// really means adding the absolute value.
+		m_endTime = time - m_endTime;
+	}
+
 	if( m_isPlaying )
 	{
+		if( m_startTime < 0.0 )
+		{
+			// Negative start time means it hasn't been set - set it to the current time.
+			m_startTime = time;
+		}
+
 		double now = time - m_startTime;
 		double delta = now - m_lastTime;
 		m_lastTime = now;
@@ -110,7 +134,7 @@ void TriCurveSet::Play()
 
 void TriCurveSet::PlayFrom( double time )
 {
-	m_startTime = TimeAsDouble( BeOS->GetCurrentFrameTime() );
+	m_startTime = -1.0;
 	m_endTime = 0.0;
 	m_isPlaying = true;
 	m_lastTime = 0.0;
@@ -131,7 +155,7 @@ void TriCurveSet::StopOnNextFrame()
 
 void TriCurveSet::StopAfter( double seconds )
 {
-	m_endTime = TimeAsDouble( BeOS->GetCurrentFrameTime() ) + seconds;
+	m_endTime = -seconds;
 }
 
 void TriCurveSet::StopAfterWithCallback( double seconds, const BlueScriptCallback& cb )

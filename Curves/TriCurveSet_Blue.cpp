@@ -76,6 +76,14 @@ const Be::ClassInfo* TriCurveSet::ExposeToBlue()
 			"Should internal time be rebased when sim time is rebased. Will only work if loaded with this attribute set.",
 			Be::READWRITE | Be::NOTIFY | Be::PERSIST
 		)
+		MAP_ATTRIBUTE
+		(
+			"useRealTime",
+			m_useRealTime,
+			"If set, curves are updated based on real time, rather than sim time (the default). This means\n"
+			"they will not be affected by time dilation and should generally only be used for UI animations.",
+			Be::READWRITE | Be::PERSIST
+		)
 
 		MAP_METHOD_AND_WRAP
 		(
