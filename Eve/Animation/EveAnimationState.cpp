@@ -1,11 +1,11 @@
 #include "StdAfx.h"
 #include "EveAnimationState.h"
-#include "SpaceObject/EveSpaceObject2.h"
-#include "SpaceObject/EveMobile.h"
-#include "SpaceObject/EveShip2.h"
-#include "../Curves/TriCurveSet.h"
-#include "../Tr2GrannyAnimation.h"
-#include "../Tr2Renderer.h"
+#include "Eve/SpaceObject/EveSpaceObject2.h"
+#include "Eve/SpaceObject/EveMobile.h"
+#include "Eve/SpaceObject/EveShip2.h"
+#include "Curves/TriCurveSet.h"
+#include "Tr2GrannyAnimation.h"
+#include "Tr2Renderer.h"
 
 // --------------------------------------------------------------------------------
 // Description:

@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "EveAnimationSequencer.h"
 #include "EveAnimationState.h"
-#include "SpaceObject/EveSpaceObject2.h"
+#include "Eve/SpaceObject/EveSpaceObject2.h"
 
 BLUE_DEFINE( EveAnimationStateSequencer );
 

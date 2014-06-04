@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "EveAnimationState.h"
-#include "SpaceObject/EveSpaceObject2.h"
+#include "Eve/SpaceObject/EveSpaceObject2.h"
 
 const Be::VarChooser EveAnimationProgressChooser[] =
 {
