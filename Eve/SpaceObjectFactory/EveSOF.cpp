@@ -19,6 +19,7 @@
 #include "EffectParameter/TriTexture2DParameter.h"
 #include "EffectParameter/Tr2Vector4Parameter.h"
 #include "EffectParameter/Tr2FloatParameter.h"
+#include "include/ITriFunction.h"
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -135,7 +136,10 @@ IRootPtr EveSOF::Build( const char* hullName, const char* factionName, const cha
 	SetupBoosters( newShip, hullData, raceData );
 
 	// children
-	SetupChildren( newShip, hullData, raceData );
+	SetupChildren( newShip, hullData );
+
+	// model curves
+	SetupModelCurves( newShip, hullData );
 
 	// ships needs a final ::Initialize call
 	newShip->Initialize();
@@ -542,9 +546,52 @@ void EveSOF::SetupPlaneSets( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hu
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Load Model Curves
+// --------------------------------------------------------------------------------
+void EveSOF::SetupModelCurves( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData ) const
+{
+	// Model rotation curve
+	IRootPtr p1;
+	IRoot* tmp1 = BeResMan->LoadObject( hullData->modelRotationCurvePath.c_str() );
+	if( !tmp1 )
+	{
+		CCP_LOGERR( "resource file %s is invalid!", hullData->modelRotationCurvePath.c_str() );
+		return;
+	}
+	p1.Attach( tmp1 );
+
+	ITriQuaternionFunctionPtr rotationCurve;
+	if( !p1->QueryInterface( BlueInterfaceIID<ITriQuaternionFunction>(), (void**)&rotationCurve ) )
+	{
+		CCP_LOGERR( "resource file %s is not of correct type!", hullData->modelRotationCurvePath.c_str() );
+		return;
+	}
+	ship->SetModelRotationCurve( rotationCurve );
+
+	// Model translation curve
+	IRootPtr p2;
+	IRoot* tmp2 = BeResMan->LoadObject( hullData->modelTranslationCurvePath.c_str() );
+	if( !tmp2 )
+	{
+		CCP_LOGERR( "resource file %s is invalid!", hullData->modelTranslationCurvePath.c_str() );
+		return;
+	}
+	p2.Attach( tmp2 );
+
+	ITriVectorFunctionPtr translationCurve;
+	if( !p2->QueryInterface( BlueInterfaceIID<ITriVectorFunction>(), (void**)&translationCurve ) )
+	{
+		CCP_LOGERR( "resource file %s is not of correct type!", hullData->modelTranslationCurvePath.c_str() );
+		return;
+	}
+	ship->SetModelTranslationCurve( translationCurve );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Add Children to the ship
 // --------------------------------------------------------------------------------
-void EveSOF::SetupChildren( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::RaceData* raceData ) const
+void EveSOF::SetupChildren( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData ) const
 {
 	for( auto chit = hullData->children.begin(); chit != hullData->children.end(); ++chit )
 	{

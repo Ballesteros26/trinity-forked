@@ -311,6 +311,10 @@ public:
 
 	// children
 	PEveSOFDataHullChildVector m_children;
+
+	// model curves
+	std::string m_modelRotationCurvePath;
+	std::string m_modelTranslationCurvePath;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHull );
 BLUE_DECLARE_VECTOR( EveSOFDataHull );

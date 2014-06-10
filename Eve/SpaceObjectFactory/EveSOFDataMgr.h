@@ -146,6 +146,8 @@ public:
 		std::vector<LocatorData> locatorTurrets;
 		std::vector<LocatorData> locatorAudio;
 		std::vector<HullChild> children;
+		std::string modelRotationCurvePath;
+		std::string modelTranslationCurvePath;
 	};
 
 	// faction data structs

@@ -231,6 +231,10 @@ public:
 	// access to children
 	void AddToChildrenList( EveTransformPtr transform );
 
+	// access to curves
+	void SetModelRotationCurve( ITriQuaternionFunctionPtr rotationCurve );
+	void SetModelTranslationCurve( ITriVectorFunctionPtr translationCurve );
+
 	uint32_t GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const;
 	void UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* );
 

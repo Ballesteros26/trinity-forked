@@ -413,6 +413,10 @@ bool EveSOFDataMgr::LoadHullData( EveSOFDataPtr srcData )
 			hd.children.push_back( hc );
 		}
 
+		// model curves
+		hd.modelRotationCurvePath = hullData->m_modelRotationCurvePath;
+		hd.modelTranslationCurvePath = hullData->m_modelTranslationCurvePath;
+
 		m_hullData[(*it)->m_name] = hd;
 	}
 

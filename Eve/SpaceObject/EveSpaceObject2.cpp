@@ -2023,6 +2023,23 @@ void EveSpaceObject2::AddToChildrenList( EveTransformPtr transform )
 	m_children.Append( transform->GetRawRoot() );
 }
 
+// --------------------------------------------------------------------------------
+// Description:
+//   Add a model rotation curve
+// --------------------------------------------------------------------------------
+void EveSpaceObject2::SetModelRotationCurve( ITriQuaternionFunctionPtr rotationCurve )
+{
+	m_modelRotation = rotationCurve;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Add a model translation curve
+// --------------------------------------------------------------------------------
+void EveSpaceObject2::SetModelTranslationCurve( ITriVectorFunctionPtr translationCurve )
+{
+	m_modelTranslation = translationCurve;
+}
 
 //GPU ship explosion test
 unsigned EveSpaceObject2::GetDamageLocatorCount() const 
