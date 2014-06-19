@@ -131,6 +131,25 @@ public:
 		Vector3 scaling;
 	};
 
+	struct HullAnimation
+	{
+		std::string name;
+
+		float startRotationTime;
+		float endRotationTime;
+		Quaternion startRotationValue;
+		Quaternion endRotationValue;
+
+		float startTranslationTime;
+		float endTranslationTime;
+		Vector3 startTranslationValue;
+		Vector3 endTranslationValue;
+
+		float startRate;
+		float endRate;
+		int id;
+	};
+
 	struct HullData
 	{
 		std::string geometryResFilePath;
@@ -149,6 +168,7 @@ public:
 		std::vector<LocatorData> locatorTurrets;
 		std::vector<LocatorData> locatorAudio;
 		std::vector<HullChild> children;
+		std::vector<HullAnimation> animations;
 		std::string modelRotationCurvePath;
 		std::string modelTranslationCurvePath;
 	};

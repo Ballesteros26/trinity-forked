@@ -8,7 +8,7 @@
 BLUE_DECLARE( TriValueBinding );
 BLUE_DECLARE_VECTOR( TriValueBinding );
 
-class TriValueBinding:
+BLUE_CLASS( TriValueBinding ):
 	 public INotify,
 	 public ITr2ValueBinding
 {
@@ -17,6 +17,8 @@ public:
 
     TriValueBinding( IRoot* lockobj = NULL );
 	~TriValueBinding();
+
+	void Initialize();
 
 	void RerouteDestination( void* dest );
 
@@ -34,6 +36,9 @@ public:
 	{
 		return m_destinationAttribute;
 	}
+
+	void SetSource( const std::string& sourceAttribute, IRootPtr sourceObject );
+	void SetDestination( const std::string& destAttribute, IRootPtr destination );
 
 private:
 	std::string m_name;
@@ -62,9 +67,6 @@ private:
 	CopyFunc m_copyFunc;
 
 	BlueScriptCallback m_copyValueCallable;
-
-private:
-	void Initialize();
 
 	size_t DetermineCopyFunc( const Be::VarEntry* srcEntry, const Be::VarEntry* dstEntry, size_t dataSize, bool sourceFloatArrayAsFloat, bool destFloatArrayAsFloat );
 };

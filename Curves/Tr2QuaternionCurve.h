@@ -48,6 +48,11 @@ public:
 	// Interpolate between quaternion key values
 	Quaternion* Interpolate( Quaternion* out, Tr2QuaternionKey* startKey, Tr2QuaternionKey* endKey );
 
+	void SetStartValue( const Quaternion& startValue ) { m_startValue = startValue; };
+	void SetEndValue( const Quaternion& endValue ) { m_endValue = endValue; };
+	void SetLength( float length ) { m_length = length; };
+
+
 private:
 	void AddKey_( float time, const Quaternion& value );
 };

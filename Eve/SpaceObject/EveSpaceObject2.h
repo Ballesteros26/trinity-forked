@@ -224,6 +224,7 @@ public:
 	void AddSpotlightSet( EveSpotlightSetPtr newSpotlightSet );
 	void AddPlaneSet( EvePlaneSetPtr newPlaneSet );
 	void AddDecal( EveSpaceObjectDecalPtr newDecal );
+	void AddCurveSet( TriCurveSetPtr newCurveSet );
 
 	// access to shadows
 	void SetShadowEffect( Tr2EffectPtr newShadowEffect );
@@ -234,6 +235,8 @@ public:
 	// access to curves
 	void SetModelRotationCurve( ITriQuaternionFunctionPtr rotationCurve );
 	void SetModelTranslationCurve( ITriVectorFunctionPtr translationCurve );
+	ITriQuaternionFunctionPtr GetModelRotationCurve() const { return m_modelRotation; };
+	ITriVectorFunctionPtr GetModelTranslationCurve() const { return m_modelTranslation; };
 
 	uint32_t GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const;
 	void UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* );

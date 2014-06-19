@@ -7,9 +7,11 @@
 #ifndef EveSOFData_H
 #define EveSOFData_H
 
+
 // --------------------------------------------------------------------------------
 // All data storage classes for gerenal purposes
 // --------------------------------------------------------------------------------
+
 
 BLUE_CLASS( EveSOFDataParameter ) :
 	public IRoot
@@ -248,6 +250,38 @@ TYPEDEF_BLUECLASS( EveSOFDataHullChild );
 BLUE_DECLARE_VECTOR( EveSOFDataHullChild );
 
 
+BLUE_CLASS( EveSOFDataHullAnimation ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataHullAnimation( IRoot* lockobj = NULL );
+	~EveSOFDataHullAnimation() {}
+
+	std::string m_name;
+
+	// modelRotationCurve control
+	Vector4 m_startRotationValue;
+	Vector4 m_endRotationValue;
+	float m_startRotationTime;
+	float m_endRotationTime;
+	
+	// modelTranslationCurve control
+	Vector3 m_startTranslationValue;
+	Vector3 m_endTranslationValue;
+	float m_startTranslationTime;
+	float m_endTranslationTime;
+	
+	// The id of the children whose partice systems are controlled by the animation
+	int m_id;
+	// The particle system spawn rates
+	float m_startRate;
+	float m_endRate;
+};
+TYPEDEF_BLUECLASS( EveSOFDataHullAnimation );
+BLUE_DECLARE_VECTOR( EveSOFDataHullAnimation );
+
+
 BLUE_CLASS( EveSOFDataHullDecal ) :
 	public IRoot
 {
@@ -311,6 +345,9 @@ public:
 
 	// children
 	PEveSOFDataHullChildVector m_children;
+
+	// animations
+	PEveSOFDataHullAnimationVector m_animations;
 
 	// model curves
 	std::string m_modelRotationCurvePath;

@@ -248,7 +248,6 @@ const Be::ClassInfo* EveSOFDataHullLocator::ExposeToBlue()
 }
 
 
-
 BLUE_DEFINE( EveSOFDataHullChild );
 const Be::ClassInfo* EveSOFDataHullChild::ExposeToBlue()
 {
@@ -259,6 +258,31 @@ const Be::ClassInfo* EveSOFDataHullChild::ExposeToBlue()
 		MAP_ATTRIBUTE( "translation", m_translation, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "rotation", m_rotation, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "scaling", m_scaling, "", Be::READWRITE | Be::PERSIST )
+    EXPOSURE_END()
+}
+
+
+BLUE_DEFINE( EveSOFDataHullAnimation );
+const Be::ClassInfo* EveSOFDataHullAnimation::ExposeToBlue()
+{
+    EXPOSURE_BEGIN( EveSOFDataHullAnimation, "" )
+        MAP_INTERFACE( EveSOFDataHullAnimation )
+
+		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
+
+		MAP_ATTRIBUTE( "startRotationValue", m_startRotationValue, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "endRotationValue", m_endRotationValue, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "startRotationTime", m_startRotationTime, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "endRotationTime", m_endRotationTime, "", Be::READWRITE | Be::PERSIST )
+
+		MAP_ATTRIBUTE( "startTranslationValue", m_startTranslationValue, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "endTranslationValue", m_endTranslationValue, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "startTranslationTime", m_startTranslationTime, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "endTranslationTime", m_endTranslationTime, "", Be::READWRITE | Be::PERSIST )
+
+		MAP_ATTRIBUTE( "id", m_id, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "startRate", m_startRate, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "endRate", m_endRate, "", Be::READWRITE | Be::PERSIST )
     EXPOSURE_END()
 }
 
@@ -293,6 +317,7 @@ const Be::ClassInfo* EveSOFDataHull::ExposeToBlue()
 		MAP_ATTRIBUTE( "booster", m_booster, "The booster", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "children", m_children, "List of children", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "animations", m_animations, "List of animations", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "locatorTurrets", m_locatorTurrets, "Turret locators", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "locatorTurrets", m_locatorAudio, "Audio locators", Be::READWRITE | Be::PERSIST )

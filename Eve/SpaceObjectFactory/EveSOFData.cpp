@@ -80,9 +80,11 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 	PARENTLOCK( m_locatorTurrets ),
 	PARENTLOCK( m_locatorAudio ),
 	PARENTLOCK( m_children ),
+	PARENTLOCK( m_animations ),
 	m_boundingSphere( 0.f, 0.f, 0.f, 0.f ),
 	m_isSkinned( false )
 {}
+
 
 
 EveSOFDataRace::EveSOFDataRace( IRoot* lockobj )
@@ -117,6 +119,23 @@ EveSOFDataHullChild::EveSOFDataHullChild( IRoot* lockobj ) :
 	m_translation( 0.f, 0.f, 0.f ),
 	m_rotation( 0.f, 0.f, 0.f, 1.f ),
 	m_scaling( 1.f, 1.f, 1.f )
+{}
+
+
+EveSOFDataHullAnimation::EveSOFDataHullAnimation( IRoot* lockobj ) :
+	m_startRotationTime( -1.0f ),
+	m_endRotationTime( -1.0f ),
+	m_startRotationValue( 0.f, 0.f, 0.f, 1.f ),
+	m_endRotationValue( 0.f, 0.f, 0.f, 1.f ),
+
+	m_startTranslationTime( -1.0f ),
+	m_endTranslationTime( -1.0f ),
+	m_startTranslationValue( 0.f, 0.f, 0.f ),
+	m_endTranslationValue( 0.f, 0.f, 0.f ),
+
+	m_id( -1 ),
+	m_startRate( -1 ),
+	m_endRate( -1 )
 {}
 
 

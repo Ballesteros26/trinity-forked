@@ -13,7 +13,7 @@ BLUE_DECLARE_INTERFACE( ITriFunction );
 BLUE_DECLARE_IVECTOR( ITriFunction );
 BLUE_DECLARE_IVECTOR( ITr2ValueBinding );
 
-class TriCurveSet:
+BLUE_CLASS( TriCurveSet ):
      public IInitialize,
 	 public ITr2Updateable,
 	 public ISimTimeRebaseNotify
@@ -38,14 +38,17 @@ public:
 
 	// access the name
 	const std::string& GetName() const					{	return m_name;				}
+	void SetName( const std::string& name );
 
 	// access the curves
 	size_t GetCurvesCount() const						{	return m_curves.size();		}
 	ITriFunctionPtr GetCurve( unsigned int _id )		{	return m_curves[ _id ];		}
+	void AddCurve( ITriFunctionPtr curve );
 
 	// access the bindings
 	size_t GetBindingsCount() const						{	return m_bindings.size();	}
 	ITr2ValueBindingPtr GetBinding( unsigned int _id )	{	return m_bindings[ _id ];	}
+	void AddBinding( ITr2ValueBindingPtr binding );
 
 	// Gets the duration of the longest non-cycling curve in the curve set
 	float GetMaxCurveDuration() const;

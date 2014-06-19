@@ -20,6 +20,10 @@
 #include "EffectParameter/Tr2Vector4Parameter.h"
 #include "EffectParameter/Tr2FloatParameter.h"
 #include "include/ITriFunction.h"
+#include "Curves/Tr2QuaternionCurve.h"
+#include "Curves/TriCurveSet.h"
+#include "Curves/TriRotationCurve.h"
+#include "TriValueBinding.h"
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -137,6 +141,9 @@ IRootPtr EveSOF::Build( const char* hullName, const char* factionName, const cha
 
 	// children
 	SetupChildren( newShip, hullData );
+
+	// animations
+	SetupAnimations( newShip, hullData );
 
 	// model curves
 	SetupModelCurves( newShip, hullData );
@@ -594,6 +601,67 @@ void EveSOF::SetupModelCurves( EveShip2Ptr ship, const EveSOFDataMgr::HullData* 
 		return;
 	}
 	ship->SetModelTranslationCurve( translationCurve );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Add Animations to the ship
+// --------------------------------------------------------------------------------
+void EveSOF::SetupAnimations( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData ) const
+{
+	for( auto chit = hullData->animations.begin(); chit != hullData->animations.end(); ++chit )
+	{
+		TriCurveSetPtr curveSet;
+		curveSet.CreateInstance();
+
+		curveSet->SetName( chit->name );
+
+		// Do we control a particle system?
+		if( chit->id != -1 && chit->startRate != -1.0 )
+		{
+			// TODO
+		}
+		// Do we have valid rotation info?
+		if( chit->startRotationTime != -1.0 )
+		{
+			// Create the rotations curve
+			Tr2QuaternionCurvePtr curve;
+			curve.CreateInstance();
+			curve->SetLength( chit->endRotationTime );
+			curve->SetEndValue( chit->endRotationValue );
+			curve->SetStartValue( chit->startRotationValue );
+			if( chit->startRotationTime != 0.0 )
+			{
+				curve->SetStartValue( chit->startRotationValue );
+				curve->AddKey( chit->startRotationTime, chit->startRotationValue );
+			}
+			curveSet->AddCurve( (ITriFunctionPtr)curve );
+			
+			// Create the binding to the model rotation curve
+			TriValueBindingPtr binding;
+			binding.CreateInstance();
+			binding->SetSource( "currentValue", curve->GetRawRoot() );
+			if( !ship->GetModelRotationCurve() )
+			{
+				TriRotationCurvePtr modelRotationcurve;
+				modelRotationcurve.CreateInstance();
+				ship->SetModelRotationCurve( (ITriQuaternionFunctionPtr)modelRotationcurve );
+			}
+			binding->SetDestination( "value", ship->GetModelRotationCurve()->GetRootObject() );
+			binding->Initialize();
+
+			curveSet->AddBinding( (ITr2ValueBindingPtr)binding );
+
+			// Append the curveSet
+			ship->AddCurveSet( curveSet );
+
+		}
+		// Do we have valid translation info?
+		if( chit->startTranslationTime != -1.0 )
+		{
+			// TODO
+		}
+	}
 }
 
 // --------------------------------------------------------------------------------

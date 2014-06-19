@@ -39,7 +39,7 @@ mStart + mLength or less than mStart"
 
 BLUE_DECLARE_VECTOR( TriQuaternionKey );
 
-class TriRotationCurve:
+BLUE_CLASS( TriRotationCurve ):
 	public ITriRotationCurve,
 	public ITriDuration,
 	public IListNotify

@@ -503,6 +503,31 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		hd.children.push_back( hc );
 	}
 
+	// animations
+	for( auto chit = srcData->m_animations.begin(); chit != srcData->m_animations.end(); ++chit )
+	{
+		EveSOFDataHullAnimationPtr anim = (*chit);
+		HullAnimation ha;
+
+		ha.name = anim->m_name;
+
+		ha.startRotationTime = anim->m_startRotationTime;
+		ha.endRotationTime = anim->m_endRotationTime;
+		ha.startRotationValue = anim->m_startRotationValue;
+		ha.endRotationValue = anim->m_endRotationValue;
+		
+		ha.startTranslationTime = anim->m_startTranslationTime;
+		ha.endTranslationTime = anim->m_endTranslationTime;
+		ha.startTranslationValue = anim->m_startTranslationValue;
+		ha.endTranslationValue = anim->m_endTranslationValue;
+		
+		ha.startRate = anim->m_startRate;
+		ha.endRate = anim->m_endRate;
+		ha.id = anim->m_id;
+
+		hd.animations.push_back( ha );
+	}
+
 	// model curves
 	hd.modelRotationCurvePath = srcData->m_modelRotationCurvePath;
 	hd.modelTranslationCurvePath = srcData->m_modelTranslationCurvePath;

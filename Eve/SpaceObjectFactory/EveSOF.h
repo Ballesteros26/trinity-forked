@@ -52,6 +52,7 @@ private:
 	void SetupBoosters( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData, const EveSOFDataMgr::RaceData* raceData ) const;
 	void SetupHullDecals( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData ) const;
 	void SetupModelCurves( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData ) const;
+	void SetupAnimations( EveShip2Ptr ship, const EveSOFDataMgr::HullData* hullData ) const;
 
 	// helper functions
 	void ModifyTextureResPath( std::string& resPath, const char* name, const EveSOFDataMgr::FactionData* factionData ) const;

@@ -2007,6 +2007,15 @@ void EveSpaceObject2::AddDecal( EveSpaceObjectDecalPtr newDecal )
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Add a new curveSet to this object from the outside
+// --------------------------------------------------------------------------------
+void EveSpaceObject2::AddCurveSet( TriCurveSetPtr newCurveSet )
+{
+	m_curveSets.Append( newCurveSet->GetRawRoot() );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Set the shadow shader of this object from the outside
 // --------------------------------------------------------------------------------
 void EveSpaceObject2::SetShadowEffect( Tr2EffectPtr newShadowEffect )

@@ -169,6 +169,21 @@ float TriCurveSet::GetTimeScale() const
 	return m_scale;
 }
 
+void TriCurveSet::SetName( const std::string& name )
+{
+	m_name = name;
+}
+
+void TriCurveSet::AddCurve( ITriFunctionPtr curve )
+{
+	m_curves.Append( curve );
+}
+
+void TriCurveSet::AddBinding( ITr2ValueBindingPtr binding )
+{
+	m_bindings.Append( binding );
+}
+
 float TriCurveSet::GetMaxCurveDuration() const
 {
 	float maxDuration = 0.0f;
