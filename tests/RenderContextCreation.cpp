@@ -18,6 +18,7 @@ void SetUpPresentParameters( Tr2PresentParametersAL& presentParameters )
 	presentParameters.depthStencilFormat = Tr2RenderContextEnum::DSFMT_D24S8;
 	presentParameters.outputWindow = WithWindow::GetWindowHandle();
 	presentParameters.windowed = true;
+	presentParameters.software = false;
 	presentParameters.presentInterval = Tr2RenderContextEnum::PRESENT_INTERVAL_IMMEDIATE;
 }
 

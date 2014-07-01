@@ -54,6 +54,7 @@ struct Tr2PresentParametersAL
 	Tr2RenderContextEnum::DepthStencilFormat depthStencilFormat;
 	Tr2WindowHandle outputWindow;
 	bool windowed;
+	bool software;
 	Tr2RenderContextEnum::PresentInterval presentInterval;
 };
 

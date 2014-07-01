@@ -145,9 +145,18 @@ ALResult Tr2PrimaryRenderContextAL::CreateDevice(	uint32_t  adapter,
 	}
 	
 	m_context.Release();
+	
+	D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_UNKNOWN;
+	if( pp.software )
+	{
+		CCP_AL_LOG( "D3D Creating WARP Device" );
+		// can't NULL the adapter
+		driverType = D3D_DRIVER_TYPE_WARP;
+	}
+
 	HRESULT HR = D3D11CreateDeviceAndSwapChain(
-				adapterPtr,
-				D3D_DRIVER_TYPE_UNKNOWN,
+				pp.software ? NULL : adapterPtr,
+				driverType,
 				0,
 				dwFlags,
 				&levelWanted,
@@ -174,8 +183,8 @@ ALResult Tr2PrimaryRenderContextAL::CreateDevice(	uint32_t  adapter,
 		dwFlags &= ~D3D11_CREATE_DEVICE_DEBUG;
 
 		HR = D3D11CreateDeviceAndSwapChain (
-			adapterPtr,
-			D3D_DRIVER_TYPE_UNKNOWN,
+			pp.software ? NULL : adapterPtr,
+			driverType,
 			0,
 			dwFlags,
 			&levelWanted,
