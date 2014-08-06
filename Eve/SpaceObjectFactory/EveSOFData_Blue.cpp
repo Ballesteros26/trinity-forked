@@ -437,6 +437,19 @@ const Be::ClassInfo* EveSOFDataRace::ExposeToBlue()
 
 
 
+BLUE_DEFINE( EveSOFDataMaterial );
+const Be::ClassInfo* EveSOFDataMaterial::ExposeToBlue()
+{
+    EXPOSURE_BEGIN( EveSOFDataMaterial, "" )
+        MAP_INTERFACE( EveSOFDataMaterial )
+
+		MAP_ATTRIBUTE( "name", m_name, "The material name. This functions as an ID.", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "parameters", m_parameters, "All the material parameters.", Be::READWRITE | Be::PERSIST )
+    EXPOSURE_END()
+}
+
+
+
 BLUE_DEFINE( EveSOFData );
 const Be::ClassInfo* EveSOFData::ExposeToBlue()
 {
@@ -446,5 +459,6 @@ const Be::ClassInfo* EveSOFData::ExposeToBlue()
 		MAP_ATTRIBUTE( "hull", m_hull, "All the hull data we have in EVE", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "faction", m_faction, "All the factions data we have in EVE", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "race", m_race, "All the racial data we have in EVE", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "material", m_material, "All the material data we have in EVE", Be::READWRITE | Be::PERSIST )
     EXPOSURE_END()
 }

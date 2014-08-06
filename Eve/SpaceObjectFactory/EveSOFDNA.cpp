@@ -60,24 +60,12 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 
 	// split up dna string in all subparts
 	std::vector<std::string> dnaParts;
-	std::string originalDna( dnaString );
-	for( size_t i = 0; i < originalDna.size(); ++i )
+	SplitString( dnaParts, dnaString, '.' );
+
+	// need three at least
+	if(dnaParts.size() < 3)
 	{
-		size_t next = originalDna.find( '.', i );
-		if( next == std::string::npos )
-		{
-			next = originalDna.size();
-		}
-
-		dnaParts.push_back( originalDna.substr( i, next - i ) );
-
-		i = next;
-	}
-
-	// need three
-	if(dnaParts.size() != 3)
-	{
-		CCP_LOGERR( "Invalid SOF DNA: %s", dnaString );
+		CCP_LOGERR( "Invalid SOF DNA, not enough subparts: %s", dnaString );
 		return;
 	}
 
@@ -105,6 +93,14 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 	{
 		CCP_LOGERR( "Couldn't find the requested race: %s", dnaString );
 		return;
+	}
+
+	// additional dna subparts
+	for( unsigned int dnaSubpart = 3; dnaSubpart < dnaParts.size(); ++dnaSubpart )
+	{
+		// split into command and args
+
+		//std::string command
 	}
 }
 

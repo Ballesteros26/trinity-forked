@@ -23,4 +23,29 @@ inline bool InsertStringStub( std::string& baseString, const char* beforeSubstr,
 	return true;
 }
 
+// --------------------------------------------------------------------------------
+// Description:
+//   Split up a string into a vector of strings using a seperator.
+//   Similar to Python's split()
+// --------------------------------------------------------------------------------
+inline void SplitString( std::vector<std::string>& result, const char* original, char seperator )
+{
+	std::string originalStr( original );
+	for( size_t i = 0; i < originalStr.size(); ++i )
+	{
+		size_t next = originalStr.find( seperator, i );
+		if( next == std::string::npos )
+		{
+			next = originalStr.size();
+		}
+
+		result.push_back( originalStr.substr( i, next - i ) );
+
+		i = next;
+	}
+}
+
+
+
+
 #endif // StringUtils_H

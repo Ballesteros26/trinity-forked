@@ -14,7 +14,8 @@
 EveSOFData::EveSOFData( IRoot* lockobj ) :
 	PARENTLOCK( m_hull ),
 	PARENTLOCK( m_faction ),
-	PARENTLOCK( m_race )
+	PARENTLOCK( m_race ),
+	PARENTLOCK( m_material )
 {}
 EveSOFData::~EveSOFData()
 {}
@@ -88,8 +89,12 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 {}
 
 
-
 EveSOFDataRace::EveSOFDataRace( IRoot* lockobj )
+{}
+
+
+EveSOFDataMaterial::EveSOFDataMaterial( IRoot* lockobj ) :
+	PARENTLOCK( m_parameters )
 {}
 
 

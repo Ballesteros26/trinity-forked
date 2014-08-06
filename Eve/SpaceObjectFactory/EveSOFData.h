@@ -458,23 +458,6 @@ TYPEDEF_BLUECLASS( EveSOFDataFactionHullArea );
 BLUE_DECLARE_VECTOR( EveSOFDataFactionHullArea );
 
 
-BLUE_CLASS( EveSOFDataBooster ) :
-	public IRoot
-{
-public:
-	EXPOSE_TO_BLUE();
-	EveSOFDataBooster( IRoot* lockobj = NULL );
-	~EveSOFDataBooster() {}
-
-	// data
-	float m_glowScale, m_symHaloScale, m_haloScaleX, m_haloScaleY;
-	Color m_color, m_glowColor, m_haloColor, m_trailColor;
-	std::string m_textureResPath;
-	Vector4 m_trailSize, m_scale;
-};
-TYPEDEF_BLUECLASS( EveSOFDataBooster );
-
-
 BLUE_CLASS( EveSOFDataFaction ) :
 	public IRoot
 {
@@ -508,6 +491,29 @@ TYPEDEF_BLUECLASS( EveSOFDataFaction );
 BLUE_DECLARE_VECTOR( EveSOFDataFaction );
 
 
+
+
+// --------------------------------------------------------------------------------
+// All data storage classes for per-race data
+// --------------------------------------------------------------------------------
+
+BLUE_CLASS( EveSOFDataBooster ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataBooster( IRoot* lockobj = NULL );
+	~EveSOFDataBooster() {}
+
+	// data
+	float m_glowScale, m_symHaloScale, m_haloScaleX, m_haloScaleY;
+	Color m_color, m_glowColor, m_haloColor, m_trailColor;
+	std::string m_textureResPath;
+	Vector4 m_trailSize, m_scale;
+};
+TYPEDEF_BLUECLASS( EveSOFDataBooster );
+
+
 BLUE_CLASS( EveSOFDataRace ) :
 	public IRoot
 {
@@ -526,6 +532,33 @@ TYPEDEF_BLUECLASS( EveSOFDataRace );
 BLUE_DECLARE_VECTOR( EveSOFDataRace );
 
 
+
+
+
+
+// --------------------------------------------------------------------------------
+// All data storage classes for material lib data
+// --------------------------------------------------------------------------------
+
+BLUE_CLASS( EveSOFDataMaterial ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataMaterial( IRoot* lockobj = NULL );
+	~EveSOFDataMaterial() {}
+
+	// material name
+	std::string m_name;
+
+	// list of params
+	PEveSOFDataParameterVector m_parameters;
+};
+TYPEDEF_BLUECLASS( EveSOFDataMaterial );
+BLUE_DECLARE_VECTOR( EveSOFDataMaterial );
+
+
+
 BLUE_CLASS( EveSOFData ) :
 	public IRoot
 {
@@ -540,6 +573,8 @@ public:
 	PEveSOFDataFactionVector m_faction;
 	// race data
 	PEveSOFDataRaceVector m_race;
+	// material data
+	PEveSOFDataMaterialVector m_material;
 };
 TYPEDEF_BLUECLASS( EveSOFData );
 

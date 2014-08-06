@@ -176,6 +176,7 @@ bool EveSOFDataMgr::SetData( EveSOFData* dbData )
 	m_hullData.clear();
 	m_factionData.clear();
 	m_raceData.clear();
+	m_materialData.clear();
 
 	// load hull data
 	if(!LoadHullData( dbData ) )
@@ -200,6 +201,14 @@ bool EveSOFDataMgr::SetData( EveSOFData* dbData )
 		return false;
 	}
 	CCP_LOGNOTICE( "SOF: loaded %d races", m_raceData.size() );
+
+	// load material data
+	if(!LoadMaterialData( dbData ) )
+	{
+		CCP_LOGERR( "Error loading material data!" );
+		return false;
+	}
+	CCP_LOGNOTICE( "SOF: loaded %d materials", m_materialData.size() );
 
 	return true;
 }
@@ -711,6 +720,51 @@ void EveSOFDataMgr::GenerateRaceData( RaceData& rd, EveSOFDataRacePtr srcData ) 
 	rd.boosters.symHaloScale = srcData->m_booster->m_symHaloScale;
 	rd.boosters.trailColor = srcData->m_booster->m_trailColor;
 	rd.boosters.trailSize = srcData->m_booster->m_trailSize;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Init material-specific data
+// --------------------------------------------------------------------------------
+bool EveSOFDataMgr::LoadMaterialData( EveSOFDataPtr srcData )
+{
+	// store that data from that object internally
+	for( EveSOFDataMaterialVector::const_iterator it = srcData->m_material.begin(); it != srcData->m_material.end(); ++it )
+	{
+		EveSOFDataMaterialPtr materialData = (*it);
+
+		// if this material is already there, we have a problem!
+		if( m_materialData.find( materialData->m_name ) != m_materialData.end() )
+		{
+			CCP_LOGERR( "Found a duplicate material name: %s", materialData->m_name.c_str() );
+			return false;
+		}
+
+		// fill the non-trinity struct with the provided data
+		MaterialData md;
+		GenerateMaterialData( md, materialData );
+
+		// put it into the main map
+		m_materialData[(*it)->m_name] = md;
+	}
+
+	return true;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Fill a non-trinity material data struct with all the data from the trinity
+//   data struct
+// --------------------------------------------------------------------------------
+void EveSOFDataMgr::GenerateMaterialData( MaterialData& rd, EveSOFDataMaterialPtr srcData ) const
+{
+	// parameter data
+	for( auto mpit = srcData->m_parameters.begin(); mpit != srcData->m_parameters.end(); ++mpit )
+	{
+		EveSOFDataParameterPtr parameterData = (*mpit);
+
+		rd.parameters[parameterData->m_name] = parameterData->m_value;
+	}
 }
 
 
