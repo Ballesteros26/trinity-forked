@@ -15,6 +15,11 @@ bool FileExists( const std::string& path )
 	return BePaths->FileExists( wstrCopy );
 }
 
+// dna syntax
+static char s_dnaSeperatorCmd = ':';
+static char s_dnaSeperatorArg = '?';
+static char s_dnaSeperatorList = ';';
+
 // dna commands
 static std::string s_dnaCommands[] = {
 	"invalid",				// CMD_INVALID
@@ -66,7 +71,7 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 
 	// split up dna string in all subparts
 	std::vector<std::string> dnaParts;
-	StringSplit( dnaParts, dnaString, '.' );
+	StringSplit( dnaParts, dnaString, s_dnaSeperatorCmd );
 
 	// need three at least
 	if(dnaParts.size() < 3)
@@ -106,7 +111,7 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 	{
 		// split into command and args
 		std::vector<std::string> cmdAndArgs;
-		StringSplit( cmdAndArgs, dnaParts[ dnaSubpart ].c_str(), ':' );
+		StringSplit( cmdAndArgs, dnaParts[ dnaSubpart ].c_str(), s_dnaSeperatorArg );
 		if( cmdAndArgs.size() != 2 )
 		{
 			CCP_LOGERR( "Invalid SOF DNA, incorrect command and args: %s", dnaString );
@@ -115,18 +120,10 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 
 		// get commands
 		std::vector<std::string> commandList;
-		StringSplit( commandList, cmdAndArgs[1].c_str(), ';' );
+		StringSplit( commandList, cmdAndArgs[1].c_str(), s_dnaSeperatorList );
 
-		// put into map, but check if it already exists! So no overwriting
-		auto finder = m_commands.find( cmdAndArgs[0] );
-		if( finder == m_commands.end() )
-		{
-			m_commands[cmdAndArgs[0]] = commandList;
-		}
-		else
-		{
-			finder->second.insert( finder->second.end(), commandList.begin(), commandList.end() );
-		}
+		// put into map, warning: this might overwrite a similar command!
+		m_commands[cmdAndArgs[0]] = commandList;
 	}
 }
 
@@ -397,29 +394,32 @@ const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( TriBatchType type, const
 	std::vector<std::string> meshCommandArgs;
 	if( GetDnaCommandArgs( CMD_MESH, meshCommandArgs ) )
 	{
-		// variable list of args: always 3 for CMD_MESH
-		for( size_t a = 0; a < meshCommandArgs.size(); a += 3 )
+		int argIdx = -1;
+		std::string materialDataParameterName = std::string( parameterName );
+		// identify mask, submask
+		if( StringStartsWithI( parameterName, "Mask" ) )
 		{
-			// is this the correct area? hull or exhaust etc.
-			if( meshCommandArgs[ a + 0 ] == std::string( areaDesignation ) )
+			// arg 0 is mask material
+			argIdx = 0;
+			StringRemove( materialDataParameterName, "Mask" );
+		}
+		else if( StringStartsWithI( parameterName, "SubMask" ) )
+		{
+			// arg 1 is submask material
+			argIdx = 1;
+			StringRemove( materialDataParameterName, "SubMask" );
+		}
+
+		if( argIdx != -1 )
+		{
+			// get the material from the lib
+			const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( meshCommandArgs[ argIdx ].c_str() );
+			if( materialData ) 
 			{
-				// identify mask, submask
-				if( StringStartsWithI( parameterName, meshCommandArgs[ a + 1 ].c_str() ) )
+				auto parameterIt = materialData->parameters.find( materialDataParameterName.c_str() );
+				if( parameterIt != materialData->parameters.end() )
 				{
-					// get the material from the lib
-					const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( meshCommandArgs[ a + 2 ].c_str() );
-					if( materialData ) 
-					{
-						// construct parameter name
-						std::string lookup = std::string( parameterName );
-						StringRemove( lookup, "SubMask" );
-						StringRemove( lookup, "Mask" );
-						auto parameterIt = materialData->parameters.find( lookup.c_str() );
-						if( parameterIt != materialData->parameters.end() )
-						{
-							return &parameterIt->second;
-						}
-					}
+					return &parameterIt->second;
 				}
 			}
 		}
