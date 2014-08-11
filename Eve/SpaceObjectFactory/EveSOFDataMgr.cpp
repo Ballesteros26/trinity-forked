@@ -338,6 +338,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 	hd.geometryResFilePath = srcData->m_geometryResFilePath;
 	hd.boundingSphere = srcData->m_boundingSphere;
 	hd.isSkinned = srcData->m_isSkinned;
+	hd.audioPosition = srcData->m_audioPosition;
 
 	// boosters
 	if( srcData->m_booster )
@@ -513,17 +514,6 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		ld.name = locatorData->m_name;
 		ld.transform = locatorData->m_transform;
 		hd.locatorTurrets.push_back( ld );
-	}
-
-	// audio locators
-	for( auto alit = srcData->m_locatorAudio.begin(); alit != srcData->m_locatorAudio.end(); ++alit )
-	{
-		EveSOFDataHullLocatorPtr locatorData = (*alit);
-
-		LocatorData ld;
-		ld.name = locatorData->m_name;
-		ld.transform = locatorData->m_transform;
-		hd.locatorAudio.push_back( ld );
 	}
 
 	// children

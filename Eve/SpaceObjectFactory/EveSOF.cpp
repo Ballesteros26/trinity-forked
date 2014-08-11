@@ -907,6 +907,16 @@ void EveSOF::SetupLocators( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		// add it to the new ship
 		ship->AddLocator( loc );
 	}
+
+	// create and setup the audio locator
+	EveLocator2Ptr loc;
+	loc.CreateInstance();
+	loc->SetName( "locator_audio_booster" );
+	const Vector3* pos = dna->GetHullAudioPosition();
+	loc->SetTransform( Matrix( 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, pos->x, pos->y, pos->z, 1.f ) );
+
+	// add it to the new ship
+	ship->AddLocator( loc );
 }
 
 

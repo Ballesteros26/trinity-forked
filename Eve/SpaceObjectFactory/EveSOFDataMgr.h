@@ -159,6 +159,7 @@ public:
 		std::string geometryResFilePath;
 		Vector4 boundingSphere;
 		bool isSkinned;
+		Vector3 audioPosition;
 		std::vector<HullSpriteSetData> spriteSets;
 		std::vector<HullSpotlightSetData> spotlightSets;
 		std::vector<HullPlaneSetData> planeSets;
@@ -170,7 +171,6 @@ public:
 		std::vector<HullDecalData> hullDecals;
 		HullBoosterData boosters;
 		std::vector<LocatorData> locatorTurrets;
-		std::vector<LocatorData> locatorAudio;
 		std::vector<HullChild> children;
 		std::vector<HullAnimation> animations;
 		std::string modelRotationCurvePath;

@@ -81,11 +81,11 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 	PARENTLOCK( m_depthAreas ),
 	PARENTLOCK( m_distortionAreas ),
 	PARENTLOCK( m_locatorTurrets ),
-	PARENTLOCK( m_locatorAudio ),
 	PARENTLOCK( m_children ),
 	PARENTLOCK( m_animations ),
 	m_boundingSphere( 0.f, 0.f, 0.f, 0.f ),
-	m_isSkinned( false )
+	m_isSkinned( false ),
+	m_audioPosition( Vector3( 0.f, 0.f, 0.f ) )
 {}
 
 

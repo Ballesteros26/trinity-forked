@@ -324,6 +324,7 @@ const Be::ClassInfo* EveSOFDataHull::ExposeToBlue()
 		MAP_ATTRIBUTE( "hullDecals", m_hullDecals, "The hull decals", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "booster", m_booster, "The booster", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "audioPosition", m_audioPosition, "The audio position", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "children", m_children, "List of children", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "animations", m_animations, "List of animations", Be::READWRITE | Be::PERSIST )

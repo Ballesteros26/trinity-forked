@@ -347,6 +347,15 @@ const Vector4* EveSOFDNA::GetHullBoundingSphere() const
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Return a pointer to the audio position of this hull
+// --------------------------------------------------------------------------------
+const Vector3* EveSOFDNA::GetHullAudioPosition() const
+{
+	return &m_hullData->audioPosition;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Is this hull animated/skinned?
 // --------------------------------------------------------------------------------
 bool EveSOFDNA::IsHullAnimated() const

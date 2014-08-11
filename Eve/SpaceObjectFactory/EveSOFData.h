@@ -344,10 +344,10 @@ public:
 
 	// boosters
 	EveSOFDataHullBoosterPtr m_booster;
+	Vector3 m_audioPosition;
 
 	// locators
 	PEveSOFDataHullLocatorVector m_locatorTurrets;
-	PEveSOFDataHullLocatorVector m_locatorAudio;
 
 	// children
 	PEveSOFDataHullChildVector m_children;
