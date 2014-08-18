@@ -316,6 +316,9 @@
     <ClInclude Include="Tr2ShaderPermuteTag.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tr2ShLightingManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="Tr2SHProbeRes.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -527,6 +530,9 @@
       <Filter>Source Files\Curves</Filter>
     </ClInclude>
     <ClInclude Include="Curves\Tr2EulerRotation.h">
+      <Filter>Source Files\Curves</Filter>
+    </ClInclude>
+    <ClInclude Include="Curves\Tr2GrannyEventTrack.h">
       <Filter>Source Files\Curves</Filter>
     </ClInclude>
     <ClInclude Include="Curves\Tr2GrannyTrack.h">
@@ -838,9 +844,6 @@
     <ClInclude Include="Include\IPhysXSdk.h">
       <Filter>Source Files\Include</Filter>
     </ClInclude>
-    <ClInclude Include="Include\ITr2BindingSentinelValue.h">
-      <Filter>Source Files\Include</Filter>
-    </ClInclude>
     <ClInclude Include="Include\ITr2BoundingBox.h">
       <Filter>Source Files\Include</Filter>
     </ClInclude>
@@ -983,9 +986,6 @@
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorCylinderLight.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorDirectionalLight.h">
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorDusterCache.h">
@@ -1462,9 +1462,6 @@
     <ClCompile Include="GrannyBoneOffset_Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ITr2BindingSentinelValue_Blue.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ITr2PickableScene.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1816,6 +1813,12 @@
     <ClCompile Include="Tr2ShaderPermuteTag_Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tr2ShLightingManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tr2ShLightingManager_Blue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Tr2SHProbeRes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1943,6 +1946,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TriDeviceOrbis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TriDeviceStub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TriDevice_Blue.cpp">
@@ -2156,6 +2162,12 @@
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
     <ClCompile Include="Curves\Tr2EulerRotation_Blue.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Curves\Tr2GrannyEventTrack.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Curves\Tr2GrannyEventTrack_Blue.cpp">
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
     <ClCompile Include="Curves\Tr2GrannyTrack.cpp">
@@ -2735,12 +2747,6 @@
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorCylinderLight_Blue.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorDirectionalLight.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorDirectionalLight_Blue.cpp">
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorDusterCache.cpp">

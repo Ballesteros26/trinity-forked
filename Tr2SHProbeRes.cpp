@@ -9,7 +9,6 @@
 const Geo::u32 Tr2SHProbeRes::s_versionNumber = 20110118;
 
 Tr2SHProbeRes::Tr2SHProbeRes( IRoot* lockobj ):
-	m_data( NULL ),	
 	m_dataSize( 0 ),
 	m_probeSize( 0 )
 {
@@ -68,28 +67,6 @@ size_t Tr2SHProbeRes::GetMemoryUsage()
 	return m_dataSize + m_probeSize;
 }
 
-bool Tr2SHProbeRes::DoOpenStream()
-{
-	BePaths->GetStreamFromPathW( GetPath(), &m_dataStream );
-
-	if( !m_dataStream )
-	{
-		return false;
-	}
-	return true;
-}
-
-void Tr2SHProbeRes::DoCloseStream()
-{
-	if( m_dataStream )
-	{
-		m_dataStream->UnlockData();
-		m_data = NULL;
-		m_dataSize = 0;
-		m_dataStream = nullptr;
-	}
-}
-
 Enlighten::RadProbeSetCore* ProtectedReadRadProbeSetCore( GeoMemoryStream& stream, const wchar_t* path )
 {
 	Enlighten::RadProbeSetCore* data = nullptr;
@@ -108,7 +85,8 @@ Enlighten::RadProbeSetCore* ProtectedReadRadProbeSetCore( GeoMemoryStream& strea
 
 BlueAsyncRes::LoadingResult Tr2SHProbeRes::DoLoad()
 {
-	if( !m_dataStream->LockData( &m_data, 0 ) )
+	void* data;
+	if( !m_dataStream->LockData( &data, 0 ) )
 	{
 		return LR_FAILED;
 	}
@@ -118,7 +96,7 @@ BlueAsyncRes::LoadingResult Tr2SHProbeRes::DoLoad()
 	ReleaseProbeSet();
 
 	m_dataSize = (unsigned int)m_dataStream->GetSize();
-	GeoMemoryStream stream = GeoMemoryStream( m_dataSize, (BYTE*)m_data );
+	GeoMemoryStream stream = GeoMemoryStream( m_dataSize, (BYTE*)data );
 
 	Geo::u32 version = 0;
 	stream.Read( &version, sizeof( version ), 1 );

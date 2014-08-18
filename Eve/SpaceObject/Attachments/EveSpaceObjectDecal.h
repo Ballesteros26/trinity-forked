@@ -8,6 +8,7 @@
 #include "Tr2PerObjectData.h"
 #include "TriRenderBatch.h"
 #include "Tr2DeviceResource.h"
+#include "Tr2ShLightingManager.h"
 
 #include "Eve/SpaceObject/EveShip2.h"
 
@@ -37,6 +38,7 @@ public:
 	Vector4 m_shipData;
 	Vector4 m_clipData1;
 	Vector4 m_clipData2;
+	Vector4 m_shLightingCoefficients[Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT];
 };
 
 // --------------------------------------------------------------------------------
@@ -89,6 +91,7 @@ public:
 		Vector4 shipData;
 		Vector4 clipData;
 		Vector4 clipDataEx;
+		const Vector4* shLighting;
 	};
 
 	//////////////////////////////////////////////////////////////////////////////////////

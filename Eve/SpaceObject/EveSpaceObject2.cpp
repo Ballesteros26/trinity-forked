@@ -115,6 +115,7 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_animationSequencer.CreateInstance();
 	m_animationUpdater.CreateInstance();
 	m_persistedDamageLocators.SetStructureDefinition( EveDamageLocatorStructureDef );
+	memset( m_shLightingCoefficients, 0, sizeof( m_shLightingCoefficients ) );
 }
 
 EveSpaceObject2::~EveSpaceObject2()
@@ -888,6 +889,23 @@ bool EveSpaceObject2::FindLocatorTransformByName( const char* name, unsigned int
 	return false;
 }
 
+void EveSpaceObject2::UpdateShLighting( Tr2ShLightingManager& manager )
+{
+	memset( m_shLightingCoefficients, 0, sizeof( m_shLightingCoefficients ) );
+	if( m_estimatedPixelDiameterWithChildren > g_eveSpaceSceneLowDetailThreshold )
+	{
+		float intensityFadeRadius = ( g_eveSpaceSceneMediumDetailThreshold - g_eveSpaceSceneLowDetailThreshold ) * 0.25f;
+		float intensity = ( m_estimatedPixelDiameterWithChildren - g_eveSpaceSceneLowDetailThreshold ) / intensityFadeRadius;
+		intensity = std::min( std::max( intensity, 0.f ), 1.f );
+		manager.GetLighting( m_worldPosition, intensity, m_shLightingCoefficients );
+	}
+}
+
+void EveSpaceObject2::ClearShLighting()
+{
+	memset( m_shLightingCoefficients, 0, sizeof( m_shLightingCoefficients ) );
+}
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Create the per-object data block and fill it with information only the
@@ -912,7 +930,7 @@ uint32_t EveSpaceObject2::GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType
 {
 	if( shaderType == Tr2RenderContextEnum::PIXEL_SHADER )
 	{
-		uint32_t sz = 16 + 16 + 16; // m_spaceObjectMiscData + m_spaceObjectClipData + m_spaceObjectClipDataEx
+		uint32_t sz = 16 + 16 + 16 + sizeof( m_shLightingCoefficients ); // m_spaceObjectMiscData + m_spaceObjectClipData + m_spaceObjectClipDataEx
 		if( m_customMask )
 		{
 			sz += 64 + 16;  // customMask data is optional for now
@@ -950,6 +968,8 @@ void EveSpaceObject2::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType sh
 		perObjectPS += sizeof( Vector4 );
 		memcpy( perObjectPS, &m_spaceObjectClipDataEx, sizeof( Vector4 ) );
 		perObjectPS += sizeof( Vector4 );
+		memcpy( perObjectPS, m_shLightingCoefficients, sizeof( m_shLightingCoefficients ) );
+		perObjectPS += sizeof( m_shLightingCoefficients );
 
 		if( m_customMask )
 		{
@@ -1088,6 +1108,7 @@ void EveSpaceObject2::GetRenderables( const TriFrustum& frustum, std::vector<ITr
 					pd.shipData = m_spaceObjectMiscData;
 					pd.clipData = m_spaceObjectClipData;
 					pd.clipDataEx = m_spaceObjectClipDataEx;
+					pd.shLighting = m_shLightingCoefficients;
 					(*it)->GetRenderables( geometryRes, frustum, renderables, &pd );
 				}
 				m_decalCache->Clear();

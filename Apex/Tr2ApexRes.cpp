@@ -30,21 +30,6 @@ size_t Tr2ApexRes::GetMemoryUsage()
 	return m_dataSize;
 }
 
-bool Tr2ApexRes::DoOpenStream()
-{
-	CCP_ASSERT( !m_dataStream );
-	return BePaths->GetStreamFromPathW( m_path.c_str(), &m_dataStream );
-}
-
-void Tr2ApexRes::DoCloseStream()
-{
-	if( m_dataStream )
-	{
-		m_dataStream->UnlockData();
-		m_dataStream.Unlock();
-	}
-}
-
 BlueAsyncRes::LoadingResult Tr2ApexRes::DoLoad()
 {
 	// Disabling async load as we suspect threading issues with Apex.

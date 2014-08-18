@@ -236,17 +236,23 @@ void* TriTexture2DParameter::GetResourcePointer() const
 	return m_resource ? m_resource->GetTexture() : nullptr;
 }
 
-void TriTexture2DParameter::LoadResources()
+bool TriTexture2DParameter::LoadResources()
 {
 	if ( !m_resourcePath.empty() )
 	{
 		m_resource = nullptr;
-		BeResMan->GetResource( m_resourcePath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_resource );		
+		BeResMan->GetResource( m_resourcePath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_resource );
+		if( !m_resource )
+		{
+			return true;
+		}
+		return m_resource->IsPrepared();
 	}
 	else
 	{
 		UnloadResources();
 	}
+	return true;
 }
 
 void TriTexture2DParameter::UnloadResources()

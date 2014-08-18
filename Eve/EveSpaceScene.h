@@ -57,7 +57,8 @@ class EveSpaceScene :
 	public ITr2MultiPassScene,
 	public IInitialize,
 	public INotify,
-	public Tr2DeviceResource
+	public Tr2DeviceResource,
+	public IListNotify
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -92,6 +93,15 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// INotify
 	bool OnModified( Be::Var* val );
+
+	//////////////////////////////////////////////////////////////////////////
+	// IListNotify
+	void OnListModified(
+		long event,		// BLUELISTEVENT values
+		ssize_t key,
+		ssize_t key2,
+		IRoot* value,
+		const struct IList* theList );
 
 	// all eve-specific visualize methods
 	enum EveVisualizeMethod
@@ -151,6 +161,9 @@ public:
 
 	// BatchMaps are used to store batch accumulators for rendering
 	typedef std::map<TriBatchType, ITriRenderBatchAccumulator*> BatchMap;
+
+	Tr2ShLightingManagerPtr GetShLightingManager() const;
+	void SetShLightingManager( Tr2ShLightingManager* manager );
 
 protected:
 	// Data shared between the different rendering method chunks
@@ -450,9 +463,15 @@ private:
 	virtual void ReleaseResources( TriStorage s );
 	virtual bool OnPrepareResources();
 
+	void UpdateShLighting( 
+		const std::vector<ShadowReceiver>& objectsReceivingShadow, 
+		const std::vector<IEveSpaceObject2*>& objectsNotReceivingShadow );
+
 	bool m_dynamicClipPlanes;
 	float m_nearClip;
 	float m_farClip;
+
+	Tr2ShLightingManagerPtr m_shLightingManager;
 };
 
 TYPEDEF_BLUECLASS( EveSpaceScene );

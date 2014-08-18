@@ -706,6 +706,4 @@ struct TriRenderBatchStats
 	float m_drawCallsPerEffectAverage;
 };
 
-void RenderBatchesForPicking( Tr2Effect* effect, bool skinned, TriRenderBatch* &p, int &objectNum );
-
 #endif // TriRenderBatch_H

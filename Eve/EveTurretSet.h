@@ -10,6 +10,7 @@
 #include "ITr2Renderable.h"
 #include "ITr2GeometryProvider.h"
 #include "include/ITriTargetable.h"
+#include "Tr2ShLightingManager.h"
 
 // needed for override
 #include "Tr2PerObjectData.h"
@@ -57,6 +58,7 @@ public:
 	Vector4 m_shipData;
 	Vector4 m_clipData1;
 	Vector4 m_clipData2;
+	Vector4 m_shLightingCoefficients[Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT];
 };
 
 // --------------------------------------------------------------------------------
@@ -130,11 +132,11 @@ private:
 public:
 	// set local position
 	void SetLocalTransform( unsigned int turretIndex, const Matrix* localMatrix );
-	void UpdateModelLOD();
 	// timing and worldspace positioning
-	void Update( float deltaT, Be::Time time, const ParentData* parentData );
+	void UpdateSyncronous( float deltaT, Be::Time time, const Matrix* parentMatrix );
+	void UpdateAsyncronous( float deltaT, Be::Time time, const ParentData* parentData );
 	// rendering
-	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables );
+	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Vector4* shLighting );
 	void GetRenderablesCastingShadow( const TriFrustumOrtho& frustum, std::vector<ITr2Renderable*>& renderables );
 	// just debug info
 	void RenderDebugInfo( Tr2RenderContext& renderContext );
@@ -255,6 +257,7 @@ private:
 
 	// parent ship data
 	ParentData m_parentData;
+	const Vector4* m_parentShLighting;
 
 	// keep a vector of data on each pair of the turret
 	struct SingleTurretData

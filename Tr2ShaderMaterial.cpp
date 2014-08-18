@@ -722,9 +722,9 @@ void Tr2ShaderMaterial::UnloadResources()
 
 }
 
-void Tr2ShaderMaterial::LoadResources()
+bool Tr2ShaderMaterial::LoadResources()
 {
-
+	return false;
 }
 
 // --------------------------------------------------------------------------------------

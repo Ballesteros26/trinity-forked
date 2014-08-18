@@ -343,7 +343,7 @@ void Tr2ApexScene::RenderDebugInfo( Tr2RenderContext& renderContext )
 
 		g_apexDebugRenderBatches->Finalize();
 
-		renderContext.m_esm.RenderBatches( g_apexDebugRenderBatches );
+		renderContext.RenderBatches( g_apexDebugRenderBatches );
 		g_apexDebugRenderBatches->Clear();
 		g_apexDebugRenderAllocator->Clear();
 	}

@@ -36,7 +36,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// ITriEffectResourceParameter
 	void ReloadResources();
-	void LoadResources();
+	bool LoadResources();
 	void UnloadResources();
 	void* GetResourcePointer() const;
 	bool IsPrepared() const;

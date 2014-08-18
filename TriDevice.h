@@ -112,13 +112,6 @@ public:
 								float* fx,	float* fy,
 								const TriViewport* viewport );
 		
-	void GetPickRayFromScreen(
-		int x,				// screen coordinates
-		int y,
-		Vector3* rayWorld,	// The ray in world coordinates
-		Vector3* startWorld // Starting point in world coordinates
-		);
-
 	void GetPickRayFromViewport( 
 		int x,					// screen coordinates
 		int y, 
@@ -140,6 +133,7 @@ public:
 	{
 		WINDOWED,
 		FULLSCREEN,
+		NO_ADAPTER,
 	};
 
 	enum DeviceType
@@ -148,15 +142,12 @@ public:
 		DEVICE_TYPE_SOFTWARE,
 	};
 
-	bool CreateSimpleDevice( Tr2WindowHandle hwnd, unsigned int width, unsigned int height, DeviceScreenType type );
-	// Create a simple windowed or fullscreen device.
-	// Parameters:
-	//  hwnd -- A window handle
-	//  width, height -- The width and height of the window that the device will cover (in pixels).
-	//    The should be within the limits of the window size. If a 0 is passed for either
-	//    the device will cover the entire 'hwnd' window.	
-	bool CreateWindowedDevice( Tr2WindowHandle hwnd, unsigned int width, unsigned int height );
-	bool CreateFullScreenDevice( Tr2WindowHandle hwnd, unsigned int width, unsigned int height );
+	bool CreateSimpleDevice( 
+		Tr2WindowHandle hwnd, 
+		unsigned int width, 
+		unsigned int height, 
+		DeviceScreenType type, 
+		Tr2RenderContextEnum::PresentInterval presentInterval );
 
 	// Parameter values for ApplicationActivated method
 	enum ApplicationActivation
@@ -201,15 +192,10 @@ public:
 	// TD3DDevice - Device States
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	const void SetProjectionMatrix( Matrix* );
 	const Matrix* GetProjectionMatrix();
-	const Matrix* GetInvProjectionMatrix();
 	const Matrix* GetInvViewMatrix();
 	const Matrix* GetViewMatrix();
 
-	bool GetCameraPosition(Vector3* out );
-	bool GetCameraViewVector(Vector3* out );
-	
 	/////////////////////////////////////////////////////////////////////////////////////
 	// INotify
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -380,6 +366,8 @@ public:
 #if BLUE_WITH_PYTHON
 	PyObject* PyCreateWindowedDevice ( PyObject* args );
 	PyObject* PyCreateFullScreenDevice ( PyObject* args );
+	PyObject* PyCreateWindowlessDevice ( PyObject* args );
+	
 	PyObject* PyChangeBackBufferSize ( PyObject* args );
 	long PyGetWindow();
 	void PyRender();
@@ -393,7 +381,7 @@ public:
 
 	void RefreshDeviceResources();
 
-	PyObject* PythonCreateDeviceHelper( PyObject* args, bool windowed );
+	PyObject* PythonCreateDeviceHelper( PyObject* args, DeviceScreenType screenType );
 #endif
 
 #if TRINITYDEV

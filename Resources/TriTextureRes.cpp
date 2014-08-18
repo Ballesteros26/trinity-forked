@@ -183,33 +183,7 @@ void TriTextureRes::ReloadResources()
 	gTriDev->QueueForReload( this );
 }
 
-// Called on background thread
-bool TriTextureRes::DoOpenStream()
-{
-	m_reservedMemory = 0;
-
-	// make sure the path string is not empty
-	if( !GetPath()[0] )
-	{
-		return false;
-	}
-
-	if( m_isTextureLoadDisabled )
-	{
-		return false;
-	}
-
-	if( BePaths->GetStreamFromPathW( GetPath(), &m_dataStream ) )
-	{
-		m_reservedMemory = m_dataStream->GetSize();
-		BeResMan->ReserveBackgroundLoadMemory( m_reservedMemory );
-		return true;
-	}
-
-	return false;
-}
-
-void TriTextureRes::DoCloseStream()
+void TriTextureRes::OnCloseStream()
 {
 	if( m_loadedBitmap )
 	{
@@ -221,16 +195,8 @@ void TriTextureRes::DoCloseStream()
 
 	m_loadedBitmap.reset();
 
-	if( m_dataStream )
-	{
-		m_dataStream->UnlockData();
-		m_data = NULL;
-		m_dataSize = 0;
-		m_dataStream = nullptr;
-	}
-
-	BeResMan->ReleaseBackgroundLoadMemory( m_reservedMemory );
-	m_reservedMemory = 0;
+	m_data = NULL;
+	m_dataSize = 0;
 }
 
 bool TriTextureRes::OnPrepareResources()
@@ -377,7 +343,7 @@ BlueAsyncRes::LoadingResult TriTextureRes::DoLoad()
 
 	BeTimer t;
 
-	if( !m_dataStream )
+	if( m_isTextureLoadDisabled )
 	{
 		return LR_FAILED;
 	}

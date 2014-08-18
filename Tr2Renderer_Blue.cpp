@@ -10,9 +10,6 @@ static void SetTbbWorkerThreadCount( int threads )
 	Tr2Renderer::SetTbbWorkerThreadCount( threads );
 }
 
-MAP_FUNCTION_AND_WRAP( "SetTbbWorkerThreadCount", SetTbbWorkerThreadCount, 
-				"Set the number of worker thread that TBB uses." );
-
 static void SetViewTransform( const Matrix& m )
 {	
 	Tr2Renderer::SetViewTransform( m );
@@ -41,18 +38,6 @@ MAP_FUNCTION_AND_WRAP( "SetPerspectiveProjection", SetPerspectiveProjection,
 				" front: z-value of the near view plane,\n"
 				" back:  z-value of the far view plane,\n"
 				" asp:   aspect ratio, defined as view space width divided by height." );
-
-static void SetOrthoProjection( float width, float height, float front, float back )
-{
-	Tr2Renderer::SetOrthoProjection( width, height, front, back );
-}
-MAP_FUNCTION_AND_WRAP( "SetOrthoProjection", SetOrthoProjection,
-				"Sets the orthogonal projection for rendering.\n\n"
-				" width:  width of the view plane,\n"
-				" height: height of the view plane,\n"
-				" front:  z-value of the near view plane,\n"
-				" back:   z-value of the far view plane,\n" );
-
 
 static Vector3 GetViewPosition()
 {
@@ -202,30 +187,13 @@ static void AddMipLevelSkipExclusionDirectory( const char* name )
 {
 	Tr2Renderer::AddMipLevelSkipExclusionDirectory(name);
 }
+
 MAP_FUNCTION_AND_WRAP( "AddMipLevelSkipExclusionDirectory", AddMipLevelSkipExclusionDirectory,
 			"Adds a resource directory to internal list. All textures in that directory are\n"
 			"not downsized due to graphics quality.\n"
 			"example: AddMipLevelSkipExclusionDirectory(\"res:/ui/\")\n"
 			"To clear the internal directory-list, use ::ClearMipLevelSkipExclusionDirectories()\n"
 			);
-
-static void ClearMipLevelSkipExclusionDirectories()
-{
-	Tr2Renderer::ClearMipLevelSkipExclusionDirectories();
-}
-MAP_FUNCTION_AND_WRAP( "ClearMipLevelSkipExclusionDirectories", ClearMipLevelSkipExclusionDirectories,
-			"Clears the internal directory-list\n"
-			);
-
-
-static void UpdateMaterials()
-{
-	Tr2Renderer::UpdateMaterials();
-}
-
-MAP_FUNCTION_AND_WRAP( "UpdateMaterials", UpdateMaterials,
-			 "Updates all Tr2Materials with the parameters from the default material\n"
-			 );
 
 static void AddGlobalSituationFlags( const std::vector<std::string>& flags )
 {

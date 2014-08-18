@@ -263,24 +263,6 @@ BLUE_REGISTER_ENUM_EX(
     ENUM_REG_ENUM_OBJECT_ON_MODULE
 );
 
-const Be::VarChooser Tr2RenderContextEnum_CubemapFace_Chooser[] = 
-{
-	{	"POSITIVE_X",	BeCast( CUBEMAP_FACE_POSITIVE_X ),	"Positive X face" },
-	{	"NEGATIVE_X",	BeCast( CUBEMAP_FACE_NEGATIVE_X ),	"Negative X face" },
-	{	"POSITIVE_Y",	BeCast( CUBEMAP_FACE_POSITIVE_Y ),	"Positive Y face" },
-	{	"NEGATIVE_Y",	BeCast( CUBEMAP_FACE_NEGATIVE_Y ),	"Negative Y face" },
-	{	"POSITIVE_Z",	BeCast( CUBEMAP_FACE_POSITIVE_Z ),	"Positive Z face" },
-	{	"NEGATIVE_Z",	BeCast( CUBEMAP_FACE_NEGATIVE_Z ),	"Negative Z face" },
-	{0}
-};
-
-BLUE_REGISTER_ENUM_EX( 
-    "CUBEMAP_FACE", 
-	CubemapFace, 
-    Tr2RenderContextEnum_CubemapFace_Chooser,
-    ENUM_REG_ENUM_OBJECT_ON_MODULE
-);
-
 const Be::VarChooser Tr2RenderContextEnum_ScanlineOrdering_Chooser[] = 
 {
 	{	"UNSPECIFIED",			BeCast( SCANLINE_ORDER_UNSPECIFIED ),		"" },
@@ -290,13 +272,6 @@ const Be::VarChooser Tr2RenderContextEnum_ScanlineOrdering_Chooser[] =
 	{0}
 };
 
-BLUE_REGISTER_ENUM_EX( 
-    "SCANLINE_ORDERING", 
-	ScanlineOrdering, 
-    Tr2RenderContextEnum_ScanlineOrdering_Chooser,
-    ENUM_REG_ENUM_OBJECT_ON_MODULE
-);
-
 const Be::VarChooser Tr2RenderContextEnum_DisplayScaling_Chooser[] = 
 {
 	{	"UNSPECIFIED",	BeCast( DISPLAY_SCALING_UNSPECIFIED ),	"" },
@@ -304,13 +279,6 @@ const Be::VarChooser Tr2RenderContextEnum_DisplayScaling_Chooser[] =
 	{	"STRETCHED",	BeCast( DISPLAY_SCALING_STRETCHED ),	"" },
 	{0}
 };
-
-BLUE_REGISTER_ENUM_EX( 
-    "DISPLAY_SCALING", 
-	DisplayScaling, 
-    Tr2RenderContextEnum_DisplayScaling_Chooser,
-    ENUM_REG_ENUM_OBJECT_ON_MODULE
-);
 
 const Be::VarChooser Tr2RenderContextEnum_SwapEffect_Chooser[] = 
 {

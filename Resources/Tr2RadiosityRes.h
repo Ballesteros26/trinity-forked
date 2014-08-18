@@ -50,12 +50,9 @@ public:
 	static const Geo::u32 s_versionNumber;
 
 protected:
-	bool DoOpenStream();
-	void DoCloseStream();
 	LoadingResult DoLoad();
 	bool DoPrepare();
 
-	IBlueStreamPtr m_dataStream;
 	void* m_data;
 	uint32_t m_dataSize;
 	unsigned m_systemSize;

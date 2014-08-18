@@ -34,15 +34,11 @@ public:
 	// Version number stored in files
 	static const Geo::u32 s_versionNumber;
 protected:
-	bool DoOpenStream();
-	void DoCloseStream();
 	LoadingResult DoLoad();
 	bool DoPrepare();
 
 
 protected:
-	IBlueStreamPtr m_dataStream;
-	void* m_data;
 	uint32_t m_dataSize;
 	unsigned m_probeSize;
 	struct ProbeSet

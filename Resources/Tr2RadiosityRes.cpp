@@ -39,30 +39,6 @@ size_t Tr2RadiosityRes::GetMemoryUsage()
 	return m_systemSize;
 }
 
-bool Tr2RadiosityRes::DoOpenStream()
-{
-	BePaths->GetStreamFromPathW( GetPath(), &m_dataStream );
-
-	if( !m_dataStream )
-	{
-		return false;
-	}
-
-	return true;
-}
-
-void Tr2RadiosityRes::DoCloseStream()
-{
-	if( m_dataStream )
-	{
-		m_dataStream->UnlockData();
-		m_data = NULL;
-		m_dataSize = 0;
-		m_dataStream = nullptr;
-	}
-}
-
-
 Enlighten::RadSystemCore* ProtectedReadRadSystemCore( GeoMemoryStream& stream, const wchar_t* path )
 {
 	Enlighten::RadSystemCore* radSystem = nullptr;

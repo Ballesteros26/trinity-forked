@@ -9,6 +9,7 @@ const Be::ClassInfo* EvePlanet::ExposeToBlue()
     EXPOSURE_BEGIN( EvePlanet, "" )
         MAP_INTERFACE( EvePlanet )
 		MAP_INTERFACE( IWorldPosition )
+		MAP_INTERFACE( ITr2SecondaryLightSource )
 
 		MAP_ATTRIBUTE
 		(
@@ -48,6 +49,22 @@ const Be::ClassInfo* EvePlanet::ExposeToBlue()
 			"radius",
 			m_radius,
 			"The planet's radius",
+			Be::READWRITE | Be::PERSIST
+		)
+
+		MAP_ATTRIBUTE
+		(  
+			"albedoColor",
+			m_albedoColor,
+			"Planet albedo color, used for secondary lighting",
+			Be::READWRITE | Be::PERSIST
+		)
+
+		MAP_ATTRIBUTE
+		(  
+			"emissiveColor",
+			m_emissiveColor,
+			"Planet emissive color",
 			Be::READWRITE | Be::PERSIST
 		)
 

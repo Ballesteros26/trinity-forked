@@ -82,18 +82,6 @@ Umbra::MeshModel* TriGrannyRes::CreateUmbraMeshFromGrannyMesh( granny_mesh* mesh
 }
 #endif
 
-bool TriGrannyRes::DoOpenStream()
-{
-    BePaths->GetStreamFromPathW( GetPath(), &m_dataStream );
-
-    if( !m_dataStream )
-    {
-        return false;
-    }
-
-    return true;
-}
-
 BlueAsyncRes::LoadingResult TriGrannyRes::DoLoad()
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
@@ -155,16 +143,6 @@ BlueAsyncRes::LoadingResult TriGrannyRes::DoLoad()
 bool TriGrannyRes::DoPrepare()
 {
     return true;
-}
-
-void TriGrannyRes::DoCloseStream()
-{
-	if( m_dataStream )
-	{
-		m_dataStream->UnlockData();
-		m_data = NULL;
-		m_dataStream = nullptr;
-	}
 }
 
 const granny_mesh* TriGrannyRes::GetGrannyMesh( int meshIx ) const
@@ -1081,6 +1059,39 @@ std::string TriGrannyRes::GetVectorTrackName( int groupIdx, int trackIdx )
 		if( trackIdx < fi->TrackGroups[groupIdx]->VectorTrackCount )
 		{
 			return fi->TrackGroups[groupIdx]->VectorTracks[trackIdx].Name;
+		}		
+	}
+	return "";
+}
+
+int TriGrannyRes::GetEventTrackCount( int groupIdx )
+{
+	granny_file_info* fi = ValidateFileInfo();
+	if( !fi )
+	{
+		return 0;
+	}
+	
+	if( groupIdx < fi->TrackGroupCount )
+	{
+		return fi->TrackGroups[groupIdx]->TextTrackCount;
+	}
+	return 0;
+}
+
+std::string TriGrannyRes::GetEventTrackName( int groupIdx, int trackIdx )
+{
+	granny_file_info* fi = ValidateFileInfo();
+	if( !fi )
+	{
+		return "";
+	}
+
+	if( groupIdx < fi->TrackGroupCount  )
+	{
+		if( trackIdx < fi->TrackGroups[groupIdx]->TextTrackCount )
+		{
+			return fi->TrackGroups[groupIdx]->TextTracks[trackIdx].Name;
 		}		
 	}
 	return "";

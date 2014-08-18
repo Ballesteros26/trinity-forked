@@ -41,13 +41,6 @@ public:
 		UNKNOWN					= 0XFFFFFFFFu
 	};
 
-	enum OverrideMode
-	{
-		OM_DO_NOTHING,				// use the override effect, but leave the PS data lone
-		OM_APPLY_PS,				// use the override effect, and apply its PS data, replacing what was already there
-		OM_DO_NOT_SET_ORIGINAL_PS,	// do not set original pixel shader inputs
-	};
-
 	enum RenderingMode
 	{
 		RM_ANY,	// Don't care about the render state
@@ -73,14 +66,6 @@ public:
 	{ 
 		UNINITIALIZED_DECLARATION = ~0u 
 	};
-
-	void RenderBatches( ITriRenderBatchAccumulator* batches );
-	void RenderLightBatches( ITriRenderBatchAccumulator* batches );
-	void RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, ITr2ShaderMaterial* overrideEffect, OverrideMode overrideMode );
-
-	void RenderBatchesForPicking( ITr2ShaderMaterial* effect, TriRenderBatch* &p, int &objectNum );
-	void RenderBatchesForPickingWithoutOverride( ITriRenderBatchAccumulator* batches, int &objectNum );
-
 
 	void ApplyStandardStates( RenderingMode rm );
 
@@ -116,12 +101,11 @@ public:
 	static uint32_t RegisterRenderStateSetup( 
 		const Tr2RenderStateSetup& rss );
 
-	bool IsWireframeRendering();
 	void SetWireframeRendering( bool b );
 	void SetInvertedCullMode( bool b );
 	bool IsCullModeInverted();
 
-	TriVariable* GetObjectIdVariable();
+	
 
 	// Shared across managers:
 	// - sampler setups
@@ -141,27 +125,6 @@ private:
 	friend class Tr2LowLevelShader;
 
 	Tr2RenderContext&	m_renderContext;
-
-	// Render batches from an accumulator that was not set up for sorting by effect,
-	// so they are rendered in whatever order they were added to the accumulator.
-	// This is usually used for rendering transparent objects where the application
-	// sorted by object.
-	void RenderBatchesInOrder( ITriRenderBatchAccumulator* batches );
-
-	// Hints for RenderBatchesSortedByEffect method
-	enum BatchesRenderHints
-	{
-		// Nothing special
-		HINT_DEFAULT				= 0,
-		// Batches effects don't have unique per-effect data,
-		// so setting it can be skipped (see RenderLightBatches)
-		HINT_NO_PER_EFFECT_DATA		= 1,
-	};
-
-	// Render batches from an accumulator that was set up for sorting by effect.
-	// This is normally used for opaque or additive batches. State settings can
-	// be minimized by taking advantage of sorting that has been done.
-	void RenderBatchesSortedByEffect( ITriRenderBatchAccumulator* batches, BatchesRenderHints hints = HINT_DEFAULT );
 
 	// used by SetPerObjectDataToDevice
 	Tr2ConstantBufferAL		m_perObjectConstantBuffers[ Tr2RenderContextEnum::CBUFFER_COUNT ];
@@ -195,9 +158,6 @@ private:
 	uint32_t		m_fillMode;
 	bool			m_isCullModeInverted;
 	bool			m_isManagedRendering;
-
-	TriVariable		*m_objectIdVariable;
-	TriVariable		*m_areaIdVariable;
 
 	Tr2EffectStateManager( const Tr2EffectStateManager & );
 	Tr2EffectStateManager& operator=( const Tr2EffectStateManager & );

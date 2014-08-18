@@ -47,6 +47,6 @@ public:
 	virtual const Tr2ConstantEffectParameter* GetConstParameters( size_t& count ) const = 0;
 
 	virtual void UnloadResources() = 0;
-	virtual void LoadResources() = 0;};
+	virtual bool LoadResources() = 0;};
 
 #endif

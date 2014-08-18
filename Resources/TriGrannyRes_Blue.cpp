@@ -280,5 +280,18 @@ const Be::ClassInfo* TriGrannyRes::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( "GetTransformTrackName", GetTransformTrackName, "( groupIdx, trackIdx )\nGet the name of the transform track" )
 		MAP_METHOD_AND_WRAP( "GetVectorTrackCount", GetVectorTrackCount, "( index )\nGet the number of transform tracks under a track group" )
 		MAP_METHOD_AND_WRAP( "GetVectorTrackName", GetVectorTrackName, "( groupIdx, trackIdx )\nGet the name of the transform track" )
+		MAP_METHOD_AND_WRAP( 
+			"GetEventTrackCount", 
+			GetEventTrackCount, 
+			"Get the number of event (text) tracks under a track group\n"
+			"Arguments:\n"
+			"index - track group index" )
+		MAP_METHOD_AND_WRAP( 
+			"GetEventTrackName", 
+			GetEventTrackName, 
+			"Get the name of the event (text) track\n"
+			"Arguments:\n"
+			"groupIdx - track group index\n"
+			"trackIdx - tack index" )
     EXPOSURE_CHAINTO( BlueAsyncRes )
 }

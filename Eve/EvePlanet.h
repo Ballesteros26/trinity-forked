@@ -7,6 +7,7 @@
 #include "IWorldPosition.h"
 #include "include/ITriFunction.h"
 #include "TriObserverLocal.h"
+#include "Tr2ShLightingManager.h"
 
 BLUE_DECLARE( EvePlanet );
 BLUE_DECLARE( EveUpdateContext );
@@ -19,7 +20,8 @@ struct ViewDistanceInfo;
 
 class EvePlanet:
 	public IWorldPosition,
-	public Tr2DeviceResource
+	public Tr2DeviceResource,
+	public ITr2SecondaryLightSource
 {
 public:
     EXPOSE_TO_BLUE();
@@ -44,6 +46,11 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IWorldPosition
 	virtual const Vector3* GetWorldPosition();
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2SecondaryLightSource
+	virtual void RegisterSecondaryLightSource( Tr2ShLightingManager& );
+	virtual void UnregisterSecondaryLightSource( Tr2ShLightingManager& );
 
 private:
 	bool OnPrepareResources();
@@ -86,6 +93,9 @@ private:
 	ITriQuaternionFunctionPtr m_ballRotation;
 
 	Matrix m_worldTransform;
+
+	Color m_albedoColor;
+	Color m_emissiveColor;
 
 	EveTransformPtr m_highDetail;
 	EveTransformPtr m_zOnlyModel;

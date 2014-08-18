@@ -68,9 +68,6 @@ public:
 	static unsigned int GetPerObjectPSStartRegister();
 	static unsigned int GetPerObjectVSFFEStartRegister();
 	static unsigned int GetPerObjectVSGUIStartRegister();
-	// Get some register numbers for the currently set shader model
-	static unsigned int GetMaxNumOfPSRegistersI();
-	static unsigned int GetMaxNumOfPSRegistersF();
 
 
 	template<Tr2RenderContextEnum::ShaderType shaderType>
@@ -114,7 +111,6 @@ public:
 	// texture-resize directories
 	static bool IsTextureToResize( const char* filename );
 	static void AddMipLevelSkipExclusionDirectory( const char* path );
-	static void ClearMipLevelSkipExclusionDirectories();
 
 	// Register an effect. All registered effects are automatically reinitialized upon shader model change.
 	// Reinit's can also be triggered from somewhere else, for example when toggling shadows
@@ -138,8 +134,6 @@ public:
 	// Rebind all shader materials
 	static void RebindAllShaderMaterials( void );
 
-	// access to global vertex/index buffers
-	static Tr2VertexBufferAL& GetQuadVertexBuffer();
 	// pointer since this can fail
 	static Tr2IndexBufferAL*  GetQuadListIndexBuffer( unsigned int numOfQuads );
 
@@ -149,7 +143,6 @@ public:
 
 	static HRESULT BeginRenderContext();
 	static HRESULT EndRenderContext();
-	static unsigned long GetCurrentRenderContextCounter();
 
 	static void ClearDepthBuffer( float z = 1.0f );
 
@@ -183,7 +176,6 @@ public:
 	static const Matrix& GetProjectionRawTransform();
     static const Matrix& GetInverseProjectionTransform();
 	static const PROJECTION_TYPE GetCurrentProjectionType();
-	static void AdjustClipCoordsForViewport( Vector3& tl, Vector3& br );
 
 	static Vector3 ProjectWorldToScreen( const Vector3& worldPos, const Tr2Viewport& vp );
 

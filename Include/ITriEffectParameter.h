@@ -63,8 +63,8 @@ BLUE_INTERFACE(ITriEffectResourceParameter) : public ITriEffectParameter
 	virtual void ReloadResources() = 0; 
 	
 	// Kick off a load, in case resource has been unloaded
-	virtual void LoadResources() 
-	{ /*do nothing by default*/ }; 
+	virtual bool LoadResources() 
+	{ return false; }; 
 
 	// Unload the resource
 	virtual void UnloadResources() 

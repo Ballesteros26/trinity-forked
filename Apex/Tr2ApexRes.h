@@ -33,13 +33,10 @@ public:
 	size_t GetMemoryUsage();
 
 protected:
-	bool DoOpenStream();
-	void DoCloseStream();
 	LoadingResult DoLoad();
 	bool DoPrepare();
 
 protected:
-	IBlueStreamPtr				m_dataStream;
 	physx::apex::NxApexAsset	*m_asset;
 	uint32_t					m_dataSize;
 	std::string					m_apexName;

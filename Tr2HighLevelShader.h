@@ -78,8 +78,13 @@ public:
 	std::string PermuteIndexToString( const int permuteIndex ) const;
 
 private:
+	enum LoadingOption
+	{
+		SYNCRONOUS,
+		ASYNCRONOUS,
+	};
 	// Loads the .fx file
-	void LoadFXFile();
+	void LoadFXFile( LoadingOption );
 
 	// Creates an array of #defines for the D3DX effect compiler
 	Tr2EffectDefine* CreateDefinesFromSituation( const Tr2ShaderSituation& situation, 
@@ -134,7 +139,8 @@ private:
 		unsigned size;
 	};
 	// Compiled shader file
-	IResFilePtr m_compiledFile;
+	IBlueStreamPtr m_compiledFile;
+
 	// Map from permuteIndex to offset+size in compiled
 	// shader file
 	std::map<unsigned, FileRecord> m_compiledPermutations;

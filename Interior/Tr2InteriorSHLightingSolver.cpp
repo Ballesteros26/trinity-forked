@@ -305,7 +305,7 @@ void Tr2InteriorSHLightingSolver::Solve( const ITr2InteriorLightVector& visibleL
 
 	renderContext.m_esm.BeginManagedRendering();
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_LIGHT );
-	renderContext.m_esm.RenderLightBatches( m_shRenderBatches );
+	renderContext.RenderLightBatches( m_shRenderBatches );
 	renderContext.m_esm.ApplyStandardStates(Tr2EffectStateManager::RM_ALPHA);
 	renderContext.m_esm.EndManagedRendering();
 

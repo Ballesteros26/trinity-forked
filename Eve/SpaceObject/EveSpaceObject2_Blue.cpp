@@ -18,6 +18,7 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 		MAP_INTERFACE( ITr2Pickable )
 		MAP_INTERFACE( ITriTargetable )
 		MAP_INTERFACE( IWorldPosition )
+		MAP_INTERFACE( ITr2ShLightingReceiver )
 
 		MAP_ATTRIBUTE
 		( 

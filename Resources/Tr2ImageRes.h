@@ -41,14 +41,10 @@ public:
 	Color GetPixelColor( int x, int y ) const;
 
 protected:
-	bool DoOpenStream();
-	void DoCloseStream();
 	LoadingResult DoLoad();
 	bool DoPrepare();
 
 private:
-	IBlueStreamPtr m_dataStream;
-	size_t m_reservedMemory;
 	uint32_t m_dataSize;
 
 	ImageIO::HostBitmap m_bitmap;

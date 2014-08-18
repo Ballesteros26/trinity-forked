@@ -822,7 +822,7 @@ void Tr2Effect::RenderForPicking( IRenderCallback* cb, int objId, Tr2RenderConte
 
 	CCP_ASSERT( cb );
 
-	TriVariable* objIdVariable = renderContext.m_esm.GetObjectIdVariable();
+	TriVariable* objIdVariable = renderContext.GetObjectIdVariable();
 	if( objIdVariable )
 	{
 		objIdVariable->SetValue( (float)objId );
@@ -1450,12 +1450,17 @@ void Tr2Effect::UnloadResources()
 	}
 }
 
-void Tr2Effect::LoadResources()
+bool Tr2Effect::LoadResources()
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
+	bool result = true;
 	for( auto it = m_resources.cbegin(); it != m_resources.cend(); ++it )
 	{
-		(*it)->LoadResources();
+		if( !(*it)->LoadResources() )
+		{
+			result = false;
+		}
 	}
+	return result;
 }

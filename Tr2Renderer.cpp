@@ -83,6 +83,14 @@ namespace
 	unsigned int s_perObjectPSStartRegister = 4;
 	unsigned int s_perObjectVSFFEStartRegister = 5;
 	unsigned int s_perObjectVSGUIStartRegister = 6;
+#elif( TRINITY_PLATFORM==TRINITY_STUB)
+	// these are actually constant buffer indices
+	unsigned int s_perFrameVSStartRegister  = 1;
+	unsigned int s_perFramePSStartRegister  = 2;
+	unsigned int s_perObjectVSStartRegister = 3;
+	unsigned int s_perObjectPSStartRegister = 4;
+	unsigned int s_perObjectVSFFEStartRegister = 5;
+	unsigned int s_perObjectVSGUIStartRegister = 6;
 #else
 #	error "Missing platform"
 #endif
@@ -174,8 +182,6 @@ namespace
 
 	Tr2TextureAL s_fallbackTextures[2][3];
 	bool s_debugFallbackTexture = false;
-
-	unsigned long s_currentRenderContextCounter = 0;
 
 	std::list<Matrix> s_projectionStack;
 	std::list<Matrix> s_viewTransformStack;
@@ -1327,8 +1333,6 @@ void Tr2Renderer::EndFrame()
 
 HRESULT Tr2Renderer::BeginRenderContext()
 {
-	++s_currentRenderContextCounter;
-
 	USE_MAIN_THREAD_RENDER_CONTEXT();
 	return renderContext.BeginScene();
 }
@@ -1347,11 +1351,6 @@ HRESULT Tr2Renderer::EndRenderContext()
 TriPoolAllocator* Tr2Renderer::GetPoolAllocator()
 {
 	return s_poolAllocator;
-}
-
-unsigned long Tr2Renderer::GetCurrentRenderContextCounter()
-{
-	return s_currentRenderContextCounter;
 }
 
 unsigned long Tr2Renderer::GetCurrentFrameCounter()
@@ -1614,12 +1613,6 @@ void Tr2Renderer::AddMipLevelSkipExclusionDirectory(const char* path)
 	s_dirsToExclude.push_back(checkDir);
 }
 
-void Tr2Renderer::ClearMipLevelSkipExclusionDirectories(void)
-{
-	// just empty the array
-	s_dirsToExclude.clear();
-}
-
 bool Tr2Renderer::IsTextureToResize(const char* filename)
 {
 	// convert to upper case
@@ -1640,41 +1633,6 @@ bool Tr2Renderer::IsLowQuality(void)
 {
 	// is this low quality rendering? Decide here
 	return ( GetShaderModel() <= TR2SM_3_0_LO );
-}
-
-unsigned int Tr2Renderer::GetMaxNumOfPSRegistersF()
-{
-	switch( GetShaderModel() )
-	{
-	case TR2SM_3_0_LO:
-	case TR2SM_3_0_HI:
-	case TR2SM_3_0_DEPTH:
-		return 224;
-
-	case TR2SM_2_0_LO:
-	case TR2SM_2_0_HI:
-		return 32;
-
-	default:
-		// no, not a single one
-		return 0;
-	}
-}
-
-unsigned int Tr2Renderer::GetMaxNumOfPSRegistersI()
-{
-	switch( GetShaderModel() )
-	{
-	case TR2SM_3_0_LO:
-	case TR2SM_3_0_HI:
-	case TR2SM_3_0_DEPTH:
-		// this might be enough for now...
-		return 1;
-
-	default:
-		// no, not a single one
-		return 0;
-	}
 }
 
 unsigned int Tr2Renderer::GetPerFrameVSStartRegister()
@@ -1705,11 +1663,6 @@ unsigned int Tr2Renderer::GetPerObjectVSGUIStartRegister()
 unsigned int Tr2Renderer::GetPerObjectPSStartRegister()
 {
 	return s_perObjectPSStartRegister;
-}
-
-Tr2VertexBufferAL& Tr2Renderer::GetQuadVertexBuffer()
-{
-	return s_quadVertexBuffer;
 }
 
 Tr2IndexBufferAL* Tr2Renderer::GetQuadListIndexBuffer( unsigned int numOfQuads )
@@ -1976,8 +1929,13 @@ bool Tr2Renderer::SetRenderTarget( unsigned int index, const Tr2RenderTargetAL& 
 	if( !index && updateViewport )
 	{
 		unsigned width, height;
-		renderContext.GetRenderTargetSize( width, height );	// don't use rt.GetWidth/Height, rt may be nullRT
-		UpdateRenderTargetViewport( width, height );		
+		if( SUCCEEDED( renderContext.GetRenderTargetSize( width, height ) ) ) 
+		{	
+			// don't use rt.GetWidth/Height, rt may be nullRT
+			UpdateRenderTargetViewport( width, height );
+		} else {
+			CCP_LOGERR( "Could not update viewport for render target index 0, GetRenderTargetSize failed");
+		}
 	}
 
 	return true;
@@ -2010,16 +1968,6 @@ char* Tr2Renderer::GetEnlightenErrorBuffer()
 bool Tr2Renderer::IsRightHanded()
 {
 	return s_isRightHanded;
-}
-
-void Tr2Renderer::AdjustClipCoordsForViewport( Vector3& tl, Vector3& br )
-{
-	// Adjust to D3D9 viewport fudge:
-	tl.x = s_viewport2projectionAdjustment._11*tl.x + s_viewport2projectionAdjustment._31;
-	tl.y = s_viewport2projectionAdjustment._22*tl.y + s_viewport2projectionAdjustment._32;
-	
-	br.x = s_viewport2projectionAdjustment._11*br.x + s_viewport2projectionAdjustment._31;
-	br.y = s_viewport2projectionAdjustment._22*br.y + s_viewport2projectionAdjustment._32;
 }
 
 void Tr2Renderer::UpdateMaterials()

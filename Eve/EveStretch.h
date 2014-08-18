@@ -54,6 +54,7 @@ public:
 	void SetDisplayDestObject( bool display ) { m_displayDestObject = display; }
 	void SetDisplaySourceObject( bool display ) { m_displaySourceObject = display; }
 
+	void UpdateCurves( EveUpdateContext& updateContext );
 private:
 	LodLevel m_lodLevel;
 	Be::Time m_lastCurveUpdateTime;

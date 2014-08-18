@@ -40,21 +40,6 @@ size_t Tr2ClothingRes::GetMemoryUsage()
 	return m_dataSize;
 }
 
-bool Tr2ClothingRes::DoOpenStream()
-{
-	CCP_ASSERT( !m_dataStream );
-	return BePaths->GetStreamFromPathW( m_path.c_str(), &m_dataStream );
-}
-
-void Tr2ClothingRes::DoCloseStream()
-{
-	if( m_dataStream )
-	{
-		m_dataStream->UnlockData();
-		m_dataStream = nullptr;
-	}
-}
-
 BlueAsyncRes::LoadingResult Tr2ClothingRes::InternalLoadFunction()
 {
 	CCP_STATS_ZONE( __FUNCTION__ );

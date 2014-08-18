@@ -115,14 +115,29 @@ void Tr2GeometryBufferParameter::ReloadResources()
 // --------------------------------------------------------------------------------------
 // Description:
 //   Implements ITriEffectResourceParameter interface. Loads geometry resource.
+// Return value:
+//   true If the parameter is ready to be used, i.e. if it is not referencing any 
+//         resources or resources are already loaded.
+//   false If resources referenced by the parameter are being loaded.
 // --------------------------------------------------------------------------------------
-void Tr2GeometryBufferParameter::LoadResources()
+bool Tr2GeometryBufferParameter::LoadResources()
 {
 	if ( !m_resourcePath.empty() )
 	{
 		m_gpuBuffer.Unlock();
 		BeResMan->GetResourceW( m_resourcePath.c_str(), L"", BlueInterfaceIID<ITr2GpuBuffer>(), (void**)&m_gpuBuffer );
+		if( !m_gpuBuffer )
+		{
+			return true;
+		}
+		IBlueResourcePtr async = BlueCastPtr( m_gpuBuffer );
+		if( !async )
+		{
+			return false;
+		}
+		return async->IsGood();
 	}
+	return true;
 }
 
 // --------------------------------------------------------------------------------------

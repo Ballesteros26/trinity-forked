@@ -160,10 +160,9 @@ private:
 protected:
 	// Provide the functions that do the actual work of loading and preparing.
 	// The async management itself is done in BlueAsyncRes.
-	virtual bool DoOpenStream();
 	virtual LoadingResult DoLoad();
 	virtual bool DoPrepare();
-	virtual void DoCloseStream();
+	virtual void OnCloseStream();
 
 private:
 	// These member variables and functions exist to support async texture saving;
@@ -174,8 +173,6 @@ private:
 
 	friend Tr2HostBitmap;
 
-	IBlueStreamPtr m_dataStream;
-	size_t m_reservedMemory;
 	void* m_data;
 	uint32_t m_dataSize;
 

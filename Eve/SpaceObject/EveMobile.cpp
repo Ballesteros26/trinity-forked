@@ -91,10 +91,6 @@ void EveMobile::UpdateSyncronous( EveUpdateContext& updateContext )
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	EveSpaceObject2::UpdateSyncronous( updateContext );
-	for( auto it = m_turretSets.begin(); it != m_turretSets.end(); ++it )
-	{
-		(*it)->UpdateModelLOD();
-	}
 
 	Be::Time time = updateContext.GetTime();
 	float deltaT = updateContext.GetDeltaT();
@@ -126,14 +122,8 @@ void EveMobile::UpdateSyncronous( EveUpdateContext& updateContext )
 		// next!
 		++locatorInfoIdx;
 
-		// now prep to get the renderables
-		EveTurretSet::ParentData pd;
-		pd.transform = m_worldTransform;
-		pd.shipData = m_spaceObjectMiscData;
-		pd.clipData = m_spaceObjectClipData;
-		pd.clipDataEx = m_spaceObjectClipDataEx;
 		// call standard update function
-		(*it)->Update( deltaT, time, &pd );
+		(*it)->UpdateSyncronous( deltaT, time, &m_worldTransform );
 	}
 }
 
@@ -144,6 +134,8 @@ void EveMobile::UpdateSyncronous( EveUpdateContext& updateContext )
 // --------------------------------------------------------------------------------
 void EveMobile::UpdateAsyncronous( EveUpdateContext& updateContext )
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	EveSpaceObject2::UpdateAsyncronous( updateContext );
 
 	// prepare shader data:
@@ -162,6 +154,21 @@ void EveMobile::UpdateAsyncronous( EveUpdateContext& updateContext )
 	float disolveRadius = nearDist + m_clipSphereFactor * GetBoundingSphereRadius() * ( 1.f + insideSpherePercentage );
 	m_spaceObjectClipData = Vector4( m_clipSphereCenter + GetBoundingSphereCenter(), TriFloatSign( disolveRadius ) * disolveRadius * disolveRadius );
 	m_spaceObjectClipDataEx = Vector4( TriFloatSign( disolveRadius ), 0.f, 0.f, 0.f );
+
+	Be::Time time = updateContext.GetTime();
+	float deltaT = updateContext.GetDeltaT();
+
+	// now prep to get the renderables
+	EveTurretSet::ParentData pd;
+	pd.transform = m_worldTransform;
+	pd.shipData = m_spaceObjectMiscData;
+	pd.clipData = m_spaceObjectClipData;
+	pd.clipDataEx = m_spaceObjectClipDataEx;
+
+	for( EveTurretSetVector::iterator it = m_turretSets.begin(); it != m_turretSets.end(); ++it )
+	{
+		(*it)->UpdateAsyncronous( deltaT, time, &pd );
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -181,7 +188,7 @@ void EveMobile::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rende
 	// collect renderables of the turrets
 	for( EveTurretSetVector::iterator it = m_turretSets.begin(); it != m_turretSets.end(); ++it )
 	{
-		(*it)->GetRenderables( frustum, renderables );
+		(*it)->GetRenderables( frustum, renderables, m_shLightingCoefficients );
 	}
 }
 

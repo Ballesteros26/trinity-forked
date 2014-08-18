@@ -114,6 +114,8 @@ public:
 	std::string GetVectorTrackName( int groupIdx, int ix );
 	std::string GetTrackGroupName( int groupIdx );
 	int GetTrackGroupCount();
+	int GetEventTrackCount( int groupIdx );
+	std::string GetEventTrackName( int groupIdx, int ix );
 
 #if BLUE_WITH_PYTHON
 	PyObject * GetMaterialDictionaryForArea( int mesh, int area );
@@ -135,10 +137,8 @@ protected:
 
 	// Provide the functions that do the actual work of loading and preparing.
     // The async management itself is done in TriAsyncLoadedResource.
-    virtual bool DoOpenStream();
     virtual LoadingResult DoLoad();
     virtual bool DoPrepare();
-    virtual void DoCloseStream();
 
 	void CollectGrannyMaterials();
 
@@ -148,7 +148,6 @@ protected:
 
 	bool BakeBlendshape( unsigned int meshIx, const std::vector<float>& weights  , void* pVertexData, unsigned int vertexDataSize, const NameToWeightMap* nameToWeight, bool deltaOnly );
 protected:
-	IBlueStreamPtr m_dataStream;
 	size_t m_dataSize;
 	size_t m_memoryUsage;
 	void* m_data;

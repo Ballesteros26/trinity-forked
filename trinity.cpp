@@ -17,8 +17,6 @@
 // constants to add to Python
 #include "TriConstants.h"
 
-#include "ALResultBlue.h"
-
 // stubbs for standar interfaces to register to Python
 #if BLUE_WITH_PYTHON
 #include "TriPythonThunkers.h"
@@ -84,7 +82,6 @@ const char* InitializeForPython()
 
 	// Initialize trinity exceptions
 	TriError::CreateExceptionObjects(dict);
-	ALResultRegisterExceptions( dict );
 
 	// constants
 	AddTriConstants(dict);
@@ -109,6 +106,7 @@ const char* InitializeForPython()
 						  BlueRegistration::GetThunkerRegs());
 
 	BlueRegisterObjectsToModule( module, BlueRegistration::GetObjectRegs() );
+	BlueRegisterExceptionsToModule( module, BlueRegistration::GetExceptionRegs() );
 
 	PyModule_AddObject( module, "settings", BlueWrapObjectForPython(&Tr2Renderer::GetSettings()) );
 	PyModule_AddObject( module, "fontMan", BlueWrapObjectForPython( g_fontManager ) );

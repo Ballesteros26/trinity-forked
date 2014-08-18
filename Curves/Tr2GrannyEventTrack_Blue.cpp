@@ -1,0 +1,18 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   May 2014
+//    Copyright: CCP 2014
+//
+
+#include "StdAfx.h"
+#include "Tr2GrannyEventTrack.h"
+
+BLUE_DEFINE( Tr2GrannyEventTrack );
+
+const Be::ClassInfo* Tr2GrannyEventTrack::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( Tr2GrannyEventTrack, "" )
+		MAP_INTERFACE( Tr2GrannyEventTrack )
+		MAP_ATTRIBUTE( "eventListener", m_eventListener, "Event listener for the track (blue.IBlueEventListener type)", Be::READWRITE )
+	EXPOSURE_CHAINTO( Tr2GrannyTrack )
+}

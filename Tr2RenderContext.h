@@ -36,9 +36,50 @@ struct Tr2RenderContextBase: public IRoot, public ITr2RenderContextEvents
 	Tr2RenderTargetPtr GetBackBuffer();
 
 	Tr2EffectStateManager m_esm;
+
+	// Hints for RenderBatchesSortedByEffect method
+	enum BatchesRenderHints
+	{
+		// Nothing special
+		HINT_DEFAULT				= 0,
+		// Batches effects don't have unique per-effect data,
+		// so setting it can be skipped (see RenderLightBatches)
+		HINT_NO_PER_EFFECT_DATA		= 1,
+	};
+
+	enum OverrideMode
+	{
+		OM_DO_NOTHING,				// use the override effect, but leave the PS data lone
+		OM_APPLY_PS,				// use the override effect, and apply its PS data, replacing what was already there
+		OM_DO_NOT_SET_ORIGINAL_PS,	// do not set original pixel shader inputs
+	};
+
+	TriVariable* GetObjectIdVariable();
+
+	void RenderBatches( ITriRenderBatchAccumulator* batches );
+	void RenderLightBatches( ITriRenderBatchAccumulator* batches );
+	void RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, ITr2ShaderMaterial* overrideEffect, OverrideMode overrideMode );
+	void RenderBatchesForPicking( ITr2ShaderMaterial* effect, TriRenderBatch* &p, int &objectNum );
+	void RenderBatchesForPickingWithoutOverride( ITriRenderBatchAccumulator* batches, int &objectNum );
+
+	// Render batches from an accumulator that was not set up for sorting by effect,
+	// so they are rendered in whatever order they were added to the accumulator.
+	// This is usually used for rendering transparent objects where the application
+	// sorted by object.
+	void RenderBatchesInOrder( ITriRenderBatchAccumulator* batches );
+
+	// Render batches from an accumulator that was set up for sorting by effect.
+	// This is normally used for opaque or additive batches. State settings can
+	// be minimized by taking advantage of sorting that has been done.
+	void RenderBatchesSortedByEffect( ITriRenderBatchAccumulator* batches, BatchesRenderHints hints = HINT_DEFAULT );
+protected:
+	Tr2ConstantBufferAL		m_perObjectConstantBuffers[ Tr2RenderContextEnum::CBUFFER_COUNT ];
 private:
 	Tr2RenderTargetPtr m_backBuffer;
 	Tr2VariableStorePtr m_varStore;
+
+	TriVariable		*m_objectIdVariable;
+	TriVariable		*m_areaIdVariable;
 };
 
 // --------------------------------------------------------------------------------------

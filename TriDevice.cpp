@@ -200,7 +200,8 @@ bool TriDevice::CreateSimpleDevice(
 	Tr2WindowHandle hwnd,
 	unsigned int width,
 	unsigned int height,
-	DeviceScreenType type )
+	DeviceScreenType type, 
+	Tr2RenderContextEnum::PresentInterval presentInterval )
 {
 	// Clean out old resources and the old device (if exists)
 	Invalidate( TRISTORAGE_ALL );
@@ -233,7 +234,7 @@ bool TriDevice::CreateSimpleDevice(
 	{
 		pp.windowed = true;
 	}
-	pp.presentInterval = PRESENT_INTERVAL_IMMEDIATE;
+	pp.presentInterval = presentInterval;
 
 	//take nvperfhud into account!
 	// Set default settings
@@ -267,23 +268,6 @@ bool TriDevice::CreateSimpleDevice(
 
 	return true;
 }
-
-bool TriDevice::CreateWindowedDevice(
-	Tr2WindowHandle hwnd,
-	unsigned int width,
-	unsigned int height)
-{
-	return CreateSimpleDevice( hwnd, width, height, /*DeviceScreenType*/WINDOWED );
-}
-
-bool TriDevice::CreateFullScreenDevice(
-	Tr2WindowHandle hwnd,
-	unsigned int width,
-	unsigned int height)
-{
-	return CreateSimpleDevice( hwnd, width, height, /*DeviceScreenType*/FULLSCREEN );
-}
-
 
 bool TriDevice::InitD3DDevice()
 {
@@ -592,7 +576,6 @@ void TriDevice::RebuildDeviceResourcesInPython()
 }
 
 const Matrix* TriDevice::GetProjectionMatrix()		{ return &Tr2Renderer::GetProjectionTransform(); }
-const Matrix* TriDevice::GetInvProjectionMatrix()	{ return &Tr2Renderer::GetInverseProjectionTransform(); }
 const Matrix* TriDevice::GetViewMatrix()			{ return &Tr2Renderer::GetViewTransform(); }
 const Matrix* TriDevice::GetInvViewMatrix()			{ return &Tr2Renderer::GetInverseViewTransform(); }
 
@@ -649,19 +632,6 @@ void TriDevice::InvalidateAndUnregisterForTicks()
 Tr2WindowHandle TriDevice::GetWindow()
 {
 	return mHwnd;
-}
-
-
-bool TriDevice::GetCameraPosition( Vector3* out )
-{
-    *out = Tr2Renderer::GetViewPosition();
-	return true;
-}
-
-bool TriDevice::GetCameraViewVector( Vector3* out )
-{
-    *out = Tr2Renderer::GetViewLookAt();
-	return true;
 }
 
 
@@ -908,15 +878,16 @@ void TriDevice::DisableResourceLoad( bool flag )
 	Tr2Renderer::DisableResourceLoad( flag );
 }
 
-PyObject* TriDevice::PythonCreateDeviceHelper( PyObject* args, bool windowed )
+PyObject* TriDevice::PythonCreateDeviceHelper( PyObject* args, DeviceScreenType screenType )
 {
 	TriPythonContext pythonCtx;
 
-	Tr2WindowHandle hwnd;
+	Tr2WindowHandle hwnd = 0;
 	int width = 0;
 	int height = 0;
+	int presentInterval = Tr2RenderContextEnum::PRESENT_INTERVAL_IMMEDIATE;
 
-	if( !PyArg_ParseTuple( args, "i|ii", &hwnd, &width, &height ) )
+	if( screenType != NO_ADAPTER && !PyArg_ParseTuple( args, "i|iii", &hwnd, &width, &height, &presentInterval ) )
 	{
 		return nullptr;
 	}
@@ -924,8 +895,7 @@ PyObject* TriDevice::PythonCreateDeviceHelper( PyObject* args, bool windowed )
 	width  = std::max( 0, width );
 	height = std::max( 0, height );
 
-	bool OK = windowed	? CreateWindowedDevice  ( hwnd, (unsigned)width, (unsigned)height )
-						: CreateFullScreenDevice( hwnd, (unsigned)width, (unsigned)height );
+	bool OK = CreateSimpleDevice( hwnd, width, height, screenType, Tr2RenderContextEnum::PresentInterval( presentInterval ) );
 		
 	if( !OK )
 	{
@@ -937,14 +907,18 @@ PyObject* TriDevice::PythonCreateDeviceHelper( PyObject* args, bool windowed )
 
 PyObject* TriDevice::PyCreateWindowedDevice( PyObject* args )
 {
-	return PythonCreateDeviceHelper( args, true );	
+	return PythonCreateDeviceHelper( args, WINDOWED );	
 }
 
 PyObject* TriDevice::PyCreateFullScreenDevice( PyObject* args )
 {
-	return PythonCreateDeviceHelper( args, true );	
+	return PythonCreateDeviceHelper( args, FULLSCREEN );	
 }
 
+PyObject* TriDevice::PyCreateWindowlessDevice( PyObject* args )
+{
+	return PythonCreateDeviceHelper( args, NO_ADAPTER );	
+}
 
 long TriDevice::PyGetWindow()
 {
@@ -1012,6 +986,9 @@ PyObject* TriDevice::PyResetDeviceResources( PyObject* args )
 void TriDevice::PrepareDeviceResources()
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
+
+	// NB: Unchecked return.
+	// Also, why are we calling this?
 	renderContext.SetPresentParameters( mAdapter, mPresentParam );
 
 	Tr2AutoResetObjectAL::PrepareALResources( renderContext );
@@ -1219,18 +1196,6 @@ unsigned TriDevice::CreateScreenVertexDecl()
 	vd.Add( vd.FLOAT32_2, vd.TEXCOORD );
 	
 	return Tr2EffectStateManager::GetVertexDeclarationHandle( vd );
-}
-
-void TriDevice::GetPickRayFromScreen(	int x,				// screen coordinates
-										int y,
-										Vector3* rayWorld,	// The ray in world coordinates
-										Vector3* startWorld // Starting point in world coordinates
-									)
-{
-	float xp, yp;
-	ScreenToProjection( x, y, &xp, &yp );
-
-    ConvertProjectionCoordToWorldPickRay( xp, yp, &Tr2Renderer::GetProjectionTransform(), &Tr2Renderer::GetViewTransform(), startWorld, rayWorld ); 
 }
 
 void TriDevice::GetPickRayFromViewport( int x, int y, TriViewport* viewport, const Matrix& view, const Matrix& proj, Vector3& rayWorld, Vector3& startWorld )

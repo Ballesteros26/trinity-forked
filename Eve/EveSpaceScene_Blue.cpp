@@ -268,6 +268,22 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 			Be::READWRITE | Be::PERSIST
 		)
 
+		MAP_PROPERTY
+		( 
+			"shLightingManager", 
+			GetShLightingManager, 
+			SetShLightingManager,
+			"SH lighting manager (Tr2ShLightingManager)"
+		)
+
+		MAP_ATTRIBUTE
+		( 
+			"shLightingManager", 
+			m_shLightingManager, 
+			"",
+			Be::PERSISTONLY
+		)
+
 		MAP_ATTRIBUTE
 		(
 			"envMapRotation",

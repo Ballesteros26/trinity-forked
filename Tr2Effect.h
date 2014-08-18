@@ -72,7 +72,7 @@ public:
 	void SetVariableStore( Tr2VariableStore* variableStore );
 	const Tr2ConstantEffectParameter* GetConstParameters( size_t& count ) const;
 	void UnloadResources();
-	void LoadResources();
+	bool LoadResources();
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// INotify

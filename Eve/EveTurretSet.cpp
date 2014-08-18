@@ -110,7 +110,8 @@ EveTurretSet::EveTurretSet( IRoot* lockobj ) :
 	m_randomMissPositionOffset( 0, 0, 0 ),
 	m_trackMissPoint( false ),
 	m_firingEffectMuzzlePosSet( false ),
-	m_slotNumber( -1 )
+	m_slotNumber( -1 ),
+	m_parentShLighting( nullptr )
 {
 	// 0
 	memset( &m_parentData, 0, sizeof( ParentData ) );
@@ -524,11 +525,7 @@ bool EveTurretSet::UpdateLOD()
 	return ( oldLOD != m_lodLevel );
 }
 
-// --------------------------------------------------------------------------------
-// Description:
-//   Updates LODs for turrets.
-// --------------------------------------------------------------------------------
-void EveTurretSet::UpdateModelLOD()
+void EveTurretSet::UpdateSyncronous( float deltaT, Be::Time time, const Matrix* parentMatrix )
 {
 	if( !m_singleTurrets.size() )
 	{
@@ -556,6 +553,48 @@ void EveTurretSet::UpdateModelLOD()
 			}
 		}
 	}
+
+	for( std::vector<SingleTurretData>::iterator it = m_singleTurrets.begin(); it != m_singleTurrets.end(); ++it )
+	{
+		// mesh animation
+		if( it->grnModelInstance )
+		{
+			GrannySetModelClock( it->grnModelInstance, Tr2Renderer::GetAnimationTime() );
+			GrannyFreeCompletedModelControls( it->grnModelInstance );
+		}
+	}
+
+	// setup and update attached firing effect
+	if( m_firingEffect )
+	{
+		if( m_activeTurret != INVALID_TURRET_INDEX )
+		{
+			// if the attached firing effect is looping, then we must recheck if active turret is still the best,
+			if( m_firingEffect->IsLooping() )
+			{
+				if( m_state == STATE_FIRING )
+				{
+					// don't do it every frame, cause this will result in popping
+					m_recheckTimeLeft -= deltaT;
+					if( m_recheckTimeLeft < 0.f )
+					{
+						unsigned int currentClosestTurret = INVALID_TURRET_INDEX;
+						int currentClosestLocator = -1;
+						if( GetClosestTurretAndLocator( currentClosestTurret, currentClosestLocator ) )
+						{
+							if( ( currentClosestTurret != m_activeTurret ) || ( currentClosestLocator != m_targetLocator ) )
+							{
+								// re-enter firing state, should take care of everything
+								EnterStateFiring();
+							}
+						}
+						// recheck every 2 seconds
+						m_recheckTimeLeft = 2.f;
+					}
+				}
+			}
+		}
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -572,7 +611,7 @@ void EveTurretSet::UpdateModelLOD()
 //   time - time delta since last frame
 //   parentMatrix - transform of parent object (usually a ship)
 // --------------------------------------------------------------------------------
-void EveTurretSet::Update( float deltaT, Be::Time time, const ParentData* parentData )
+void EveTurretSet::UpdateAsyncronous( float deltaT, Be::Time time, const ParentData* parentData )
 {
 	if( !m_singleTurrets.size() )
 	{
@@ -635,8 +674,6 @@ void EveTurretSet::Update( float deltaT, Be::Time time, const ParentData* parent
 		// mesh animation
 		if( it->grnModelInstance )
 		{
-			GrannySetModelClock( it->grnModelInstance, Tr2Renderer::GetAnimationTime() );
-			GrannyFreeCompletedModelControls( it->grnModelInstance );
 			GrannySampleModelAnimations( it->grnModelInstance, 0, it->grnSkeleton->BoneCount, it->grnLocalPose );
 
 			if( it->valid )
@@ -703,31 +740,6 @@ void EveTurretSet::Update( float deltaT, Be::Time time, const ParentData* parent
 	{
 		if( m_activeTurret != INVALID_TURRET_INDEX )
 		{
-			// if the attached firing effect is looping, then we must recheck if active turret is still the best,
-			if( m_firingEffect->IsLooping() )
-			{
-				if( m_state == STATE_FIRING )
-				{
-					// don't do it every frame, cause this will result in popping
-					m_recheckTimeLeft -= deltaT;
-					if( m_recheckTimeLeft < 0.f )
-					{
-						unsigned int currentClosestTurret = INVALID_TURRET_INDEX;
-						int currentClosestLocator = -1;
-						if( GetClosestTurretAndLocator( currentClosestTurret, currentClosestLocator ) )
-						{
-							if( ( currentClosestTurret != m_activeTurret ) || ( currentClosestLocator != m_targetLocator ) )
-							{
-								// re-enter firing state, should take care of everything
-								EnterStateFiring();
-							}
-						}
-						// recheck every 2 seconds
-						m_recheckTimeLeft = 2.f;
-					}
-				}
-			}
-
 			// update all muzzle points in the firing effect
 			for( unsigned int i = 0; i < m_firingEffect->GetPerMuzzleEffectCount(); ++i )
 			{
@@ -1149,8 +1161,10 @@ void EveTurretSet::GetRenderablesCastingShadow( const TriFrustumOrtho& frustum, 
 // SeeAlso:
 //   ITr2Renderable, EveStretch
 // --------------------------------------------------------------------------------
-void EveTurretSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables )
+void EveTurretSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Vector4* shLighting )
 {
+	m_parentShLighting = nullptr;
+
 	// display?
 	if( !m_display )
 	{
@@ -1185,6 +1199,7 @@ void EveTurretSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Re
 	{
 		if( m_turretEffect )
 		{
+			m_parentShLighting = shLighting;
 			renderables.push_back( this );
 		}
 	}
@@ -1401,6 +1416,14 @@ Tr2PerObjectData* EveTurretSet::GetPerObjectData( ITriRenderBatchAccumulator* ac
 		perObjectData->m_shipData = m_parentData.shipData;
 		perObjectData->m_clipData1 = m_parentData.clipData;
 		perObjectData->m_clipData2 = m_parentData.clipDataEx;
+		if( m_parentShLighting )
+		{
+			memcpy( perObjectData->m_shLightingCoefficients, m_parentShLighting, sizeof( perObjectData->m_shLightingCoefficients ) );
+		}
+		else
+		{
+			memset( perObjectData->m_shLightingCoefficients, 0, sizeof( perObjectData->m_shLightingCoefficients ) );
+		}
 	}
 
 	return perObjectData;
@@ -2266,7 +2289,7 @@ void EveTurretSetPerObjectData::SetPerObjectDataToDevice( Tr2ConstantBufferAL** 
 		3 * EVE_MAX_BONES_PER_TURRET * EVE_MAX_TURRETS_PER_SET;		// Matrix4x3 array
 	FillAndSetConstants( *buffers[VERTEX_SHADER], &m_baseCutoffData, vsConstantCount * 16, VERTEX_SHADER, Tr2Renderer::GetPerObjectVSStartRegister(), renderContext );
 
-	FillAndSetConstants( *buffers[PIXEL_SHADER], &m_shipData, 3 * 16, PIXEL_SHADER, Tr2Renderer::GetPerObjectPSStartRegister(), renderContext );
+	FillAndSetConstants( *buffers[PIXEL_SHADER], &m_shipData, ( 3 + Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT ) * 16, PIXEL_SHADER, Tr2Renderer::GetPerObjectPSStartRegister(), renderContext );
 
 }
 

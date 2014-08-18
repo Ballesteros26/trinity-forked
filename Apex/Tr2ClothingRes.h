@@ -44,8 +44,6 @@ public:
 
 
 protected:
-	bool DoOpenStream();
-	void DoCloseStream();
 	LoadingResult DoLoad();
 	bool DoPrepare();
 
@@ -54,7 +52,6 @@ protected:
 	void SafeReload();
 
 protected:
-	IBlueStreamPtr m_dataStream;
 	physx::apex::NxClothingAsset* m_asset;
 	uint32_t m_dataSize;
 	std::string m_apexName;

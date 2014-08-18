@@ -570,40 +570,10 @@ void TriGeometryRes::GetDescription( std::string& desc )
 }
 #endif
 
-// Called on main thread
-bool TriGeometryRes::DoOpenStream()
+void TriGeometryRes::OnCloseStream()
 {
-	if( m_pGrannyFile || m_inMemoryInfo )
-	{
-		// If we already have a granny file we don't need to load it again.
-		// We return true so we can go on to DoLoad which will handle this case appropriately.
-		return true;
-	}
-
-	//
-	// Get the stream - hold unto it until we've processed the data from it
-	//
-	if( BePaths->GetStreamFromPathW( GetPath(), &m_dataStream ) )
-	{
-		m_reservedMemory = m_dataStream->GetSize();
-		BeResMan->ReserveBackgroundLoadMemory( m_reservedMemory );
-		return true;
-	}
-	return false;
-}
-
-void TriGeometryRes::DoCloseStream()
-{
-	if( m_dataStream )
-	{
-		m_dataStream->UnlockData();
-		m_data = NULL;
-		m_dataSize = 0;
-		m_dataStream = nullptr;
-	}
-
-	BeResMan->ReleaseBackgroundLoadMemory( m_reservedMemory );
-	m_reservedMemory = 0;
+	m_data = NULL;
+	m_dataSize = 0;
 }
 
 // This gets called on the background loading thread
@@ -640,8 +610,6 @@ bool TriGeometryRes::DoPrepare()
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	USE_MAIN_THREAD_RENDER_CONTEXT();
-
-	m_dataStream = nullptr;
 
 	if( !Tr2Renderer::IsResourceCreationAllowed() )
 	{
@@ -1054,7 +1022,6 @@ bool TriGeometryRes::ReadGrannyFile( granny_file_info* gi )
 
 		if( !m_pGrannyFile )
 		{
-			m_dataStream = nullptr;
 			return false;
 		}
 

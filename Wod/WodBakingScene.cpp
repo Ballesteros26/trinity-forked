@@ -112,7 +112,7 @@ void WodBakingScene::Render( Tr2RenderContext& renderContext )
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
 
 	// Render!
-	renderContext.m_esm.RenderBatches( m_opaqueRenderBatches );
+	renderContext.RenderBatches( m_opaqueRenderBatches );
 
 	// Clear the batches
 	m_opaqueRenderBatches->Clear();

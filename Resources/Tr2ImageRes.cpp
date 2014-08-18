@@ -26,39 +26,6 @@ size_t Tr2ImageRes::GetMemoryUsage()
 	}
 }
 
-bool Tr2ImageRes::DoOpenStream()
-{
-	m_reservedMemory = 0;
-
-	// make sure the path string is not empty
-	if( !GetPath()[0] )
-	{
-		return false;
-	}
-
-	if( BePaths->GetStreamFromPathW( GetPath(), &m_dataStream ) )
-	{
-		m_reservedMemory = m_dataStream->GetSize();
-		BeResMan->ReserveBackgroundLoadMemory( m_reservedMemory );
-		return true;
-	}
-
-	return false;
-}
-
-void Tr2ImageRes::DoCloseStream()
-{
-	if( m_dataStream )
-	{
-		m_dataStream->UnlockData();
-		m_dataSize = 0;
-		m_dataStream = 0;
-	}
-
-	BeResMan->ReleaseBackgroundLoadMemory( m_reservedMemory );
-	m_reservedMemory = 0;
-}
-
 BlueAsyncRes::LoadingResult Tr2ImageRes::DoLoad()
 {
 	CCP_STATS_ZONE( __FUNCTION__ );

@@ -495,7 +495,7 @@ void Tr2InteriorStatic::RenderEnlightenMaterialTexture( const char* situationNam
 		mesh->GetBatches( enlightenBatches, areas, perObjectData );
 	}
 
-	renderContext.m_esm.RenderBatches( enlightenBatches );
+	renderContext.RenderBatches( enlightenBatches );
 
 	enlightenBatches->Clear();
 	CCP_DELETE enlightenBatches;

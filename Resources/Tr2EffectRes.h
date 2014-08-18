@@ -150,13 +150,11 @@ private:
 
 	// Provide the functions that do the actual work of loading and preparing.
 	// The async management itself is done in BlueAsyncRes.
-	virtual bool DoOpenStream();
 	virtual LoadingResult DoLoad();
 	virtual bool DoPrepare();
-	virtual void DoCloseStream();
+	virtual void OnCloseStream();
 
 protected:
-	IBlueStreamPtr m_dataStream;
 	uint8_t* m_data;
 	uint32_t m_dataSize;
 

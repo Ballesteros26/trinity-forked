@@ -135,25 +135,10 @@ const Be::ClassInfo* TriDevice::ExposeToBlue()
 		)
 		MAP_PROPERTY
 		(
-			"disableEffectLoad",
-			GetEffectLoadDisabled,
-			SetEffectLoadDisabled,
-			"Set to true to disable loading of external effects - useful for batch processing of blue files"
-		)
-		MAP_PROPERTY
-		(
 			"disableAsyncLoad",
 			GetAsyncLoadDisabled,
 			SetAsyncLoadDisabled,
 			"Set to true to make resource loads synchronous"
-		)
-
-		MAP_ATTRIBUTE
-		( 
-			"mipLevelMaxChainLength",
-			m_mipLevelMaxChainLength, 
-			"Length of longest mip chain, i.e. largest mip level will have resolution of 2^(n-1) where n is this value", 
-			Be::READWRITE | Be::NOTIFY
 		)
 		MAP_ATTRIBUTE
 		( 
@@ -198,6 +183,12 @@ const Be::ClassInfo* TriDevice::ExposeToBlue()
 			"       that the device will render to. If omitted or either set to 0 the\n"
 			"       device will render to the entire window area.\n"
 			"( hwnd, width = 0, height = 0 )"
+		)
+		MAP_METHOD_AS_METHOD
+		( 
+			"CreateWindowlessDevice",
+			PyCreateWindowlessDevice, 
+			"Create a simple device with no swap chain." 
 		)
 		MAP_METHOD_AS_METHOD
 		(

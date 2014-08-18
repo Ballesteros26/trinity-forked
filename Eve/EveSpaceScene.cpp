@@ -33,6 +33,7 @@ using namespace Tr2RenderContextEnum;
 class TriPoolAllocator;
 
 CCP_STATS_DECLARE( shadowsRendered, "Trinity/EveSpaceScene/shadowsRendered", true, CST_COUNTER_LOW, "How many times are shadows rendered per frame?" );
+CCP_STATS_DECLARE( shLightingUpdateTime, "Trinity/EveSpaceScene/shLightingUpdateTime", true, CST_TIME, "Time took to update SH lighting for EveSpaceScene" );
 
 bool g_eveIsSpaceObjectResourceUnloadingEnabled = true;
 TRI_REGISTER_SETTING( "eveIsSpaceObjectResourceUnloadingEnabled", g_eveIsSpaceObjectResourceUnloadingEnabled );
@@ -197,10 +198,14 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	}
 
 	m_updateTime = BeOS->GetCurrentFrameTime();
+
+	m_planets.SetNotify( this );
+	m_objects.SetNotify( this );
 }
 
 EveSpaceScene::~EveSpaceScene()
 {
+	SetShLightingManager( nullptr );
 	for( auto it = m_primaryBatches.begin(); it != m_primaryBatches.end(); ++it )
 	{
 		CCP_DELETE( it->second );
@@ -554,7 +559,7 @@ void EveSpaceScene::PrepareShadowMap(
 	FillAndSetConstants( m_shadowPerFrameVSBuffer, &data, sizeof( data ), perFrameVsMask, Tr2Renderer::GetPerFrameVSStartRegister(), renderContext );
 
 
-	renderContext.m_esm.RenderBatches( m_shadowBatches );
+	renderContext.RenderBatches( m_shadowBatches );
 	m_shadowMap->EndShadowRendering();
 
 	// column_major for shaders
@@ -789,7 +794,7 @@ void EveSpaceScene::RenderBatch(	ITriRenderBatchAccumulator* batch,
 
 	batch->Finalize();
 	renderContext.m_esm.ApplyStandardStates( rm );
-	renderContext.m_esm.RenderBatchesWithOverride( batch, visualizerEffect, Tr2EffectStateManager::OM_DO_NOTHING );
+	renderContext.RenderBatchesWithOverride( batch, visualizerEffect, Tr2RenderContext::OM_DO_NOTHING );
 	batch->Clear();
 }
 
@@ -807,10 +812,10 @@ void EveSpaceScene::RenderOpaqueBatches( BatchMap& batches, Tr2RenderContext &re
 	Tr2Effect* visualizerEffect = m_visualizerEffects[m_visualizeMethod];
 
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-	renderContext.m_esm.RenderBatchesWithOverride( batches[TRIBATCHTYPE_OPAQUE], visualizerEffect, Tr2EffectStateManager::OM_DO_NOTHING );
+	renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_OPAQUE], visualizerEffect, Tr2RenderContext::OM_DO_NOTHING );
 
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DECAL );
-	renderContext.m_esm.RenderBatchesWithOverride( batches[TRIBATCHTYPE_DECAL], visualizerEffect, Tr2EffectStateManager::OM_DO_NOTHING );
+	renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_DECAL], visualizerEffect, Tr2RenderContext::OM_DO_NOTHING );
 }
 
 // --------------------------------------------------------------------------------------
@@ -827,10 +832,10 @@ void EveSpaceScene::RenderTransparentBatches( BatchMap& batches, Tr2RenderContex
 	Tr2Effect* visualizerEffect = m_visualizerEffects[m_visualizeMethod];
 
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA );
-	renderContext.m_esm.RenderBatchesWithOverride( batches[TRIBATCHTYPE_TRANSPARENT], visualizerEffect, Tr2EffectStateManager::OM_DO_NOTHING );
+	renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_TRANSPARENT], visualizerEffect, Tr2RenderContext::OM_DO_NOTHING );
 
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA_ADDITIVE );
-	renderContext.m_esm.RenderBatchesWithOverride( batches[TRIBATCHTYPE_ADDITIVE], visualizerEffect, Tr2EffectStateManager::OM_DO_NOTHING );
+	renderContext.RenderBatchesWithOverride( batches[TRIBATCHTYPE_ADDITIVE], visualizerEffect, Tr2RenderContext::OM_DO_NOTHING );
 }
 
 // --------------------------------------------------------------------------------------
@@ -874,7 +879,7 @@ void EveSpaceScene::RenderDistortionBatches( BatchMap& batches, Tr2RenderContext
 	ApplyPerFrameData( renderContext );
 
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA_ADDITIVE );
-    renderContext.m_esm.RenderBatches( batches[TRIBATCHTYPE_DISTORTION] );
+    renderContext.RenderBatches( batches[TRIBATCHTYPE_DISTORTION] );
 	Tr2GPUParticlePoolManager* manager = m_updateContext.GetParticlePoolManager();
 	if( manager )
 	{
@@ -1004,6 +1009,10 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 		}
 	}
 
+	if( m_shLightingManager )
+	{
+		m_shLightingManager->UpdateWithDirectionalLight( m_sunData.DirWorld, Vector3( 1.f, 1.f, 1.f ) );
+	}
 
 	SetNoShadow();
 	renderContext.m_esm.SetWireframeRendering( m_isWireframe );
@@ -1151,13 +1160,56 @@ void EveSpaceScene::GatherBatches( Tr2RenderContext& renderContext )
 	PrepareTransparentBatch( transparentObjects, m_primaryBatches );
 
 	FinalizeBatches( m_primaryBatches );
-	
+
+	UpdateShLighting( objectsReceivingShadow, objectsNotReceivingShadow );
+
 	if( m_dynamicClipPlanes )
 	{
 		UpdateViewDistanceInfo<IEveSpaceObject2Vector>( m_objects, frustum, viewDistance );
 		UpdateViewDistanceInfo<PEvePlanetVector>( m_planets, frustum, viewDistance );
 		m_nearClip = viewDistance.m_near;
 		m_farClip = viewDistance.m_far;
+	}
+}
+
+// --------------------------------------------------------------------------------------
+// Description:
+//   Updates SH lighing for a set of space objects.
+// Arguments:
+//   objectsReceivingShadow - vector of objects receiving shadow
+//   objectsNotReceivingShadow - vector of objects not receiving shadow
+// --------------------------------------------------------------------------------------
+void EveSpaceScene::UpdateShLighting( 
+	const std::vector<ShadowReceiver>& objectsReceivingShadow, 
+	const std::vector<IEveSpaceObject2*>& objectsNotReceivingShadow )
+{
+	CCP_STATS_SCOPED_TIME( shLightingUpdateTime );
+
+	if( m_shLightingManager )
+	{
+		Tr2ParallelFor( Tr2BlockedRange<size_t>( 0, objectsReceivingShadow.size(), 20 ), [&] ( Tr2BlockedRange<size_t> range ) 
+		{
+			for( auto i = range.begin(); i != range.end(); ++i )
+			{
+				ITr2ShLightingReceiverPtr receiver = BlueCastPtr( objectsReceivingShadow[i].object );
+				if( receiver )
+				{
+					receiver->UpdateShLighting( *m_shLightingManager );
+				}
+			}
+		} );
+
+		Tr2ParallelFor( Tr2BlockedRange<size_t>( 0, objectsNotReceivingShadow.size(), 20 ), [&] ( Tr2BlockedRange<size_t> range ) 
+		{
+			for( auto i = range.begin(); i != range.end(); ++i )
+			{
+				ITr2ShLightingReceiverPtr receiver = BlueCastPtr( objectsNotReceivingShadow[i] );
+				if( receiver )
+				{
+					receiver->UpdateShLighting( *m_shLightingManager );
+				}
+			}
+		} );
 	}
 }
 
@@ -1321,9 +1373,9 @@ void EveSpaceScene::RenderDepthPass( Tr2RenderContext& renderContext )
 		ApplyPerFrameData( renderContext );
 
 		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-		renderContext.m_esm.RenderBatchesWithOverride( m_primaryBatches[TRIBATCHTYPE_OPAQUE], f_writeDepthOpaqueOverride, Tr2EffectStateManager::OM_DO_NOT_SET_ORIGINAL_PS );
+		renderContext.RenderBatchesWithOverride( m_primaryBatches[TRIBATCHTYPE_OPAQUE], f_writeDepthOpaqueOverride, Tr2RenderContext::OM_DO_NOT_SET_ORIGINAL_PS );
 		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DEPTH_ONLY );
-		renderContext.m_esm.RenderBatches( m_primaryBatches[TRIBATCHTYPE_DEPTH] );
+		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_DEPTH] );
 		
 		// Planet z areas and shadowed objects need special treatment
 		for( auto it = m_planets.begin(); it != m_planets.end(); ++it )
@@ -1346,9 +1398,9 @@ void EveSpaceScene::RenderDepthPass( Tr2RenderContext& renderContext )
 
 			FinalizeBatches( m_secondaryBatches );
 			renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-			renderContext.m_esm.RenderBatchesWithOverride( m_secondaryBatches[TRIBATCHTYPE_OPAQUE], f_writeDepthOpaqueOverride, Tr2EffectStateManager::OM_DO_NOTHING );
+			renderContext.RenderBatchesWithOverride( m_secondaryBatches[TRIBATCHTYPE_OPAQUE], f_writeDepthOpaqueOverride, Tr2RenderContext::OM_DO_NOTHING );
 			renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DEPTH_ONLY );
-			renderContext.m_esm.RenderBatches( m_secondaryBatches[TRIBATCHTYPE_DEPTH] );
+			renderContext.RenderBatches( m_secondaryBatches[TRIBATCHTYPE_DEPTH] );
 			ClearBatches( m_secondaryBatches );
 
 			visible.clear();
@@ -1766,6 +1818,13 @@ bool EveSpaceScene::Initialize()
 		BeResMan->GetResource( m_envMap3ResPath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_envMap3 );
 	}
 
+	if( m_shLightingManager )
+	{
+		Tr2ShLightingManagerPtr manager = m_shLightingManager;
+		m_shLightingManager = nullptr;
+		SetShLightingManager( manager );
+	}
+
 	return true;
 }
 
@@ -1805,6 +1864,89 @@ bool EveSpaceScene::OnModified( Be::Var* value )
 	}
 
 	return true;
+}
+
+Tr2ShLightingManagerPtr EveSpaceScene::GetShLightingManager() const
+{
+	return m_shLightingManager;
+}
+
+void EveSpaceScene::SetShLightingManager( Tr2ShLightingManager* manager )
+{
+	if( m_shLightingManager == manager )
+	{
+		return;
+	}
+	if( m_shLightingManager )
+	{
+		for( auto it = m_planets.begin(); it != m_planets.end(); ++it )
+		{
+			ITr2SecondaryLightSourcePtr lightSource = BlueCastPtr( *it );
+			if( lightSource )
+			{
+				lightSource->UnregisterSecondaryLightSource( *m_shLightingManager );
+			}
+		}
+		for( auto it = m_objects.begin(); it != m_objects.end(); ++it )
+		{
+			ITr2ShLightingReceiverPtr receiver = BlueCastPtr( *it );
+			if( receiver )
+			{
+				receiver->ClearShLighting();
+			}
+		}
+	}
+	m_shLightingManager = manager;
+	if( m_shLightingManager )
+	{
+		for( auto it = m_planets.begin(); it != m_planets.end(); ++it )
+		{
+			ITr2SecondaryLightSourcePtr lightSource = BlueCastPtr( *it );
+			if( lightSource )
+			{
+				lightSource->RegisterSecondaryLightSource( *m_shLightingManager );
+			}
+		}
+	}
+}
+
+void EveSpaceScene::OnListModified(
+	long event,		// BLUELISTEVENT values
+	ssize_t key,
+	ssize_t key2,
+	IRoot* value,
+	const struct IList* theList )
+{
+	if( !m_shLightingManager )
+	{
+		return;
+	}
+	switch( event & BELIST_EVENTMASK )
+	{
+	case BELIST_INSERTED:
+		{
+			ITr2SecondaryLightSourcePtr lightSource = BlueCastPtr( value );
+			if( lightSource )
+			{
+				lightSource->RegisterSecondaryLightSource( *m_shLightingManager );
+			}
+		}
+		break;
+	case BELIST_REMOVED:
+		{
+			ITr2SecondaryLightSourcePtr lightSource = BlueCastPtr( value );
+			if( lightSource )
+			{
+				lightSource->UnregisterSecondaryLightSource( *m_shLightingManager );
+			}
+			ITr2ShLightingReceiverPtr receiver = BlueCastPtr( value );
+			if( receiver )
+			{
+				receiver->ClearShLighting();
+			}
+		}
+		break;
+	}
 }
 
 IRoot* EveSpaceScene::PickObject( int x, int y, TriProjection* proj, TriView* view, TriViewport* viewport )
@@ -1914,7 +2056,7 @@ IRoot* EveSpaceScene::PickObjectAndArea( int x, int y, TriProjection* proj, TriV
 			if( p != NULL )
 			{
 				renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
-				renderContext.m_esm.RenderBatchesForPicking( m_pickEffect, p, objectNum );
+				renderContext.RenderBatchesForPicking( m_pickEffect, p, objectNum );
 			}
 
 			// Render additional picking batches. These use a user specified pick shader with no override.
@@ -1923,7 +2065,7 @@ IRoot* EveSpaceScene::PickObjectAndArea( int x, int y, TriProjection* proj, TriV
 			if( m_pickingBatches != NULL )
 			{
 				renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
-				renderContext.m_esm.RenderBatchesForPickingWithoutOverride( m_pickingBatches, objectNum );
+				renderContext.RenderBatchesForPickingWithoutOverride( m_pickingBatches, objectNum );
 			}
 
 			if( m_pickBuffer.EndRendering( renderContext ) )

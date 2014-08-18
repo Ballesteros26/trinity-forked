@@ -709,6 +709,17 @@ void Tr2Mesh::UnloadWhenUnreferenced()
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
+	if( m_resourceLoadCbId )
+	{
+		BeResMan->CancelFromQueue( BRMQ_BACKGROUND, m_resourceLoadCbId );
+		m_resourceLoadCbId = 0;
+	}
+	if( m_resourcePrepCbId )
+	{
+		BeResMan->CancelFromQueue( BRMQ_MAIN, m_resourcePrepCbId );
+		m_resourcePrepCbId = 0;
+	}
+
 	for( int i = 0; i < TRIBATCHTYPE_COUNT_OF_BATCH_TYPES; ++i )
 	{
 		if( m_areaLookupArray[ i ] )
@@ -732,6 +743,7 @@ void Tr2Mesh::ReloadWhenReferenced()
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
+	bool requiresLoading = false;
 	for( int i = 0; i < TRIBATCHTYPE_COUNT_OF_BATCH_TYPES; ++i )
 	{
 		if( m_areaLookupArray[ i ] )
@@ -743,11 +755,31 @@ void Tr2Mesh::ReloadWhenReferenced()
 					auto material = (*it)->GetMaterialInterface();
 					if( material )
 					{
-						material->LoadResources();
+						if( !material->LoadResources() )
+						{
+							requiresLoading = true;
+						}
 					}
 				}
 			}
 		}
+	}
+
+	if( requiresLoading )
+	{
+		if( m_resourceLoadCbId )
+		{
+			BeResMan->CancelFromQueue( BRMQ_BACKGROUND, m_resourceLoadCbId );
+			m_resourceLoadCbId = 0;
+		}
+		if( m_resourcePrepCbId )
+		{
+			BeResMan->CancelFromQueue( BRMQ_MAIN, m_resourcePrepCbId );
+			m_resourcePrepCbId = 0;
+		}
+
+		m_isLoading = true;
+		BeResMan->AddToQueue( BRMQ_BACKGROUND, StaticResourceLoadFinished, this, IBlueCallbackMan::BCBF_FENCE, &m_resourceLoadCbId );
 	}
 }
 

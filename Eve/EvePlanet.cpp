@@ -6,6 +6,7 @@
 #include "TriSettingsRegistrar.h"
 #include "EveUpdateContext.h"
 #include "Utilities/ViewDistanceInfo.h"
+#include "Eve/EveSpaceSceneLightMgr.h"
 
 const float EvePlanet::SCALE = 1000000.0f;
 static int s_evePlanetTextureQuality = 0;
@@ -29,7 +30,9 @@ EvePlanet::EvePlanet( IRoot* lockobj ) :
 	m_radius( 1.0f ),
 	m_currentTextureSize( 0 ),
 	m_requiredTextureSize( 0 ),
-	m_warpMode( false )
+	m_warpMode( false ),
+	m_albedoColor( 0, 0, 0, 0 ),
+	m_emissiveColor( 0, 0, 0, 0 )
 {
 	PrepareResources();
 }
@@ -60,6 +63,16 @@ bool EvePlanet::RequiresResourceProcessing() const
 	}
 	
 	return m_needResources && ( sizeReqChanged || !m_resourcesReady );
+}
+
+void EvePlanet::RegisterSecondaryLightSource( Tr2ShLightingManager& manager )
+{
+	manager.RegisterSecondaryLightSource( &m_worldTransform.GetTranslation(), &m_radius, &m_albedoColor, &m_emissiveColor );
+}
+
+void EvePlanet::UnregisterSecondaryLightSource( Tr2ShLightingManager& manager )
+{
+	manager.UnregisterSecondaryLightSource( &m_worldTransform.GetTranslation() );
 }
 
 // --------------------------------------------------------------------------------

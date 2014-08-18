@@ -95,10 +95,8 @@ private:
 
 	// Provide the functions that do the actual work of loading and preparing.
 	// The async management itself is done in BlueAsyncRes.
-	virtual bool DoOpenStream();
 	virtual LoadingResult DoLoad();
 	virtual bool DoPrepare();
-	virtual void DoCloseStream();
 
 private:
 	friend class Tr2TextureAtlas;
@@ -121,9 +119,6 @@ private:
 	// Resource path this texture was loaded from
 	std::string m_resPath;
 
-	// Data stream used while loading
-	IBlueStreamPtr m_dataStream;
-	size_t m_reservedMemory;
 	void* m_data;
 	uint32_t m_dataSize;
 

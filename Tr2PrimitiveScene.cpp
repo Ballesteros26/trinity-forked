@@ -90,7 +90,7 @@ void Tr2PrimitiveScene::Render( Tr2RenderContext& renderContext )
 
 	m_opaqueBatches->Finalize();
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-	renderContext.m_esm.RenderBatches( m_opaqueBatches );
+	renderContext.RenderBatches( m_opaqueBatches );
 	m_opaqueBatches->Clear();
 	m_allocator->Clear();
 

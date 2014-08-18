@@ -97,22 +97,8 @@ BLUE_INTERFACE(ITriDevice) : public IRoot
 	virtual const Matrix* GetProjectionMatrix(
 		) = 0;
 
-	virtual const Matrix* GetInvProjectionMatrix(
-		) = 0;	
-
-	virtual const Matrix* GetViewMatrix( 
-		) = 0;
-
 	virtual const Matrix* GetInvViewMatrix( 
 		) = 0;
-
-	virtual bool GetCameraPosition(
-		Vector3* out
-		) = 0;
-
-	virtual bool GetCameraViewVector( 
-		Vector3* out
-		) = 0;	
 
 	virtual bool ChangeDevice(
 		uint32_t adapter, Tr2WindowHandle hWnd, const Tr2PresentParametersAL *pp) = 0;
@@ -122,7 +108,6 @@ BLUE_INTERFACE(ITriDevice) : public IRoot
 
 	virtual void RegisterDeviceCallback( Tr2DeviceCallbackTime time, Tr2DeviceCallback callback, void* userData ) = 0;
 	virtual void UnregisterDeviceCallback( Tr2DeviceCallbackTime time, Tr2DeviceCallback callback, void* userData ) = 0;
-
 	virtual void GetBackBufferGrabber( ITr2RenderTargetGrabber** grabber ) = 0;
 };
 

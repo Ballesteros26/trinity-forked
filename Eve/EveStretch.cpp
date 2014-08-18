@@ -61,19 +61,7 @@ void EveStretch::UpdateAsyncronous( EveUpdateContext& updateContext )
 		return;
 	}
 
-	if( !m_curveSets.empty() )
-	{
-		float delta = (float)TimeAsDouble( time - m_lastCurveUpdateTime );
-
-		if( EveLODHelper::ShouldUpdate( m_lodLevel, delta ) )
-		{
-			m_lastCurveUpdateTime = time;
-			for( TriCurveSetVector::const_iterator it = m_curveSets.begin(); it != m_curveSets.end(); ++it )
-			{
-				(*it)->Update( TimeAsDouble( time ) );
-			}
-		}
-	}
+	UpdateCurves( updateContext );
 
 	Vector3 directionVec( m_destinationPosition - m_sourcePosition);
 	float scalingLength = D3DXVec3Length( &directionVec );
@@ -101,6 +89,29 @@ void EveStretch::Update( EveUpdateContext& updateContext )
 {
 	UpdateSyncronous( updateContext );
 	UpdateAsyncronous( updateContext );
+}
+
+void EveStretch::UpdateCurves( EveUpdateContext& updateContext )
+{
+	Be::Time time = updateContext.GetTime();
+	if( !m_update )
+	{
+		return;
+	}
+
+	if( !m_curveSets.empty() )
+	{
+		float delta = (float)TimeAsDouble( time - m_lastCurveUpdateTime );
+
+		if( EveLODHelper::ShouldUpdate( m_lodLevel, delta ) )
+		{
+			m_lastCurveUpdateTime = time;
+			for( TriCurveSetVector::const_iterator it = m_curveSets.begin(); it != m_curveSets.end(); ++it )
+			{
+				(*it)->Update( TimeAsDouble( time ) );
+			}
+		}
+	}
 }
 
 void EveStretch::RenderDebugInfo( Tr2RenderContext& renderContext )

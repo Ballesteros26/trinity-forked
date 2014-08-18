@@ -91,7 +91,7 @@ public:
 	ITriEffectParameter* GetParameterByName( const char* name ) const { return FindParameterByName( name ); }
 	const Tr2ConstantEffectParameter* GetConstParameters( size_t& count ) const;
 	void UnloadResources();
-	void LoadResources();
+	bool LoadResources();
 
 	// Set the high-level shader name
 	void SetHighLevelShaderName( const std::string& shaderName );

@@ -242,7 +242,17 @@ void Tr2Sprite2dBinkTexture::OpenBinkVideo()
 
 
 		std::wstring resPathW = CA2W( m_resPath.c_str() );
-
+		
+		if ( BePaths->FileNeedsDownload( resPathW.c_str() ) )
+		{
+			IBlueStreamPtr stream;
+			if( !BePaths->GetStreamFromPathW( resPathW.c_str(), &stream ) )
+			{
+				CCP_LOGERR( "Error opening Bink video file (%S)", m_resPath.c_str() );
+				return;
+			}
+		}
+		
 		std::wstring filename = BePaths->ResolvePathW( resPathW );
 
 		// open filename as a relative path by explicitly changing the working directory first.

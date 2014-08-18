@@ -19,6 +19,7 @@
 #include "Vector3d.h"
 #include "Tr2PersistentPerObjectData.h"
 #include "Eve/Animation/EveAnimationData.h"
+#include "Tr2ShLightingManager.h"
 
 // forwards
 BLUE_DECLARE( EveSpaceObject2 );
@@ -103,7 +104,8 @@ class EveSpaceObject2 :
 	public IBlueAsyncResNotifyTarget,
     public ITr2Pickable,
 	public ITriTargetable,
-	public IWorldPosition
+	public IWorldPosition,
+	public ITr2ShLightingReceiver
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -203,6 +205,11 @@ public:
 	// animation controller
 	virtual bool ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data );
 
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2ShLightingReceiver
+	virtual void UpdateShLighting( Tr2ShLightingManager& );
+	virtual void ClearShLighting();
+
 	// For stateful GPU particles
 	ITriVectorFunctionPtr GetPositionFunction();
 
@@ -279,6 +286,8 @@ protected:
 	Matrix m_worldTransform;
 	Vector3 m_worldPosition; // used to expose the position of the object to python
 	float m_modelScale;
+
+	Vector4 m_shLightingCoefficients[Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT];
 
 	Tr2MeshPtr m_mesh;
 

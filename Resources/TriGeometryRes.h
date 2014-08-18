@@ -344,8 +344,6 @@ public:
 	bool	m_computeAccess;
 
 private:
-	IBlueStreamPtr m_dataStream;
-	size_t m_reservedMemory;
 	void* m_data;
 	uint32_t m_dataSize;
 	unsigned int m_memoryUse;
@@ -365,10 +363,9 @@ private:
 private:
 	// Provide the functions that do the actual work of loading and preparing.
 	// The async management itself is done in TriAsyncLoadedResource.
-	virtual bool DoOpenStream();
 	virtual LoadingResult DoLoad();
 	virtual bool DoPrepare();
-    virtual void DoCloseStream();
+	virtual void OnCloseStream();
 
 	// Read granny file, keep data in m_pGrannyFile
 	bool ReadGrannyFile( granny_file_info* gi = NULL );

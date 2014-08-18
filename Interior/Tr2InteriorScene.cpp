@@ -1027,11 +1027,11 @@ void Tr2InteriorScene::RenderLightPass( Tr2RenderContext& renderContext )
 	renderContext.SetReadOnlyDepth( true );
 	if( m_visualizeMethod == VM_LIGHT_PRE_PASS_LIGHT_OVERDRAW )
 	{
-		renderContext.m_esm.RenderBatchesWithOverride( &lightBatches, m_visualizerEffects[VM_LIGHT_PRE_PASS_LIGHT_OVERDRAW], Tr2EffectStateManager::OM_DO_NOTHING );
+		renderContext.RenderBatchesWithOverride( &lightBatches, m_visualizerEffects[VM_LIGHT_PRE_PASS_LIGHT_OVERDRAW], Tr2RenderContext::OM_DO_NOTHING );
 	}
 	else
 	{
-		renderContext.m_esm.RenderLightBatches( &lightBatches );
+		renderContext.RenderLightBatches( &lightBatches );
 	}
 	renderContext.m_esm.UnsetAllTextures();
 	renderContext.SetReadOnlyDepth(	false );
@@ -1179,7 +1179,7 @@ void Tr2InteriorScene::RenderFlarePass( Tr2RenderContext& renderContext )
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA_ADDITIVE );
 
 	renderContext.SetReadOnlyDepth( true );
-	renderContext.m_esm.RenderBatches( &lightBatches );
+	renderContext.RenderBatches( &lightBatches );
 	renderContext.m_esm.UnsetAllTextures();
 	renderContext.SetReadOnlyDepth( false );
 	lightBatches.Clear();
@@ -1310,10 +1310,10 @@ void Tr2InteriorScene::RenderGeometry( ITr2ShaderMaterial* overrideEffect, Tr2Re
 		D3DPERF_EVENT( L"Primary render batches" );
 		m_activePrimaryRenderBatches->Finalize();
 		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-		renderContext.m_esm.RenderBatchesWithOverride(
+		renderContext.RenderBatchesWithOverride(
 			m_activePrimaryRenderBatches,
 			m_visualizerOverride ? m_visualizerOverride : overrideEffect,
-			m_visualizerOverrideApplyPS ? Tr2EffectStateManager::OM_APPLY_PS : Tr2EffectStateManager::OM_DO_NOTHING );
+			m_visualizerOverrideApplyPS ? Tr2RenderContext::OM_APPLY_PS : Tr2RenderContext::OM_DO_NOTHING );
 	}
 
 	// Collect statistics
@@ -1689,7 +1689,7 @@ unsigned Tr2InteriorScene::ReRenderShadowMaps( Tr2RenderContext& renderContext )
 		{
 			D3DPERF_EVENT( L"Render opaques" );
 			renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-			renderContext.m_esm.RenderBatches( m_shadowBatches );
+			renderContext.RenderBatches( m_shadowBatches );
 		}
 
 		it->first.lightSource->EndShadowUpdate( it->first.shadowMapIndex );
@@ -2272,7 +2272,7 @@ bool Tr2InteriorScene::UpdateShadowMap(
 		{
 			D3DPERF_EVENT( L"Render opaques" );
 			renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-			renderContext.m_esm.RenderBatches( m_shadowBatches );
+			renderContext.RenderBatches( m_shadowBatches );
 		}
 
 		item.lightSource->EndShadowUpdate( item.shadowMapIndex );

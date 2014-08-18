@@ -341,12 +341,17 @@ bool EveTurretFiringFX::Update( Be::Time time, float deltaT )
 					// direction
 					stretchEffect->SetIsNegZForward( true );
 				}
-			}
 
-			// ALWAYS update the stretcher, no matter if it fires ot not, there might be some
-			// curveset animation going on!
-			EveUpdateContext ctx( time );
-			stretchEffect->Update( ctx );
+				EveUpdateContext ctx( time );
+				stretchEffect->Update( ctx );
+			}
+			else
+			{
+				// ALWAYS update the stretcher, no matter if it fires ot not, there might be some
+				// curveset animation going on!
+				EveUpdateContext ctx( time );
+				stretchEffect->UpdateCurves( ctx );
+			}
 		}
 	}
 
