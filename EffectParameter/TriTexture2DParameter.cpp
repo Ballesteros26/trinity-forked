@@ -157,7 +157,8 @@ void TriTexture2DParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType 
 {
 	unsigned int ix = *destHandle;
 	bool isUav = ( resourceFlags & RESOURCE_FLAG_UAV ) != 0;
-	if( Tr2TextureAL* tex = ( m_resource ? m_resource->GetTexture() : nullptr ) )
+	TriTextureRes* resource = GetResource();
+	if( Tr2TextureAL* tex = ( resource ? resource->GetTexture() : nullptr ) )
 	{		
 		if( isUav )
 		{
@@ -226,7 +227,7 @@ void TriTexture2DParameter::SetResource( TriTextureRes* newRes )
 	RebuildEffectHandles( m_cachedEffect );
 }
 
-TriTextureRes* TriTexture2DParameter::GetResource()
+TriTextureRes* TriTexture2DParameter::GetResource() const
 {
 	return m_resource;
 }

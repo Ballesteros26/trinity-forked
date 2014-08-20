@@ -93,7 +93,9 @@ public:
 
 	// access resource
 	void SetResource( TriTextureRes* newRes );
-	TriTextureRes* GetResource();
+	
+	virtual TriTextureRes* GetResource() const;
+	
 	// access strings
 	void SetParameterName( const char* name );
 	const char* GetResourcePath() const;

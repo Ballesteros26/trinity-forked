@@ -1,0 +1,53 @@
+////////////////////////////////////////////////////////////////////////////////
+//
+// Created:		August 2014
+// Copyright:	CCP 2014
+//
+
+#include "StdAfx.h"
+#include "Tr2LodResource.h"
+
+BLUE_DEFINE( Tr2LodResource );
+
+const Be::ClassInfo* Tr2LodResource::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( Tr2LodResource, "Wrapper for resources with multiple levels of detail" )
+		MAP_ATTRIBUTE
+		(
+			"highDetailResPath",
+			m_resPath[TR2_LOD_HIGH],
+			"Resource path for high detail resource",
+			Be::READWRITE | Be::PERSIST
+		)
+		
+		MAP_ATTRIBUTE
+		(
+			"mediumDetailResPath",
+			m_resPath[TR2_LOD_MEDIUM],
+			"Resource path for medium detail resource",
+			Be::READWRITE | Be::PERSIST
+		)
+		
+		MAP_ATTRIBUTE
+		(
+			"lowDetailResPath",
+			m_resPath[TR2_LOD_LOW],
+			"Resource path for low detail resource",
+			Be::READWRITE | Be::PERSIST
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
+			"SelectLod",
+			SelectLod,
+			"Select the level of detail for this resource"
+		)
+
+		MAP_PROPERTY_READONLY
+		(
+			"resource",
+			GetResource,
+			"Get the resource, according the selected level of detail"
+		)
+	EXPOSURE_END()
+}
