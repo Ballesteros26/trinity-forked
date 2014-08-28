@@ -66,6 +66,11 @@ public:
 	// activation
 	void PlayActivationCurve();
 
+protected:
+	/////////////////////////////////////////////////////////////////////////////////////
+	// children
+	virtual bool DisplayChildren() const;
+
 private:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// activation
@@ -101,10 +106,6 @@ private:
 	void ResetTurretLocatorCounter( bool updateTotal );
 	bool GetTurretLocatorCountingInfo( const char* name, unsigned int& current, unsigned int& total ) const;
 	bool ValidateTurretLocatorName( const char* locatorName, unsigned int& locatorsFoundA, unsigned int& locatorsFoundB ) const;
-
-	/////////////////////////////////////////////////////////////////////////////////////
-	// children
-	virtual bool DisplayChildren() const;
 };
 
 TYPEDEF_BLUECLASS( EveMobile );

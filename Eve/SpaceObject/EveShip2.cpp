@@ -83,7 +83,10 @@ void EveShip2::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Render
 	// collect renderables of the boosters
 	if( m_boosters )
 	{
-		m_boosters->GetRenderables( frustum, renderables );
+		if( DisplayChildren() )
+		{
+			m_boosters->GetRenderables( frustum, renderables );
+		}
 	}
 }
 
