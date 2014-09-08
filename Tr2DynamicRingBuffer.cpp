@@ -128,6 +128,11 @@ void Tr2DynamicRingBuffer::DoneUsingData( Tr2RenderContext& renderContext )
 // --------------------------------------------------------------------------------------
 bool Tr2DynamicRingBuffer::IsRegionUsedByGpu( BufferRegion& region, Tr2RenderContext& renderContext )
 {
+	if( !region.fence )
+	{
+		return false;
+	}
+
 	bool isReached = false;
 	return FAILED( region.fence->IsReached( isReached, renderContext) ) || !isReached;
 }
@@ -237,6 +242,7 @@ Tr2FenceAL* Tr2DynamicRingBuffer::AllocateFence()
 	{
 		Tr2FenceAL* fence = m_availableFences.back();
 		m_availableFences.pop_back();
+		CCP_ASSERT( fence );
 		return fence;
 	}
 }
@@ -249,7 +255,10 @@ Tr2FenceAL* Tr2DynamicRingBuffer::AllocateFence()
 // --------------------------------------------------------------------------------------
 void Tr2DynamicRingBuffer::DeallocateFence( Tr2FenceAL* fence )
 {
-	m_availableFences.push_back( fence );
+	if( fence )
+	{
+		m_availableFences.push_back( fence );
+	}
 }
 
 // --------------------------------------------------------------------------------------

@@ -487,7 +487,6 @@ bool Tr2FontManager::GetAtlasTextureForSbit( FTC_SBit sbit, Tr2AtlasTexture** at
 
 	if( !tex->LockBuffer( pDest, pitch ) )
 	{
-		tex->GetRawRoot()->Unlock();
 		return false;
 	}
 
