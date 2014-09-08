@@ -128,7 +128,7 @@ bool Tr2EffectRes::DoPrepare()
 	uint32_t version;
 	READ( uint32_t, uint32_t, version );
 
-	if( version != 2 && version != 3 )
+	if( version < 2 || version > 4 )
 	{
 		CCP_LOGERR( "Invalid version of effect file \"%S\" (version %i)", GetPath(), version );
 		return false;

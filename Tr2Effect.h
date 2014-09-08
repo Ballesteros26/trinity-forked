@@ -17,6 +17,24 @@ BLUE_DECLARE_INTERFACE( ITr2ShaderState );
 
 BLUE_CLASS_ALLOW_DELAYED_DELETE( Tr2Effect );
 
+
+struct Tr2SamplerOverride
+{
+	BlueSharedString name;
+
+	Tr2RenderContextEnum::TextureAddressMode addressU;
+	Tr2RenderContextEnum::TextureAddressMode addressV;
+	Tr2RenderContextEnum::TextureAddressMode addressW;
+	Tr2RenderContextEnum::TextureFilter filter;
+	Tr2RenderContextEnum::TextureFilter mipFilter;
+	float lodBias;
+	uint32_t maxMipLevel;
+	uint32_t maxAnisotropy;
+};
+
+BLUE_DECLARE_STRUCTURE_LIST( Tr2SamplerOverride );
+
+
 BLUE_CLASS( Tr2Effect ) :
 	public IInitialize,
 	public INotify,
@@ -119,7 +137,8 @@ protected:
 
 	virtual void ReleaseResources( TriStorage s );
 	virtual bool OnPrepareResources();
-
+private:
+	void RebuildSamplerOverrides();
 public: // TODO: make this private - need to change EveBoosterSet2...
 	// Our list of ITr2EffectParameters
 	typedef PITriEffectParameterVector EffectParameterList;
@@ -130,6 +149,7 @@ public: // TODO: make this private - need to change EveBoosterSet2...
 	EffectResourceList m_resources;
 
 	PTr2ConstantEffectParameterStructureList m_constParameters;
+	PTr2SamplerOverrideStructureList m_samplerOverrides;
 
 private:
 #if TRINITYDEV

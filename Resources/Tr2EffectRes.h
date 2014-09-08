@@ -29,6 +29,14 @@ public:
 	unsigned int m_registerCount;
 };
 
+struct Tr2SamplerOverrideData
+{
+	uint32_t registerIndex;
+	uint32_t handle;
+};
+
+typedef std::vector<Tr2SamplerOverrideData> Tr2SamplerOverrideDataVector;
+
 // Tr2EffectPassParameters holds information on parameters for the effect pass.
 // * For each vertex/pixel shader parameter there is a Tr2EffectParam instance
 //   describing where the value comes from.
@@ -81,8 +89,9 @@ public:
 	struct StageInput
 	{
 		Tr2EffectParamVector m_shaderParameters;
-		Tr2EffectParamVector m_samplers;
+		Tr2EffectParamVector m_textures;
 		Tr2EffectParamVector m_uavs;
+		Tr2SamplerOverrideDataVector m_samplers;
 		std::unique_ptr<Tr2ConstantBufferAL> m_constantBuffer;
 	};
 

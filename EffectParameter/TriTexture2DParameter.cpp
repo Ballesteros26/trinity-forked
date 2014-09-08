@@ -138,8 +138,7 @@ void TriTexture2DParameter::BuildOverrideSamplerStateIx()
 			Tr2RenderContextEnum::CMP_NEVER,
 			Color( 0.f, 0.f, 0.f, 0.f ),
 			float( m_overrideMaxMipLevel ),
-			FLT_MAX,
-			m_overrideSrgb
+			FLT_MAX
 			);
 
 		// register it! or "unregister" it

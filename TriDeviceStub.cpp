@@ -28,6 +28,12 @@ void TriDevice::UpdateCursor()
 
 void TriDevice::HandleRenderTick( Be::Time realTime, Be::Time simTime )
 {
+	if( m_renderJobs )
+	{
+		m_renderJobs->RunUpdate( realTime, simTime );
+	}
+
+	Render();
 }
 
 // -- Smaller helpers to enable big methods like TriDevice::Render to be mostly API neutral.

@@ -239,6 +239,15 @@ bool Tr2EffectDescription::Read( const void* data,
 				
 				Tr2SamplerSetup samplerSetup;
 
+				if( version >= 4 )
+				{
+					READ_STRING( samplerSetup.name );
+				}
+				else
+				{
+					samplerSetup.name = nullptr;
+				}
+
 				bool comparison;
 				READ( uint8_t, bool, comparison );
 
@@ -276,8 +285,11 @@ bool Tr2EffectDescription::Read( const void* data,
 				float maxLOD;
 				READ( float, float, maxLOD );
 
-				bool isSRGBTexture;
-				READ( uint8_t, bool, isSRGBTexture );
+				if( version < 4 )
+				{
+					bool isSRGBTexture;
+					READ( uint8_t, bool, isSRGBTexture );
+				}
 
 				Tr2SamplerDescription sampler( 
 					minFilter, 
@@ -292,8 +304,7 @@ bool Tr2EffectDescription::Read( const void* data,
 					comparisonFunc,
 					borderColor,
 					minLOD,
-					maxLOD,
-					isSRGBTexture );
+					maxLOD );
 
 				samplerSetup.handle = Tr2EffectStateManager::RegisterSamplerSetup( sampler );
 

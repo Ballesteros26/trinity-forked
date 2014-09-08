@@ -4,70 +4,9 @@
 
 BLUE_DEFINE( TriTexture2DParameter );
 
-Be::VarChooser SamplerStateChooser_AddressMode[] =
-{
-	{
-		"Wrap",
-		BeCast( Tr2RenderContextEnum::TA_WRAP ),
-		"Texture is wrapped"
-	},
-	{
-		"Clamp",
-		BeCast( Tr2RenderContextEnum::TA_CLAMP ),
-		"Texture is clamped"
-	},
-	{
-		"Mirror",
-		BeCast( Tr2RenderContextEnum::TA_MIRROR ),
-		"Texture is mirrored"
-	},
-	{ 0 }
-};
-
-Be::VarChooser SamplerStateChooser_FilterMode[] =
-{
-	{
-		"Point",
-		BeCast( Tr2RenderContextEnum::TF_POINT ),
-		"Texture is not filtered"
-	},
-	{
-		"Linear",
-		BeCast( Tr2RenderContextEnum::TF_LINEAR ),
-		"Texture is filtered: linear"
-	},
-	{
-		"Anisotropic",
-		BeCast( Tr2RenderContextEnum::TF_ANISOTROPIC ),
-		"Texture is filtered: anisotropic"
-	},
-	{ 0 }
-};
-
-Be::VarChooser SamplerStateChooser_MipFilterMode[] =
-{
-	{
-		"None",
-		BeCast( Tr2RenderContextEnum::TF_NONE ),
-		"Disable Mipmaps"
-	},
-	{
-		"Point",
-		BeCast( Tr2RenderContextEnum::TF_POINT ),
-		"Mipmaps are not filtered"
-	},
-	{
-		"Linear",
-		BeCast( Tr2RenderContextEnum::TF_LINEAR ),
-		"Mipmaps are filtered: linear"
-	},
-	{
-		"Anisotropic",
-		BeCast( Tr2RenderContextEnum::TF_ANISOTROPIC ),
-		"Mipmaps are filtered: anisotropic"
-	},
-	{ 0 }
-};
+extern Be::VarChooser SamplerStateChooser_AddressMode[];
+extern Be::VarChooser SamplerStateChooser_FilterMode[];
+extern Be::VarChooser SamplerStateChooser_MipFilterMode[];
 
 const Be::ClassInfo* TriTexture2DParameter::ExposeToBlue()
 {

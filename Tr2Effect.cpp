@@ -34,6 +34,97 @@ static BlueStructureDefinition Tr2EffectParameterStructureDef[] =
 	{0} 
 };
 
+Be::VarChooser SamplerStateChooser_AddressMode[] =
+{
+	{
+		"Wrap",
+		BeCast( Tr2RenderContextEnum::TA_WRAP ),
+		"Texture is wrapped"
+	},
+	{
+		"Clamp",
+		BeCast( Tr2RenderContextEnum::TA_CLAMP ),
+		"Texture is clamped"
+	},
+	{
+		"Mirror",
+		BeCast( Tr2RenderContextEnum::TA_MIRROR ),
+		"Texture is mirrored"
+	},
+	{ 0 }
+};
+
+Be::VarChooser SamplerStateChooser_FilterMode[] =
+{
+	{
+		"Point",
+		BeCast( Tr2RenderContextEnum::TF_POINT ),
+		"Texture is not filtered"
+	},
+	{
+		"Linear",
+		BeCast( Tr2RenderContextEnum::TF_LINEAR ),
+		"Texture is filtered: linear"
+	},
+	{
+		"Anisotropic",
+		BeCast( Tr2RenderContextEnum::TF_ANISOTROPIC ),
+		"Texture is filtered: anisotropic"
+	},
+	{ 0 }
+};
+
+Be::VarChooser SamplerStateChooser_MipFilterMode[] =
+{
+	{
+		"None",
+		BeCast( Tr2RenderContextEnum::TF_NONE ),
+		"Disable Mipmaps"
+	},
+	{
+		"Point",
+		BeCast( Tr2RenderContextEnum::TF_POINT ),
+		"Mipmaps are not filtered"
+	},
+	{
+		"Linear",
+		BeCast( Tr2RenderContextEnum::TF_LINEAR ),
+		"Mipmaps are filtered: linear"
+	},
+	{
+		"Anisotropic",
+		BeCast( Tr2RenderContextEnum::TF_ANISOTROPIC ),
+		"Mipmaps are filtered: anisotropic"
+	},
+	{ 0 }
+};
+
+static BlueStructureDefinition Tr2SamplerOverrideStructureDef[] =
+{ 
+	{ "name", Be::SHAREDSTRING_1, offsetof( Tr2SamplerOverride, name ) }, 
+	{ "addressU", Be::UINT32_1, offsetof( Tr2SamplerOverride, addressU ), SamplerStateChooser_AddressMode }, 
+	{ "addressV", Be::UINT32_1, offsetof( Tr2SamplerOverride, addressV ), SamplerStateChooser_AddressMode }, 
+	{ "addressW", Be::UINT32_1, offsetof( Tr2SamplerOverride, addressW ), SamplerStateChooser_AddressMode }, 
+	{ "filter", Be::UINT32_1, offsetof( Tr2SamplerOverride, filter ), SamplerStateChooser_FilterMode }, 
+	{ "mipFilter", Be::UINT32_1, offsetof( Tr2SamplerOverride, mipFilter ), SamplerStateChooser_MipFilterMode }, 
+	{ "lodBias", Be::FLOAT32_1, offsetof( Tr2SamplerOverride, lodBias ) }, 
+	{ "maxMipLevel", Be::UINT32_1, offsetof( Tr2SamplerOverride, maxMipLevel ) }, 
+	{ "maxAnisotropy", Be::UINT32_1, offsetof( Tr2SamplerOverride, maxAnisotropy ) }, 
+	{0} 
+};
+
+static Tr2SamplerOverride s_defaultValue = { 
+	BlueSharedString(), 
+	Tr2RenderContextEnum::TA_WRAP, 
+	Tr2RenderContextEnum::TA_WRAP, 
+	Tr2RenderContextEnum::TA_WRAP, 
+	Tr2RenderContextEnum::TF_LINEAR,
+	Tr2RenderContextEnum::TF_LINEAR,
+	0.0f,
+	0,
+	4 
+};
+
 // ---------------------------------------------------------------
 Tr2Effect::Tr2Effect(IRoot* lockobj) :
 	#if TRINITYDEV
@@ -44,12 +135,15 @@ Tr2Effect::Tr2Effect(IRoot* lockobj) :
 	PARENTLOCK(m_parameters),
 	PARENTLOCK(m_resources),
 	PARENTLOCK( m_constParameters ),
+	PARENTLOCK( m_samplerOverrides ),
 	m_display( true ),
 	m_parameterHash( INVALID_PARAMETER_HASH )
-{	
+{
 	m_parameters.SetNotify( this );
 	m_resources.SetNotify( this );
 	m_constParameters.SetStructureDefinition( Tr2EffectParameterStructureDef );
+	m_samplerOverrides.SetStructureDefinition( Tr2SamplerOverrideStructureDef );
+	m_samplerOverrides.SetDefaultValue( &s_defaultValue );
 
 	m_sortValue = s_effectId++;
 
@@ -250,6 +344,65 @@ void Tr2Effect::AddParameterColor( const char* name, const Color* value )
 	m_constParameters.Append( &param );
 }
 
+static Tr2SamplerDescription&& CreateSamplerDescription( const Tr2SamplerOverride& samplerOverride )
+{
+	return std::move( Tr2SamplerDescription(
+							samplerOverride.filter,
+							samplerOverride.filter,
+							samplerOverride.mipFilter,
+							false,
+							samplerOverride.addressU,
+							samplerOverride.addressV,
+							samplerOverride.addressW,
+							samplerOverride.lodBias,
+							samplerOverride.maxAnisotropy,
+							Tr2RenderContextEnum::CMP_NEVER,
+							Color( 0.f, 0.f, 0.f, 0.f ),
+							float( samplerOverride.maxMipLevel ),
+							FLT_MAX
+							) );
+}
+
+void Tr2Effect::RebuildSamplerOverrides()
+{
+	if( m_samplerOverrides.empty() )
+	{
+		return;
+	}
+
+	auto& desc = m_effectResource->GetEffectDescription();
+	const unsigned passCount = unsigned( desc.passes.size() );
+	for( unsigned passIx = 0; passIx != passCount; ++passIx )
+	{
+		Tr2EffectPassParameters& pp = *m_parametersForPasses[passIx];
+
+		for( unsigned i = 0; i != Tr2RenderContextEnum::SHADER_TYPE_COUNT; ++i )
+		{
+			auto& stage = desc.passes[passIx].stageInputs[i];
+			if( !stage.m_exists )
+			{
+				continue;
+			}
+
+			for( auto jt = m_samplerOverrides.begin(); jt != m_samplerOverrides.end(); ++jt )
+			{
+				for( auto it = stage.samplers.begin(); it != stage.samplers.end(); ++it )
+				{
+					if( it->second.name && strcmp( jt->name.c_str(), it->second.name ) == 0 )
+					{
+						Tr2SamplerOverrideData d;
+						d.handle = Tr2EffectStateManager::RegisterSamplerSetup( CreateSamplerDescription( *jt ) );
+						d.registerIndex = it->first;
+
+						pp.m_stageInput[i].m_samplers.push_back( d );
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
 // ---------------------------------------------------------------
 void Tr2Effect::RebuildCachedDataInternal()
 {
@@ -262,6 +415,7 @@ void Tr2Effect::RebuildCachedDataInternal()
 	if( m_effectResource )
 	{		
 		RebuildCachedDataForEffect( *m_effectResource, *this, m_parametersForPasses );
+		RebuildSamplerOverrides();
 	}
 
 	// It's ok to pass in NULL values to these functions so that the parameters
@@ -984,7 +1138,7 @@ void RebuildCachedDataForEffect(	ITr2ShaderState &effectResource,
 			auto& input = pp.m_stageInput[i];
 			if( !stage.resources.empty() )
 			{
-				owner.MapPassResources( stage.resources, input.m_samplers, 0 );
+				owner.MapPassResources( stage.resources, input.m_textures, 0 );
 			}
 			if( !stage.uavs.empty() )
 			{
@@ -1032,7 +1186,7 @@ void ApplyShaderInputs( Tr2EffectPassParameters& pp,
 	}
 
 	samplersChanged = false;
-	for( auto it = input.m_samplers.cbegin(); it != input.m_samplers.cend(); ++it )
+	for( auto it = input.m_textures.cbegin(); it != input.m_textures.cend(); ++it )
 	{
 		unsigned char destHandle[2] = { static_cast<unsigned char>( it->m_registerIndex ), 0 };
 		it->m_sourceValue->CopyValueToEffect( shaderType, destHandle, it->m_registerCount, renderContext );
@@ -1040,6 +1194,11 @@ void ApplyShaderInputs( Tr2EffectPassParameters& pp,
 		{
 			samplersChanged = true;
 		}
+	}
+	samplersChanged |= !input.m_samplers.empty();
+	for( auto it = input.m_samplers.begin(); it != input.m_samplers.end(); ++it )
+	{
+		renderContext.m_esm.ApplySamplerSetup( shaderType, it->registerIndex, it->handle );
 	}
 
 	for( auto it = input.m_uavs.cbegin(); it != input.m_uavs.cend(); ++it )

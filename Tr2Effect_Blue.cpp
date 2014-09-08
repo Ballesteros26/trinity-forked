@@ -197,6 +197,13 @@ const Be::ClassInfo* Tr2Effect::ExposeToBlue()
 			"Effect Resources", 
 			Be::READWRITE | Be::PERSIST
 		)
+		MAP_ATTRIBUTE
+		( 
+			"samplerOverrides",      
+			m_samplerOverrides,
+			"Sampler state overrides", 
+			Be::READWRITE | Be::PERSIST
+		)
 
 		MAP_METHOD( "GetParameterAnnotations", PyGetParameterAnnotations, "Gets the annotations on a parameter" )
 		MAP_METHOD_AND_WRAP( "PopulateParameters", PopulateParameters, "Populates the parameter list with the appropriate parameters" )

@@ -1514,7 +1514,7 @@ bool Tr2Sprite2dScene::SelectEffect()
 
 		if( newEffect && newEffect->GetEffectRes() && newEffect->GetEffectRes()->IsGood() )
 		{
-#if( TRINITY_PLATFORM==TRINITY_DIRECTX11 || TRINITY_PLATFORM == TRINITY_ORBIS )
+#if( TRINITY_PLATFORM==TRINITY_DIRECTX11 || TRINITY_PLATFORM == TRINITY_ORBIS || TRINITY_PLATFORM == TRINITY_STUB )
 			// In DX11 g_uiTransforms is in a separate constant buffer and is not exposed
 			// in constant table, so we just believe we have UI shader.
 			m_effect = newEffect;
