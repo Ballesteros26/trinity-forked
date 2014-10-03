@@ -41,6 +41,7 @@ public:
 	// to get the uv-offsets to apply when rendering.
 	Tr2TextureAL* GetTexture();
 	Tr2RenderTargetAL* GetRenderTarget();
+	void SetRenderTarget( Tr2RenderTargetAL* rt );
 
 	// Get texture window for rendering this texture out of the atlas
 	void GetTextureWindow( Vector4& tw );

@@ -260,6 +260,7 @@ private:
 		DepthStack_t* depthStack;
 		ClipStack_t* clipStack;
 		Tr2RenderTargetAL* renderTargetTexture;
+		Tr2AtlasTexturePtr renderTargetWrapper;
 	};
 
 	typedef TrackableStdList<StackOfStacksEntry_t> StackOfStacks_t;

@@ -710,6 +710,13 @@ void Tr2Sprite2dScene::SetTexture( unsigned ix, Tr2AtlasTexturePtr tex, Tr2Sprit
 	if( tex )
 	{
 		texAL = tex->GetTexture();
+		if( !texAL )
+		{
+			if( tex->GetRenderTarget() )
+			{
+				texAL = &tex->GetRenderTarget()->GetTexture();
+			}
+		}
 	}
 
 	USE_MAIN_THREAD_RENDER_CONTEXT();
@@ -1430,6 +1437,8 @@ void Tr2Sprite2dScene::StartLayer( Tr2RenderTargetAL& rt )
 	entry.transformStack = m_transformStack;
 	entry.clipStack = m_clipStack;
 	entry.renderTargetTexture = &rt;
+	entry.renderTargetWrapper.CreateInstance();
+	entry.renderTargetWrapper->SetRenderTarget( &rt );
 	m_stackOfStacks.push_back( entry );
 
 	m_transformStack = CCP_NEW( "Tr2Sprite2dScene/m_transformStack" ) TransformStack_t( "Tr2Sprite2dScene/m_transformStack" );
@@ -1466,24 +1475,16 @@ void Tr2Sprite2dScene::EndLayer( float x, float y, float width, float height, IT
 	m_transformStack = entry.transformStack;
 	m_clipStack = entry.clipStack;
 
-	// Render the layer into the current one as a sprite
-	renderContext.m_esm.ApplyTexture( PIXEL_SHADER, 0, entry.renderTargetTexture->GetTexture() );
 
-	// This will side-step the TexturesReady check in PrepareSpriteVerts
-	m_texture[0] = m_defaultTexture;
-	m_texture[1] = nullptr;
-	
-	m_textureSettings[0].textureWindow = Vector4( 0.0f, 0.0f, 1.0f, 1.0f );
-	m_textureSettings[0].repeatMode = TextureSetting::TR_Tile;
-	m_textureSettings[0].tileX = false;
-	m_textureSettings[0].tileY = false;
+	// Render the layer into the current one as a sprite
+	SetTexture( 0, entry.renderTargetWrapper, S2D_TS_NONE );
+	SetTextureTransform( 0, nullptr );
+	SetTileMode( 0 );
 
 	if( secondaryTexture )
 	{
 		secondaryTexture->Apply( this, 1 );
 	}
-
-	SetTileMode( 0 );
 
 	Tr2Sprite2dD3DVertex vertices[4];
 	PrepareSpriteVerts( &vertices[0], Vector2( x, y ), width, height, m_spriteEffect );

@@ -64,6 +64,27 @@ Tr2RenderTargetAL* Tr2AtlasTexture::GetRenderTarget()
 	return m_renderTarget;
 }
 
+void Tr2AtlasTexture::SetRenderTarget( Tr2RenderTargetAL* rt )
+{
+	m_renderTarget = rt;
+	m_isGood = 1;
+	m_isPrepared = 1;
+	if( m_renderTarget )
+	{
+		m_width = rt->GetWidth();
+		m_textureWidth = m_width;
+		m_height = rt->GetHeight();
+		m_textureHeight = m_height;
+
+		CalcReciprocals();
+
+		m_textureWindow.x = 0.0f;
+		m_textureWindow.y = 0.0f;
+		m_textureWindow.z = 1.0f;
+		m_textureWindow.w = 1.0f;
+	}
+}
+
 void Tr2AtlasTexture::GetTextureWindow( Vector4& tw )
 {
 	tw = m_textureWindow;
