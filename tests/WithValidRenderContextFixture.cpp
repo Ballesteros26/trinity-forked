@@ -207,58 +207,5 @@ void WithValidRenderContext::MakeTestScreenShot()
 	s_madeScreenshots[std::string( test_info->test_case_name() ) + std::string( "." ) + test_info->name()] = relPath;
 }
 
-void WithValidRenderContext::SaveImageSetReport()
-{
-	extern bool g_makeScreenShots;
-	extern const char* g_screenshotFolder;
-
-	if( !g_makeScreenShots )
-	{
-		return;
-	}
-	std::string path = g_screenshotFolder;
-	mkdir( path.c_str() );
-	path += "\\imageset.xml";
-	FILE* f;
-	if( fopen_s( &f, path.c_str(), "wt" ) )
-	{
-		return;
-	}
-
-#if( TRINITY_PLATFORM==TRINITY_DIRECTX9 )
-	const char* platformName = "dx9";
-#elif( TRINITY_PLATFORM==TRINITY_DIRECTX11 )
-	const char* platformName = "dx11";
-#elif( TRINITY_PLATFORM==TRINITY_OPENGLES2 )
-	const char* platformName = "gles2";
-#elif( TRINITY_PLATFORM==TRINITY_ORBIS )
-	const char* platformName = "orbis";
-#else
-	const char* platformName = "unknown";
-#endif
-
-#if defined(__ANDROID__)
-	const char* osName = "android";
-#elif defined(TRINITY_AL_MOBILE)
-	const char* osName = "mobile";
-#elif defined(__APPLE__)
-	const char* osName = "mac";
-#else
-	const char* osName = "windows";
-#endif
-
-	fprintf( f, "<imagesets name=\"TrinityALTest\">" );
-	fprintf( f, "<settings><setting name=\"platform\" value=\"%s\"/><setting name=\"os\" value=\"%s\"/></settings>", platformName, osName );
-	for( auto it = s_madeScreenshots.begin(); it != s_madeScreenshots.end(); ++it )
-	{
-		fprintf( f, "<imageset name=\"%s\">", it->first.c_str() );
-		fprintf( f, "<testimage src=\"%s\"/>", it->second.c_str() );
-		fprintf( f, "</imageset>" );
-	}
-	fprintf( f, "</imagesets>" );
-
-	fclose( f );
-}
-
 Tr2PresentParametersAL WithValidRenderContext::presentParameters;
 Tr2PrimaryRenderContextAL* WithValidRenderContext::renderContext = nullptr;

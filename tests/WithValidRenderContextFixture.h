@@ -15,8 +15,6 @@ public:
 	static void MakeScreenShot( const char* outFilePath );
 	void MakeTestScreenShot();
 
-	static void SaveImageSetReport();
-
 	static Tr2PresentParametersAL presentParameters;
 	static Tr2PrimaryRenderContextAL* renderContext;
 private:
