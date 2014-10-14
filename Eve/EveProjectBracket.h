@@ -41,6 +41,9 @@ protected:
 	// The source position in 3D space
 	IWorldPositionPtr m_trackTransform;
 
+	// Fixed position, used if neither trackball or transform are set
+	Vector3 m_trackPosition;
+
 	// Should the bracket dock on the sides if source is off the screen?
 	// If not, the visible flag is toggled depending on off-screen status
 	bool m_dock;
@@ -57,6 +60,9 @@ protected:
 	// Bracket is hidden if it lies outside this display range
 	float m_minDispRange;
 	float m_maxDispRange;
+
+	// Distance to camera in last projection
+	float m_cameraDistance;
 
 	// Extra offset that can be used to correct subpixel issues, or just to move
 	// things around without Transform headaches.

@@ -49,6 +49,14 @@ const Be::ClassInfo* EveProjectBracket::ExposeToBlue()
 
 		MAP_ATTRIBUTE
 		(
+			"trackPosition",
+			m_trackPosition,
+			"Fixed position to track - used if neither trackBall or trackTransform are set.",
+			Be::READWRITE
+		)
+
+		MAP_ATTRIBUTE
+		(
 			"bracket",
 			m_bracket,
 			"The sprite container to receive the projected position",
@@ -122,6 +130,14 @@ const Be::ClassInfo* EveProjectBracket::ExposeToBlue()
 			m_maxDispRange,
 			"Bracket is hidden if the camera is farther from the object than this value",
 			Be::READWRITE
+		)
+
+		MAP_ATTRIBUTE
+		(
+			"cameraDistance",
+			m_cameraDistance,
+			"Distance of projected position to camera.",
+			Be::READ
 		)
 
 		MAP_ATTRIBUTE

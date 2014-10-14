@@ -14,6 +14,7 @@
 extern ITr2DebugRendererPtr g_debugRenderer;
 
 EveProjectBracket::EveProjectBracket( IRoot* lockobj /*= NULL */ ) :
+	m_trackPosition( 0.0f, 0.0f, 0.0f ),
 	m_ballTrackingScaling( 1.0f ),
 	m_dock( false ),
 	m_hidden( false ),
@@ -24,6 +25,7 @@ EveProjectBracket::EveProjectBracket( IRoot* lockobj /*= NULL */ ) :
 	m_marginBottom( 0.0f ),
 	m_minDispRange( 0.0f ),
 	m_maxDispRange( FLT_MAX),
+	m_cameraDistance( 0.0f ),
 	m_offsetX( 0 ),
 	m_offsetY( 0 )
 {
@@ -82,13 +84,13 @@ void EveProjectBracket::UpdateValue( double time )
 	}
 	else
 	{
-		return;
+		pos = m_trackPosition;
 	}
 
 	D3DXVec3TransformCoord( &pos, &pos, &Tr2Renderer::GetViewTransform() );
 
 	bool isInFront = (pos.z <= 0.0f);
-	float cameraDistance = D3DXVec3Length( &pos );
+	m_cameraDistance = D3DXVec3Length( &pos );
 
 	Vector3 projectedPosition;
 	const TriViewport& vp = Tr2Renderer::GetViewport();
@@ -112,7 +114,7 @@ void EveProjectBracket::UpdateValue( double time )
 	}
 
 	// Brackets outside the display range are hidden
-	if( (cameraDistance < m_minDispRange) || (cameraDistance > m_maxDispRange) )
+	if( (m_cameraDistance < m_minDispRange) || (m_cameraDistance > m_maxDispRange) )
 	{
 		m_bracket->SetDisplay( false );
 		if( m_bracketIcon )
