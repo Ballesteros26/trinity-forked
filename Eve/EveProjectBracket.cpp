@@ -17,7 +17,7 @@ EveProjectBracket::EveProjectBracket( IRoot* lockobj /*= NULL */ ) :
 	m_trackPosition( 0.0f, 0.0f, 0.0f ),
 	m_ballTrackingScaling( 1.0f ),
 	m_dock( false ),
-	m_hidden( false ),
+	m_visible( true ),
 	m_integerCoordinates( true ),
 	m_marginLeft( 0.0f ),
 	m_marginRight( 0.0f ),
@@ -27,7 +27,8 @@ EveProjectBracket::EveProjectBracket( IRoot* lockobj /*= NULL */ ) :
 	m_maxDispRange( FLT_MAX),
 	m_cameraDistance( 0.0f ),
 	m_offsetX( 0 ),
-	m_offsetY( 0 )
+	m_offsetY( 0 ),
+	m_projectedPosition( 0.0f, 0.0f )
 {
 }
 
@@ -66,11 +67,6 @@ static Vector3 BicylindricProjection( const Vector3& pos, const TriViewport& vie
 
 void EveProjectBracket::UpdateValue( double time )
 {
-	if( !m_bracket )
-	{
-		return;
-	}
-
 	Vector3 pos;
 	if( m_trackBall )
 	{
@@ -104,37 +100,19 @@ void EveProjectBracket::UpdateValue( double time )
 	// Brackets behind the camera with the 'dock' flag cleared are hidden
 	if( (!isInFront && !m_dock) )
 	{
-		m_bracket->SetDisplay( false );
-		if( m_bracketIcon )
-		{
-			m_bracketIcon->SetDisplay( false );
-		}
-		m_hidden = true;
+		SetBracketDisplayState( false );
 		return;
 	}
 
 	// Brackets outside the display range are hidden
 	if( (m_cameraDistance < m_minDispRange) || (m_cameraDistance > m_maxDispRange) )
 	{
-		m_bracket->SetDisplay( false );
-		if( m_bracketIcon )
-		{
-			m_bracketIcon->SetDisplay( false );
-		}
-		m_hidden = true;
+		SetBracketDisplayState( false );
 		return;
 	}
 
 	// Turn brackets on again, if needed
-	if( isInFront && m_hidden )
-	{
-		m_bracket->SetDisplay( true );
-		if( m_bracketIcon )
-		{
-			m_bracketIcon->SetDisplay( true );
-		}
-		m_hidden = false;
-	}
+	SetBracketDisplayState( true );
 
 	float left = vp.x + m_marginLeft;
 	float right = vp.x + vp.width - m_marginRight;
@@ -154,8 +132,11 @@ void EveProjectBracket::UpdateValue( double time )
 		bottom = top + m_parent->GetDisplayHeight() - m_marginBottom;
 	}
 
-	x -= m_bracket->GetDisplayWidth() / 2.0f;
-	y -= m_bracket->GetDisplayHeight() / 2.0f;
+	if( m_bracket )
+	{
+		x -= m_bracket->GetDisplayWidth() / 2.0f;
+		y -= m_bracket->GetDisplayHeight() / 2.0f;
+	}
 
 	uint32_t debugColor = 0xffffffff;
 
@@ -232,12 +213,42 @@ void EveProjectBracket::UpdateValue( double time )
 		g_debugRenderer->Printf( (int)x, (int)y, debugColor, "%S", m_name.c_str() );
 	}
 
-	m_bracket->SetDisplayX( x );
-	m_bracket->SetDisplayY( y );
+	if( m_bracket )
+	{
+		m_bracket->SetDisplayX( x );
+		m_bracket->SetDisplayY( y );
+	}
+
+	m_projectedPosition.x = x;
+	m_projectedPosition.y = y;
 
 	if( m_bracketIcon )
 	{
-		m_bracketIcon->SetTranslation( Vector2( x, y ) );
+		m_bracketIcon->SetTranslation( m_projectedPosition );
+	}
+}
+
+void EveProjectBracket::SetBracketDisplayState( bool state )
+{
+	if( state == m_visible )
+	{
+		return;
+	}
+
+	m_visible = state;
+
+	if( m_bracket )
+	{
+		m_bracket->SetDisplay( state );
+	}
+	if( m_bracketIcon )
+	{
+		m_bracketIcon->SetDisplay( state );
+	}
+
+	if( m_displayChangeCallback )
+	{
+		m_displayChangeCallback.CallVoid( this, state );
 	}
 }
 

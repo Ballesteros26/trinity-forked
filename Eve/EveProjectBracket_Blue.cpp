@@ -161,6 +161,21 @@ const Be::ClassInfo* EveProjectBracket::ExposeToBlue()
 			"If true (default), then projected coordinates are rounded to integer coordinates",
 			Be::READWRITE
 		)
+		MAP_ATTRIBUTE
+		(
+			"projectedPosition",
+			m_projectedPosition,
+			"The projected 2d position.",
+			Be::READ
+		)
+		MAP_ATTRIBUTE
+		(
+			"displayChangeCallback",
+			m_displayChangeCallback,
+			"An optional callback that is called whenever the display state of the bracket\n"
+			"is changed. It should be a callable, accepting one boolean argument (the new display state).",
+			Be::READWRITE
+		)
 
 	EXPOSURE_END()
 }

@@ -28,6 +28,8 @@ public:
 	// ITriFunction
 	void UpdateValue( double time );
 
+	void SetBracketDisplayState( bool state );
+
 protected:
 	std::wstring m_name;
 
@@ -47,7 +49,7 @@ protected:
 	// Should the bracket dock on the sides if source is off the screen?
 	// If not, the visible flag is toggled depending on off-screen status
 	bool m_dock;
-	bool m_hidden;
+	bool m_visible;
 
 	// Should the coordinates be rounded to the nearest integer? Defaults to true.
 	bool m_integerCoordinates;
@@ -72,6 +74,9 @@ protected:
 	// The bracket container
 	Tr2Sprite2dContainerPtr m_parent;
 
+	// An optional callback to call when the display state is changed
+	BlueScriptCallback m_displayChangeCallback;
+
 	//////////////////////////////////////////////////////////////////////////
 	// Outputs - the results from UpdateValue
 
@@ -80,6 +85,7 @@ protected:
 	// The bracket icon
 	EveSprite2dBracketPtr m_bracketIcon;
 
+	Vector2 m_projectedPosition;
 };
 
 TYPEDEF_BLUECLASS( EveProjectBracket );
