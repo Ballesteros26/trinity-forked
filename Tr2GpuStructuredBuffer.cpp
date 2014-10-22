@@ -16,7 +16,7 @@ using namespace Tr2RenderContextEnum;
 Tr2GpuStructuredBuffer::Tr2GpuStructuredBuffer( IRoot* )
 	:m_count( 0 ),
 	m_stride( 0 ),
-	m_cpuWritable( false )
+	m_creationFlags( 0 )
 {
 }
 
@@ -32,11 +32,11 @@ Tr2GpuStructuredBuffer::~Tr2GpuStructuredBuffer()
 // Description:
 //   Blue-exposed initializer. 
 // --------------------------------------------------------------------------------------
-ALResult Tr2GpuStructuredBuffer::py__init__( uint32_t count, uint32_t stride, bool cpuWritable )
+ALResult Tr2GpuStructuredBuffer::py__init__( uint32_t count, uint32_t stride, CreationFlags creationFlags )
 {
 	if( count && stride )
 	{
-		return Create( count, stride, cpuWritable );
+		return Create( count, stride, creationFlags );
 	}
 	return S_OK;
 }
@@ -74,16 +74,16 @@ bool Tr2GpuStructuredBuffer::OnModified( Be::Var* value )
 // Arguments:
 //   count - Number of elements in the buffer
 //   stride - Size of one element in bytes
-//   cpuWritable - Can the buffer be locked with write-only access
+//   creationFlags - Creation flags (see Tr2GpuStructuredBuffer::CreationFlag)
 // Return Value:
 //   true If AL buffer is successfully created
 //   false Otherwise
 // --------------------------------------------------------------------------------------
-ALResult Tr2GpuStructuredBuffer::Create( uint32_t count, uint32_t stride, bool cpuWritable )
+ALResult Tr2GpuStructuredBuffer::Create( uint32_t count, uint32_t stride, CreationFlags creationFlags )
 {
 	m_count = count;
 	m_stride = stride;
-	m_cpuWritable = cpuWritable;
+	m_creationFlags = creationFlags;
 	return CreateBuffer();
 }
 
@@ -126,16 +126,27 @@ ALResult Tr2GpuStructuredBuffer::CreateBuffer()
 		return E_INVALIDARG;
 	}
 	BufferUsage usage = 0;
-	if( m_cpuWritable )
+	if( m_creationFlags & CPU_WRITABLE )
 	{
 		usage = USAGE_CPU_WRITE;
 	}
+	GpuBufferUsage gpuBufferUsage = 0;
+	if( m_creationFlags & APPEND_BUFFER )
+	{
+		gpuBufferUsage = GPU_BUFFER_APPEND;
+	}
+	if( m_creationFlags & COUNTER )
+	{
+		gpuBufferUsage = GPU_BUFFER_COUNTER;
+	}
+
 	
 	USE_MAIN_THREAD_RENDER_CONTEXT();
 	return m_buffer.CreateStructured( 
 		m_count, 
 		m_stride, 
 		usage,
+		gpuBufferUsage,
 		nullptr, 
 		renderContext );
 }

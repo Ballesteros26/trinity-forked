@@ -1,0 +1,188 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   October 2014
+//    Copyright: CCP 2014
+//
+
+#include "StdAfx.h"
+#include "Tr2LightManager.h"
+#include "Tr2Renderer.h"
+#include "Tr2Effect.h"
+#include "Tr2GpuBuffer.h"
+#include "Tr2GpuStructuredBuffer.h"
+
+CCP_STATS_DECLARE( lightsGathered, "Trinity/Tr2LightManager/lightsGathered", true, CST_COUNTER_LOW, "How many lights were pushed to GPU" );
+
+namespace
+{
+
+// Initial size of the light buffer (number of elements)
+const uint32_t LIGHT_BUFFER_SIZE = 1024;
+// Size of the light index buffer (number of indices)
+const uint32_t INDEX_BUFFER_SIZE = 4 * 1024 * 1024;
+// Minimal size of a point light sphere in pixels before it is culled out
+const float CUTOFF_PIXEL_SIZE = 2.f;
+
+// Tile sizes in pixels, should match thread count in a compute shader
+const uint32_t TILE_WIDTH = 16;
+const uint32_t TILE_HEIGHT = 16;
+
+struct PerFrameData
+{
+	Matrix viewProjInverse;
+	uint32_t width;
+	uint32_t height;
+	uint32_t tilesX;
+	uint32_t tilesY;
+	uint32_t lightCount;
+	uint32_t indexBufferSize;
+	uint32_t _padding[2];
+};
+
+bool ExtractAnnotationValue( const Tr2EffectParameterAnnotation& annotation, 
+							const char* name,
+							uint32_t& value )
+{
+	if( strcmp( annotation.name, name ) == 0 )
+	{
+		if( annotation.type == Tr2EffectParameterAnnotation::INT )
+		{
+			value = uint32_t( annotation.intValue );
+			return true;
+		}
+		else
+		{
+			CCP_LOGERR( "Tr2LightManager: unexpected annotation \"%s\" type", name );
+		}
+	}
+	return false;
+}
+
+}
+
+Tr2LightManager::Tr2LightManager( const char* effectPath )
+	:m_lightData( LIGHT_BUFFER_SIZE, "Tr2LightManager::m_lightData" )
+{
+	m_effect.CreateInstance();
+	m_effect->SetEffectPathName( effectPath );
+
+	m_lightBuffer.CreateInstance();
+	m_indexBuffer.CreateInstance();
+
+	m_lightBufferVariable.Register( "LightBuffer", m_lightBuffer );
+	m_indexBufferVariable.Register( "LightIndexBuffer", m_indexBuffer );
+
+	PrepareResources();
+}
+
+void Tr2LightManager::Clear()
+{
+	m_lightData.Clear();
+}
+
+void Tr2LightManager::SetFrustum( const TriFrustum& frustum )
+{
+	m_frustum = frustum;
+}
+
+void Tr2LightManager::AddPointLight( const Vector3& position, float radius, const Color& color )
+{
+	PerLightData data;
+	data.position = position;
+	data.radius = radius;
+	if( m_frustum.IsSphereVisible( reinterpret_cast<Vector4*>( &data.position ) ) && 
+		m_frustum.GetPixelSizeAccross( reinterpret_cast<Vector4*>( &data.position ) ) > CUTOFF_PIXEL_SIZE  )
+	{
+		data.color = reinterpret_cast<const Vector3&>( color );
+		m_lightData.Add( data, "Tr2LightManager::m_lightData" );
+	}
+}
+
+ALResult Tr2LightManager::ClearLightIndices( Tr2RenderContext& renderContext )
+{
+	const uint32_t clear[] = { 0, 0, 0, 0 };
+	return renderContext.ClearUav( *m_indexBuffer->GetGpuBuffer( 0 ), clear );
+}
+
+ALResult Tr2LightManager::UpdateLightBuffer( Tr2RenderContext& renderContext )
+{
+	if( m_lightBuffer->GetGpuBuffer( 0 )->GetNumElements() < m_lightData.GetCount() )
+	{
+		CR_RETURN_HR( m_lightBuffer->Create( 
+			std::max( m_lightBuffer->GetGpuBuffer( 0 )->GetNumElements() + 1024, m_lightData.GetCount() ), 
+			sizeof( PerLightData ), 
+			Tr2GpuBuffer::CPU_WRITABLE ) );
+	}
+	Vector4* data;
+	CR_RETURN_HR( m_lightBuffer->GetGpuBuffer( 0 )->Lock( 0, 0, (void**)&data, Tr2RenderContextEnum::LOCK_WRITEONLY, renderContext ) );
+	auto lightCount = std::min( m_lightBuffer->GetGpuBuffer( 0 )->GetNumElements(), uint32_t( m_lightData.GetCount() ) );
+	memcpy( data, m_lightData.GetData(), lightCount * sizeof( PerLightData ) );
+	CCP_STATS_ADD( lightsGathered, m_lightData.GetCount() );
+	return m_lightBuffer->GetGpuBuffer( 0 )->Unlock( renderContext );
+}
+
+ALResult Tr2LightManager::DoUpdateLists( Tr2RenderContext& renderContext )
+{
+	if( !m_lightBuffer->IsValid() || !m_indexBuffer->IsValid() )
+	{
+		return E_INVALIDCALL;
+	}
+
+	CR_RETURN_HR( UpdateLightBuffer( renderContext ) );
+
+	PerFrameData perFrameData;
+	Matrix viewProj = Tr2Renderer::GetViewTransform() * Tr2Renderer::GetProjectionTransform();
+	D3DXMatrixTranspose( &perFrameData.viewProjInverse, D3DXMatrixInverse( &viewProj, nullptr, &viewProj ) );
+	perFrameData.width = uint32_t( Tr2Renderer::GetDeviceViewport().m_width );
+	perFrameData.height = uint32_t( Tr2Renderer::GetDeviceViewport().m_height );
+	perFrameData.tilesX = ( perFrameData.width + ( TILE_WIDTH - 1 ) ) / TILE_WIDTH;
+	perFrameData.tilesY = ( perFrameData.height + ( TILE_HEIGHT - 1 ) ) / TILE_HEIGHT;
+	perFrameData.lightCount = std::min( m_lightBuffer->GetGpuBuffer( 0 )->GetNumElements(), uint32_t( m_lightData.GetCount() ) );
+	perFrameData.indexBufferSize = INDEX_BUFFER_SIZE;
+	if( !FillAndSetConstants( m_perFrameData, perFrameData, Tr2RenderContextEnum::COMPUTE_SHADER, Tr2Renderer::GetPerFramePSStartRegister(), renderContext ) )
+	{
+		return E_FAIL;
+	}
+
+	renderContext.m_esm.ApplyShaderBuffer( Tr2RenderContextEnum::COMPUTE_SHADER, 1, *m_lightBuffer->GetGpuBuffer( 0 ) );
+	CR_RETURN_HR( renderContext.SetUav( Tr2RenderContextEnum::COMPUTE_SHADER, 1, *m_indexBuffer->GetGpuBuffer( 0 ), 0 ) );
+	if( !Tr2Renderer::RunComputeShader( m_effect, perFrameData.tilesX, perFrameData.tilesY, 1, renderContext ) )
+	{
+		return E_FAIL;
+	}
+	return S_OK;
+}
+
+ALResult Tr2LightManager::UpdateLists( Tr2RenderContext& renderContext )
+{
+	m_lightBufferVariable = m_lightBuffer;
+	m_indexBufferVariable = m_indexBuffer;
+
+	if( m_lightData.GetCount() == 0 )
+	{
+		return ClearLightIndices( renderContext );
+	}
+
+	auto hr = DoUpdateLists( renderContext );
+	if( FAILED( hr ) )
+	{
+		ClearLightIndices( renderContext );
+	}
+
+	return hr;
+}
+
+void Tr2LightManager::ReleaseResources( TriStorage )
+{
+}
+
+bool Tr2LightManager::OnPrepareResources()
+{
+	USE_MAIN_THREAD_RENDER_CONTEXT();
+
+	m_lightBuffer->Create( LIGHT_BUFFER_SIZE, sizeof( PerLightData ), Tr2GpuBuffer::CPU_WRITABLE );
+	m_indexBuffer->Create( INDEX_BUFFER_SIZE, sizeof( uint32_t ), Tr2GpuStructuredBuffer::GPU_WRITABLE | Tr2GpuStructuredBuffer::COUNTER );
+	m_perFrameData.Create( sizeof( PerFrameData ), Tr2RenderContextEnum::USAGE_LOCK_FREQUENTLY, nullptr, renderContext );
+
+	return true;
+}

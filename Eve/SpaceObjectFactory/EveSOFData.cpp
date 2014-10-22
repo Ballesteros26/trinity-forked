@@ -111,6 +111,12 @@ EveSOFDataHullArea::EveSOFDataHullArea( IRoot* lockobj ) :
 {}
 
 
+static BlueStructureDefinition s_eveSOFDecalIndexDef[] =
+{ 
+	{ "index",	Be::UINT32_1,	0 }, 
+	{0} 
+};
+
 EveSOFDataHullDecal::EveSOFDataHullDecal( IRoot* lockobj ) :
 	m_position( 0.f, 0.f, 0.f ),
 	m_rotation( 0.f, 0.f, 0.f, 1.f ),
@@ -118,8 +124,11 @@ EveSOFDataHullDecal::EveSOFDataHullDecal( IRoot* lockobj ) :
 	m_groupIndex( -1 ),
 	m_boneIndex( -1 ),
 	PARENTLOCK( m_textures ),
-	PARENTLOCK( m_parameters )
-{}
+	PARENTLOCK( m_parameters ),
+	PARENTLOCK( m_indexBuffer )
+{
+	m_indexBuffer.SetStructureDefinition( s_eveSOFDecalIndexDef );
+}
 
 
 EveSOFDataHullLocator::EveSOFDataHullLocator( IRoot* lockobj )

@@ -20,9 +20,9 @@ const char* TriTexture2DParameter::GetParameterName() const
 	return m_name.c_str();
 }
 
-void TriTexture2DParameter::SetParameterName( const char* name )
+void TriTexture2DParameter::SetParameterName( const BlueSharedString& name )
 {
-	m_name = BlueSharedString( name );
+	m_name = name;
 }
 
 // -------------------------------------------------------------

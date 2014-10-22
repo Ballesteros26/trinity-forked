@@ -66,6 +66,8 @@ bool EveSOFDNA::isValid() const
 // --------------------------------------------------------------------------------
 void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// remember the pointer to the BIG lib as long as this DNA object lives
 	m_dataMgr = dataMgr;
 
@@ -440,9 +442,11 @@ const std::vector<EveSOFDataMgr::HullAreas>* EveSOFDNA::GetHullMeshAreas( TriBat
 // Description:
 //   Return a shader parameter for a faction override
 // --------------------------------------------------------------------------------
-const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( TriBatchType type, const char* areaDesignation, const char* parameterName ) const
+const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( TriBatchType type, const BlueSharedString& areaDesignation, const BlueSharedString& parameterName ) const
 {
-	const std::map<std::string, EveSOFDataMgr::FactionAreaData>* areaParameters = nullptr;
+	CCP_STATS_ZONE( __FUNCTION__ );
+
+	const std::map<BlueSharedString, EveSOFDataMgr::FactionAreaData>* areaParameters = nullptr;
 
 	// overrides are organized per areatype
 	switch( type )
@@ -465,15 +469,15 @@ const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( TriBatchType type, const
 	if( GetDnaCommandArgs( CMD_MESH, meshCommandArgs ) )
 	{
 		int argIdx = -1;
-		std::string materialDataParameterName = std::string( parameterName );
+		std::string materialDataParameterName = std::string( parameterName.c_str() );
 		// identify mask, submask
-		if( StringStartsWithI( parameterName, "Mask" ) )
+		if( StringStartsWithI( parameterName.c_str(), "Mask" ) )
 		{
 			// arg 0 is mask material
 			argIdx = 0;
 			StringRemove( materialDataParameterName, "Mask" );
 		}
-		else if( StringStartsWithI( parameterName, "SubMask" ) )
+		else if( StringStartsWithI( parameterName.c_str(), "SubMask" ) )
 		{
 			// arg 1 is submask material
 			argIdx = 1;
@@ -486,7 +490,8 @@ const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( TriBatchType type, const
 			const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( meshCommandArgs[ argIdx ].c_str() );
 			if( materialData ) 
 			{
-				auto parameterIt = materialData->parameters.find( materialDataParameterName.c_str() );
+				BlueSharedString pn( materialDataParameterName.c_str() );
+				auto parameterIt = materialData->parameters.find( pn );
 				if( parameterIt != materialData->parameters.end() )
 				{
 					return &parameterIt->second;
@@ -503,7 +508,7 @@ const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( TriBatchType type, const
 	}
 
 	// find the parameter by parameter name
-	const std::map<std::string, Vector4>* parameters = &parameterListIt->second.parameters;
+	const std::map<BlueSharedString, Vector4>* parameters = &parameterListIt->second.parameters;
 	auto parameterIt = parameters->find( parameterName );
 	if( parameterIt == parameters->end() )
 	{

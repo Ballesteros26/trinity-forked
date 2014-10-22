@@ -2043,9 +2043,9 @@ void EveSpaceObject2::AddCurveSet( TriCurveSetPtr newCurveSet )
 // Description:
 //   Add a new locator to this object from the outside
 // --------------------------------------------------------------------------------
-void EveSpaceObject2::AddLocator( EveLocator2Ptr newLocator )
+void EveSpaceObject2::AddLocator( EveLocator2* newLocator )
 {
-	m_locators.Append( newLocator->GetRawRoot() );
+	m_locators.Append( newLocator );
 }
 
 // --------------------------------------------------------------------------------

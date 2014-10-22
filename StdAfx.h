@@ -83,10 +83,6 @@ using std::max;
     #endif
 #endif
 
-#ifndef IME_ENABLED
-#define IME_ENABLED 1
-#endif
-
 #if APEX_ENABLED
 #include "NxApex.h"
 #endif

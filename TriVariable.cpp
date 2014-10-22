@@ -3,6 +3,7 @@
 #include "TriVariable.h"
 
 #include "include/TriMath.h"
+#include "include/ITr2GpuBuffer.h"
 
 #include "Resources/TriTextureRes.h"
 
@@ -121,6 +122,22 @@ void TriVariable::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType,
 				else
 				{
 					renderContext.m_esm.ApplyTexture( inputType, samplerIx, nullTX, colorSpace );
+				}
+			}
+			break;
+		}
+	case TRIVARIABLE_GPUBUFFER:
+		{
+			if( m_gpuBuffer )
+			{
+				uint32_t samplerIx = *destHandle;
+				if( Tr2GpuBufferAL* buffer = m_gpuBuffer->GetGpuBuffer( 0 ) )
+				{		
+					renderContext.m_esm.ApplyShaderBuffer( inputType, samplerIx, *buffer );
+				}
+				else
+				{
+					renderContext.m_esm.ApplyShaderBuffer( inputType, samplerIx, nullGB );
 				}
 			}
 			break;

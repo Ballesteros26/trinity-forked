@@ -29,6 +29,18 @@ public:
 	using IInitialize::Lock;
 	using IInitialize::Unlock;
 
+	enum CreationFlag
+	{
+		// Can the buffer be locked with write-only access
+		CPU_WRITABLE	= 1,
+		// Is the buffer used for GPU write access
+		GPU_WRITABLE	= 2,
+		// Is the buffer used for indirect draw calls
+		DRAW_INDIRECT	= 4,
+	};
+
+	typedef uint32_t CreationFlags;
+
     Tr2GpuBuffer( IRoot* = 0 );
 	~Tr2GpuBuffer();
 
@@ -38,10 +50,10 @@ public:
 
 	Tr2GpuBufferAL* GetGpuBuffer( unsigned index );
 
-	ALResult Create( uint32_t count, Tr2RenderContextEnum::PixelFormat format, bool cpuWritable, bool drawIndirect );
+	ALResult Create( uint32_t count, Tr2RenderContextEnum::PixelFormat format, CreationFlags m_creationFlags );
 	bool IsValid() const;
 private:
-	ALResult __init__( Be::Optional<uint32_t> count, Be::Optional<Tr2RenderContextEnum::PixelFormat> format, bool cpuWritable, bool drawIndirect );
+	ALResult __init__( Be::Optional<uint32_t> count, Be::Optional<Tr2RenderContextEnum::PixelFormat> format, CreationFlags m_creationFlags );
 
 	ALResult CreateBuffer();
 
@@ -52,10 +64,7 @@ private:
 	uint32_t m_count;
 	// Type of elements
 	Tr2RenderContextEnum::PixelFormat m_format;
-	// Can the buffer be locked with write-only access
-	bool m_cpuWritable;
-	// Is the buffer used for indirect draw calls
-	bool m_drawIndirect;
+	CreationFlags m_creationFlags;
 };
 
 TYPEDEF_BLUECLASS( Tr2GpuBuffer );

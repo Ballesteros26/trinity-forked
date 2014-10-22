@@ -300,7 +300,7 @@ bool Tr2ShaderTexDesc::Initialize()
 ITriEffectParameter* Tr2ShaderTexDesc::CreateDefaultParameter( void ) const
 {
 	OTriTexture2DParameter* param = new OTriTexture2DParameter();
-	param->SetParameterName( m_parameterName.c_str() );
+	param->SetParameterName( BlueSharedString( m_parameterName.c_str() ) );
 	param->SetResourcePath( m_defaultValue.c_str() );
 
 	return param;

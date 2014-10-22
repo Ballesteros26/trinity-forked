@@ -28,8 +28,8 @@ CCP_STATS_DECLARE( statTotalParticleCount, "Trinity/totalParticleCount", false, 
 CCP_STATS_DECLARE( statAliveParticleCount, "Trinity/aliveParticleCount", true, CST_COUNTER_HIGH, "Tr2ParticleSystem particles alive (not necessarily drawn/updated)" );
 CCP_STATS_DECLARE( statUpdatedParticleCount, "Trinity/updatedParticleCount", true, CST_COUNTER_HIGH, "Tr2ParticleSystem particles updated last frame" );
 
-CcpAtomic<uint32_t> s_aliveParticleCount;
-CcpAtomic<uint32_t> s_updatedParticleCount;
+CcpAtomic<uint32_t> s_aliveParticleCount( 0 );
+CcpAtomic<uint32_t> s_updatedParticleCount( 0 );
 
 // --------------------------------------------------------------------------------------
 // Description:

@@ -36,7 +36,7 @@ public:
 
 	struct LocatorData
 	{
-		std::string name;
+		BlueSharedString name;
 		Matrix transform;
 	};
 
@@ -115,10 +115,10 @@ public:
 	{
 		unsigned int index;
 		unsigned int count;
-		std::string designation;
+		BlueSharedString designation;
 		std::string shader;
-		std::map<std::string, TextureData> textures;
-		std::map<std::string, Vector4> parameters;
+		std::map<BlueSharedString, TextureData> textures;
+		std::map<BlueSharedString, Vector4> parameters;
 	};
 
 	struct HullDecalData
@@ -129,8 +129,9 @@ public:
 		int groupIndex;
 		int boneIndex;
 		std::string shader;
-		std::map<std::string, TextureData> textures;
-		std::map<std::string, Vector4> parameters;
+		std::map<BlueSharedString, TextureData> textures;
+		std::map<BlueSharedString, Vector4> parameters;
+		std::vector<uint32_t> indexBuffer;
 	};
 
 	struct HullChild
@@ -206,7 +207,7 @@ public:
 
 	struct FactionAreaData
 	{
-		std::map<std::string, Vector4> parameters;
+		std::map<BlueSharedString, Vector4> parameters;
 	};
 
 	struct FactionDecalData
@@ -214,8 +215,8 @@ public:
 		int groupIndex;
 		bool isVisible;
 		std::string shader;
-		std::map<std::string, TextureData> textures;
-		std::map<std::string, Vector4> parameters;
+		std::map<BlueSharedString, TextureData> textures;
+		std::map<BlueSharedString, Vector4> parameters;
 	};
 
 	struct FactionData
@@ -224,9 +225,9 @@ public:
 		std::string resPathInsert;
 
 		// hull area paramaters
-		std::map<std::string, FactionAreaData> opaqueAreaParameters;
-		std::map<std::string, FactionAreaData> transparentAreaParameters;
-		std::map<std::string, FactionAreaData> additiveAreaParameters;
+		std::map<BlueSharedString, FactionAreaData> opaqueAreaParameters;
+		std::map<BlueSharedString, FactionAreaData> transparentAreaParameters;
+		std::map<BlueSharedString, FactionAreaData> additiveAreaParameters;
 		// spritesets
 		std::map<int, FactionSpriteSetColorData> spriteSetsColor;
 		// spotlight sets
@@ -256,7 +257,7 @@ public:
 	struct MaterialData
 	{
 		// shader params
-		std::map<std::string, Vector4> parameters;
+		std::map<BlueSharedString, Vector4> parameters;
 	};
 
 	// generic data structs

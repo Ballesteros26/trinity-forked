@@ -18,7 +18,7 @@ public:
 	EXPOSE_TO_BLUE();
 
 	// setup
-	void SetLodResource( Tr2LodResourcePtr newLodResource );
+	void SetLodResource( Tr2LodResource* newLodResource );
 
 	Tr2Texture2dLodParameter( IRoot* lockobj = nullptr );
 	virtual TriTextureRes* GetResource() const;

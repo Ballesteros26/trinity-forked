@@ -66,11 +66,11 @@ public:
 
 	// sets & adds
 	void SetEffectPathName( const char* path );
-	void AddResourceTexture2D( const char* name, const char* resPath );
-	void AddResourceTexture2DLod( const char* name, Tr2LodResourcePtr lodResource );
-	void AddParameterVector4( const char* name, const Vector4* value );
-	void AddParameterFloat( const char* name, float value );
-	void AddParameterColor( const char* name, const Color* value );
+	void AddResourceTexture2D( const BlueSharedString& name, const char* resPath );
+	void AddResourceTexture2DLod( const BlueSharedString& name, Tr2LodResourcePtr lodResource );
+	void AddParameterVector4( const BlueSharedString& name, const Vector4* value );
+	void AddParameterFloat( const BlueSharedString& name, float value );
+	void AddParameterColor( const BlueSharedString& name, const Color* value );
 
 	// access parameters and resources
 	ITriEffectParameter* GetParameterByName( const char* name ) const;

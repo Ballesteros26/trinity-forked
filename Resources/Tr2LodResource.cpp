@@ -61,12 +61,12 @@ void Tr2LodResource::SelectLod( Tr2Lod lod )
 	BeResMan->GetResource( respath, "", m_requested );
 }
 
-const std::string& Tr2LodResource::GetName() const
+const char* Tr2LodResource::GetName() const
 {
-	return m_name;
+	return m_name.c_str();
 }
 
-void Tr2LodResource::SetName( const std::string& val )
+void Tr2LodResource::SetName( const BlueSharedString& val )
 {
 	m_name = val;
 }

@@ -31,8 +31,8 @@ const Be::ClassInfo* Tr2GpuStructuredBuffer::ExposeToBlue()
 			"Size of buffer element in bytes", 
 			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( 
-			"cpuWritable", 
-			m_cpuWritable, 
+			"creationFlags", 
+			m_creationFlags, 
 			"If CPU should have write access to the buffer", 
 			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_PROPERTY_READONLY( 

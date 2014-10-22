@@ -15,7 +15,7 @@ Tr2Texture2dLodParameter::Tr2Texture2dLodParameter( IRoot* lockobj /*= nullptr *
 
 }
 
-void Tr2Texture2dLodParameter::SetLodResource( Tr2LodResourcePtr newLodResource )
+void Tr2Texture2dLodParameter::SetLodResource( Tr2LodResource* newLodResource )
 {
 	m_lodResource = newLodResource;
 }

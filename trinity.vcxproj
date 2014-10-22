@@ -2612,6 +2612,7 @@
     <ClInclude Include="Tr2ImageIOHelpers.h"/>
     <ClInclude Include="Tr2InstancedMesh.h"/>
     <ClInclude Include="Tr2KelvinColor.h"/>
+    <ClInclude Include="Tr2LightManager.h"/>
     <ClInclude Include="Tr2LineGraph.h"/>
     <ClInclude Include="Tr2LineSet.h"/>
     <ClInclude Include="Tr2LitPerObjectData.h"/>
@@ -2679,8 +2680,6 @@
     <ClInclude Include="TriFloat.h"/>
     <ClInclude Include="TriFrustum.h"/>
     <ClInclude Include="TriFrustumOrtho.h"/>
-    <ClInclude Include="TriIME.h"/>
-    <ClInclude Include="TriIMEWrapper.h"/>
     <ClInclude Include="TriLineSet.h"/>
     <ClInclude Include="TriNearestBoundingPoint.h"/>
     <ClInclude Include="TriObserverLocal.h"/>
@@ -2843,7 +2842,6 @@
     <ClInclude Include="Include\ITriDuration.h"/>
     <ClInclude Include="Include\ITriEffectParameter.h"/>
     <ClInclude Include="Include\ITriFunction.h"/>
-    <ClInclude Include="Include\ITriIME.h"/>
     <ClInclude Include="Include\ITriMatrix.h"/>
     <ClInclude Include="Include\ITriObserverLocal.h"/>
     <ClInclude Include="Include\ITriPoint.h"/>
@@ -3097,6 +3095,7 @@
     <ClCompile Include="Tr2KelvinColor.cpp"/>
     <ClCompile Include="Tr2KelvinColor_Blue.cpp"/>
     <ClCompile Include="Tr2LabelTextParser.cpp"/>
+    <ClCompile Include="Tr2LightManager.cpp"/>
     <ClCompile Include="Tr2LineGraph.cpp"/>
     <ClCompile Include="Tr2LineGraph_Blue.cpp"/>
     <ClCompile Include="Tr2LineSet.cpp"/>
@@ -3211,9 +3210,6 @@
     <ClCompile Include="TriFloat_Blue.cpp"/>
     <ClCompile Include="TriFrustum.cpp"/>
     <ClCompile Include="TriFrustumOrtho.cpp"/>
-    <ClCompile Include="TriIME.cpp"/>
-    <ClCompile Include="TriIMEWrapper.cpp"/>
-    <ClCompile Include="TriIME_Blue.cpp"/>
     <ClCompile Include="TriLineSet.cpp"/>
     <ClCompile Include="TriLineSet_Blue.cpp"/>
     <ClCompile Include="TriMath.cpp"/>

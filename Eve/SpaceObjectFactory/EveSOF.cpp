@@ -42,18 +42,21 @@ EveSOF::EveSOF( IRoot* lockobj ) :
 	Tr2Variable var1( "DepthMap", (Tr2TextureAL*)nullptr );
 	Tr2Variable var2( "DepthMapMsaa", (Tr2TextureAL*)nullptr );
 
+	BlueSharedString mainIntensity( "MainIntensity" );
+	BlueSharedString gradientMap( "GradientMap" );
+
 	// some shared shaders here
 	m_spriteSetEffect.CreateInstance();
 	m_spriteSetEffect->StartUpdate();
 	m_spriteSetEffect->SetEffectPathName( "res:/graphics/effect/managed/space/spaceobject/fx/blinkinglights.fx" );
-	m_spriteSetEffect->AddParameterFloat( "MainIntensity", 1.f );
-	m_spriteSetEffect->AddResourceTexture2D( "GradientMap", "res:/texture/particle/whitesharp_gradient.dds" );
+	m_spriteSetEffect->AddParameterFloat( mainIntensity, 1.f );
+	m_spriteSetEffect->AddResourceTexture2D( gradientMap, "res:/texture/particle/whitesharp_gradient.dds" );
 	m_spriteSetEffect->EndUpdate();
 	m_spriteSetEffectSkinned.CreateInstance();
 	m_spriteSetEffectSkinned->StartUpdate();
 	m_spriteSetEffectSkinned->SetEffectPathName( "res:/graphics/effect/managed/space/spaceobject/fx/skinned_blinkinglights.fx" );
-	m_spriteSetEffectSkinned->AddParameterFloat( "MainIntensity", 1.f );
-	m_spriteSetEffectSkinned->AddResourceTexture2D( "GradientMap", "res:/texture/particle/whitesharp_gradient.dds" );
+	m_spriteSetEffectSkinned->AddParameterFloat( mainIntensity, 1.f );
+	m_spriteSetEffectSkinned->AddResourceTexture2D( gradientMap, "res:/texture/particle/whitesharp_gradient.dds" );
 	m_spriteSetEffectSkinned->EndUpdate();
 
 	m_shadowEffect.CreateInstance();
@@ -77,6 +80,8 @@ EveSOF::~EveSOF()
 // --------------------------------------------------------------------------------
 IRootPtr EveSOF::BuildFromDNA( const char* dnaString )
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// create a temporary(!) DNA object
 	EveSOFDNAPtr dna;
 	dna.CreateInstance();
@@ -139,6 +144,8 @@ IRootPtr EveSOF::Build( const char* hullName, const char* factionName, const cha
 // --------------------------------------------------------------------------------
 void EveSOF::SetupMesh( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// need a mesh
 	Tr2MeshLodPtr mesh;
 	mesh.CreateInstance();
@@ -151,7 +158,7 @@ void EveSOF::SetupMesh( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 
 	Tr2LodResourcePtr lodResource;
 	lodResource.CreateInstance();
-	lodResource->SetName( "Geometry" );
+	lodResource->SetName( BlueSharedString( "Geometry" ) );
 	lodResource->SetResourcePath( TR2_LOD_LOW, lowDetail.c_str() );
 	lodResource->SetResourcePath( TR2_LOD_MEDIUM, mediumDetail.c_str() );
 	lodResource->SetResourcePath( TR2_LOD_HIGH, highDetail.c_str() );
@@ -200,6 +207,8 @@ void EveSOF::SetupMesh( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 // --------------------------------------------------------------------------------
 void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodResCollector, Tr2MeshAreaVector* meshAreaVector, TriBatchType areaType, const EveSOFDNAPtr dna ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	const std::vector<EveSOFDataMgr::HullAreas>* hullAreas = dna->GetHullMeshAreas( areaType );
 	for( auto area = hullAreas->begin(); area != hullAreas->end(); ++area )
 	{
@@ -217,22 +226,24 @@ void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodRe
 		// parameters
 		for( auto hullAreaParamsIt = area->parameters.begin(); hullAreaParamsIt != area->parameters.end(); ++hullAreaParamsIt )
 		{
-			const Vector4* factionParam = dna->GetFactionMeshAreaParameters( areaType, area->designation.c_str(), hullAreaParamsIt->first.c_str() );
+			const Vector4* factionParam = dna->GetFactionMeshAreaParameters( areaType, area->designation, hullAreaParamsIt->first );
 			if( factionParam )
 			{
-				newShader->AddParameterVector4( hullAreaParamsIt->first.c_str(), factionParam );
+				newShader->AddParameterVector4( hullAreaParamsIt->first, factionParam );
 			}
 			else
 			{
-				newShader->AddParameterVector4( hullAreaParamsIt->first.c_str(), &hullAreaParamsIt->second );
+				newShader->AddParameterVector4( hullAreaParamsIt->first, &hullAreaParamsIt->second );
 			}
 		}
 
 		// shader textures
 		for( auto it = area->textures.begin(); it != area->textures.end(); ++it )
 		{
+			CCP_STATS_ZONE( __FUNCTION__ " texture" );
+
 			// res path how it is from hull data
-			std::string highResPath = it->second.resFilePath.c_str();
+			std::string highResPath = it->second.resFilePath;
 			// get's modified by the faction data
 			dna->ModifyTextureResPath( highResPath, it->first.c_str() );
 			// make three paths for the three LODs
@@ -244,25 +255,28 @@ void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodRe
 				if( finder != lodResCollector.end() )
 				{
 					// yeah, we have one: use it!
-					newShader->AddResourceTexture2DLod( it->first.c_str(), finder->second );
+					newShader->AddResourceTexture2DLod( it->first, finder->second );
 				}
 				else
 				{
 					// not found, so we have to make a new one
 					Tr2LodResourcePtr lodResource;
 					lodResource.CreateInstance();
+
+					CCP_STATS_ZONE( __FUNCTION__ " lodResource" );
+
 					lodResource->SetName( it->first );
 					lodResource->SetResourcePath( TR2_LOD_LOW, lowResPath.c_str() );
 					lodResource->SetResourcePath( TR2_LOD_MEDIUM, mediumResPath.c_str() );
 					lodResource->SetResourcePath( TR2_LOD_HIGH, highResPath.c_str() );
-					newShader->AddResourceTexture2DLod( it->first.c_str(), lodResource );
+					newShader->AddResourceTexture2DLod( it->first, lodResource );
 					// also add it to the mesh for updating
 					lodResCollector[ highResPath ] = lodResource;
 				}
 			}
 			else
 			{
-				newShader->AddResourceTexture2D( it->first.c_str(), highResPath.c_str() );
+				newShader->AddResourceTexture2D( it->first, highResPath.c_str() );
 			}
 		}
 
@@ -272,7 +286,7 @@ void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodRe
 		// new mesharea
 		Tr2MeshAreaPtr newMeshArea;
 		newMeshArea.CreateInstance();
-		newMeshArea->SetName( area->designation );
+		newMeshArea->SetName( area->designation.c_str() );
 		newMeshArea->SetMaterial( newShader );
 		newMeshArea->SetIndex( area->index );
 		newMeshArea->SetCount( area->count );
@@ -307,6 +321,8 @@ bool EveSOF::GenerateLodResourcePaths( std::string& mediumResPath, std::string& 
 // --------------------------------------------------------------------------------
 void EveSOF::SetupSpriteSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// cycle over all spritesets of this hull
 	const std::vector<EveSOFDataMgr::HullSpriteSetData>& hullSpriteSets = dna->GetHullSpriteSets();
 	for( auto ssit = hullSpriteSets.begin(); ssit != hullSpriteSets.end(); ++ssit )
@@ -370,6 +386,8 @@ void EveSOF::SetupSpriteSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 // --------------------------------------------------------------------------------
 void EveSOF::SetupSpotlightSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// cycle over all spritesets of this hull
 	const std::vector<EveSOFDataMgr::HullSpotlightSetData>& hullSpotlightSets = dna->GetHullSpotlightSets();
 	for( auto ssit = hullSpotlightSets.begin(); ssit != hullSpotlightSets.end(); ++ssit )
@@ -401,8 +419,9 @@ void EveSOF::SetupSpotlightSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) cons
 		}
 
 		// textures
-		glowEffect->AddResourceTexture2D( "TextureMap", spotlightSetData->glowTextureResPath.c_str() );
-		coneEffect->AddResourceTexture2D( "TextureMap", spotlightSetData->coneTextureResPath.c_str() );
+		BlueSharedString textureMap("TextureMap");
+		glowEffect->AddResourceTexture2D( textureMap, spotlightSetData->glowTextureResPath.c_str() );
+		coneEffect->AddResourceTexture2D( textureMap, spotlightSetData->coneTextureResPath.c_str() );
 
 		// parameters
 		Tr2FloatParameterPtr zOffsetParam;
@@ -462,6 +481,8 @@ void EveSOF::SetupSpotlightSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) cons
 // --------------------------------------------------------------------------------
 void EveSOF::SetupPlaneSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// cycle over all spritesets of this hull
 	const std::vector<EveSOFDataMgr::HullPlaneSetData>& hullPlaneSets = dna->GetHullPlaneSets();
 	for( auto psit = hullPlaneSets.begin(); psit != hullPlaneSets.end(); ++psit )
@@ -488,12 +509,12 @@ void EveSOF::SetupPlaneSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		}
 
 		// textures
-		planeEffect->AddResourceTexture2D( "Layer1Map", planeSetData->layer1MapResPath.c_str() );
-		planeEffect->AddResourceTexture2D( "Layer2Map", planeSetData->layer2MapResPath.c_str() );
-		planeEffect->AddResourceTexture2D( "MaskMap", planeSetData->maskMapResPath.c_str() );
+		planeEffect->AddResourceTexture2D( BlueSharedString("Layer1Map"), planeSetData->layer1MapResPath.c_str() );
+		planeEffect->AddResourceTexture2D( BlueSharedString("Layer2Map"), planeSetData->layer2MapResPath.c_str() );
+		planeEffect->AddResourceTexture2D( BlueSharedString("MaskMap"), planeSetData->maskMapResPath.c_str() );
 
 		// parameters
-		planeEffect->AddParameterVector4( "PlaneData", &planeSetData->planeData );
+		planeEffect->AddParameterVector4( BlueSharedString("PlaneData"), &planeSetData->planeData );
 
 		// finish up shader and set it
 		planeEffect->EndUpdate();
@@ -540,6 +561,8 @@ void EveSOF::SetupPlaneSets( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 // --------------------------------------------------------------------------------
 void EveSOF::SetupModelCurves( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// Model rotation curve
 	const char* rotationCurvePath = dna->GetModelRotationCurvePath();
 	if( rotationCurvePath )
@@ -611,6 +634,8 @@ void RecursiveBindParticleEmitters( EveTransformPtr transform, TriCurveSetPtr cu
 // --------------------------------------------------------------------------------
 void EveSOF::SetupChildrenAndAnimations( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	std::map<int, std::vector<EveTransformPtr>> childrenToBindTo;
 
 	const std::vector<EveSOFDataMgr::HullChild>& hullChildren = dna->GetHullChildren();
@@ -718,6 +743,8 @@ void EveSOF::SetupChildrenAndAnimations( EveShip2Ptr ship, const EveSOFDNAPtr dn
 // --------------------------------------------------------------------------------
 void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// per-race data
 	const EveSOFDataMgr::RaceBoosterData* rdata = dna->GetRaceBoosterData();
 	// pre-hull data
@@ -741,10 +768,10 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 	effect.CreateInstance();
 	effect->StartUpdate();
 	effect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/Booster.fx" );
-	effect->AddParameterColor( "Color", &rdata->color );
-	effect->AddParameterVector4( "BoosterScale", &rdata->scale );
-	effect->AddResourceTexture2D( "WaveMap", "res:/Texture/Sprite/waveHiFi.dds" );
-	effect->AddResourceTexture2D( "DiffuseMap", rdata->textureResPath.c_str() );
+	effect->AddParameterColor( BlueSharedString("Color"), &rdata->color );
+	effect->AddParameterVector4( BlueSharedString("BoosterScale"), &rdata->scale );
+	effect->AddResourceTexture2D( BlueSharedString("WaveMap"), "res:/Texture/Sprite/waveHiFi.dds" );
+	effect->AddResourceTexture2D( BlueSharedString("DiffuseMap"), rdata->textureResPath.c_str() );
 	// finish effect and set it
 	effect->EndUpdate();
 	set->SetEffect( effect );
@@ -756,7 +783,7 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 	glowEffect.CreateInstance();
 	glowEffect->StartUpdate();
 	glowEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/BoosterGlow.fx" );
-	glowEffect->AddResourceTexture2D( "DiffuseMap", "res:/Texture/Particle/whitesharp.dds" );
+	glowEffect->AddResourceTexture2D( BlueSharedString("DiffuseMap"), "res:/Texture/Particle/whitesharp.dds" );
 	// finish effect and set it
 	glowEffect->EndUpdate();
 	glow->SetEffect( glowEffect );
@@ -770,8 +797,8 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		EveTrailsSetPtr trail;
 		trail.CreateInstance();
 		trailEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/Booster/VolumetricTrails.fx" );
-		trailEffect->AddParameterVector4( "TrailSize", &rdata->trailSize );
-		trailEffect->AddParameterColor( "TrailColor", &rdata->trailColor );
+		trailEffect->AddParameterVector4( BlueSharedString("TrailSize"), &rdata->trailSize );
+		trailEffect->AddParameterColor( BlueSharedString("TrailColor"), &rdata->trailColor );
 		trailEffect->EndUpdate();
 		trail->SetEffect( trailEffect );
 		trail->SetMeshResPath( "res:/dx9/model/ship/booster/volumetricTrail.gr2" );
@@ -795,6 +822,8 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 // --------------------------------------------------------------------------------
 void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// create and setup all hull decals
 	const std::vector<EveSOFDataMgr::HullDecalData>& hullDecals = dna->GetHullDecals();
 	for( auto hdit = hullDecals.begin(); hdit != hullDecals.end(); ++hdit )
@@ -816,6 +845,15 @@ void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		decal->SetRotation( hdit->rotation );
 		decal->SetScaling( hdit->scaling );
 		decal->SetBoneIndex( hdit->boneIndex );
+		if( hdit->indexBuffer.empty() )
+		{
+			decal->SetIndices( nullptr, 0 );
+		}
+		else
+		{
+			decal->SetIndices( &hdit->indexBuffer[0], hdit->indexBuffer.size() );
+		}
+
 		// the decal effect
 		Tr2EffectPtr shader;
 		shader.CreateInstance();
@@ -841,11 +879,11 @@ void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		// always set hull parameters & textures for this decal
 		for( auto hdpit = hdit->parameters.begin(); hdpit != hdit->parameters.end(); ++hdpit )
 		{
-			shader->AddParameterVector4( hdpit->first.c_str(), &hdpit->second );
+			shader->AddParameterVector4( hdpit->first, &hdpit->second );
 		}
 		for( auto hdtit = hdit->textures.begin(); hdtit != hdit->textures.end(); ++hdtit )
 		{
-			shader->AddResourceTexture2D( hdtit->first.c_str(), hdtit->second.resFilePath.c_str() );
+			shader->AddResourceTexture2D( hdtit->first, hdtit->second.resFilePath.c_str() );
 		}
 
 		// then set the factional
@@ -853,11 +891,11 @@ void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		{
 			for( auto fdpit = fdd->parameters.begin(); fdpit != fdd->parameters.end(); ++fdpit )
 			{
-				shader->AddParameterVector4( fdpit->first.c_str(), &fdpit->second );
+				shader->AddParameterVector4( fdpit->first, &fdpit->second );
 			}
 			for( auto fdtit = fdd->textures.begin(); fdtit != fdd->textures.end(); ++fdtit )
 			{
-				shader->AddResourceTexture2D( fdtit->first.c_str(), fdtit->second.resFilePath.c_str() );
+				shader->AddResourceTexture2D( fdtit->first, fdtit->second.resFilePath.c_str() );
 			}
 		}
 
@@ -875,6 +913,8 @@ void EveSOF::SetupDecals( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 // --------------------------------------------------------------------------------
 void EveSOF::SetupLocators( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
+
 	// create and setup all turret locators
 	const std::vector<EveSOFDataMgr::LocatorData>& turretLocators = dna->GetHullTurretLocators();
 	for( auto tlit = turretLocators.begin(); tlit != turretLocators.end(); ++tlit )
@@ -884,7 +924,7 @@ void EveSOF::SetupLocators( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 		loc.CreateInstance();
 
 		// set it up
-		loc->SetName( tlit->name.c_str() );
+		loc->SetName( tlit->name );
 		loc->SetTransform( tlit->transform );
 
 		// add it to the new ship

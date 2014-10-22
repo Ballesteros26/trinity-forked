@@ -9,6 +9,7 @@
 #include "Resources/TriTextureRes.h"
 #include "Tr2RenderTarget.h"
 #include "Tr2DepthStencil.h"
+#include "Include/ITr2GpuBuffer.h"
 
 BLUE_DEFINE( Tr2VariableStore );
 
@@ -34,6 +35,13 @@ static PyObject* PyWrapVariable( TriVariable* variable )
 			variable->GetValue( res );
 
 			return PyOS->WrapBlueObject( res->GetRawRoot() );
+		}
+	case TRIVARIABLE_GPUBUFFER:
+		{
+			ITr2GpuBuffer* res = NULL;
+			variable->GetValue( res );
+
+			return PyOS->WrapBlueObject( res );
 		}
 	case TRIVARIABLE_TEXTURE_AL:
 		{

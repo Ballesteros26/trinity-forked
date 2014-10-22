@@ -689,6 +689,7 @@ void Tr2ShaderMaterial::MapPassResources( const Tr2EffectResourceMap& resources,
 				case TRIVARIABLE_TEXTURE_RES:
 				case TRIVARIABLE_UNKNOWN_TEXTURE:
 				case TRIVARIABLE_TEXTURE_AL:
+				case TRIVARIABLE_GPUBUFFER:
 					param.m_sourceValue = v;
 					break;
 

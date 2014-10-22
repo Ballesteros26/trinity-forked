@@ -89,7 +89,7 @@ public:
 	virtual TriTextureRes* GetResource() const;
 	
 	// access strings
-	void SetParameterName( const char* name );
+	void SetParameterName( const BlueSharedString& name );
 	const wchar_t* GetResourcePath() const;
 	void SetResourcePath( const char* resourcePath );
 private:

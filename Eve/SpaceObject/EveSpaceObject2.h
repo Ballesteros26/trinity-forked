@@ -240,7 +240,7 @@ public:
 	void AddPlaneSet( EvePlaneSetPtr newPlaneSet );
 	void AddDecal( EveSpaceObjectDecalPtr newDecal );
 	void AddCurveSet( TriCurveSetPtr newCurveSet );
-	void AddLocator( EveLocator2Ptr newLocator );
+	void AddLocator( EveLocator2* newLocator );
 	void SetDamageLocators( const EveDamageLocator* damageLocators, size_t damageLocatorCount );
 
 	// access to shadows

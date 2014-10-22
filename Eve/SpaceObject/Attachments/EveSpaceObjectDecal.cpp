@@ -45,6 +45,11 @@ void EveSpaceObjectDecalCache::Clear()
 	m_indices = NULL;
 }
 
+static BlueStructureDefinition s_eveSpaceObjectDecalIndexDef[] =
+{ 
+	{ "index",	Be::UINT32_1,	0 }, 
+	{0} 
+};
 
 // ------------------------------------------------------------------------------------------------------
 EveSpaceObjectDecal::EveSpaceObjectDecal( IRoot* lockobj ) :
@@ -56,7 +61,8 @@ EveSpaceObjectDecal::EveSpaceObjectDecal( IRoot* lockobj ) :
 	m_parentBoneIndex( -1 ),
 	m_rebuildIndexBuffer( false ),
 	m_decalPrimitiveCount( 0 ),
-	m_cache( NULL )
+	m_cache( NULL ),
+	PARENTLOCK( m_indices )
 {
 	// init
 	PrepareResources();
@@ -65,6 +71,7 @@ EveSpaceObjectDecal::EveSpaceObjectDecal( IRoot* lockobj ) :
 	D3DXMatrixIdentity( &m_invDecalMatrix );
 	D3DXMatrixIdentity( &m_parentData.transform );
 	D3DXMatrixIdentity( &m_parentBoneMatrix );
+	m_indices.SetStructureDefinition( s_eveSpaceObjectDecalIndexDef );
 }
 
 // ------------------------------------------------------------------------------------------------------
@@ -100,7 +107,10 @@ bool EveSpaceObjectDecal::OnModified( Be::Var* value )
 		// update the decal matrix
 		UpdateDecalMatrix();
 		// and rebuild the index buffer, cause decal volume has changed size and might hit new triangles
-		m_rebuildIndexBuffer = true;
+		if( !m_indices.empty() )
+		{
+			m_rebuildIndexBuffer = true;
+		}
 	}
 	return true;
 }
@@ -140,18 +150,33 @@ void EveSpaceObjectDecal::GetRenderables( TriGeometryResPtr geomRes, const TriFr
 		return;
 	}
 
-	// if we get a new mesh, we must re-build the index buffer. This should be avoided cause it is slow!
-	if( geomRes != m_baseGeometryResource )
+	if( !m_indices.empty() )
 	{
-		m_rebuildIndexBuffer = true;
-		m_baseGeometryResource = geomRes;
+		if( m_rebuildIndexBuffer )
+		{
+			CreateStaticIndexBuffer();
+		}
+		if( geomRes != m_baseGeometryResource )
+		{
+			m_baseGeometryResource = geomRes;
+		}
 	}
-
-	if( m_rebuildIndexBuffer )
+	else
 	{
-		CreateDecalIndexBuffer( geomRes );
-	}
+		// if we get a new mesh, we must re-build the index buffer. This should be avoided cause it is slow!
+		if( geomRes != m_baseGeometryResource )
+		{
+			m_rebuildIndexBuffer = true;
+			m_baseGeometryResource = geomRes;
+		}
 
+		if( m_rebuildIndexBuffer )
+		{
+			CCP_LOGWARN( "No static decal index buffer for decal %s", m_name.c_str() );
+
+			CreateDecalIndexBuffer( geomRes );
+		}
+	}
 	if( !m_indexBuffer.IsValid() )
 	{
 		return;
@@ -672,6 +697,37 @@ void EveSpaceObjectDecal::CreateDecalIndexBuffer( TriGeometryResPtr geomRes )
 		}
 	}
 }
+
+void EveSpaceObjectDecal::SetIndices( const uint32_t* indices, size_t count )
+{
+	m_indices.clear();
+	if( !indices || !count )
+	{
+		return;
+	}
+	for( size_t i = 0; i < count; ++i )
+	{
+		m_indices.Append( indices + i );
+	}
+}
+
+void EveSpaceObjectDecal::CreateStaticIndexBuffer()
+{
+	CCP_STATS_ZONE( __FUNCTION__ );
+
+	USE_MAIN_THREAD_RENDER_CONTEXT();
+	if( SUCCEEDED( m_indexBuffer.Create( uint32_t( m_indices.size() ), USAGE_IMMUTABLE | USAGE_HINT_MANAGED, IB_32BIT, &m_indices[0], renderContext ) ) )
+	{
+		m_rebuildIndexBuffer = false;
+		m_decalPrimitiveCount = unsigned( m_indices.size() / 3 );
+	}
+}
+
+bool EveSpaceObjectDecal::HasStaticIndexBuffer() const
+{
+	return !m_indices.empty();
+}
+
 
 // --------------------------------------------------------------------------------
 // Description:

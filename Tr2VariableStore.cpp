@@ -264,6 +264,11 @@ TriVariable* Tr2VariableStore::RegisterVariable( const char* name, TriTextureRes
 	return RegisterVariableInternal( name, value );
 }
 
+TriVariable* Tr2VariableStore::RegisterVariable( const char* name, ITr2GpuBuffer* value )
+{
+	return RegisterVariableInternal( name, value );
+}
+
 TriVariable* Tr2VariableStore::RegisterVariable( const char* name, Tr2DepthStencil* value )
 {
 	return RegisterVariableInternal( name, value );

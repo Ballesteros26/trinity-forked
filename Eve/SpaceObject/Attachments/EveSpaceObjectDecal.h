@@ -17,6 +17,9 @@ BLUE_DECLARE( Tr2Mesh );
 BLUE_DECLARE( TriVariable );
 BLUE_DECLARE( TriFrustum );
 
+typedef uint32_t EveSpaceObjectDecalIndex;
+BLUE_DECLARE_STRUCTURE_LIST( EveSpaceObjectDecalIndex );
+
 // --------------------------------------------------------------------------------
 // Description:
 //   This class holds the per object data for decals
@@ -132,6 +135,7 @@ public:
 	void SetScaling( const Vector3& sc );
 	int GetBoneIndex() const;
 	void SetBoneIndex( int idx );
+	void SetIndices( const uint32_t* indices, size_t count );
 
 	// edit helper
 	void RenderDebugInfo( const Matrix* worldMatrix ) const;
@@ -146,6 +150,8 @@ private:
 	void CreateDecalIndexBuffer( TriGeometryResPtr geomRes );
 	// update
 	void UpdateDecalMatrix();
+	void CreateStaticIndexBuffer();
+	bool HasStaticIndexBuffer() const;
 
 	// name
 	std::string m_name;
@@ -183,6 +189,7 @@ private:
 
 	// Shared mesh data cache
 	EveSpaceObjectDecalCache* m_cache;
+	PEveSpaceObjectDecalIndexStructureList m_indices;
 };
 
 TYPEDEF_BLUECLASS( EveSpaceObjectDecal );

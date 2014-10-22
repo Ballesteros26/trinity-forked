@@ -30,10 +30,24 @@ public:
 	using IInitialize::Lock;
 	using IInitialize::Unlock;
 
-    Tr2GpuStructuredBuffer( IRoot* = 0 );
+	enum CreationFlag
+	{
+		// Can the buffer be locked with write-only access
+		CPU_WRITABLE	= 1,
+		// Is the buffer used for GPU write access
+		GPU_WRITABLE	= 2,
+		// Buffer with append/consume GPU access
+		APPEND_BUFFER	= 4,
+		// Add a counter to the buffer
+		COUNTER			= 8,
+	};
+
+	typedef uint32_t CreationFlags;
+
+	Tr2GpuStructuredBuffer( IRoot* = 0 );
 	~Tr2GpuStructuredBuffer();
 
-	ALResult py__init__( uint32_t count, uint32_t stride, bool cpuWritable );
+	ALResult py__init__( uint32_t count, uint32_t stride, CreationFlags creationFlags );
 
 	bool Initialize();
 
@@ -41,7 +55,7 @@ public:
 
 	Tr2GpuBufferAL* GetGpuBuffer( unsigned index );
 
-	ALResult Create( uint32_t count, uint32_t stride, bool cpuWritable );
+	ALResult Create( uint32_t count, uint32_t stride, CreationFlags creationFlags );
 	bool IsValid() const;
 private:
 	ALResult CreateBuffer();
@@ -53,8 +67,7 @@ private:
 	uint32_t m_count;
 	// Size of one element in bytes
 	uint32_t m_stride;
-	// Can the buffer be locked with write-only access
-	bool m_cpuWritable;
+	CreationFlags m_creationFlags;
 };
 
 TYPEDEF_BLUECLASS( Tr2GpuStructuredBuffer );

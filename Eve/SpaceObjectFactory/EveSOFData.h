@@ -22,7 +22,7 @@ public:
 	~EveSOFDataParameter() {}
 
 	// simple shader parameter
-	std::string m_name;
+	BlueSharedString m_name;
 	Vector4 m_value;
 };
 TYPEDEF_BLUECLASS( EveSOFDataParameter );
@@ -39,7 +39,7 @@ public:
 
 	// data
 	std::string m_resFilePath;
-	std::string m_name;
+	BlueSharedString m_name;
 };
 TYPEDEF_BLUECLASS( EveSOFDataTexture );
 BLUE_DECLARE_VECTOR( EveSOFDataTexture );
@@ -227,7 +227,7 @@ public:
 	// data
 	unsigned int m_index;
 	unsigned int m_count;
-	std::string m_name;
+	BlueSharedString m_name;
 	std::string m_shader;
 	PEveSOFDataTextureVector m_textures;
 	PEveSOFDataParameterVector m_parameters;
@@ -245,7 +245,7 @@ public:
 	~EveSOFDataHullLocator() {}
 
 	// data
-	std::string m_name;
+	BlueSharedString m_name;
 	Matrix m_transform;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullLocator );
@@ -303,6 +303,9 @@ public:
 TYPEDEF_BLUECLASS( EveSOFDataHullAnimation );
 BLUE_DECLARE_VECTOR( EveSOFDataHullAnimation );
 
+typedef uint32_t EveSOFDataDecalIndex;
+BLUE_DECLARE_STRUCTURE_LIST( EveSOFDataDecalIndex );
+
 
 BLUE_CLASS( EveSOFDataHullDecal ) :
 	public IRoot
@@ -320,6 +323,7 @@ public:
 	int m_groupIndex, m_boneIndex;
 	PEveSOFDataTextureVector m_textures;
 	PEveSOFDataParameterVector m_parameters;
+	PEveSOFDataDecalIndexStructureList m_indexBuffer;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullDecal );
 BLUE_DECLARE_VECTOR( EveSOFDataHullDecal );
@@ -468,7 +472,7 @@ public:
 	~EveSOFDataFactionHullArea() {}
 
 	// designation
-	std::string m_name;
+	BlueSharedString m_name;
 	// list of params
 	PEveSOFDataParameterVector m_parameters;
 };

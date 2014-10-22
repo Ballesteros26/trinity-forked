@@ -11,6 +11,8 @@
 #include "Tr2DeviceResource.h"
 #include "TriVariable.h"
 
+BLUE_DECLARE_INTERFACE( ITr2GpuBuffer );
+
 // -------------------------------------------------------------
 // Description:
 //   Tr2VariableStore is a collection of named variables used by
@@ -45,6 +47,7 @@ public:
 	TriVariable* RegisterVariable( const char* name, TriTextureRes* value );
 	TriVariable* RegisterVariable( const char* name, Tr2DepthStencil* value );
 	TriVariable* RegisterVariable( const char* name, Tr2RenderTarget* value );
+	TriVariable* RegisterVariable( const char* name, ITr2GpuBuffer* value );
 
     void UnregisterVariable( const char* name );
 	bool UnregisterLocalVariable( const char* name );

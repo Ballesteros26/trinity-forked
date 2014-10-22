@@ -217,6 +217,9 @@
     <ClInclude Include="Tr2KelvinColor.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tr2LightManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="Tr2LineGraph.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -416,12 +419,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="TriFrustumOrtho.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TriIME.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TriIMEWrapper.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="TriLineSet.h">
@@ -908,9 +905,6 @@
       <Filter>Source Files\Include</Filter>
     </ClInclude>
     <ClInclude Include="Include\ITriFunction.h">
-      <Filter>Source Files\Include</Filter>
-    </ClInclude>
-    <ClInclude Include="Include\ITriIME.h">
       <Filter>Source Files\Include</Filter>
     </ClInclude>
     <ClInclude Include="Include\ITriMatrix.h">
@@ -1660,6 +1654,9 @@
     <ClCompile Include="Tr2LabelTextParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Tr2LightManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Tr2LineGraph.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -2000,15 +1997,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TriFrustumOrtho.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TriIME.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TriIMEWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TriIME_Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TriLineSet.cpp">

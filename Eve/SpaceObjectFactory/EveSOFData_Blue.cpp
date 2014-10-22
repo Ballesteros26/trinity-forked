@@ -408,6 +408,7 @@ const Be::ClassInfo* EveSOFDataHullDecal::ExposeToBlue()
 		MAP_ATTRIBUTE( "boneIndex", m_boneIndex, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "parameters", m_parameters, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "textures", m_textures, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "indexBuffer", m_indexBuffer, "", Be::READWRITE | Be::PERSIST )
     EXPOSURE_END()
 }
 

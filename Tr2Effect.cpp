@@ -292,7 +292,7 @@ void Tr2Effect::SetEffectPathName( const char* path )
 //   Manually adding a texture 2d resource to this effect's list with creating
 //   it
 // --------------------------------------------------------------------------------
-void Tr2Effect::AddResourceTexture2D( const char* name, const char* resPath )
+void Tr2Effect::AddResourceTexture2D( const BlueSharedString& name, const char* resPath )
 {
 	// alloc and init the texture parameter
 	TriTexture2DParameterPtr texture2d;
@@ -307,7 +307,7 @@ void Tr2Effect::AddResourceTexture2D( const char* name, const char* resPath )
 // Description:
 //   Manually adding a lod resource for textures
 // --------------------------------------------------------------------------------
-void Tr2Effect::AddResourceTexture2DLod( const char* name, Tr2LodResourcePtr lodResource )
+void Tr2Effect::AddResourceTexture2DLod( const BlueSharedString& name, Tr2LodResourcePtr lodResource )
 {
 	// alloc and init the texture lod parameter
 	Tr2Texture2dLodParameterPtr texture2d;
@@ -323,10 +323,10 @@ void Tr2Effect::AddResourceTexture2DLod( const char* name, Tr2LodResourcePtr lod
 //   Manually adding a vector4 parameter to this effect's list with creating
 //   it
 // --------------------------------------------------------------------------------
-void Tr2Effect::AddParameterVector4( const char* name, const Vector4* value )
+void Tr2Effect::AddParameterVector4( const BlueSharedString& name, const Vector4* value )
 {
 	Tr2ConstantEffectParameter param;
-	param.name = BlueSharedString( name );
+	param.name = name;
 	param.value = *value;
 	m_constParameters.Append( &param );
 }
@@ -336,7 +336,7 @@ void Tr2Effect::AddParameterVector4( const char* name, const Vector4* value )
 //   Manually adding a float parameter to this effect's list with creating
 //   it
 // --------------------------------------------------------------------------------
-void Tr2Effect::AddParameterFloat( const char* name, float value )
+void Tr2Effect::AddParameterFloat( const BlueSharedString& name, float value )
 {
 	// turn float vlaue into a vector4, cause that's what we put into constant parameters
 	Vector4 vec4( value, value, value, value );
@@ -348,7 +348,7 @@ void Tr2Effect::AddParameterFloat( const char* name, float value )
 //   Manually adding a color parameter to this effect's list with creating
 //   it
 // --------------------------------------------------------------------------------
-void Tr2Effect::AddParameterColor( const char* name, const Color* value )
+void Tr2Effect::AddParameterColor( const BlueSharedString& name, const Color* value )
 {
 	Tr2ConstantEffectParameter param;
 	param.name = BlueSharedString( name );
@@ -914,7 +914,8 @@ void Tr2Effect::MapPassResources( const Tr2EffectResourceMap& resources, Tr2Effe
 				&& vp->m_variable
 				&& ( vp->m_variable->GetType() == TRIVARIABLE_UNKNOWN_TEXTURE || 
 					 vp->m_variable->GetType() == TRIVARIABLE_TEXTURE_RES || 
-					 vp->m_variable->GetType() == TRIVARIABLE_TEXTURE_AL  ) )
+					 vp->m_variable->GetType() == TRIVARIABLE_TEXTURE_AL || 
+					 vp->m_variable->GetType() == TRIVARIABLE_GPUBUFFER ) )
 			{
 				param.m_sourceValue = p;
 			}
@@ -924,8 +925,9 @@ void Tr2Effect::MapPassResources( const Tr2EffectResourceMap& resources, Tr2Effe
 		else if( TriVariable* v = GetVariableStore().FindVariable( name ) )
 		{
 			if( v->GetType() == TRIVARIABLE_UNKNOWN_TEXTURE || 
-				v->GetType() == TRIVARIABLE_TEXTURE_RES 	|| 
-				v->GetType() == TRIVARIABLE_TEXTURE_AL )
+				v->GetType() == TRIVARIABLE_TEXTURE_RES || 
+				v->GetType() == TRIVARIABLE_TEXTURE_AL || 
+				v->GetType() == TRIVARIABLE_GPUBUFFER )
 			{
 				param.m_sourceValue = v;
 			}
@@ -1333,7 +1335,7 @@ void ConvertEffectResource(	const Tr2EffectResource& resource,
 		else
 		{
 			OTriTextureCubeParameter* newTexCube = new OTriTextureCubeParameter();
-			newTexCube->SetParameterName( resource.name );
+			newTexCube->SetParameterName( BlueSharedString( resource.name ) );
 			resourceAdder( newTexCube );
 			newTexCube->Unlock(); // Remove the original lock created by 'new'.
 		}
@@ -1344,7 +1346,7 @@ void ConvertEffectResource(	const Tr2EffectResource& resource,
 	case Tr2EffectResource::TEXTURE_TYPELESS:
 		{
 			OTriTexture2DParameter* newTex2D = new OTriTexture2DParameter();
-			newTex2D->SetParameterName( resource.name );
+			newTex2D->SetParameterName( BlueSharedString( resource.name ) );
 			resourceAdder( newTex2D );
 			newTex2D->Unlock(); // Remove the original lock created by 'new'.
 		}

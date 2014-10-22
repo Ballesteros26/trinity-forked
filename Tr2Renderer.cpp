@@ -1064,7 +1064,7 @@ bool Tr2Renderer::RunComputeShader( ITr2ShaderMaterial* effect,
 	{
 		return false;
 	}
-
+	bool result = false;
 	auto& desc = shader->GetEffectDescription();
 	for( unsigned i = 0; i < desc.passes.size(); ++i )
 	{
@@ -1080,9 +1080,10 @@ bool Tr2Renderer::RunComputeShader( ITr2ShaderMaterial* effect,
 			{
 				CR_RETURN_VAL( renderContext.SetUav( COMPUTE_SHADER, it->first, nullGB ), false );
 			}
+			result = true;
 		}
 	}
-	return true;
+	return result;
 }
 
 // --------------------------------------------------------------------------------------

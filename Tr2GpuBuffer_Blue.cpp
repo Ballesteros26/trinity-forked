@@ -10,6 +10,32 @@
 BLUE_DEFINE_INTERFACE( ITr2GpuBuffer );
 BLUE_DEFINE( Tr2GpuBuffer );
 
+Be::VarChooser Tr2GpuBufferCreationFlagChooser[] =
+{
+	{
+		"CPU_WRITABLE",
+		BeCast( Tr2GpuBuffer::CPU_WRITABLE ),
+		"Can the buffer be locked with write-only access"
+	},
+	{
+		"GPU_WRITABLE",
+		BeCast( Tr2GpuBuffer::GPU_WRITABLE ),
+		"Is the buffer used for GPU write access"
+	},
+	{
+		"DRAW_INDIRECT",
+		BeCast( Tr2GpuBuffer::DRAW_INDIRECT ),
+		"Is the buffer used for indirect draw calls"
+	},
+	{ 0 }
+};
+
+BLUE_REGISTER_ENUM_EX( 
+	"Tr2GpuBufferFlags", 
+	Tr2GpuBuffer::CreationFlag, 
+	Tr2GpuBufferCreationFlagChooser, 
+	ENUM_REG_ENUM_OBJECT_ON_MODULE );
+
 const Be::ClassInfo* Tr2GpuBuffer::ExposeToBlue()
 {
     EXPOSURE_BEGIN( Tr2GpuBuffer, "" )
@@ -22,7 +48,7 @@ const Be::ClassInfo* Tr2GpuBuffer::ExposeToBlue()
 		MAP_METHOD_AND_WRAP_OPTIONAL_ARGS(
 			"__init__",
 			__init__,
-			4,
+			3,
 			"Arguments (optional):\n"
 			"count - number of elements in the buffer\n"
 			"format - buffer pixel format (trinity.PIXEL_FORMAT.foo)\n"
@@ -39,16 +65,12 @@ const Be::ClassInfo* Tr2GpuBuffer::ExposeToBlue()
 			"Buffer pixel format (trinity.PIXEL_FORMAT.foo)",
 			Be::READWRITE | Be::ENUM | Be::PERSIST | Be::NOTIFY, 
 			Tr2RenderContextEnum_PixelFormat_Chooser )
-		MAP_ATTRIBUTE( 
-			"cpuWritable", 
-			m_cpuWritable, 
-			"If CPU should have write access to the buffer", 
-			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
-		MAP_ATTRIBUTE( 
-			"drawIndirect", 
-			m_drawIndirect, 
-			"If the buffer is used as parameters source for indirect draw calls", 
-			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+		MAP_ATTRIBUTE_WITH_CHOOSER( 
+			"creationFlags", 
+			m_creationFlags, 
+			"Miscellaneous for creating a buffer", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY, 
+			Tr2GpuBufferCreationFlagChooser )
 		MAP_PROPERTY_READONLY( 
 			"isValid",
 			IsValid,

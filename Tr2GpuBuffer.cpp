@@ -16,8 +16,7 @@ using namespace Tr2RenderContextEnum;
 Tr2GpuBuffer::Tr2GpuBuffer( IRoot* )
 	:m_count( 0 ),
 	m_format( PIXEL_FORMAT_UNKNOWN ),
-	m_cpuWritable( false ),
-	m_drawIndirect( false )
+	m_creationFlags( 0 )
 {
 }
 
@@ -64,6 +63,7 @@ bool Tr2GpuBuffer::OnModified( Be::Var* value )
 //   count - Number of elements in the buffer
 //   format - Type of buffer elements
 //   cpuWritable - Can the buffer be locked with write-only access
+//   gpuWritable - Can the buffer be written into by GPU
 //   drawIndirect - Is the buffer used for indirect draw calls
 // Return Value:
 //   true If AL buffer is successfully created
@@ -72,8 +72,7 @@ bool Tr2GpuBuffer::OnModified( Be::Var* value )
 ALResult Tr2GpuBuffer::__init__( 
 	Be::Optional<uint32_t> count, 
 	Be::Optional<Tr2RenderContextEnum::PixelFormat> format, 
-	bool cpuWritable, 
-	bool drawIndirect )
+	CreationFlags creationFlags )
 {
 	if( count.IsAssigned() && !format.IsAssigned() )
 	{
@@ -83,8 +82,7 @@ ALResult Tr2GpuBuffer::__init__(
 	{
 		m_count = count;
 		m_format = format;
-		m_cpuWritable = cpuWritable;
-		m_drawIndirect = drawIndirect;
+		m_creationFlags = creationFlags;
 		return CreateBuffer();
 	}
 	return S_OK;
@@ -97,6 +95,7 @@ ALResult Tr2GpuBuffer::__init__(
 //   count - Number of elements in the buffer
 //   format - Type of buffer elements
 //   cpuWritable - Can the buffer be locked with write-only access
+//   gpuWritable - Can the buffer be written into by GPU
 //   drawIndirect - Is the buffer used for indirect draw calls
 // Return Value:
 //   true If AL buffer is successfully created
@@ -104,13 +103,11 @@ ALResult Tr2GpuBuffer::__init__(
 // --------------------------------------------------------------------------------------
 ALResult Tr2GpuBuffer::Create( uint32_t count, 
 						   Tr2RenderContextEnum::PixelFormat format, 
-						   bool cpuWritable, 
-						   bool drawIndirect )
+						   CreationFlags creationFlags )
 {
 	m_count = count;
 	m_format = format;
-	m_cpuWritable = cpuWritable;
-	m_drawIndirect = drawIndirect;
+	m_creationFlags = creationFlags;
 	return CreateBuffer();
 }
 
@@ -154,7 +151,11 @@ ALResult Tr2GpuBuffer::CreateBuffer()
 		return E_INVALIDARG;
 	}
 	BufferUsage usage = 0;
-	if( m_cpuWritable )
+	if( m_creationFlags & GPU_WRITABLE )
+	{
+		usage = USAGE_UNORDERED_ACCESS;
+	}
+	else if( m_creationFlags & CPU_WRITABLE )
 	{
 		usage = USAGE_CPU_WRITE;
 	}
@@ -165,6 +166,6 @@ ALResult Tr2GpuBuffer::CreateBuffer()
 		static_cast<PixelFormat>( m_format ), 
 		usage,
 		nullptr, 
-		m_drawIndirect ? EX_DRAW_INDIRECT : 0,
+		( m_creationFlags & DRAW_INDIRECT ) ? EX_DRAW_INDIRECT : 0,
 		renderContext );
 }

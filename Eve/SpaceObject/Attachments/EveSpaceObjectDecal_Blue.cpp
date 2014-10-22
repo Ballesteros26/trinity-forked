@@ -25,5 +25,8 @@ const Be::ClassInfo* EveSpaceObjectDecal::ExposeToBlue()
 		MAP_ATTRIBUTE( "decalEffect", m_decalEffect, "The effect used to draw the decal", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "decalPrimitiveCount", m_decalPrimitiveCount, "", Be::READ )
+
+		MAP_PROPERTY_READONLY( "hasStaticIndexBuffer", HasStaticIndexBuffer, "" )
+		MAP_ATTRIBUTE( "indexBuffer", m_indices, "", Be::PERSISTONLY )
 	EXPOSURE_END()
 }
