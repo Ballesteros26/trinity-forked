@@ -680,8 +680,7 @@ void EveSpaceObjectDecal::CreateDecalIndexBuffer( TriGeometryResPtr geomRes )
 			}
 			else
 			{
-				// this is worth an error to the log
-				CCP_LOGERR( "EveSpaceObjectDecal: This decal is not touching any geometry! %s", m_name.c_str() );
+				CCP_LOGWARN( "EveSpaceObjectDecal: This decal is not touching any geometry! %s", m_name.c_str() );
 
 				m_rebuildIndexBuffer = false;
 			}
