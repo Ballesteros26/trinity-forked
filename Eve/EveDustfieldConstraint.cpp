@@ -8,8 +8,11 @@
 #include "include/IEveBallpark.h"
 #include "EveDustfieldConstraint.h"
 #include "EveCamera.h"
+#include "EveUpdateContext.h"
 #include "Particle/Tr2ParticleSystem.h"
+#include "Curves/Tr2ScalarCurve.h"
 #include <limits>
+
 
 static const double UNINITIALIZED_ORIGIN = std::numeric_limits<double>::infinity();
 
@@ -22,6 +25,8 @@ EveDustfieldConstraint::EveDustfieldConstraint( IRoot* lockobj )
 	m_radius( 512.0f ),
 	m_stretch( 0.05f ),
 	m_maxStretch( 15.0f ),
+	m_movementScale( 1.f ),
+	m_maxSpeed( 0.f ),
 	m_origin( UNINITIALIZED_ORIGIN, UNINITIALIZED_ORIGIN, UNINITIALIZED_ORIGIN ),
 	m_originShift( 0.f, 0.f, 0.f )
 {
@@ -87,13 +92,16 @@ void EveDustfieldConstraint::Bind( Tr2ParticleSystem* system )
 //   time - Current time
 //   ballpark - Something called ballpark
 // --------------------------------------------------------------------------------------
-void EveDustfieldConstraint::Update( Be::Time time, IEveBallparkPtr ballpark )
+void EveDustfieldConstraint::Update( const EveUpdateContext& updateContext, IEveBallparkPtr ballpark )
 {
 	if( !m_camera || !ballpark )
 	{
 		return;
 	}
 
+	Be::Time time = updateContext.GetTime();
+	float delta = updateContext.GetDeltaT();
+	
 	// Get the reference position
 	Vector3d referencePosition( 0.0, 0.0, 0.0 );
 	IEveReferencePointPtr refObject( ballpark );
@@ -107,6 +115,12 @@ void EveDustfieldConstraint::Update( Be::Time time, IEveBallparkPtr ballpark )
 			float( m_origin.x - referencePosition.x ),
 			float( m_origin.y - referencePosition.y ),
 			float( m_origin.z - referencePosition.z ) );
+		if( m_maxSpeed != 0.f && D3DXVec3Length( &m_originShift ) > m_maxSpeed * delta )
+		{
+			D3DXVec3Normalize( &m_originShift, &m_originShift );
+			D3DXVec3Scale( &m_originShift, &m_originShift, m_maxSpeed * delta );
+		}
+		m_originShift *= m_movementScale;
 	}
 	m_origin = referencePosition;
 
@@ -119,6 +133,16 @@ void EveDustfieldConstraint::Update( Be::Time time, IEveBallparkPtr ballpark )
 	D3DXVec3Normalize( &m_velocity, &velocity );
 
 	m_velocityStretch = min( speed * m_stretch, m_maxStretch );
+	if( m_speedFunction )
+	{
+		m_speedFunction->UpdateValue( (double)speed );
+	}
+
+	if( m_distanceFunction )
+	{
+		double distance = (double)D3DXVec3Length( m_camera->GetPosition() );
+		m_distanceFunction->UpdateValue( distance );
+	}
 }
 
 // --------------------------------------------------------------------------------------

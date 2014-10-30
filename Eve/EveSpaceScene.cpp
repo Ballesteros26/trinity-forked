@@ -27,6 +27,7 @@
 #include "Utilities/ViewDistanceInfo.h"
 #include "TbbStub.h"
 #include "Include/TriMath.h"
+#include "EveDistanceField.h"
 
 using namespace Tr2RenderContextEnum;
 
@@ -113,6 +114,7 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	PARENTLOCK( m_objects ),
 	PARENTLOCK( m_curveSets ),
 	PARENTLOCK( m_lensflares ),
+	PARENTLOCK( m_distanceFields ),
 	m_display( true ),
 	m_update( true ),
 	m_enableShadows( true ),
@@ -266,7 +268,7 @@ void EveSpaceScene::Update( Be::Time realTime, Be::Time simTime )
 
 	if( m_dustfieldConstaint )
 	{
-		m_dustfieldConstaint->Update( simTime, m_ballpark );
+		m_dustfieldConstaint->Update( m_updateContext, m_ballpark );
 	}
 
 	if( m_dustfield )
@@ -274,9 +276,24 @@ void EveSpaceScene::Update( Be::Time realTime, Be::Time simTime )
 		m_dustfield->Update( m_updateContext );
 	}
 
+	if( m_cloudfieldConstaint )
+	{
+		m_cloudfieldConstaint->Update( m_updateContext, m_ballpark );
+	}
+
+	if( m_cloudfield )
+	{
+		m_cloudfield->Update( m_updateContext );
+	}
+
 	if( m_starfield )
 	{
 		m_starfield->Update( simTime );
+	}
+	
+	for( auto it = m_distanceFields.begin(); it != m_distanceFields.end(); ++it )
+	{
+		(*it)->Update( m_updateContext );
 	}
 
 	// Update planets
@@ -1524,11 +1541,27 @@ void EveSpaceScene::EndRender( Tr2RenderContext& renderContext )
 	if( m_dustfield )
 	{
 		m_dustfield->GetRenderables( frustum, visible, Tr2Renderer::GetIdentityTransform() );
+	}
+
+	if( m_cloudfield )
+	{
+		m_cloudfield->GetRenderables( frustum, visible, Tr2Renderer::GetIdentityTransform() );
+	}
+
+	if( !visible.empty() )
+	{
+		renderContext.SetReadOnlyDepth( true );
+		RenderRenderables(	visible, 
+							m_secondaryBatches[TRIBATCHTYPE_TRANSPARENT], 
+							TRIBATCHTYPE_TRANSPARENT, 
+							Tr2EffectStateManager::RM_ALPHA,
+							renderContext );
 		RenderRenderables(	visible, 
 							m_secondaryBatches[TRIBATCHTYPE_ADDITIVE], 
 							TRIBATCHTYPE_ADDITIVE, 
 							Tr2EffectStateManager::RM_ALPHA_ADDITIVE,
 							renderContext );
+		renderContext.SetReadOnlyDepth( false );
 		visible.clear();
 	}
 
@@ -1603,6 +1636,17 @@ void EveSpaceScene::EndRender( Tr2RenderContext& renderContext )
 	ClearVariableStore();
 }
 
+void EveSpaceScene::PopulateAndApplyPerFrameData( Tr2RenderContext& renderContext ) 
+{
+	if( m_dynamicClipPlanes )
+	{
+		Tr2Renderer::SetProjectionTransform( m_frameData.projectionDynamic );
+	}
+	PopulatePerFramePSData( m_perFramePS );
+	PopulatePerFrameVSData( m_perFrameVS );
+	ApplyPerFrameData( renderContext );
+}
+
 void EveSpaceScene::Render( Tr2RenderContext& renderContext )
 {
 	BeginRender( renderContext );
@@ -1633,6 +1677,9 @@ ITr2MultiPassScene::RenderPassResult EveSpaceScene::RenderPass( PassType pass, T
 		break;
 	case RP_DEPTH_PASS:
 		RenderDepthPass( renderContext );
+		break;
+	case RP_SET_PERFRAME_DATA:
+		PopulateAndApplyPerFrameData( renderContext );
 		break;
 	default:
 		break;
@@ -1797,6 +1844,10 @@ void EveSpaceScene::PopulatePerFramePSData( PerFramePSData &data )
 	}
 	data.ShadowLightness = 0;
 	data.DepthMapSampleCount = float( m_depthMap ? m_depthMap->m_depthStencil.GetMsaaType() : 0 );
+
+	const Matrix& projection = Tr2Renderer::GetProjectionTransform();
+	data.ProjectionToView.x = projection._43;
+	data.ProjectionToView.y = projection._33;
 }
 
 bool EveSpaceScene::Initialize()

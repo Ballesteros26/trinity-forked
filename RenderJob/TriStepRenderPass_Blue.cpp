@@ -13,6 +13,7 @@ const Be::VarChooser TriMultiPassScenePassTypeChooser[] =
 	{ "TRIPASS_BACKGROUND_RENDER",	BeCast( ITr2MultiPassScene::RP_BACKGROUND_RENDER ),	"Background rendering" },
 	{ "TRIPASS_MAIN_RENDER",		BeCast( ITr2MultiPassScene::RP_MAIN_RENDER ),		"Main rendering" },  
 	{ "TRIPASS_DEPTH_PASS",			BeCast( ITr2MultiPassScene::RP_DEPTH_PASS ),		"Depth pass" },  
+	{ "TRIPASS_SET_PERFRAME_DATA",			BeCast( ITr2MultiPassScene::RP_SET_PERFRAME_DATA ),	"Set perframe data to shaders" },  
 	{0}
 };
 

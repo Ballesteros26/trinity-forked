@@ -243,6 +243,14 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 			"Planets in space", 
 			Be::READWRITE | Be::PERSIST
 		)
+		
+		MAP_ATTRIBUTE
+		( 
+			"distanceFields", 
+			m_distanceFields, 
+			"Distance fields used for environment atmospherics", 
+			Be::READWRITE
+		)
 
 		MAP_ATTRIBUTE
 		( 
@@ -377,6 +385,20 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 		( 
 			"dustfieldConstraint", 
 			m_dustfieldConstaint, 
+			"n/a", 
+			Be::READWRITE
+		)
+		MAP_ATTRIBUTE
+		( 
+			"cloudfield", 
+			m_cloudfield, 
+			"n/a", 
+			Be::READWRITE
+		)
+		MAP_ATTRIBUTE
+		( 
+			"cloudfieldConstraint", 
+			m_cloudfieldConstaint, 
 			"n/a", 
 			Be::READWRITE
 		)

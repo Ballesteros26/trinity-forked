@@ -7,7 +7,9 @@ class EveUpdateContext
 {
 public:
 	EveUpdateContext() {}
-	EveUpdateContext( Be::Time time ) : m_lastTime( 0 )
+	EveUpdateContext( Be::Time time ) : 
+		m_lastTime( 0 ),
+		m_currentTime( 0 )
 	{
 		SetTime( time );
 	}

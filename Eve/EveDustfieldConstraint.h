@@ -13,7 +13,9 @@
 #include "Vector3d.h"
 
 BLUE_DECLARE_INTERFACE( IEveBallpark );
+BLUE_DECLARE( Tr2ScalarCurve );
 BLUE_DECLARE( EveCamera );
+BLUE_DECLARE( EveUpdateContext );
 
 // --------------------------------------------------------------------------------------
 // Description:
@@ -36,7 +38,7 @@ public:
 	virtual void ApplyConstraint( float** particle, unsigned* strides, unsigned count, float dt );
 	virtual void Bind( Tr2ParticleSystem* system );
 
-	void Update( Be::Time t, IEveBallparkPtr ballpark );
+	void Update( const EveUpdateContext& updateContext, IEveBallparkPtr ballpark );
 private:
 	// Is valid flag (for debugging)
 	bool m_isValid;
@@ -69,6 +71,16 @@ private:
 	float m_stretch;
 	// Maximum velocity stretch value
 	float m_maxStretch;
+
+	// Scalar function that's driven by the eye's distance from lookat point
+	Tr2ScalarCurvePtr m_distanceFunction;
+	// Scalar function that's driven by speed
+	Tr2ScalarCurvePtr m_speedFunction;
+
+	// Amount that particles move is scaled by this value
+	float m_movementScale;
+	// Reference movement is clamped at this speed
+	float m_maxSpeed;
 };
 
 TYPEDEF_BLUECLASS( EveDustfieldConstraint );

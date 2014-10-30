@@ -577,7 +577,7 @@ void Tr2ParticleSystem::UpdateSimulation( float dt )
 		for( unsigned i = 0; i < m_aliveCount; ++i )
 		{
 			lifetime[0] += dt / lifetime[1];
-			if( lifetime[0] > 1.0f )
+			if( lifetime[0] >= 1.0f )
 			{
 				if( m_emissionOnDeathEmitter )
 				{

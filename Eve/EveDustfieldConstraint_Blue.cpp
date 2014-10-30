@@ -28,5 +28,18 @@ const Be::ClassInfo* EveDustfieldConstraint::ExposeToBlue()
 			Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "maxStretch", m_maxStretch, "", Be::READWRITE | Be::PERSIST  )
 
+		MAP_ATTRIBUTE( 
+			"distanceFunction", 
+			m_distanceFunction, 
+			"Scalar function that's driven by the eye's distance from lookat point", 
+			Be::READWRITE | Be::PERSIST  )
+		MAP_ATTRIBUTE( 
+			"speedFunction",
+			m_speedFunction, 
+			"Scalar function that's driven by speed", 
+			Be::READWRITE | Be::PERSIST  )
+		MAP_ATTRIBUTE( "movementScale", m_movementScale, "Scale how much particles move(applied after max speed)", Be::READWRITE | Be::PERSIST  )
+		MAP_ATTRIBUTE( "maxSpeed", m_maxSpeed, "Clamp movement of particles to this value", Be::READWRITE | Be::PERSIST  )
+
 	EXPOSURE_END()
 }

@@ -51,6 +51,8 @@ BLUE_DECLARE( Tr2RenderTarget );
 struct ShadowReceiver;
 BLUE_DECLARE( EveTransform );
 BLUE_DECLARE_VECTOR( EveTransform );
+BLUE_DECLARE( EveDistanceField );
+BLUE_DECLARE_VECTOR( EveDistanceField );
 
 class EveSpaceScene :
 	public ITr2Scene,
@@ -83,6 +85,7 @@ public:
 	bool RenderBackgroundPass( Tr2RenderContext& renderContext );
 	void BeginRender( Tr2RenderContext& renderContext );
 	void EndRender( Tr2RenderContext& renderContext );
+	void PopulateAndApplyPerFrameData( Tr2RenderContext& renderContext );
 
 	void GatherBatches( Tr2RenderContext& renderContext );
 
@@ -221,6 +224,11 @@ protected:
 		float DepthMapSampleCount;
 		Vector2 FogFactors;
 		float GammaBrightness;
+
+		// Contains projection[3][2] and projection[2][2].
+		// Used for deriving view space depth from clip space depth.
+		Vector2 ProjectionToView;
+		Vector2 unused;
 	};
 
 	// Per-frame vertex constants for rendering scene
@@ -347,6 +355,7 @@ protected:
 	PTriCurveSetVector		m_curveSets;
 	PEveLensflareVector		m_lensflares;
 	EveUpdateContext		m_updateContext;
+	PEveDistanceFieldVector m_distanceFields;
 
 	// Primary batches, gathered in BeginRender and
 	// cleared in EndRender
@@ -416,6 +425,9 @@ protected:
 
 	EveTransformPtr m_dustfield;
 	EveDustfieldConstraintPtr m_dustfieldConstaint;
+	
+	EveTransformPtr m_cloudfield;
+	EveDustfieldConstraintPtr m_cloudfieldConstaint;
 
 	// For tracking the sunlight direction
 	ITriVectorFunctionPtr m_sunBall;
