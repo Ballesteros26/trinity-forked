@@ -519,7 +519,6 @@ bool TriTextureRes::CreateFromRT( Tr2RenderTarget* renderTarget, unsigned width,
 	}
 	ON_BLOCK_EXIT( [&]{ rt.Unlock( renderContext ); } );
 	
-	srd.m_height = rt.GetHeight();
 	srd.m_sysMemSlicePitch = rt.GetHeight() * srd.m_sysMemPitch;
 
 	{
@@ -555,10 +554,9 @@ bool TriTextureRes::CreateFromHostBitmap( Tr2HostBitmap* bitmap )
 	srd.resize( bitmap->GetTrueMipCount() );
 	for( unsigned i = 0; i != bitmap->GetTrueMipCount(); ++i )
 	{
-		srd[i].m_height = bitmap->GetMipWidth( i );
 		srd[i].m_sysMem = bitmap->GetMipRawData( i );
 		srd[i].m_sysMemPitch = bitmap->GetMipPitch( i );
-		srd[i].m_sysMemSlicePitch = srd[i].m_height * srd[i].m_sysMemPitch;
+		srd[i].m_sysMemSlicePitch = bitmap->GetMipHeight( i ) * srd[i].m_sysMemPitch;
 	}
 	CR_RETURN_VAL( 
 		m_texture.Create2D(		bitmap->GetWidth(), 

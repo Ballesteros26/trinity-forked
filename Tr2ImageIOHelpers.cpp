@@ -27,7 +27,6 @@ bool CreateCubeTexture(	ImageIO::HostBitmap& bitmap, Tr2TextureAL &out,
 		{
 			Tr2SubresourceData srd;
 			srd.m_sysMem			= const_cast<char*>( bitmap.GetMipRawData( i, CubemapFace( face ) ) );
-			srd.m_height			= bitmap.GetMipHeight( i );
 			srd.m_sysMemSlicePitch	= bitmap.GetMipSize( i );
 			srd.m_sysMemPitch		= bitmap.GetMipPitch( i );	
 
@@ -75,7 +74,6 @@ bool CreateVolumeTexture( ImageIO::HostBitmap& bitmap, Tr2TextureAL &out,
 		Tr2SubresourceData srd;
 
 		srd.m_sysMem			= const_cast<char*>( bitmap.GetMipRawData( i ) );
-		srd.m_height			= bitmap.GetMipHeight( i );
 		srd.m_sysMemSlicePitch	= bitmap.GetMipSize( i );
 		srd.m_sysMemPitch		= bitmap.GetMipPitch( i );	
 
@@ -129,7 +127,6 @@ bool Create2DTexture(	ImageIO::HostBitmap& bitmap, Tr2TextureAL &out,
 		Tr2SubresourceData& srd = initData[i];
 
 		srd.m_sysMem			= const_cast<char*>( bitmap.GetMipRawData( i ) );
-		srd.m_height			= bitmap.GetMipHeight( i );
 		srd.m_sysMemSlicePitch	= bitmap.GetMipSize( i );
 		srd.m_sysMemPitch		= bitmap.GetMipPitch( i );	
 

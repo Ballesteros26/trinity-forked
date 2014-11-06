@@ -474,7 +474,6 @@ bool Tr2HostBitmap::Compress( unsigned compressionFormat, unsigned qualityLevel,
 
 		Tr2SubresourceData initialData;
 		initialData.m_sysMem = destination.get();
-		initialData.m_height = m_height;
 		initialData.m_sysMemPitch = pitch;
 		initialData.m_sysMemSlicePitch = uint32_t( destination.size() );
 

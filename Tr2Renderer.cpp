@@ -376,7 +376,6 @@ namespace
 		Tr2SubresourceData initialData[CUBEMAP_FACE_COUNT];
 		for( int i = 0; i < CUBEMAP_FACE_COUNT; ++i )
 		{
-			initialData[i].m_height = 1;
 			initialData[i].m_sysMemPitch = 4;
 			initialData[i].m_sysMemSlicePitch = 4;
 			initialData[i].m_sysMem = &color;

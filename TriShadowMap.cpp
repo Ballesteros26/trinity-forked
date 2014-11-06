@@ -225,7 +225,7 @@ bool TriShadowMap::OnPrepareResources()
 			pixels[i] = 1.0f;
 		}
 		
-		Tr2SubresourceData init = { pixels, 16, 32, 2 };
+		Tr2SubresourceData init = { pixels, 16, 32 };
 		CR_RETURN_VAL( m_noShadowTexture.Create2D( 2, 2, 1, PIXEL_FORMAT_R32G32_FLOAT, USAGE_IMMUTABLE, &init, renderContext ), false );
 	}
 

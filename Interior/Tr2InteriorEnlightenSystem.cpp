@@ -553,14 +553,14 @@ void Tr2InteriorEnlightenSystem::UpdateEnlightenDebugTextures()
 	USE_MAIN_THREAD_RENDER_CONTEXT();
 	if( !data8bpp.empty() )
 	{
-		Tr2SubresourceData initialData = { &data8bpp[0], width * 4, width * height * 4, height };
+		Tr2SubresourceData initialData = { &data8bpp[0], width * 4, width * height * 4 };
 
 		texture.Create2D( width, height, 1, PIXEL_FORMAT_B8G8R8A8_UNORM,
 						  USAGE_IMMUTABLE, &initialData, renderContext );
 	}
 	else
 	{
-		Tr2SubresourceData initialData = { &data16bpp[0], width * 8, width * height * 8, height };
+		Tr2SubresourceData initialData = { &data16bpp[0], width * 8, width * height * 8 };
 
 		texture.Create2D( width, height, 1, 
 						  float16 ? PIXEL_FORMAT_R16G16B16A16_FLOAT 
