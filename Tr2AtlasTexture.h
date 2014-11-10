@@ -112,7 +112,9 @@ private:
 	// Calculate reciprocals for width/height
 	void CalcReciprocals();
 
-	void SetTextureRes( const char* resPath, TriTextureRes* textureRes );
+	void SetTextureRes( TriTextureRes* p );
+	TriTextureRes* GetTextureRes();
+
 private:
 	// Name of the object, for programmer convenience
 	std::string m_name;
@@ -126,7 +128,13 @@ private:
 	// Image handler used for loading
 	std::unique_ptr<ImageIO::HostBitmap> m_loadedBitmap;
 
+	// Used for dynamic textures.
+	TriTextureResPtr m_textureRes;
+
+	// AL texture, used if texture is stand-alone (didn't fit in atlas
+	// or was requested stand-alone)
 	Tr2TextureAL	m_texture;
+
 	// It is ok to have raw pointer to Tr2AtlasTexture::m_renderTarget since
 	// since T2AtlasTexture lifetime is bound to it.
 	Tr2RenderTargetAL *m_renderTarget;

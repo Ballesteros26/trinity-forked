@@ -894,7 +894,7 @@ void Tr2FontMeasurer::PrepareSprites( Tr2Sprite2dScene* renderer, const Vector2&
 			float xOneInitial = xOne;
 			float yOneInitial = yOne;
 
-			if( sfx == TR2_SFX_BLUR )
+			if( (sfx == TR2_SFX_BLUR) || (sfx == TR2_SFX_GLOW) )
 			{
 				xLeft -= 1;
 				yTop -= 1;

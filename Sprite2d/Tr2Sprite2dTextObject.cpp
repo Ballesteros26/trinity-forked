@@ -43,7 +43,7 @@ void Tr2Sprite2dTextObject::GatherSprites( Tr2Sprite2dScene* renderer )
 			m_isDirty = false;
 		}
 
-		if( m_spriteEffect == TR2_SFX_BLUR )
+		if( (m_spriteEffect == TR2_SFX_BLUR) || (m_spriteEffect == TR2_SFX_GLOW) )
 		{
 			renderer->PushClipRectangle( m_translation.x - 1, m_translation.y - 1, m_textWidth + 2, m_textHeight + 2 );
 		}

@@ -225,5 +225,12 @@ const Be::ClassInfo* Tr2AtlasTexture::ExposeToBlue()
 			"is currently too expensive to support for atlas textures."
 		)
 
+		MAP_PROPERTY
+		(
+			"textureRes",
+			GetTextureRes, SetTextureRes,
+			"Sets a texture res directly - use for dynamic textures"
+		)
+
     EXPOSURE_CHAINTO( BlueAsyncRes )
 }

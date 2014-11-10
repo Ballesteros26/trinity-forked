@@ -81,7 +81,7 @@ void Tr2Sprite2d::GatherSprites( Tr2Sprite2dScene* renderer )
 
 		renderer->PrepareSpriteVerts( &m_vertices[4], m_translation, displayWidth, displayHeight, m_spriteEffect );
 
-		if( m_spriteEffect < TR2_SFX_TWO_TEXTURES && m_spriteEffect != TR2_SFX_BLUR )
+		if( m_spriteEffect < TR2_SFX_TWO_TEXTURES && (m_spriteEffect != TR2_SFX_BLUR) && (m_spriteEffect != TR2_SFX_GLOW) )
 		{
 			for( int i = 4; i < 8; ++i )
 			{

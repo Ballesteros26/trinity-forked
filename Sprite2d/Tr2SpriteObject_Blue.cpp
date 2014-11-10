@@ -35,6 +35,9 @@ Be::VarChooser Tr2SpriteObjectEffectChooser[] =
 	{ "TR2_SFX_COLOROVERLAY",	BeCast( TR2_SFX_COLOROVERLAY ),	"Primary texture colorized with an overlay effect" },
 	{ "TR2_SFX_SOFTLIGHT",		BeCast( TR2_SFX_SOFTLIGHT ),	"Primary texture colorized with a softlight effect" },
 	{ "TR2_SFX_BLUR",			BeCast( TR2_SFX_BLUR ),			"Primary texture is blurred" },
+	{ "TR2_SFX_BLURBACKGROUNDCOLORED",	BeCast( TR2_SFX_BLURBACKGROUNDCOLORED ),	"Primary texture is blurred, uvs are calculated from screen coords" },
+	{ "TR2_SFX_BLURBACKGROUND",	BeCast( TR2_SFX_BLURBACKGROUND ),	"Primary texture is blurred, uvs are calculated from screen coords" },
+	{ "TR2_SFX_GLOW",			BeCast( TR2_SFX_GLOW ),			"Primary texture is blurred, used for glow effects" },
 
 	{ "TR2_SFX_NONE",		BeCast( TR2_SFX_NONE ),			"Nothing is rendered" },
 	{ 0 }

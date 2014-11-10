@@ -5,6 +5,7 @@
 #include "Tr2TextureAtlasMan.h"
 #include "Tr2HostBitmap.h"
 #include "Tr2ImageIOHelpers.h"
+#include "Resources/TriTextureRes.h"
 
 using namespace Tr2RenderContextEnum;
 
@@ -39,17 +40,25 @@ Tr2AtlasTexture::~Tr2AtlasTexture()
 	}
 }
 
-void Tr2AtlasTexture::SetTextureRes( const char* resPath, TriTextureRes* textureRes )
-{
-	m_resPath = resPath;
-}
-
 Tr2TextureAL* Tr2AtlasTexture::GetTexture()
 {
 	// are we part of an atlas? If so, go get the texture from that to guarantee pointer identity.
-	return m_textureAtlas && m_atlasArea	? m_textureAtlas->GetTexture()
-											: m_texture.IsValid()	? &m_texture 
-																	: nullptr;
+	if( m_textureAtlas && m_atlasArea )
+	{
+		return m_textureAtlas->GetTexture();
+	}
+
+	if( m_texture.IsValid() )
+	{
+		return &m_texture;
+	}
+
+	if( m_textureRes && m_textureRes->IsGood() )
+	{
+		return m_textureRes->GetTexture();
+	}
+
+	return nullptr;
 }
 
 // --------------------------------------------------------------------------------------
@@ -478,4 +487,28 @@ void Tr2AtlasTexture::SetTargetAtlasBeforeLoad( Tr2TextureAtlas *atlas )
 		return;
 	}
 	m_textureAtlas = atlas;
+}
+
+void Tr2AtlasTexture::SetTextureRes( TriTextureRes* p )
+{
+	// TODO: What if the texture has already been loaded?
+	// This is intended to be used on a newly created object
+	m_textureRes = p;
+	SetPrepared( true );
+	SetGood( true );
+
+	m_x = 0;
+	m_y = 0;
+	m_width = m_textureRes->GetWidth();
+	m_textureWidth = m_width;
+	m_height = m_textureRes->GetHeight();
+	m_textureHeight = m_height;
+
+	CalcReciprocals();
+	CalcTextureWindow();
+}
+
+TriTextureRes* Tr2AtlasTexture::GetTextureRes()
+{
+	return m_textureRes;
 }
