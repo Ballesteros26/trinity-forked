@@ -20,12 +20,8 @@ CCP_STATS_DECLARED_ELSEWHERE( primitiveCount );
 
 // constants
 // how many planes per booster tree structure?
-const unsigned int EVE_BOOSTER_PLANES_COUNT = 4;
-
-// vertex decl for multi-stream rendering
-
-// geometry of tree-shape structure for boosters
-static EveBoosterSet2::BoosterVertex s_starShapeMesh[4 * EVE_BOOSTER_PLANES_COUNT];
+const unsigned int EVE_BOOSTER_PLANES_COUNT[EveBoosterSet2::SHAPE_COUNT] = { 4, 6 };
+static std::vector<EveBoosterSet2::BoosterVertex> s_shapeMesh[EveBoosterSet2::SHAPE_COUNT];
 
 // externs
 extern float g_eveSpaceSceneLowDetailThreshold;
@@ -66,6 +62,7 @@ EveBoosterSet2::EveBoosterSet2( IRoot* lockobj ) :
 	m_parentSpeed( 0.f ),
 	m_parentRotation( 0.f, 0.f, 0.f, 1.f ),
 	m_vertexDeclHandle( Tr2EffectStateManager::UNINITIALIZED_DECLARATION ),
+	m_shape( STAR ),
 	m_maxVel( 250.f ),
 	m_lastAccFactor( 0.f ),
 	m_lastValue( 0.f ),
@@ -90,26 +87,63 @@ EveBoosterSet2::EveBoosterSet2( IRoot* lockobj ) :
 	BoundingBoxInitialize( m_trailsBoundsMin, m_trailsBoundsMax );
 
 	// pre-build star-shape geometry
-	BoosterVertex* p = &s_starShapeMesh[0];
-	for( unsigned int i = 0; i < EVE_BOOSTER_PLANES_COUNT ; ++i )
+	if( s_shapeMesh[BOX].empty() )
 	{
-		float t = (float)i * XM_PI / (float)EVE_BOOSTER_PLANES_COUNT;
-		float x = cos( t ) * 0.5f;
-		float y = sin( t ) * 0.5f;
-		p->position = Vector3( -x, -y, 0.f );
-		p->texCoord = Vector2( 1.f, 1.f );
-		++p;							   
-		p->position = Vector3( -x, -y, -1.f );
-		p->texCoord = Vector2( 1.f, 0.f );
-		++p;							   
-		p->position = Vector3(  x,  y, -1.f );
-		p->texCoord = Vector2( 0.f, 0.f );
-		++p;							   
-		p->position = Vector3(  x,  y, 0.0f );
-		p->texCoord = Vector2( 0.f, 1.f );
-		++p;
-	}
+		s_shapeMesh[BOX].resize( 4 * EVE_BOOSTER_PLANES_COUNT[BOX] );
+		auto p = &s_shapeMesh[BOX][0];
+		( p++ )->position = Vector3( -1.0f, -1.0f, 0.0f );
+		( p++ )->position = Vector3( 1.0f, -1.0f, 0.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, 0.0f );
+		( p++ )->position = Vector3( -1.0f, 1.0f, 0.0f );
 
+		( p++ )->position = Vector3( -1.0f, -1.0f, -1.0f );
+		( p++ )->position = Vector3( -1.0f, 1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, -1.0f, -1.0f );
+
+		( p++ )->position = Vector3( -1.0f, -1.0f, 0.0f );
+		( p++ )->position = Vector3( -1.0f, 1.0f, 0.0f );
+		( p++ )->position = Vector3( -1.0f, 1.0f, -1.0f );
+		( p++ )->position = Vector3( -1.0f, -1.0f, -1.0f );
+
+		( p++ )->position = Vector3( 1.0f, -1.0f, 0.0f );
+		( p++ )->position = Vector3( 1.0f, -1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, 0.0f );
+
+		( p++ )->position = Vector3( -1.0f, -1.0f, 0.0f );
+		( p++ )->position = Vector3( -1.0f, -1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, -1.0f, -1.0f );
+		( p++ )->position = Vector3( 1.0f, -1.0f, 0.0f );
+
+		( p++ )->position = Vector3( -1.0f, 1.0f, 0.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, 0.0f );
+		( p++ )->position = Vector3( 1.0f, 1.0f, -1.0f );
+		( p++ )->position = Vector3( -1.0f, 1.0f, -1.0f );
+	}
+	if( s_shapeMesh[STAR].empty() )
+	{
+		s_shapeMesh[STAR].resize( 4 * EVE_BOOSTER_PLANES_COUNT[STAR] );
+		auto p = &s_shapeMesh[STAR][0];
+		for( unsigned int i = 0; i < EVE_BOOSTER_PLANES_COUNT[STAR]; ++i )
+		{
+			float t = (float)i * XM_PI / (float)EVE_BOOSTER_PLANES_COUNT[STAR];
+			float x = cos( t ) * 0.5f;
+			float y = sin( t ) * 0.5f;
+			p->position = Vector3( -x, -y, 0.f );
+			p->texCoord = Vector2( 1.f, 1.f );
+			++p;							   
+			p->position = Vector3( -x, -y, -1.f );
+			p->texCoord = Vector2( 1.f, 0.f );
+			++p;							   
+			p->position = Vector3(  x,  y, -1.f );
+			p->texCoord = Vector2( 0.f, 0.f );
+			++p;							   
+			p->position = Vector3(  x,  y, 0.0f );
+			p->texCoord = Vector2( 0.f, 1.f );
+			++p;
+		}
+	}
 	// "invalidate" all trail control positions
 	for( unsigned int i = 0; i < EVE_MAX_CONTROL_POINT_COUNT; ++i )
 	{
@@ -149,8 +183,14 @@ bool EveBoosterSet2::Initialize()
 // --------------------------------------------------------------------------------
 bool EveBoosterSet2::OnModified( Be::Var* val )
 {
-	if( IsMatch( val, m_glowScale ) )
+	if( IsMatch( val, m_shape ) )
 	{
+		if( m_shape < 0 || m_shape >= SHAPE_COUNT )
+		{
+			m_shape = STAR;
+		}
+		ReleaseResources( TRISTORAGE_ALL );
+		PrepareResources();
 	}
 	return true;
 }
@@ -490,12 +530,11 @@ bool EveBoosterSet2::OnPrepareResources()
 
 	// create star-shape geometry as "indexed" geometry
 	CR_RETURN_VAL(	
-		m_vertexBuffer.Create(	4 * EVE_BOOSTER_PLANES_COUNT * sizeof( BoosterVertex ), 
+		m_vertexBuffer.Create(	4 * EVE_BOOSTER_PLANES_COUNT[m_shape] * sizeof( BoosterVertex ), 
 								USAGE_IMMUTABLE, 
-								&s_starShapeMesh[0], 
+								&s_shapeMesh[m_shape][0], 
 								renderContext )
 		, false );
-
 	// now build the "instance" buffer, which depends on the actual number of booster, this set currently holds
 	RebuildInstanceData( renderContext );
 
@@ -724,7 +763,7 @@ void EveBoosterSet2::SubmitGeometry( Tr2RenderContext& renderContext )
 	// how many indiviual boosters are in this set?
 	unsigned int boosterCount = (unsigned int)m_singleBoosters.size();
 
-	Tr2IndexBufferAL* indexBuffer = Tr2Renderer::GetQuadListIndexBuffer( EVE_BOOSTER_PLANES_COUNT );
+	Tr2IndexBufferAL* indexBuffer = Tr2Renderer::GetQuadListIndexBuffer( EVE_BOOSTER_PLANES_COUNT[m_shape] );
 	if( !indexBuffer )
 	{
 		return;
@@ -739,7 +778,7 @@ void EveBoosterSet2::SubmitGeometry( Tr2RenderContext& renderContext )
 	renderContext.m_esm.ApplyStreamSource( 1, m_instanceBuffer, 0, sizeof( InstanceVertex ) );
 	// draw	
 	renderContext.SetTopology( TOP_TRIANGLES );	
-	renderContext.DrawIndexedInstanced( 4 * EVE_BOOSTER_PLANES_COUNT, 0, 2 * EVE_BOOSTER_PLANES_COUNT, boosterCount );
+	renderContext.DrawIndexedInstanced( 4 * EVE_BOOSTER_PLANES_COUNT[m_shape], 0, 2 * EVE_BOOSTER_PLANES_COUNT[m_shape], boosterCount );
 }
 
 // --------------------------------------------------------------------------------

@@ -94,6 +94,13 @@ public:
 	using IInitialize::Lock;
 	using IInitialize::Unlock;
 
+	enum Shape
+	{
+		STAR,
+		BOX,
+		SHAPE_COUNT,
+	};
+
 	EveBoosterSet2( IRoot* lockobj = NULL );
 	~EveBoosterSet2();
 
@@ -208,6 +215,8 @@ private:
 		Vector4 functionality;
 	};
 	std::vector<SingleBoosterData> m_singleBoosters;
+
+	Shape m_shape;
 
 	// booster gain
 	float m_maxVel;
