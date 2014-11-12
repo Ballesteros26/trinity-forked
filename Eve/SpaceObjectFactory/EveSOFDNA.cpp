@@ -26,6 +26,9 @@ static std::string s_dnaCommands[] = {
 	"mesh",					// CMD_MESH
 };
 
+// material prefixes
+const std::string EveSOFDNA::s_materialPrefixes[3] = { "Material", "Mask", "SubMask" };
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Initialize data members
@@ -468,23 +471,21 @@ const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( TriBatchType type, const
 	std::vector<std::string> meshCommandArgs;
 	if( GetDnaCommandArgs( CMD_MESH, meshCommandArgs ) )
 	{
-		int argIdx = -1;
+		size_t argIdx = -1;
 		std::string materialDataParameterName = std::string( parameterName.c_str() );
-		// identify mask, submask
-		if( StringStartsWithI( parameterName.c_str(), "Mask" ) )
+		// identify material mask, submask
+		for( size_t i = 0; i < 3; ++i )
 		{
-			// arg 0 is mask material
-			argIdx = 0;
-			StringRemove( materialDataParameterName, "Mask" );
-		}
-		else if( StringStartsWithI( parameterName.c_str(), "SubMask" ) )
-		{
-			// arg 1 is submask material
-			argIdx = 1;
-			StringRemove( materialDataParameterName, "SubMask" );
+			if( StringStartsWithI( parameterName.c_str(), s_materialPrefixes[i].c_str() ) )
+			{
+				// found it!
+				argIdx = i;
+				StringRemove( materialDataParameterName, s_materialPrefixes[i].c_str() );
+				break;
+			}
 		}
 
-		if( argIdx != -1 )
+		if( ( argIdx > -1 ) && ( argIdx < meshCommandArgs.size() ) )
 		{
 			// get the material from the lib
 			const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( meshCommandArgs[ argIdx ].c_str() );

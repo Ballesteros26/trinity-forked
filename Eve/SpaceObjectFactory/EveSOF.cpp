@@ -961,8 +961,6 @@ void EveSOF::SetupLocators( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 // --------------------------------------------------------------------------------
 void EveSOF::SetupTurretMaterial( EveTurretSet* turretSet, const char* factionName )
 {
-	static std::string materialPrefixes[3] = { "Material", "Mask", "SubMask" };
-
 	// get factional data (which is also good on a turret)
 	const EveSOFDataMgr::FactionData* factionData = m_dataMgr.GetFactionData( factionName );
 	if( factionData == nullptr )
@@ -989,21 +987,21 @@ void EveSOF::SetupTurretMaterial( EveTurretSet* turretSet, const char* factionNa
 			std::string paramName( (*it)->GetParameterName() );
 			// determine which of the 3 faction materials are requested
 			int materialID = -1;
-			if( StringStartsWithI( paramName.c_str(), materialPrefixes[0].c_str() ) )
+			if( StringStartsWithI( paramName.c_str(), EveSOFDNA::s_materialPrefixes[0].c_str() ) )
 			{
 				materialID = factionData->materialUsageMain;
-				StringRemove( paramName, materialPrefixes[0].c_str() );
+				StringRemove( paramName, EveSOFDNA::s_materialPrefixes[0].c_str() );
 			}
-			else if( StringStartsWithI( paramName.c_str(), materialPrefixes[1].c_str() ) )
+			else if( StringStartsWithI( paramName.c_str(), EveSOFDNA::s_materialPrefixes[1].c_str() ) )
 			{
 				materialID = factionData->materialUsageMask;
-				StringRemove( paramName, materialPrefixes[1].c_str() );
+				StringRemove( paramName, EveSOFDNA::s_materialPrefixes[1].c_str() );
 			}
 			// find it?
 			if( ( materialID >= 0  ) && ( materialID < 3 ) )
 			{
 				// insert the prefic based on what is set in the faction data
-				paramName.insert( 0, materialPrefixes[ materialID ] );
+				paramName.insert( 0, EveSOFDNA::s_materialPrefixes[ materialID ] );
 
 				// try to find this param and use it's value
 				auto paramFinder = areaData->parameters.find( BlueSharedString( paramName ) );
