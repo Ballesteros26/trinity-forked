@@ -177,6 +177,12 @@ const Be::ClassInfo* TriGeometryRes::ExposeToBlue()
 			"( meshIdx, transform )->( min, max )\n"
 			"Get the mesh's bounding box with all points transformed using transform."
 		)
+		MAP_METHOD_AND_WRAP
+		(
+			"RecalculateBoundingSphere",
+			RecalculateBoundingSphere,
+			"Rebuild bounding sphere info for these meshes"
+		)
 
 		MAP_METHOD_AND_WRAP
 		( 
