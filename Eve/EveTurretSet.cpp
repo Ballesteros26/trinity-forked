@@ -2175,9 +2175,18 @@ bool EveTurretSet::GetClosestTurretAndLocator( unsigned int& closestTurretIx, in
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Make the shader accessable to the outside
+//   Make the shader accessable to the outside (const version)
 // --------------------------------------------------------------------------------
 const Tr2Effect* EveTurretSet::GetShader() const
+{
+	return m_turretEffect;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Make the shader accessable to the outside (non-const version)
+// --------------------------------------------------------------------------------
+Tr2Effect* EveTurretSet::GetShader()
 {
 	return m_turretEffect;
 }

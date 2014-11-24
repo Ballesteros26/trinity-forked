@@ -825,6 +825,15 @@ Tr2EffectRes* Tr2Effect::GetEffectRes() const
 	return m_effectResource;
 }
 
+// --------------------------------------------------------------------------------------
+// Description:
+//   Just return the name
+// --------------------------------------------------------------------------------------
+const char* Tr2Effect::GetName() const
+{
+	return m_name.c_str();
+}
+
 ITriEffectParameter* Tr2Effect::GetParameterByName( const char* name ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );

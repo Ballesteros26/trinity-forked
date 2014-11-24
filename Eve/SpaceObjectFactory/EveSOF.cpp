@@ -957,61 +957,185 @@ void EveSOF::SetupLocators( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 
 // --------------------------------------------------------------------------------
 // Description:
+//   This function calculates a specific value for a turret's material parameter.
+//   It takes in a faction and looks into that faction hull data to determine
+//   the turret's materal parameter.
+// Arguments:
+//   value - A reference to a pointer, which will receive a pointer to the correct value
+//   parameterName - the parameter in question, like "MaterialGloss"
+//   matUsageMain - used to swap masks
+//   matUsageMask - used to swap masks
+//   areaData - the faction data to look into
+// Return Value:
+//   Success!
+// --------------------------------------------------------------------------------
+bool EveSOF::GetTurretMaterialParameter( const Vector4* &value, const char* parameterName, int matUsageMain, int matUsageMask, const EveSOFDataMgr::FactionAreaData* areaData ) const
+{
+	// source parameter name
+	std::string paramName( parameterName );
+	// determine which of the 3 faction materials are requested
+	int materialID = -1;
+	if( StringStartsWithI( paramName.c_str(), EveSOFDNA::s_materialPrefixes[0].c_str() ) )
+	{
+		materialID = matUsageMain;
+		StringRemove( paramName, EveSOFDNA::s_materialPrefixes[0].c_str() );
+	}
+	else if( StringStartsWithI( paramName.c_str(), EveSOFDNA::s_materialPrefixes[1].c_str() ) )
+	{
+		materialID = matUsageMask;
+		StringRemove( paramName, EveSOFDNA::s_materialPrefixes[1].c_str() );
+	}
+	// find it?
+	if( ( materialID >= 0  ) && ( materialID < 3 ) )
+	{
+		// insert the prefic based on what is set in the faction data
+		paramName.insert( 0, EveSOFDNA::s_materialPrefixes[ materialID ] );
+
+		// try to find this param and use it's value
+		auto paramFinder = areaData->parameters.find( BlueSharedString( paramName ) );
+		if( paramFinder != areaData->parameters.end() )
+		{
+			value = &paramFinder->second;
+			return true;
+		}
+	}
+	return false;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   To give a turret it's final shading, we use two faction data sets, one from
+//   the turret's faction and one from the ship's faction. A override method decides
+//   what parameter we take from which set.
+// Arguments:
+//   parameterName - the parameter in question, like "MaterialGloss"
+//   parentValue - the parameter's value based on the ship
+//   turretValue - the parameter's value based on the turret
+//   overrideMethod - What is taken from what?
+// Return Value:
+//   The parameter's value
+// --------------------------------------------------------------------------------
+Vector4 EveSOF::CombineTurretMaterial( const char* parameterName, const Vector4* parentValue, const Vector4* turretValue, const char* overrideMethod ) const
+{
+	// need the pure material name, no mask prefix!
+	std::string name( parameterName );
+	StringRemove( name, EveSOFDNA::s_materialPrefixes[0].c_str() );
+	StringRemove( name, EveSOFDNA::s_materialPrefixes[1].c_str() );
+	StringRemove( name, EveSOFDNA::s_materialPrefixes[2].c_str() );
+
+	if( strcmp( overrideMethod, "overridable" ) == 0 )
+	{
+		// T1: all is from parent, if available
+		return parentValue ? *parentValue : turretValue ? *turretValue : Vector4( 0.f, 0.f, 0.f, 0.f );
+	}
+	else if( strcmp( overrideMethod, "half_overridable" ) == 0 )
+	{
+		// T2: glow from turret, rest from parent
+		if( name == "GlowColor" )
+		{
+			return turretValue ? *turretValue : Vector4( 0.f, 0.f, 0.f, 0.f );
+		}
+		else
+		{
+			return parentValue ? *parentValue : turretValue ? *turretValue : Vector4( 0.f, 0.f, 0.f, 0.f );
+		}
+	}
+	else if( strcmp( overrideMethod, "not_overridable" ) == 0 )
+	{
+		// F: all is from turret
+		return turretValue ? *turretValue : Vector4( 0.f, 0.f, 0.f, 0.f );
+	}
+	else if( strcmp( overrideMethod, "half_overridable_2" ) == 0 )
+	{
+		// F: all is from turret
+		return turretValue ? *turretValue : Vector4( 0.f, 0.f, 0.f, 0.f );
+	}
+	return Vector4( 0.f, 0.f, 0.f, 0.f );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   setup the material of a turret with the data from SOF faction
 // --------------------------------------------------------------------------------
-void EveSOF::SetupTurretMaterial( EveTurretSet* turretSet, const char* factionName )
+void EveSOF::SetupTurretMaterial( EveTurretSet* turretSet, const char* parentFactionName, const char* turretFactionName )
 {
-	// get factional data (which is also good on a turret)
-	const EveSOFDataMgr::FactionData* factionData = m_dataMgr.GetFactionData( factionName );
-	if( factionData == nullptr )
-	{
-		CCP_LOGERR( "Couldn't find the requested faction: %s", factionName );
-		return;
-	}
+	// get parent (aka ship) and turret's factional data (which is also good on a turret)
+	const EveSOFDataMgr::FactionData* parentFactionData = m_dataMgr.GetFactionData( parentFactionName );
+	const EveSOFDataMgr::FactionData* turretFactionData = m_dataMgr.GetFactionData( turretFactionName );
 
 	// only interested in opaque hull for turrets
-	auto areaFinder = factionData->opaqueAreaParameters.find( BlueSharedString( "hull" ) );
-	if( areaFinder == factionData->opaqueAreaParameters.end() )
+	const EveSOFDataMgr::FactionAreaData* parentAreaData = nullptr;
+	if( parentFactionData )
 	{
+		auto parentAreaFinder = parentFactionData->opaqueAreaParameters.find( BlueSharedString( "hull" ) );
+		if( parentAreaFinder != parentFactionData->opaqueAreaParameters.end() )
+		{
+			parentAreaData = &parentAreaFinder->second;
+		}
+	}
+
+	const EveSOFDataMgr::FactionAreaData* turretAreaData = nullptr;
+	if( turretFactionData )
+	{
+		auto turretAreaFinder = turretFactionData->opaqueAreaParameters.find( BlueSharedString( "hull" ) );
+		if( turretAreaFinder != turretFactionData->opaqueAreaParameters.end() )
+		{
+			turretAreaData = &turretAreaFinder->second;
+		}
+	}
+
+	// if we haven't found anything that's an error
+	if( !parentAreaData && !turretAreaData )
+	{
+		CCP_LOGERR( "EveSOF: SetupTurretMaterial failed, couldn't find neither %s or %s!", parentFactionName, turretFactionName );
 		return;
 	}
-	const EveSOFDataMgr::FactionAreaData* areaData = &areaFinder->second;
 
-	const Tr2Effect* shader = turretSet->GetShader();
+	// start modifying the parameters of the turret's shader
+	Tr2Effect* shader = turretSet->GetShader();
 	if( shader )
 	{
-		// try override shader's parameter
-		for( auto it = shader->m_parameters.begin(); it != shader->m_parameters.end(); ++it )
+		// try override shader's parameter, const's first
+		if( !shader->m_constParameters.empty() )
 		{
-			// source parameter name
-			std::string paramName( (*it)->GetParameterName() );
-			// determine which of the 3 faction materials are requested
-			int materialID = -1;
-			if( StringStartsWithI( paramName.c_str(), EveSOFDNA::s_materialPrefixes[0].c_str() ) )
+			shader->StartUpdate();
+			for( auto it = shader->m_constParameters.begin(); it != shader->m_constParameters.end(); ++it )
 			{
-				materialID = factionData->materialUsageMain;
-				StringRemove( paramName, EveSOFDNA::s_materialPrefixes[0].c_str() );
-			}
-			else if( StringStartsWithI( paramName.c_str(), EveSOFDNA::s_materialPrefixes[1].c_str() ) )
-			{
-				materialID = factionData->materialUsageMask;
-				StringRemove( paramName, EveSOFDNA::s_materialPrefixes[1].c_str() );
-			}
-			// find it?
-			if( ( materialID >= 0  ) && ( materialID < 3 ) )
-			{
-				// insert the prefic based on what is set in the faction data
-				paramName.insert( 0, EveSOFDNA::s_materialPrefixes[ materialID ] );
-
-				// try to find this param and use it's value
-				auto paramFinder = areaData->parameters.find( BlueSharedString( paramName ) );
-				if( paramFinder != areaData->parameters.end() )
+				const Vector4* parentValue = nullptr;
+				const Vector4* turretValue = nullptr;
+				if( parentAreaData )
 				{
-					Tr2Vector4ParameterPtr param;
-					if( (*it)->QueryInterface( BlueInterfaceIID<Tr2Vector4Parameter>(), (void**)&param, BEQI_SILENT ) )
-					{
-						param->SetValue( paramFinder->second );
-					}
+					GetTurretMaterialParameter( parentValue, it->name.c_str(), parentFactionData->materialUsageMain, parentFactionData->materialUsageMask, parentAreaData );
+				}
+				if( turretAreaData )
+				{
+					GetTurretMaterialParameter( turretValue, it->name.c_str(), turretFactionData->materialUsageMain, turretFactionData->materialUsageMask, turretAreaData );
+				}
+				it->value = CombineTurretMaterial( it->name.c_str(), parentValue, turretValue, shader->GetName() );
+			}
+			shader->EndUpdate();
+		}
+		else
+		{
+			// then non-const parameters
+			for( auto it = shader->m_parameters.begin(); it != shader->m_parameters.end(); ++it )
+			{
+				const Vector4* parentValue = nullptr;
+				const Vector4* turretValue = nullptr;
+				if( parentAreaData )
+				{
+					GetTurretMaterialParameter( parentValue, (*it)->GetParameterName(), parentFactionData->materialUsageMain, parentFactionData->materialUsageMask, parentAreaData );
+				}
+				if( turretAreaData )
+				{
+					GetTurretMaterialParameter( turretValue, (*it)->GetParameterName(), turretFactionData->materialUsageMain, turretFactionData->materialUsageMask, turretAreaData );
+				}
+				Vector4 value = CombineTurretMaterial( (*it)->GetParameterName(), parentValue, turretValue, shader->GetName() );
+
+				Tr2Vector4ParameterPtr param;
+				if( (*it)->QueryInterface( BlueInterfaceIID<Tr2Vector4Parameter>(), (void**)&param, BEQI_SILENT ) )
+				{
+					param->SetValue( value );
 				}
 			}
 		}

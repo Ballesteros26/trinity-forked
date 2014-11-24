@@ -62,7 +62,9 @@ public:
 	void StartUpdate();
 	void EndUpdate();
 	
+	// gets
 	virtual Tr2EffectRes* GetEffectRes() const;
+	const char* GetName() const;
 
 	// sets & adds
 	void SetEffectPathName( const char* path );
