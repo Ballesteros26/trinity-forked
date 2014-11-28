@@ -18,6 +18,7 @@ EveProjectBracket::EveProjectBracket( IRoot* lockobj /*= NULL */ ) :
 	m_ballTrackingScaling( 1.0f ),
 	m_dock( false ),
 	m_isVisible( true ),
+	m_isInFront( true ),
 	m_isVisibleStateSet( false ),
 	m_integerCoordinates( true ),
 	m_marginLeft( 0.0f ),
@@ -87,6 +88,8 @@ void EveProjectBracket::UpdateValue( double time )
 	D3DXVec3TransformCoord( &pos, &pos, &Tr2Renderer::GetViewTransform() );
 
 	bool isInFront = (pos.z <= 0.0f);
+	m_isInFront = isInFront;
+
 	m_cameraDistance = D3DXVec3Length( &pos );
 
 	Vector3 projectedPosition;
@@ -212,6 +215,7 @@ void EveProjectBracket::UpdateValue( double time )
 		x = floor( x + 0.5f);
 		y = floor( y + 0.5f);
 	}
+
 	if( g_debugRenderer )
 	{
 		g_debugRenderer->Printf( (int)x, (int)y, debugColor, "%S", m_name.c_str() );
@@ -225,6 +229,11 @@ void EveProjectBracket::UpdateValue( double time )
 
 	m_projectedPosition.x = x;
 	m_projectedPosition.y = y;
+
+	if( m_bracketUpdateCallback )
+	{
+		m_bracketUpdateCallback.CallVoid( this );
+	}
 
 	if( m_bracketIcon )
 	{

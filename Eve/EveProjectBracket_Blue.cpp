@@ -184,5 +184,28 @@ const Be::ClassInfo* EveProjectBracket::ExposeToBlue()
 			Be::READWRITE
 		)
 
+		MAP_ATTRIBUTE
+		(
+			"bracketUpdateCallback",
+			m_bracketUpdateCallback,
+			"An optional callback that is called whenever the bracket is updated while visible",
+			Be::READWRITE
+		)
+
+		MAP_ATTRIBUTE
+		(
+			"isVisible",
+			m_isVisible,
+			"Visibility state of projected bracket",
+			Be::READ
+		)
+		
+		MAP_ATTRIBUTE
+		(
+			"isInFront",
+			m_isInFront,
+			"Flag telling if project bracket is infront or back of the camera",
+			Be::READ
+		)
 	EXPOSURE_END()
 }

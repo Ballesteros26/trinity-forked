@@ -50,7 +50,8 @@ protected:
 	// If not, the visible flag is toggled depending on off-screen status
 	bool m_dock;
 	bool m_isVisible;
-	
+	bool m_isInFront;
+
 	// Has the visible state been set? Used to ensure that callback gets issued
 	// the first time this is set.
 	bool m_isVisibleStateSet;
@@ -80,6 +81,9 @@ protected:
 
 	// An optional callback to call when the display state is changed
 	BlueScriptCallback m_displayChangeCallback;
+
+	// An optional callback to call when projectBracket is updated
+	BlueScriptCallback m_bracketUpdateCallback;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Outputs - the results from UpdateValue
