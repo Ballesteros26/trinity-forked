@@ -64,8 +64,6 @@ void Tr2Sprite2dLineTrace::GatherSprites( Tr2Sprite2dScene* renderer )
 
 		SetRegularRenderState( renderer );
 
-		renderer->PushTranslation( m_translation );
-
 		m_renderVertices.reserve( GetEstimatedVertexCount() );
 
 		m_length = CalcLength();
@@ -177,13 +175,15 @@ void Tr2Sprite2dLineTrace::GatherSprites( Tr2Sprite2dScene* renderer )
 			lastRelativeLength = relativeLength;
 		}
 
-		renderer->PopTranslation();
-
 		m_isDirty = false;
 	}
 
+	renderer->PushTranslation( m_translation );
+
 	SetValidatedTextures( renderer );
 	renderer->RenderTriangleVerts( &m_renderVertices[0], (unsigned int)m_renderVertices.size(), &m_renderIndices[0], (uint16_t)m_renderIndices.size() );
+
+	renderer->PopTranslation();
 }
 
 ITr2SpriteObject* Tr2Sprite2dLineTrace::PickPoint( float x, float y, Tr2Sprite2dScene* renderer )
