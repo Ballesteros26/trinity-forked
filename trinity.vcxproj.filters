@@ -265,6 +265,9 @@
     <ClInclude Include="Tr2PickBuffer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tr2PointLight.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="Tr2PostProcess.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -1736,6 +1739,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2PickBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tr2PointLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tr2PointLight_Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2PostProcess.cpp">
