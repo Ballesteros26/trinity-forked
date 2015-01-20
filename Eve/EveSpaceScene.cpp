@@ -993,7 +993,10 @@ void EveSpaceScene::RenderObjectsReceivingShadows(	std::vector<ShadowReceiver>& 
 		GetOpaqueBatchesFromRenderables( objectRenderables, m_secondaryBatches );
 
 		FinalizeBatches( m_secondaryBatches );
-		RenderOpaqueBatches( m_secondaryBatches, renderContext );
+		{
+			CCP_STATS_GPU_ZONE( "RenderObjectsReceivingShadoes/RenderOpaqueBatches" );
+			RenderOpaqueBatches( m_secondaryBatches, renderContext );
+		}
 		ClearBatches( m_secondaryBatches );
 	}
 }
@@ -1326,8 +1329,14 @@ bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 			GetAllBatchesFromRenderables( visible, transparentObjects, m_secondaryBatches );
 			PrepareTransparentBatch( transparentObjects, m_secondaryBatches );
 			FinalizeBatches( m_secondaryBatches );
-			RenderOpaqueBatches( m_secondaryBatches, renderContext );
-			RenderTransparentBatches( m_secondaryBatches, renderContext );
+			{
+				CCP_STATS_GPU_ZONE( "RenderBackgroundPass/RenderOpaqueBatches" );
+				RenderOpaqueBatches( m_secondaryBatches, renderContext );
+			}
+			{
+				CCP_STATS_GPU_ZONE( "RenderBackgroundPass/RenderTransparentBatches" );
+				RenderTransparentBatches( m_secondaryBatches, renderContext );
+			}
 			ClearBatches( m_secondaryBatches );
 		}
 		visible.clear();
@@ -1361,6 +1370,8 @@ bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 		RenderTransparentBatches( m_secondaryBatches, renderContext );
 		if( m_secondaryBatches[TRIBATCHTYPE_DISTORTION]->GetBatchCount() > 0 )
 		{
+			CCP_STATS_GPU_ZONE( "RenderBackgroundPass/RenderDistortionBatches" );
+
 			RenderDistortionBatches( m_secondaryBatches, renderContext );
 			doBackgroundDistortion = true;
 		}
@@ -1480,7 +1491,10 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 		objectRenderables.clear();
 	}
 
-	RenderOpaqueBatches( m_primaryBatches, renderContext );	
+	{
+		CCP_STATS_GPU_ZONE( "RenderMainPass/RenderOpaqueBatches" );
+		RenderOpaqueBatches( m_primaryBatches, renderContext );	
+	}
 	RenderObjectsReceivingShadows( m_frameData.objectsReceivingShadow, true, renderContext );
 
 	SetNoShadow();
@@ -1488,8 +1502,14 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 
 	renderContext.m_esm.UnsetAllTextures();
 	renderContext.SetReadOnlyDepth( true );
-	RenderTransparentBatches( m_primaryBatches, renderContext );
-	RenderDistortionBatches( m_primaryBatches, renderContext );
+	{
+		CCP_STATS_GPU_ZONE( "RenderMainPass/RenderTransparentBatches" );
+		RenderTransparentBatches( m_primaryBatches, renderContext );
+	}
+	{
+		CCP_STATS_GPU_ZONE( "RenderMainPass/RenderDistortionBatches" );
+		RenderDistortionBatches( m_primaryBatches, renderContext );
+	}
 	renderContext.m_esm.UnsetAllTextures();
 	renderContext.SetReadOnlyDepth( false );
 
@@ -2263,8 +2283,14 @@ void EveSpaceScene::RenderPlanets( Tr2RenderContext& renderContext )
 	GetAllBatchesFromRenderables( planetRenderables, renderablesWithTransparencies, m_secondaryBatches );
 	PrepareTransparentBatch( renderablesWithTransparencies, m_secondaryBatches );
 	FinalizeBatches( m_secondaryBatches );
-	RenderOpaqueBatches( m_secondaryBatches, renderContext );
-	RenderTransparentBatches( m_secondaryBatches, renderContext );
+	{
+		CCP_STATS_GPU_ZONE( "RenderPlanets/RenderOpaqueBatches" );
+		RenderOpaqueBatches( m_secondaryBatches, renderContext );
+	}
+	{
+		CCP_STATS_GPU_ZONE( "RenderPlanets/RenderTransparentBatches" );
+		RenderTransparentBatches( m_secondaryBatches, renderContext );
+	}
 	ClearBatches( m_secondaryBatches );
 
 	// Put view/projection back to normal

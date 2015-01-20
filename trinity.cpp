@@ -33,6 +33,7 @@
 #include "dxerr.h"
 #endif
 #include "TriError.h"
+#include "TriSettingsRegistrar.h"
 
 #ifndef TRINITYNAME
 #error Please add TRINITYNAME=<PythonModuleName> to compiler preprocessor definitions (/D)
@@ -308,3 +309,4 @@ static const char* GetGrannyProductVersion()
 
 MAP_FUNCTION_AND_WRAP( "GetGrannyProductVersion", GetGrannyProductVersion, "Returns the 'GrannyProductVersion' string as defined by Granny" );
 
+TRI_REGISTER_SETTING( "gpuTelemetryEnabled", g_gpuTelemetryEnabled );
