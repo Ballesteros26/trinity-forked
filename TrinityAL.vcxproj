@@ -1082,6 +1082,7 @@
     <ClInclude Include="Tr2GpuBufferALGLES2.h"/>
     <ClInclude Include="Tr2GpuBufferALOrbis.h"/>
     <ClInclude Include="Tr2GpuBufferALStub.h"/>
+    <ClInclude Include="Tr2GpuTelemetry.h"/>
     <ClInclude Include="Tr2Hal.h"/>
     <ClInclude Include="Tr2HalFuzzing.h"/>
     <ClInclude Include="Tr2HalHelperStructures.h"/>
@@ -1191,6 +1192,7 @@
     <ClCompile Include="Tr2FenceALStub.cpp"/>
     <ClCompile Include="Tr2FragmentOpSettings.cpp"/>
     <ClCompile Include="Tr2GpuBufferALDx11.cpp"/>
+    <ClCompile Include="Tr2GpuTelemetry.cpp"/>
     <ClCompile Include="Tr2HalFuzzing.cpp"/>
     <ClCompile Include="Tr2HalHelperStructures.cpp"/>
     <ClCompile Include="Tr2IndexBufferALDx11.cpp"/>
