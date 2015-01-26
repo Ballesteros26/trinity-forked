@@ -38,6 +38,34 @@ const Be::ClassInfo* Tr2SecondaryWindow::ExposeToBlue()
 			"The title bar text for this window"
 		)
 
+		MAP_PROPERTY
+		(
+			"left",
+			GetLeft, SetLeft,
+			"Left coordinate of window"
+		)
+
+		MAP_PROPERTY
+		(
+			"top",
+			GetTop, SetTop,
+			"Left coordinate of window"
+		)
+
+		MAP_PROPERTY
+		(
+			"width",
+			GetWidth, SetWidth,
+			"The width of the client area of the window"
+		)
+
+		MAP_PROPERTY
+		(
+			"height",
+			GetHeight, SetHeight,
+			"The height of the client area of the window"
+		)
+
 		MAP_ATTRIBUTE
 		(
 			"minWidth",
@@ -54,6 +82,22 @@ const Be::ClassInfo* Tr2SecondaryWindow::ExposeToBlue()
 			Be::READWRITE
 		)
 
+		MAP_ATTRIBUTE
+		(
+			"extendedWindowStyle",
+			m_extendedWindowStyle,
+			"Extended window style applied when creating window",
+			Be::READWRITE
+		)
+		
+		MAP_ATTRIBUTE
+		(
+			"windowStyle",
+			m_windowStyle,
+			"Window style applied when creating window",
+			Be::READWRITE
+		)
+		
 		MAP_METHOD_AND_WRAP
 		(
 			"Create",

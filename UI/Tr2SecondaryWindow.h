@@ -24,11 +24,31 @@ public:
 	std::wstring GetTitle();
 	void SetTitle( const std::wstring& title );
 
+	uint32_t GetWidth() const;
+	void SetWidth(uint32_t val);
+
+	uint32_t GetHeight() const;
+	void SetHeight(uint32_t val);
+
+	uint32_t GetLeft() const;
+	void SetLeft(uint32_t val);
+
+	uint32_t GetTop() const;
+	void SetTop(uint32_t val);
+
+	void SetWindowDimensions( uint32_t left, uint32_t top, uint32_t width, uint32_t height );
+
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM w, LPARAM l);
 
 protected:
 	HWND m_handle;
 	std::wstring m_windowTitle;
+	uint32_t m_extendedWindowStyle;
+	uint32_t m_windowStyle;
+	uint32_t m_left;
+	uint32_t m_top;
+	uint32_t m_width;
+	uint32_t m_height;
 	uint32_t m_minWidth;
 	uint32_t m_minHeight;
 
