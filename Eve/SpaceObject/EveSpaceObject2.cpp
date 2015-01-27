@@ -662,27 +662,27 @@ void EveSpaceObject2::GetBatchesFromOverlayVector( ITriRenderBatchAccumulator* b
 		if ( success )
 		{
 		
-			for (auto eff = effects.begin(); eff != effects.end(); ++eff )
+			for( auto eff = effects.begin(); eff != effects.end(); ++eff )
 			{
 				Tr2EffectPtr effect = *eff;
 
 				// add all mesh area blocks
 				for( auto areaBlock = m_overlayMeshAreaBlocks.begin(); areaBlock != m_overlayMeshAreaBlocks.end(); ++areaBlock )
 				{
-				TriGeometryBatch* batch = batches->Allocate<TriGeometryBatch>();
-				// Note that this can fail if the accumulator can't add more batches!
-				if( batch )
-				{
-					batch->SetShaderMaterial( effect );
-					batch->SetPerObjectData( perObjectData );
-					batch->SetGeometryResource( geomRes );
+					TriGeometryBatch* batch = batches->Allocate<TriGeometryBatch>();
+					// Note that this can fail if the accumulator can't add more batches!
+					if( batch )
+					{
+						batch->SetShaderMaterial( effect );
+						batch->SetPerObjectData( perObjectData );
+						batch->SetGeometryResource( geomRes );
 						batch->SetMeshParameters( meshIx, areaBlock->m_startIndex, areaBlock->m_count );
-					batches->Commit( batch );
+						batches->Commit( batch );
+					}
 				}
 			}
 		}
 	}
-}
 }
 
 void EveSpaceObject2::RebuildDamageLocatorCache()
