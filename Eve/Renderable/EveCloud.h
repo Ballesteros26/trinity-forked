@@ -1,0 +1,104 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   February 2015
+//    Copyright: CCP 2015
+//
+
+#pragma once
+#ifndef EveCloud_H
+#define EveCloud_H
+
+#include "ITr2Renderable.h"
+#include "ITr2GeometryProvider.h"
+#include "Eve/IEveSpaceObject2.h"
+#include "Tr2Renderer.h"
+
+BLUE_DECLARE( EveCloudEditableVolume );
+
+
+// --------------------------------------------------------------------------------
+// Description:
+//   A space object used for rendering volumetric clouds. Renders a camera-aligned
+//   plane at the back of the object's bounding sphere using provided effect.
+// --------------------------------------------------------------------------------
+BLUE_CLASS( EveCloud ) :
+	public IEveSpaceObject2,
+	public ITr2Renderable,
+	public ITr2GeometryProvider,
+	public Tr2DeviceResource,
+	public IInitialize,
+	public INotify
+{
+public:
+	EXPOSE_TO_BLUE();
+
+	EveCloud(IRoot* lockobj = NULL);
+	~EveCloud();
+
+	//////////////////////////////////////////////////////////////////////////
+	// IInitialize
+	virtual bool Initialize();
+
+	//////////////////////////////////////////////////////////////////////////
+	// INotify
+	virtual bool OnModified( Be::Var* value );
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	// IEveSpaceObject2
+	void UpdateSyncronous( EveUpdateContext& updateContext );
+	void UpdateAsyncronous( EveUpdateContext& updateContext );
+	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
+	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
+	void UpdateViewDistanceInfo( const TriFrustum& frustum, ViewDistanceInfo& viewDistance ) const;
+	void RenderDebugInfo( Tr2RenderContext& renderContext );
+	void GetModelCenterWorldPosition( Vector3 &position, Be::Time t );
+	void GetCurrentModelCenterWorldPosition( Vector3 &position );
+	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max );
+	void GetLocalToWorldTransform( Matrix &transform );
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2Renderable
+	virtual void GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData );
+	virtual bool HasTransparentBatches();
+	virtual float GetSortValue();
+	virtual Tr2PerObjectData* GetPerObjectData( ITriRenderBatchAccumulator* accumulator );
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	// ITr2GeometryProvider
+	virtual void SubmitGeometry( Tr2RenderContext& renderContext );
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	// ITriDeviceResource
+	virtual void ReleaseResources( TriStorage s );
+private:
+	bool OnPrepareResources();
+	void BoxModified();
+
+	// data for positioning
+	Matrix m_worldTransform;
+
+	// bounding sphere
+	Vector4 m_boundingSphere;
+
+	ITr2ShaderMaterialPtr m_effect;
+
+	Vector3 m_scaling;
+	Quaternion m_rotation;
+	Vector3 m_translation;
+
+	uint32_t m_preTesselationLevel;
+
+	uint32_t m_declaration;
+	Tr2VertexBufferAL m_vertexBuffer;
+	Tr2IndexBufferAL m_indexBuffer;
+
+	std::string m_name;
+	bool m_display;
+
+	EveCloudEditableVolumePtr m_volume;
+};
+
+TYPEDEF_BLUECLASS( EveCloud );
+BLUE_DECLARE_VECTOR( EveCloud );
+
+#endif
