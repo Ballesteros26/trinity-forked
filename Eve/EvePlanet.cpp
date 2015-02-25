@@ -26,6 +26,7 @@ EvePlanet::EvePlanet( IRoot* lockobj ) :
 	m_needResources( false ),
 	m_resourceActionPending( false ),
 	m_forceResourceLoading( false ),
+	m_renderScale( SCALE ),
 	m_scaling( 1.0f ),
 	m_radius( 1.0f ),
 	m_currentTextureSize( 0 ),
@@ -225,13 +226,13 @@ int EvePlanet::CalcRequiredTextureSize( float maxDiameter )
 // Return value:
 //   Returns the pixel diameter
 // --------------------------------------------------------------------------------
-float EvePlanet::EstimatePixelDiameterPos( const Vector3* scaledPlanetCenter, float tanFOV ) const
+float EvePlanet::EstimatePixelDiameterPos( const Vector3* scaledPlanetCenter, float tanFOV, float scale ) const
 {
 	// calc distance
 	Vector3 d( *scaledPlanetCenter - Tr2Renderer::GetViewPosition() );
 	float depth = D3DXVec3Length( &d );
 
-	return EstimatePixelDiameterDist( depth, tanFOV );
+	return EstimatePixelDiameterDist( depth, tanFOV, scale );
 }
 
 // --------------------------------------------------------------------------------
@@ -243,12 +244,12 @@ float EvePlanet::EstimatePixelDiameterPos( const Vector3* scaledPlanetCenter, fl
 // Return value:
 //   Returns the medium lod threshold for planets
 // --------------------------------------------------------------------------------
-float EvePlanet::EstimatePixelDiameterDist( float scaledDistance, float tanFOV ) const
+float EvePlanet::EstimatePixelDiameterDist( float scaledDistance, float tanFOV, float scale ) const
 {
 	float halfWidthProjection = Tr2Renderer::GetViewport().width * 0.5f / tanFOV;
 
 	// get radius od 
-	float radius = m_radius / SCALE;
+	float radius = m_radius / scale;
 
 	// clamp values close to zero and below
 	const float epsilon = 1e-5f;
@@ -270,7 +271,7 @@ void EvePlanet::PrepareForWarp(float minDist, const Vector3& dest)
 {
 	m_warpMode = true;
 
-	float distEstimatedMinSize = EstimatePixelDiameterDist( minDist / SCALE, 1.f / Tr2Renderer::GetProjectionTransform()._11 );
+	float distEstimatedMinSize = EstimatePixelDiameterDist( minDist / m_renderScale, 1.f / Tr2Renderer::GetProjectionTransform()._11, m_renderScale );
 
 	if( distEstimatedMinSize > GetVisibilityThreshold() )
 	{
@@ -330,15 +331,15 @@ void EvePlanet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rende
 		return;
 	}
 
-	// get the center of the planet in scaled(!) space
 	Matrix planetScaleTransform;
-	D3DXMatrixScaling( &planetScaleTransform, 1.f / SCALE, 1.f / SCALE, 1.f / SCALE );
+	D3DXMatrixScaling( &planetScaleTransform, 1.f / m_renderScale, 1.f / m_renderScale, 1.f / m_renderScale );
+
 	Matrix scaledTransform;
 	D3DXMatrixMultiply( &scaledTransform, &m_worldTransform, &planetScaleTransform );
 
 	// pixel diameters, also for the max possible
-	float estimatedPixelDiameter = EstimatePixelDiameterPos( (const Vector3*)&scaledTransform._41, 1.f / Tr2Renderer::GetProjectionTransform()._11 );
-	float estimatedMaxPixelDiameter = EstimatePixelDiameterPos( (const Vector3*)&scaledTransform._41, tanf( FOV_MIN / 2.f ) );
+	float estimatedPixelDiameter = EstimatePixelDiameterPos( (const Vector3*)&scaledTransform._41, 1.f / Tr2Renderer::GetProjectionTransform()._11, m_renderScale );
+	float estimatedMaxPixelDiameter = EstimatePixelDiameterPos( (const Vector3*)&scaledTransform._41, tanf( FOV_MIN / 2.f ), m_renderScale );
 	
 	if(!m_warpMode)
 	{
@@ -389,4 +390,9 @@ float EvePlanet::GetVisibilityThreshold() const
 float EvePlanet::GetMediumDetailThreshold() const
 {
 	return g_eveSpaceSceneMediumDetailThreshold * 1.5f;
+}
+
+void EvePlanet::SetRenderScale( float value )
+{
+	m_renderScale = value;
 }

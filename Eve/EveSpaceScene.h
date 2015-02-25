@@ -346,6 +346,9 @@ protected:
 	unsigned int m_shadowCasterMaxCount;
 	float m_shadowCameraDistance;
 
+	float m_planetScale;
+	float m_planetCameraScale;
+
 	// main shadow map
 	TriShadowMapPtr m_shadowMap;
 

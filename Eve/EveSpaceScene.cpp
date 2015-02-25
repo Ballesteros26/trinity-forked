@@ -156,7 +156,9 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_farClip( 0.0f ),
 	m_fogType( 0.f ),
 	m_fogBlur( 0.f ),
-	m_nebulaIntensity( 1.f )
+	m_nebulaIntensity( 1.f ),
+	m_planetScale( 1e6 ),
+	m_planetCameraScale( 1e6 )
 {
 	TriPoolAllocator* allocator = Tr2Renderer::GetPoolAllocator();
 	m_primaryBatches[TRIBATCHTYPE_OPAQUE] = CCP_NEW( "EveSpaceScene/m_batches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
@@ -2266,6 +2268,7 @@ void EveSpaceScene::RenderPlanets( Tr2RenderContext& renderContext )
 	for( EvePlanetVector::iterator it = m_planets.begin(); it != m_planets.end(); ++it )
 	{
 		EvePlanet* obj = *it;
+		obj->SetRenderScale( m_planetScale );
 		obj->GetRenderables( frustum, planetRenderables, Tr2Renderer::GetIdentityTransform() );
 	}
 
@@ -2309,7 +2312,7 @@ Matrix EveSpaceScene::SetupPlanetViewMatrix()
 {
 	Matrix orgViewMatrix = Tr2Renderer::GetViewTransform();
 	Matrix planetViewMatrix = orgViewMatrix;
-	const float planetScale = 1.0f / EvePlanet::SCALE;
+	const float planetScale = 1.0f / m_planetCameraScale;
 	Vector3& viewPos = planetViewMatrix.GetTranslation();
 	D3DXVec3Scale( &viewPos, &viewPos, planetScale );
 	Tr2Renderer::SetViewTransform( planetViewMatrix );

@@ -18,10 +18,10 @@ class TriFrustum;
 struct ITr2Renderable;
 struct ViewDistanceInfo;
 
-class EvePlanet:
+BLUE_CLASS( EvePlanet ):
 	public IWorldPosition,
-	public Tr2DeviceResource,
-	public ITr2SecondaryLightSource
+	public ITr2SecondaryLightSource,
+	public Tr2DeviceResource
 {
 public:
     EXPOSE_TO_BLUE();
@@ -32,6 +32,7 @@ public:
 	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
 	void GetZOnlyRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables );
 	void UpdateViewDistanceInfo( const TriFrustum& frustum, ViewDistanceInfo& viewDistance ) const;
+	void SetRenderScale( float value );
 
 	static const float SCALE;
 
@@ -60,8 +61,8 @@ private:
 	float GetMediumDetailThreshold() const;
 
 	// calc pixel diameters
-	float EstimatePixelDiameterPos( const Vector3* scaledPlanetCenter, float tanFOV ) const;
-	float EstimatePixelDiameterDist( float scaledDistance, float tanFOV ) const;
+	float EstimatePixelDiameterPos( const Vector3* scaledPlanetCenter, float tanFOV, float scale ) const;
+	float EstimatePixelDiameterDist( float scaledDistance, float tanFOV, float scale ) const;
 
 	// calc current texture size
 	int CalcRequiredTextureSize( float maxDiameter );
@@ -86,6 +87,8 @@ private:
 	int m_requiredTextureSize;		// Heightmap texture size the planet needs
 
 	BlueScriptCallback m_pythonResourceCallback;
+
+	float m_renderScale;
 
 	float m_scaling;
 	float m_radius;

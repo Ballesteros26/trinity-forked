@@ -245,6 +245,26 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 		)
 		
 		MAP_ATTRIBUTE
+		(
+			"planetScale",
+			m_planetScale,
+			"Scaling factor applied to planets when rendering. This should normally be the same\n"
+			"as the planetCameraScale to have planets render correctly with other objects in the\n"
+			"scene.",
+			Be::READWRITE | Be::PERSIST
+		)
+
+		MAP_ATTRIBUTE
+		(
+			"planetCameraScale",
+			m_planetCameraScale,
+			"Scaling factor applied to the camera when rendering planets. This should normally be the same\n"
+			"as the planetScale to have planets render correctly with other objects in the scene, but can\n"
+			"be changed independently to simulate moving the camera away.",
+			Be::READWRITE | Be::PERSIST
+		)
+
+		MAP_ATTRIBUTE
 		( 
 			"distanceFields", 
 			m_distanceFields, 
