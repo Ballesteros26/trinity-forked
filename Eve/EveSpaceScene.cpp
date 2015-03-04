@@ -586,7 +586,7 @@ void EveSpaceScene::PrepareShadowMap(
 	D3DXMatrixTranspose( &m_perFrameVS.ShadowViewMat, &lightView );
 	D3DXMatrixTranspose( &m_perFrameVS.ShadowViewProjectionMat, &lightViewProj );
 
-	m_perFramePS.CameraRange = data.CameraRange;
+	m_perFramePS.ShadowCameraRange = data.CameraRange;
 
 	m_shadowBatches->Clear();
 
@@ -1855,8 +1855,7 @@ void EveSpaceScene::PopulatePerFramePSData( PerFramePSData &data )
 	data.FovXY.x = data.FovXY.y * Tr2Renderer::GetAspectRatio();
 
 	// disable shadows per default
-	data.CameraRange.x = 1.f;
-	data.CameraRange.y = 0.f;
+	data.ShadowCameraRange = Vector2( 1.f, 0.f );
 
 	data.ViewportOffset.x = (float)Tr2Renderer::GetViewport().x;
 	data.ViewportOffset.y = (float)Tr2Renderer::GetViewport().y;
@@ -1879,6 +1878,8 @@ void EveSpaceScene::PopulatePerFramePSData( PerFramePSData &data )
 	const Matrix& projection = Tr2Renderer::GetProjectionTransform();
 	data.ProjectionToView.x = projection._43;
 	data.ProjectionToView.y = projection._33;
+
+	data.Debug = 0.f;
 }
 
 bool EveSpaceScene::Initialize()
@@ -2328,8 +2329,7 @@ void EveSpaceScene::SetNoShadow()
 		m_shadowMap->SetShadowTexture( true );
 	}
 
-	m_perFramePS.CameraRange.x = 1.f;
-	m_perFramePS.CameraRange.y = 0.f;
+	m_perFramePS.ShadowCameraRange = Vector2( 1.f, 0.f );
 }
 
 void EveSpaceScene::GetPickingResults( Tr2PickBuffer& pickBuffer, Tr2RenderContext& renderContext, 

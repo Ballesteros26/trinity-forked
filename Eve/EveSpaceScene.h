@@ -209,27 +209,33 @@ protected:
 		SunData Sun;
 		Vector3 AmbientColor;
 		float NebulaIntensity;
-		Vector4 FogColor; 
+		Vector4 FogColor;
 
-		Vector2 CameraRange;
+		// ViewportOffsetSize
 		Vector2 ViewportOffset;
-		// pass resolution to pixelshader, can be usefull in some crazy shaders
+		Vector2 ViewportSize;
+
+		// RenderTargetData
 		Vector2 TargetResolution;
-		// pass fov x and y
+		float DepthMapSampleCount;
+		float Debug;
+
+		// ShadowMapSettings
+		Vector4 ShadowMapSettings;
+
+		// ShadowMapSettings2
+		Vector2 ShadowCameraRange;
+		float ShadowLightness;
+		float unused1;
+
+		// ProjectionData
+		Vector2 ProjectionToView;
 		Vector2 FovXY;
 
-		Vector4 ShadowMapSettings;
+		// MiscData
 		float Time;
-		float ShadowLightness;
-		Vector2 ViewportSize;
-		float DepthMapSampleCount;
 		Vector2 FogFactors;
 		float GammaBrightness;
-
-		// Contains projection[3][2] and projection[2][2].
-		// Used for deriving view space depth from clip space depth.
-		Vector2 ProjectionToView;
-		Vector2 unused;
 	};
 
 	// Per-frame vertex constants for rendering scene
