@@ -55,7 +55,7 @@ public:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Overrides of animation controller
-	virtual bool ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data );
+	virtual bool ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data, const std::map<std::string, float>& parameters );
 
 	// re-positions all attached turrets to the corresponding locators
 	void RebuildTurretPositions();
@@ -69,7 +69,7 @@ public:
     /////////////////////////////////////////////////////////////////////////////////////
 	// clip sphere modification
 	void PlayClipSphereFactorCurve();
-	void ModifyClipSphereCurve( float curveLength, float timeElapsed );
+	void ModifyClipSphereCurve( const std::map<std::string, float>& parameters );
 
 protected:
 	/////////////////////////////////////////////////////////////////////////////////////

@@ -572,7 +572,6 @@ void EveMobile::PlayActivationCurve()
 // --------------------------------------------------------------------------------
 void EveMobile::PlayClipSphereFactorCurve()
 {
-	m_clipSphereFactorDelta = 0.0f;
 	m_playClipSphereFactorCurve = true;
 }
 
@@ -580,9 +579,19 @@ void EveMobile::PlayClipSphereFactorCurve()
 // Description:
 //   Modifies the clip sphere curve by setting it's length and the time elapsed
 // --------------------------------------------------------------------------------
-void EveMobile::ModifyClipSphereCurve( float curveLength, float timeElapsed )
+void EveMobile::ModifyClipSphereCurve( const std::map<std::string, float>& parameters )
 {
-	m_clipSphereFactorDelta = timeElapsed;
+	m_clipSphereFactorDelta = 0;
+	if( parameters.find( "elapsedTime" ) != parameters.end() )
+	{
+		m_clipSphereFactorDelta = parameters.at( "elapsedTime" );
+	}
+
+	float curveLength = 1.0;
+	if( parameters.find( "curveLength" ) != parameters.end() )
+	{
+		curveLength = parameters.at( "curveLength" );
+	}
 	m_clipSphereFactorCurve->ScaleTime( curveLength );
 }
 
@@ -592,7 +601,7 @@ void EveMobile::ModifyClipSphereCurve( float curveLength, float timeElapsed )
 // Return Value:
 //   Returns true if this implementation has handled the command.
 // --------------------------------------------------------------------------------
-bool EveMobile::ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data )
+bool EveMobile::ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data, const std::map<std::string, float>& parameters )
 {
 	switch( cmd )
 	{
@@ -661,6 +670,8 @@ bool EveMobile::ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::st
 			}
 
 			m_clipSphereFactorCurve = ptr;
+
+			ModifyClipSphereCurve( parameters );			
 			PlayClipSphereFactorCurve();
 		}
 		return true;
@@ -672,7 +683,7 @@ bool EveMobile::ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::st
 
 	default:
 		// not handled here, so pass it up the chain
-		return EveSpaceObject2::ExecuteAnimationStateCommand( cmd, data );
+		return EveSpaceObject2::ExecuteAnimationStateCommand( cmd, data,  parameters );
 	}
 	return false;
 }

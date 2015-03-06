@@ -34,6 +34,8 @@ public:
 	void Stop( EveAnimationStateMachine* sm, EveSpaceObject2* owner );
 	void Update( Be::Time time, EveSpaceObject2* owner );
 	
+	void SetParameter( std::string parameterName, float parameterValue );
+
 	EveAnimationStateProgress GetProgress() const { return m_progress; }
 	const std::string& GetName() const { return m_name; }
 	const char* GetTransition( const std::string& stateName ) const;
@@ -57,6 +59,8 @@ private:
 	float m_startTime;
 	float m_animationDuration;
 	float m_secondsRemaining;
+
+	std::map<std::string, float> m_parameters;
 
 	void PlayCurves( EveSpaceObject2* owner );
 	void ExecuteCommands( EveSpaceObject2* owner );

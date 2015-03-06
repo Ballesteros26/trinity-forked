@@ -205,7 +205,7 @@ public:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// animation controller
-	virtual bool ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data );
+	virtual bool ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data, const std::map<std::string, float>& parameters );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2ShLightingReceiver
@@ -436,7 +436,7 @@ protected:
 	Vector3d m_previousPosition;
 	Tr2BindingVector3Ptr m_positionDelta;
 	PTriCurveSetVector m_curveSets;
-
+	
 private:
 	bool m_isAnimated;
 	EveAnimationSequencerPtr m_animationSequencer;

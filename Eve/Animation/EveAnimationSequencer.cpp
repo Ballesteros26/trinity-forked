@@ -129,6 +129,20 @@ void EveAnimationStateMachine::GoToState( EveSpaceObject2* owner, const std::str
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Sets state parameters
+// --------------------------------------------------------------------------------
+void EveAnimationStateMachine::SetStateParameter( const std::string& stateName, const std::string& parameterName, float parameterValue )
+{
+	EveAnimationStatePtr state = GetAnimationState( stateName, m_states );
+	if( !state )
+	{
+		return;
+	}
+	state->SetParameter( parameterName, parameterValue );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Check if the current state is complete and swap for a new state if one is
 //   available.
 // --------------------------------------------------------------------------------
@@ -259,6 +273,14 @@ void EveAnimationSequencer::GoToState( const std::string& name )
 	}
 }
 
+void EveAnimationSequencer::SetStateParameter( const std::string& stateName, const std::string& parameterName, float parameterValue )
+{
+	for( auto it = m_stateMachines.begin(); it != m_stateMachines.end(); it++ )
+	{
+		(*it)->SetStateParameter( stateName, parameterName, parameterValue);		
+	}
+	
+}
 
 void EveAnimationSequencer::OnListModified(
 	long event,

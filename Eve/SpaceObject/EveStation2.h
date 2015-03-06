@@ -26,7 +26,7 @@ public:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Overrides of animation controller
-	virtual bool ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data );
+	virtual bool ExecuteAnimationStateCommand( EveAnimationCmd cmd, const std::string& data, const std::map<std::string, float>& parameters );
 
 private:
 	/////////////////////////////////////////////////////////////////////////////////////

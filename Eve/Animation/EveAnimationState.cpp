@@ -73,9 +73,13 @@ void EveAnimationState::UpdateDuration( EveAnimationStateMachine* sm, EveSpaceOb
 // --------------------------------------------------------------------------------
 // Description:
 //   Deactivate this state. May take a while to wind down.
+// Side Effect:
+//   Empties out m_parameters
 // --------------------------------------------------------------------------------
 void EveAnimationState::Stop( EveAnimationStateMachine* sm, EveSpaceObject2* owner )
 {
+	m_parameters.clear();
+
 	m_progress = EVE_ANIM_FINALIZING;
 	EndAnimation( sm, owner );
 }
@@ -105,6 +109,20 @@ void EveAnimationState::Start( EveAnimationStateMachine* sm, EveSpaceObject2* so
 
 	PlayAnimation( sm, so );
 	UpdateDuration( sm, so );
+}
+
+// --------------------------------------------------------------------------------
+// Description: 
+//	 Sets a parameter value to a parameter name
+// Arguments: 
+//   parameterName - the name of the parameter
+//   parameterValue - the value of the parameter
+// Side Effect:
+//   sets m_parameters[parameterName] to parameterValue
+// --------------------------------------------------------------------------------
+void EveAnimationState::SetParameter( std::string parameterName, float parameterValue )
+{
+	m_parameters[parameterName] = parameterValue;
 }
 
 // --------------------------------------------------------------------------------
@@ -156,13 +174,13 @@ void EveAnimationState::ExecuteCommands( EveSpaceObject2* owner )
 	{
 		for( auto it = m_initCommands.cbegin(); it != m_initCommands.cend(); it++ )
 		{
-			owner->ExecuteAnimationStateCommand( (*it)->m_command, (*it)->m_data );
+			owner->ExecuteAnimationStateCommand( (*it)->m_command, (*it)->m_data, m_parameters );
 		}
 	}
 	
 	for( auto it = m_commands.cbegin(); it != m_commands.cend(); it++ )
 	{
-		owner->ExecuteAnimationStateCommand( (*it)->m_command, (*it)->m_data );
+		owner->ExecuteAnimationStateCommand( (*it)->m_command, (*it)->m_data, m_parameters );
 	}
 }
 
