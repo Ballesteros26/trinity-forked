@@ -1,24 +1,20 @@
 #include "StdAfx.h"
-#include "TriNearestBoundingPoint.h"
+#include "EveLocalPositionCurve.h"
+#include "Vector3d.h"
 
-TriNearestBoundingPoint::TriNearestBoundingPoint(IRoot* lockobj) :
+EveLocalPositionCurve::EveLocalPositionCurve(IRoot* lockobj) :
 	m_value( 0.0f, 0.0f, 0.0f ),
-	m_boundingBoxSize( 0.0f, 0.0f, 0.0f )
+	m_boundingBoxSize( 0.0f, 0.0f, 0.0f ),
+	m_index( -1 ),
+	m_behavior ( POS_NONE )
 {	
 }
 
-TriNearestBoundingPoint::~TriNearestBoundingPoint()
+EveLocalPositionCurve::~EveLocalPositionCurve()
 {
 }
-/////////////////////////////////////////////////////////////////////////////////////
-// ITriFunction
-/////////////////////////////////////////////////////////////////////////////////////
 
-
-Vector3* TriNearestBoundingPoint::Update(
-	Vector3* in,
-	Be::Time t
-	)
+Vector3* EveLocalPositionCurve::CalculateNearestBoundingPoint( Vector3* in, Be::Time t )
 {	
 	if (m_parentPositionCurve && m_alignPositionCurve && m_parentRotationCurve)
 	{
@@ -76,95 +72,147 @@ Vector3* TriNearestBoundingPoint::Update(
 		}
 
 		// Apply the scaling to the original direction vector
-		m_value.x = pt.x + (dir.x * scalingValue);
-		m_value.y = pt.y + (dir.y * scalingValue);
-		m_value.z = pt.z + (dir.z * scalingValue);
-
-		in->x = m_value.x;
-		in->y = m_value.y;
-		in->z = m_value.z;
+		in->x = pt.x + (dir.x * scalingValue);
+		in->y = pt.y + (dir.y * scalingValue);
+		in->z = pt.z + (dir.z * scalingValue);
 	}
 	else if (m_parentPositionCurve)
 	{
 		Vector3 pt;
 		m_parentPositionCurve->GetValueAt( &pt, t );
 		// If we don't have an align transform, just put it at the center of the Parent
-		m_value.x = pt.x;
-		m_value.y = pt.y;
-		m_value.z = pt.z;
-
-		in->x = m_value.x;
-		in->y = m_value.y;
-		in->z = m_value.z;
+		in->x = pt.x;
+		in->y = pt.y;
+		in->z = pt.z;
 	}
 	return in;
 }
 
-Vector3* TriNearestBoundingPoint::Update(
+Vector3* EveLocalPositionCurve::GetCenterBoundingSphere( Vector3* in, Be::Time t )
+{	
+	if( m_parentObject )
+	{
+		Vector3 tr;
+		m_parentObject->GetModelCenterWorldPosition( tr, t );
+
+		in->x = tr.x;
+		in->y = tr.y;
+		in->z = tr.z;
+	}
+	return in;
+}
+
+Vector3* EveLocalPositionCurve::GetDamageLocator( Vector3* in, Be::Time t )
+{	
+	if( m_alignPositionCurve && m_parentObject )
+	{
+		ITriTargetablePtr target;
+		if( !m_parentObject->QueryInterface( BlueInterfaceIID<ITriTargetable>(), (void**)&target ) )
+		{
+			CCP_LOGERR( "Parent object is not targetable. Unable to get valid damage locators." );
+			return in;
+		}
+
+		if ( m_index == -1 )
+		{
+			Vector3 parentPos;
+			m_alignPositionCurve->GetValueAt( &parentPos, t );
+			m_index = target->GetGoodDamageLocatorIndex( parentPos );
+		}
+
+		Vector3 locatorPos;
+		target->GetDamageLocatorPosition( &locatorPos, m_index );
+
+		in->x = locatorPos.x;
+		in->y = locatorPos.y;
+		in->z = locatorPos.z;
+	}
+	return in;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+// ITriFunction
+/////////////////////////////////////////////////////////////////////////////////////
+
+Vector3* EveLocalPositionCurve::Update(
 	Vector3* in,
-	double t
+	Be::Time t
 	)
+{
+	switch( m_behavior )
+	{
+	case POS_NEAREST_BOUNDING_POINT:
+		return CalculateNearestBoundingPoint( in, t );
+	case POS_CENTER_BOUNDING_POINT:
+		return GetCenterBoundingSphere( in, t );
+	case POS_TARGET_DMG_LOCATOR:
+		return GetDamageLocator( in, t );
+	default:
+		break;
+	}
+
+	m_value.x = in->x;
+	m_value.y = in->y;
+	m_value.z = in->z;
+
+	return in;
+}
+
+Vector3* EveLocalPositionCurve::Update( Vector3* in, double time )
 {
 	return in;
 }
 
+Vector3* EveLocalPositionCurve::GetValueAt( Vector3* in, Be::Time time )
+{
+	in->x = m_value.x;
+	in->y = m_value.y;
+	in->z = m_value.z;
+	Update( in, time );
+	return in;
 
-Vector3* TriNearestBoundingPoint::GetValueAt(
-	Vector3* in,
-	Be::Time now
-	)
+}
+
+Vector3* EveLocalPositionCurve::GetValueAt( Vector3* in, double time )
+{
+	in->x = m_value.x;
+	in->y = m_value.y;
+	in->z = m_value.z;
+
+	return in;
+}
+
+Vector3* EveLocalPositionCurve::GetValueDoubleDotAt( Vector3* in, Be::Time time )
 {
 	return in;
 }
 
-	
-
-Vector3* TriNearestBoundingPoint::GetValueAt(
-	Vector3* in,
-	double pos
-	)
+Vector3* EveLocalPositionCurve::GetValueDoubleDotAt( Vector3* in, double time )
 {
 	return in;
 }
 
-Vector3* TriNearestBoundingPoint::GetValueDoubleDotAt(
-	Vector3* in,
-	Be::Time now
-	)
+Vector3* EveLocalPositionCurve::GetValueDotAt( Vector3* in, Be::Time time )
 {
 	return in;
 }
 
-
-Vector3* TriNearestBoundingPoint::GetValueDoubleDotAt(
-	Vector3* in,
-	double pos
-	)
+Vector3* EveLocalPositionCurve::GetValueDotAt( Vector3* in, double time )
 {
 	return in;
 }
 
-
-Vector3* TriNearestBoundingPoint::GetValueDotAt(
-	Vector3* in,
-	Be::Time now
-	)
+Vector3d*  EveLocalPositionCurve::InterpolatedPosition( Vector3d* out, Be::Time time )
 {
-	return in;
-}
+	out->x = m_value.x;
+	out->y = m_value.y;
+	out->z = m_value.z;
 
-Vector3* TriNearestBoundingPoint::GetValueDotAt(
-	Vector3* in,
-	double pos
-	)
-{
-	return in;
-}
-
-Vector3d*  TriNearestBoundingPoint::InterpolatedPosition(
-	Vector3d* out,
-	Be::Time time
-	)
-{
 	return out;
+
+}
+
+void EveLocalPositionCurve::SetBehavior( LocalPositionBehavior behavior )
+{
+	m_behavior = behavior;
 }

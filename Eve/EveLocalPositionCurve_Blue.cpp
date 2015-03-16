@@ -1,0 +1,111 @@
+#include "StdAfx.h"
+#include "EveLocalPositionCurve.h"
+
+BLUE_DEFINE( EveLocalPositionCurve );
+
+Be::VarChooser EveLocalPositionChooser[] =
+{
+	{
+		"none",     
+		BeCast( EveLocalPositionCurve::POS_NONE ),     
+		"No position."
+	},
+	{
+		"nearestBounds",
+		BeCast( EveLocalPositionCurve::POS_NEAREST_BOUNDING_POINT ),     
+		"use the closest point on the ellyptical bounding sphere of the parent object."
+	},
+	{
+		"centerBounds",
+		BeCast( EveLocalPositionCurve::POS_CENTER_BOUNDING_POINT),
+		"Use the center of the bounding sphere of the parent object."
+	},
+	{
+		"damageLocator",
+		BeCast( EveLocalPositionCurve::POS_TARGET_DMG_LOCATOR ),
+		"Use a damage locator of the target object."
+	},
+	{ 0 }
+};
+
+BLUE_REGISTER_ENUM_EX( 
+    "EveLocalPositionBehavior", 
+	EveLocalPositionCurve::LocalPositionBehavior, 
+    EveLocalPositionChooser,
+    ENUM_REG_ENUM_OBJECT_ON_MODULE
+);
+
+const Be::ClassInfo* EveLocalPositionCurve::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( EveLocalPositionCurve, "" )
+		MAP_INTERFACE( ITriVectorFunction )
+		
+		MAP_ATTRIBUTE_WITH_CHOOSER
+		( 
+			"behavior",
+			m_behavior,
+			"Chooses between position calculation behaviour.",
+			Be::READWRITE | Be::ENUM, 
+			EveLocalPositionChooser
+		)
+
+		MAP_ATTRIBUTE
+		( 
+			"parentPositionCurve",        
+			m_parentPositionCurve,
+			"na", 
+			Be::READWRITE | Be::PERSIST
+		)
+		MAP_ATTRIBUTE
+		(    
+			"parentRotationCurve",
+			m_parentRotationCurve,
+			"na",
+			Be::READWRITE
+		)
+
+		MAP_ATTRIBUTE
+		( 
+			"alignPositionCurve",        
+			m_alignPositionCurve,
+			"na", 
+			Be::READWRITE | Be::PERSIST
+		)
+
+		MAP_ATTRIBUTE
+		( 
+			"parent",
+			m_parentObject,
+			"na",
+			Be::READWRITE
+		)
+
+		MAP_ATTRIBUTE
+		(  
+			"value",         
+			m_value,         
+			"na", 
+			Be::READWRITE | Be::PERSIST
+		)
+
+		MAP_ATTRIBUTE
+		(  
+			"boundingSize",         
+			m_boundingBoxSize,         
+			"na", 
+			Be::READWRITE | Be::PERSIST
+		)
+
+		MAP_METHOD_AND_WRAP_OPTIONAL_ARGS
+		(
+			"__init__",
+			SetBehavior,
+			1,
+			"Create a EveLocalPostitionCurve with a render step that issues a Python callback\n"
+			"\n"
+			"Optional argument:\n"
+			"  cb - A Python callable (default None)"
+		)
+
+	EXPOSURE_END()
+}
