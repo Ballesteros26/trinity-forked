@@ -23,7 +23,7 @@
 #include "Eve/SpaceObject/Attachments/EveMeshOverlayEffect.h"
 
 // consts
-#define EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT (0.55f)
+#define EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT (0.f)
 
 // forwards
 BLUE_DECLARE( EveSpaceObject2 );
