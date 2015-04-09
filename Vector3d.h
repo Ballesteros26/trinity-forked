@@ -427,6 +427,11 @@ public:
 		z = zt;
 		return *this;
 	};
+	
+	double Dot( const Vector3d& other )
+	{
+		return x*other.x + y*other.y + z*other.z;
+	};
 
 	// The x-component of the vector
 	double x;

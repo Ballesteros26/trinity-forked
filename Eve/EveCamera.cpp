@@ -627,3 +627,20 @@ Matrix EveCamera::ModifyClipPlanes( const Matrix& original, float nearClip, floa
 
 	return projection;
 }
+
+Matrix EveCamera::AddCenterOffset( const Matrix& original, float xOffset, float yOffset, float nearClip, float farClip )
+{
+	Matrix projection( original );
+	float aspectRatio = ( projection._11 ? projection._22 / projection._11 : 0.0f );
+
+	float fov = EveCamera::CalculateFovFromProjection( projection );
+
+	// Now we have to see if our projection is off center.
+	// see DirectX documentation for D3DXMatrixPerspectiveOffCenter
+	float centerOffsetX = original._31 + xOffset;
+	float centerOffsetY = original._32 + yOffset;
+
+	EveCamera::CalculateProjectionMatrix( &projection, aspectRatio, fov, centerOffsetX, centerOffsetY, nearClip, farClip, NULL );
+
+	return projection;
+}

@@ -49,6 +49,7 @@ public:
 	static void CalculateProjectionMatrix( Matrix* mat, float aspectRatio, float fov, float offsetX, float offsetY, float front, float back, TriProjection* triProjection );
 	static float CalculateFovFromProjection( const Matrix& mat );
 	static Matrix ModifyClipPlanes( const Matrix& original, float nearClip, float farClip );
+	static Matrix AddCenterOffset( const Matrix& original, float xOffset, float yOffset, float nearClip, float farClip );
 
 	using INotify::Lock;
 	using INotify::Unlock;

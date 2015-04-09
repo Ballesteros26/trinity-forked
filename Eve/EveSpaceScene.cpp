@@ -29,6 +29,7 @@
 #include "Include/TriMath.h"
 #include "EveDistanceField.h"
 #include "Renderable/EveSceneStaticParticles.h"
+#include "Tr2ShaderBuffer.h"
 
 using namespace Tr2RenderContextEnum;
 
@@ -158,7 +159,10 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_fogBlur( 0.f ),
 	m_nebulaIntensity( 1.f ),
 	m_planetScale( 1e6 ),
-	m_planetCameraScale( 1e6 )
+	m_planetCameraScale( 1e6 ),
+	m_taaPixelOffsetScale( 0.5f ),
+	m_taaSamplingIndex( 0 ),
+	m_taaPattern( TAA_NONE )
 {
 	TriPoolAllocator* allocator = Tr2Renderer::GetPoolAllocator();
 	m_primaryBatches[TRIBATCHTYPE_OPAQUE] = CCP_NEW( "EveSpaceScene/m_batches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
@@ -207,8 +211,22 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 
 	m_planets.SetNotify( this );
 	m_objects.SetNotify( this );
-
+	
 	m_staticParticles.CreateInstance();
+	
+	m_postProcessPSBuffer.CreateInstance();
+	// 2x sampling pattern
+	m_taaSamplingPatterns[0] = Vector2( .5f, -.5f );
+	m_taaSamplingPatterns[1] = Vector2( -.5f, .5f );
+	// 4x sampling pattern
+	m_taaSamplingPatterns[2] = Vector2( .25f, -.75f );
+	m_taaSamplingPatterns[3] = Vector2( -.25f, .75f );
+	m_taaSamplingPatterns[4] = Vector2( .75f, .25f );
+	m_taaSamplingPatterns[5] = Vector2( -.75f, -.25f );
+	// 3x sampling pattern
+	m_taaSamplingPatterns[6] = Vector2( -.67f, -.1f );
+	m_taaSamplingPatterns[7] = Vector2( .1f, .67f );
+	m_taaSamplingPatterns[8] = Vector2( .67f, -.67f );
 }
 
 EveSpaceScene::~EveSpaceScene()
@@ -239,6 +257,11 @@ void EveSpaceScene::ReleaseResources( TriStorage s )
 		m_perFramePSBuffer.Destroy();
 		m_shadowPerFrameVSBuffer.Destroy();
 	}
+}
+
+Tr2ShaderBufferPtr EveSpaceScene::GetPostProcessPSBuffer( )
+{
+	return m_postProcessPSBuffer;
 }
 
 bool EveSpaceScene::OnPrepareResources()
@@ -1000,7 +1023,82 @@ void EveSpaceScene::RenderObjectsReceivingShadows(	std::vector<ShadowReceiver>& 
 			RenderOpaqueBatches( m_secondaryBatches, renderContext );
 		}
 		ClearBatches( m_secondaryBatches );
+
 	}
+}
+
+void EveSpaceScene::TAAOffset()
+{
+	if( m_taaPattern == TAA_NONE )
+	{
+		m_xProjOffset = 0;
+		m_yProjOffset = 0;
+	}
+	else if( m_taaPattern == TAA_RANDOM )
+	{
+		m_xProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetWidth() * (2.f * TriFloatRandom01() - 1.f);
+		m_yProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetHeight() * (2.f * TriFloatRandom01() - 1.f);
+	}
+	else if( m_taaPattern == TAA_2X )
+	{
+		m_taaSamplingIndex = m_taaSamplingIndex % 2;
+		m_xProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetWidth() * m_taaSamplingPatterns[m_taaSamplingIndex].x;
+		m_yProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetHeight() * m_taaSamplingPatterns[m_taaSamplingIndex].y;
+		m_taaSamplingIndex++;
+	}
+	else if( m_taaPattern == TAA_3X )
+	{
+		m_taaSamplingIndex = m_taaSamplingIndex % 3;
+		m_xProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetWidth() * m_taaSamplingPatterns[m_taaSamplingIndex + 6].x;
+		m_yProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetHeight() * m_taaSamplingPatterns[m_taaSamplingIndex + 6].y;
+		m_taaSamplingIndex++;
+	}
+	else
+	{
+		m_taaSamplingIndex = m_taaSamplingIndex % 4;
+		m_xProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetWidth() * m_taaSamplingPatterns[m_taaSamplingIndex+2].x;
+		m_yProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetHeight() * m_taaSamplingPatterns[m_taaSamplingIndex+2].y;
+		m_taaSamplingIndex++;
+	}
+}
+
+void EveSpaceScene::UpdatePostProcessPSData()
+{
+	double currentViewProjD[16];
+	Matrix currentProj;
+	if( m_dynamicClipPlanes )
+	{
+		currentProj = m_frameData.projectionDynamic;
+		currentProj = EveCamera::AddCenterOffset( currentProj, -m_xProjOffset, -m_yProjOffset, m_nearClip, m_farClip );
+	}
+	else
+	{
+		currentProj = m_frameData.projection;
+		currentProj = EveCamera::AddCenterOffset( currentProj, -m_xProjOffset, -m_yProjOffset, Tr2Renderer::GetFrontClip(), Tr2Renderer::GetBackClip() );
+	}
+	
+	double viewTransform[16];
+	double currentProjection[16];
+	Matrix4dMultiply(
+		currentViewProjD,
+		Matrix4dFromMatrix( viewTransform, Tr2Renderer::GetViewTransform() ),
+		Matrix4dFromMatrix( currentProjection, currentProj ) );
+	double invViewProjD[16];
+	Matrix4dInvert( invViewProjD, currentViewProjD );
+
+	double reprojection[16];
+	Matrix4dMultiply( reprojection, invViewProjD, m_viewProjectLastD );
+	D3DXMatrixTranspose( &m_postProcessPSData.ReprojectionMatrix, &( Matrix4dToMatrix( reprojection ) ) );
+
+	for( int i = 0; i < 16; i++ )
+	{
+		m_viewProjectLastD[i] = currentViewProjD[i];
+	}
+	
+	m_postProcessPSData.DeltaT = m_updateContext.GetDeltaT();
+	m_postProcessPSData.OriginShift = m_updateContext.GetOriginShift();
+
+	m_postProcessPSBuffer->SetData( (void*)&m_postProcessPSData, sizeof( m_postProcessPSData ) );
 }
 
 // --------------------------------------------------------------------------------------
@@ -1044,7 +1142,15 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 	// still might trigger rendering, such as particle effects or turret firing effects.
 	TriFrustum& frustum = m_frameData.frustum;
 	frustum.DeriveFrustum( &Tr2Renderer::GetViewTransform(), &Tr2Renderer::GetViewPosition(), &Tr2Renderer::GetProjectionTransform(), Tr2Renderer::GetViewport() );
-	m_frameData.projection = Tr2Renderer::GetProjectionTransform();
+	
+	TAAOffset();
+	Matrix proj = Tr2Renderer::GetProjectionTransform();
+	if( m_taaPattern != TAA_NONE )
+	{
+		proj = EveCamera::AddCenterOffset( proj, m_xProjOffset, m_yProjOffset, Tr2Renderer::GetFrontClip(), Tr2Renderer::GetBackClip() );
+	}
+	m_frameData.projection = proj;
+	Tr2Renderer::SetProjectionTransform( m_frameData.projection );
 
 	GatherBatches( renderContext );
 	if( m_dynamicClipPlanes )
@@ -1052,6 +1158,7 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 		m_frameData.projectionDynamic = EveCamera::ModifyClipPlanes( Tr2Renderer::GetProjectionTransform(), m_nearClip, m_farClip );
 	}
 
+	UpdatePostProcessPSData();
 	UpdateVariableStore();
 
 	PrepareLighting();
@@ -1474,7 +1581,7 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 		PopulatePerFrameVSData( m_perFrameVS );
 		ApplyPerFrameData( renderContext );
 	}
-
+	
 	// Draw the planets to the z-buffer to occlude any stations etc.
 	// that might be drawn behind moons.
 	for( EvePlanetVector::iterator it = m_planets.begin(); it != m_planets.end(); ++it )
@@ -1646,7 +1753,6 @@ void EveSpaceScene::EndRender( Tr2RenderContext& renderContext )
 			ApplyPerFrameData( renderContext );
 		}
 	}
-	
 
 	renderContext.m_esm.EndManagedRendering();
 

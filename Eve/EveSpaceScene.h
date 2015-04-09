@@ -54,6 +54,9 @@ BLUE_DECLARE_VECTOR( EveTransform );
 BLUE_DECLARE( EveDistanceField );
 BLUE_DECLARE_VECTOR( EveDistanceField );
 BLUE_DECLARE( EveSceneStaticParticles );
+BLUE_DECLARE( Tr2ShaderBuffer );
+
+enum TAASampling { TAA_NONE=0, TAA_RANDOM=1, TAA_2X=2, TAA_3X=3, TAA_4X=4 };
 
 class EveSpaceScene :
 	public ITr2Scene,
@@ -181,6 +184,7 @@ protected:
 	};
 	FrameData m_frameData;
 
+
 	// Per-frame vertex constants for rendering shadows
 	struct ShadowPerFrameVSData
 	{
@@ -237,6 +241,7 @@ protected:
 		Vector2 FogFactors;
 		float GammaBrightness;
 	};
+	double m_viewProjectLastD[16];
 
 	// Per-frame vertex constants for rendering scene
 	struct PerFrameVSData
@@ -264,6 +269,17 @@ protected:
 		float _;
 		Vector2 ViewportSize;
 	};
+
+	struct PostProcessPSData
+	{
+		Matrix ReprojectionMatrix;
+		Vector3 OriginShift;
+		float DeltaT;
+	};
+	PostProcessPSData m_postProcessPSData;
+	Tr2ShaderBufferPtr m_postProcessPSBuffer;
+	Tr2ShaderBufferPtr GetPostProcessPSBuffer();
+	void UpdatePostProcessPSData();
 
 	void PopulatePerFrameVSData( PerFrameVSData &data );
 	void PopulatePerFramePSData( PerFramePSData &data );
@@ -497,6 +513,15 @@ private:
 	float m_farClip;
 
 	Tr2ShLightingManagerPtr m_shLightingManager;
+
+	TAASampling m_taaPattern;
+	Vector2 m_taaSamplingPatterns[9];
+	int m_taaSamplingIndex;
+	float m_xProjOffset;
+	float m_yProjOffset;
+
+	float m_taaPixelOffsetScale;
+	void TAAOffset();
 };
 
 TYPEDEF_BLUECLASS( EveSpaceScene );

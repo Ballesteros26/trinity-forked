@@ -9,6 +9,7 @@
 #include "TriConstants.h"
 #include "Tr2RuntimeInstanceData.h"
 #include "TriDevice.h"
+#include "Tr2ShaderBuffer.h"
 
 BLUE_DEFINE( EveSpaceScene );
 BLUE_DEFINE_INTERFACE( IEveReferencePoint );
@@ -156,7 +157,7 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 			"for debugging",
 			Be::READWRITE | Be::PERSIST
 		)		
-		
+
 		MAP_ATTRIBUTE
 		( 
 			"selfShadowOnly", 
@@ -529,6 +530,11 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 		)
 
 		MAP_METHOD_AND_WRAP(
+			"GetPostProcessPSBuffer",
+			GetPostProcessPSBuffer,
+			"" )
+
+		MAP_METHOD_AND_WRAP(
 			"PickObject",
 			PickObject,
 			"Given mouse position and a view setup, returns the object that the mouse is over"
@@ -569,6 +575,18 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 			m_updateTime,
 			"Time of the last call to Update, for this scene",
 			Be::READ )
+			
+		MAP_ATTRIBUTE(
+			"pixelOffsetScale",
+			m_taaPixelOffsetScale,
+			"Time of the last call to Update, for this scene",
+			Be::READWRITE )
+			
+		MAP_ATTRIBUTE(
+			"taaSubpixelPattern",
+			m_taaPattern,
+			"Time of the last call to Update, for this scene",
+			Be::READWRITE )
 
     EXPOSURE_END()
 }
