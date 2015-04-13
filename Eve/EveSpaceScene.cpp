@@ -1088,7 +1088,8 @@ void EveSpaceScene::UpdatePostProcessPSData()
 
 	double reprojection[16];
 	Matrix4dMultiply( reprojection, invViewProjD, m_viewProjectLastD );
-	D3DXMatrixTranspose( &m_postProcessPSData.ReprojectionMatrix, &( Matrix4dToMatrix( reprojection ) ) );
+	Matrix repro = Matrix4dToMatrix( reprojection );
+	D3DXMatrixTranspose( &m_postProcessPSData.ReprojectionMatrix, &repro );
 
 	for( int i = 0; i < 16; i++ )
 	{
