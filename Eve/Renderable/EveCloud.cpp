@@ -132,7 +132,7 @@ void EveCloud::UpdateSyncronous( EveUpdateContext& updateContext )
 {
 	if( m_volume )
 	{
-		m_volume->Update();
+		m_volume->Update( updateContext.GetTime() );
 	}
 
 	Quaternion rotation( 0.0f, 0.0f, 0.0f, 1.0f );

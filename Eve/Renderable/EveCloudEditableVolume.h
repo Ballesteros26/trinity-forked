@@ -11,6 +11,8 @@
 BLUE_DECLARE( TriTextureRes );
 BLUE_DECLARE( Tr2HostBitmap );
 BLUE_DECLARE( EveCloudEditableVolume );
+BLUE_DECLARE( TriCurveSet );
+BLUE_DECLARE_VECTOR( TriCurveSet );
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -74,10 +76,12 @@ public:
 
 	void OnVolumeModified();
 
-	void Update();
+	void Update( Be::Time time );
 	void RenderDebugInfo( const Matrix& world, Tr2RenderContext& renderContext );
 
 private:
+	static const size_t MAX_FRAMES = 4;
+
 	enum Status
 	{
 		Working,
@@ -88,14 +92,16 @@ private:
 	struct RasterizeParams
 	{
 		CcpAtomic<uint32_t> status;
-		std::vector<EveCloudVolumeBall::BallData> balls;
+		std::vector<EveCloudVolumeBall::BallData> balls[MAX_FRAMES];
 		uint32_t width;
 		uint32_t height;
 		uint32_t depth;
 		std::unique_ptr<uint8_t[]> pixels;
 	};
 	static uint32_t ThreadProc( void* context );
+	static uint32_t ThreadProcAnimated( void* context );
 	static void RasterizeBalls( RasterizeParams& params );
+	static void RasterizeBallsAnimated( RasterizeParams& params );
 	static void RasterizeBall( const EveCloudVolumeBall::BallData& ball, const RasterizeParams& params, float* pixels );
 
 	RasterizeParams m_currentParams;
@@ -108,6 +114,10 @@ private:
 	uint32_t m_height;
 	uint32_t m_depth;
 	bool m_renderDebugInfo;
+	bool m_animated;
+	bool m_volumeDirty;
+	bool m_updating;
+	PTriCurveSetVector m_curveSets;
 };
 
 TYPEDEF_BLUECLASS( EveCloudEditableVolume );

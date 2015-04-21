@@ -169,6 +169,11 @@ float TriCurveSet::GetTimeScale() const
 	return m_scale;
 }
 
+double TriCurveSet::GetScaledTime() const
+{
+	return m_scaledTime;
+}
+
 void TriCurveSet::SetName( const std::string& name )
 {
 	m_name = name;

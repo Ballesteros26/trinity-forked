@@ -10,6 +10,7 @@
 #include "Resources/TriTextureRes.h"
 #include "Tr2HostBitmap.h"
 #include "Tr2Renderer.h"
+#include "Curves/TriCurveSet.h"
 
 
 EveCloudVolumeBall::EveCloudVolumeBall( IRoot* lockobj )
@@ -41,7 +42,11 @@ EveCloudEditableVolume::EveCloudEditableVolume( IRoot* lockobj )
 	m_height( 64 ),
 	m_depth( 64 ),
 	m_thread( 0 ),
-	m_renderDebugInfo( false )
+	m_renderDebugInfo( false ),
+	m_animated( false ),
+	m_volumeDirty( false ),
+	m_updating( false ),
+	PARENTLOCK( m_curveSets )
 {
 	m_texture.CreateInstance();
 	m_bitmap.CreateInstance();
@@ -51,6 +56,12 @@ EveCloudEditableVolume::EveCloudEditableVolume( IRoot* lockobj )
 
 EveCloudEditableVolume::~EveCloudEditableVolume()
 {
+	if( m_thread )
+	{
+		m_currentParams.status = StopRequested;
+		uint32_t result;
+		CcpJoinThread( m_thread, &result );
+	}
 }
 
 bool EveCloudEditableVolume::OnModified( Be::Var* value )
@@ -59,14 +70,24 @@ bool EveCloudEditableVolume::OnModified( Be::Var* value )
 	return true;
 }
 
-void EveCloudEditableVolume::Update()
+void EveCloudEditableVolume::Update( Be::Time time )
 {
 	if( m_currentParams.status == DataReady )
 	{
+		uint32_t result;
+		CcpJoinThread( m_thread, &result );
 		m_thread = 0;
 		m_bitmap->CreateVolume( m_currentParams.width, m_currentParams.height, m_currentParams.depth, 1, Tr2RenderContextEnum::PIXEL_FORMAT_B8G8R8A8_UNORM );
 		memcpy( m_bitmap->GetRawData(), m_currentParams.pixels.get(), m_bitmap->GetRawDataSize() );
 		m_texture->CreateFromHostBitmap( m_bitmap );
+		if( m_volumeDirty )
+		{
+			OnVolumeModified();
+		}
+	}
+	for( auto it = m_curveSets.begin(); it != m_curveSets.end(); ++it )
+	{
+		( *it )->Update( time, time );
 	}
 }
 
@@ -126,25 +147,58 @@ void EveCloudEditableVolume::OnListModified(
 
 void EveCloudEditableVolume::OnVolumeModified()
 {
+	if( m_updating )
+	{
+		return;
+	}
 	if( m_thread )
 	{
-		m_currentParams.status = StopRequested;
-		uint32_t result;
-		CcpJoinThread( m_thread, &result );
+		m_volumeDirty = true;
+		return;
 	}
-
-	m_currentParams.balls.resize( m_balls.size() );
-	for( size_t i = 0; i < m_balls.size(); ++i )
-	{
-		m_currentParams.balls[i] = m_balls[i]->m_ballData;
-	}
+	m_volumeDirty = false;
+	m_updating = true;
 	m_currentParams.width = m_width;
 	m_currentParams.height = m_height;
 	m_currentParams.depth = m_depth;
 	m_currentParams.pixels = std::unique_ptr<uint8_t[]>( new uint8_t[m_width * m_height * m_depth * 4] );
 	m_currentParams.status = Working;
+	if( m_animated )
+	{
+		for( size_t f = 0; f < MAX_FRAMES; ++f )
+		{
+			for( auto curveSet = m_curveSets.begin(); curveSet != m_curveSets.end(); ++curveSet )
+			{
+				bool needToResume = ( *curveSet )->IsPlaying();
+				double resumeTime = ( *curveSet )->GetScaledTime();
+				( *curveSet )->Stop();
+				( *curveSet )->Play();
+				( *curveSet )->Update( 0 );
+				( *curveSet )->Update( float( f ) / ( MAX_FRAMES - 1 ) );
+				if( needToResume )
+				{
+					( *curveSet )->PlayFrom( resumeTime );
+				}
+			}
+			m_currentParams.balls[f].resize( m_balls.size() );
+			for( size_t i = 0; i < m_balls.size(); ++i )
+			{
+				m_currentParams.balls[f][i] = m_balls[i]->m_ballData;
+			}
+		}
+		m_thread = CcpCreateThread( &ThreadProcAnimated, &m_currentParams, CCP_THREAD_PRIORITY_NORMAL );
+	}
+	else
+	{
+		m_currentParams.balls[0].resize( m_balls.size() );
+		for( size_t i = 0; i < m_balls.size(); ++i )
+		{
+			m_currentParams.balls[0][i] = m_balls[i]->m_ballData;
+		}
 
-	m_thread = CcpCreateThread( &ThreadProc, &m_currentParams, CCP_THREAD_PRIORITY_NORMAL );
+		m_thread = CcpCreateThread( &ThreadProc, &m_currentParams, CCP_THREAD_PRIORITY_NORMAL );
+	}
+	m_updating = false;
 }
 
 uint32_t EveCloudEditableVolume::ThreadProc( void* context )
@@ -153,11 +207,17 @@ uint32_t EveCloudEditableVolume::ThreadProc( void* context )
 	return 0;
 }
 
+uint32_t EveCloudEditableVolume::ThreadProcAnimated( void* context )
+{
+	RasterizeBallsAnimated( *static_cast<RasterizeParams*>( context ) );
+	return 0;
+}
+
 void EveCloudEditableVolume::RasterizeBalls( RasterizeParams& params )
 {
 	std::unique_ptr<float[]> pixels( new float[params.width * params.height * params.depth * 4] );
 	memset( pixels.get(), 0, sizeof( float ) * ( params.width * params.height * params.depth * 4 ) );
-	for( auto it = params.balls.begin(); it != params.balls.end(); ++it )
+	for( auto it = params.balls[0].begin(); it != params.balls[0].end(); ++it )
 	{
 		RasterizeBall( *it, params, pixels.get() );
 		if( params.status != Working)
@@ -171,6 +231,32 @@ void EveCloudEditableVolume::RasterizeBalls( RasterizeParams& params )
 	for( uint32_t i = 0; i < params.width * params.height * params.depth * 4; ++i )
 	{
 		destPixel[i] = uint8_t( std::min( std::max( TriLinearToGamma( srcPixel[i] ) * 255.f, 0.f ), 255.f ) );
+	}
+	params.status = DataReady;
+}
+
+void EveCloudEditableVolume::RasterizeBallsAnimated( RasterizeParams& params )
+{
+	std::unique_ptr<float[]> pixels( new float[params.width * params.height * params.depth * 4] );
+	for( size_t f = 0; f < MAX_FRAMES; ++f )
+	{
+		memset( pixels.get(), 0, sizeof( float ) * ( params.width * params.height * params.depth * 4 ) );
+		for( auto it = params.balls[f].begin(); it != params.balls[f].end(); ++it )
+		{
+			RasterizeBall( *it, params, pixels.get() );
+			if( params.status != Working)
+			{
+				params.status = Aborted;
+				return;
+			}
+		}
+		const uint32_t channels[] = { 2, 1, 0, 3 };
+		const float* srcPixel = pixels.get();
+		uint8_t* destPixel = params.pixels.get() + channels[f];
+		for( uint32_t i = 0; i < params.width * params.height * params.depth * 4; i += 4 )
+		{
+			destPixel[i] = uint8_t( std::min( std::max( TriLinearToGamma( srcPixel[i + 3] ) * 255.f, 0.f ), 255.f ) );
+		}
 	}
 	params.status = DataReady;
 }

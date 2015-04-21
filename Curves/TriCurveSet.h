@@ -53,6 +53,7 @@ public:
 	// Gets the duration of the longest non-cycling curve in the curve set
 	float GetMaxCurveDuration() const;
 	float GetTimeScale() const;
+	double GetScaledTime() const;
 
 	//////////////////////////////////////////////////////////////////////////
 	// IInitialize

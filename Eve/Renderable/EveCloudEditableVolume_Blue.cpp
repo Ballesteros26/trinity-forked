@@ -38,6 +38,8 @@ const Be::ClassInfo* EveCloudEditableVolume::ExposeToBlue()
 		MAP_ATTRIBUTE( "height", m_height, "Texture height", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "depth", m_depth, "Texture depth", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "renderDebugInfo", m_renderDebugInfo, "Toggle rendering of debuggin information", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "animated", m_animated, "If set than balls are sampled at different time intervals and packed into a texture", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+		MAP_ATTRIBUTE( "curveSets", m_curveSets, "Curve sets for balls", Be::READWRITE | Be::PERSIST )
 		MAP_METHOD_AND_WRAP( "OnVolumeModified", OnVolumeModified, "Trigger re-rasterizing of the volume into the texture" )
     EXPOSURE_END()
 }
