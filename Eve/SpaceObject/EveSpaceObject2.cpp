@@ -481,7 +481,7 @@ void EveSpaceObject2::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchT
 		// transparent needs sorted meshareas
 		if( batchType != TRIBATCHTYPE_TRANSPARENT )
 		{
-			GetBatchesFromMeshAreaVector( areas, batches, perObjectData );
+			m_mesh->GetBatches( batches, areas, perObjectData );
 		}
 		else
 		{
@@ -547,54 +547,6 @@ float EveSpaceObject2::GetSortValue()
 	return distance;
 }
 
-// ---------------------------------------------------------------------------------------
-//  Description:
-//    Given a pointer to a mesh area vector, gathers TriGeometryBatches for each of the
-//    areas. Order of batches is unsorted.
-// Arguments:
-//   areas - mesharea vector to collect from
-//   batches - accumulator for the new batches
-//   perObjectData - the per-object data for these batches
-// ---------------------------------------------------------------------------------------
-void EveSpaceObject2::GetBatchesFromMeshAreaVector( const Tr2MeshAreaVector* areas, 
-												    ITriRenderBatchAccumulator* batches, 
-													const Tr2PerObjectData* perObjectData ) const
-{
-	TriGeometryRes* geomRes = NULL;
-
-	if( !geomRes )
-	{
-		geomRes = m_mesh->GetGeometryResource();
-	}
-
-	if( !geomRes || !geomRes->IsGood() )
-	{
-		return;
-	}
-
-	int meshIx = m_mesh->GetMeshIndex();
-
-	for( Tr2MeshAreaVector::const_iterator it = areas->begin(); it != areas->end(); ++it )
-	{
-		Tr2MeshArea* area = *it;
-		ITr2ShaderMaterial* material = area->GetMaterialInterface();
-		if( area->IsHidden() || !material )
-		{
-			continue;
-		}
-		TriGeometryBatch* batch = batches->Allocate<TriGeometryBatch>();
-		// Note that this can fail if the accumulator can't add more batches!
-		if( batch )
-		{
-			batch->SetShaderMaterial( material );
-			batch->SetPerObjectData( perObjectData );
-			batch->SetGeometryResource( geomRes );
-			batch->SetMeshParameters( meshIx, area->GetIndex(), area->GetCount() );
-
-			batches->Commit( batch );
-		}
-	}
-}
 
 // ---------------------------------------------------------------------------------------
 //  Description:

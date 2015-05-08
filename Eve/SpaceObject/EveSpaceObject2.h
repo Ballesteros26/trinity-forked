@@ -275,7 +275,6 @@ protected:
 	void PrepareForAnimation();
 	void FreeAnimationData();
 	void SelectMeshLevelOfDetail();
-	void GetBatchesFromMeshAreaVector( const Tr2MeshAreaVector* areas, ITriRenderBatchAccumulator* batches, const Tr2PerObjectData* perObjectData ) const;
 	void GetSortedBatchesFromMeshAreaVector( const Tr2MeshAreaVector* areas, ITriRenderBatchAccumulator* batches, const Tr2PerObjectData* perObjectData ) const;
 	void GetBatchesFromOverlayVector( ITriRenderBatchAccumulator* batches, const Tr2PerObjectData* perObjectData, TriBatchType batchType );
 
