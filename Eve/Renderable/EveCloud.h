@@ -71,6 +71,8 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	// ITriDeviceResource
 	virtual void ReleaseResources( TriStorage s );
+
+
 private:
 	bool OnPrepareResources();
 
@@ -97,6 +99,11 @@ private:
 	bool m_display;
 
 	EveCloudEditableVolumePtr m_volume;
+
+	Vector3 m_min;
+	Vector3 m_max;
+
+	float m_sortingModifier;
 };
 
 TYPEDEF_BLUECLASS( EveCloud );

@@ -60,47 +60,44 @@ public:
 //   plane), clips edges with near plane and computes AABB clipped to [-1, 1] range. 
 //   Function assumes non-orthographic projection.
 // --------------------------------------------------------------------------------------
-void GetProjectedCubeBounds(  AxisAlignedBoundingBox& box, const Matrix& worldView, const Matrix& proj, float nearPlane )
+void GetProjectedCubeBounds(  AxisAlignedBoundingBox& box, const Matrix& worldView, const Matrix& proj, float nearPlane, const Vector3 min, const Vector3 max  )
 {
-	Vector3 minBounds1 = Vector3( -0.5f, -0.5f, -0.5f );
-	Vector3 maxBounds1 = Vector3( 0.5f, 0.5f, 0.5f );
-
 	Vector3 sides[6][4] = {
 		{
-			Vector3( minBounds1.x, minBounds1.y, minBounds1.z ),
-			Vector3( minBounds1.x, maxBounds1.y, minBounds1.z ),
-			Vector3( minBounds1.x, maxBounds1.y, maxBounds1.z ),
-			Vector3( minBounds1.x, minBounds1.y, maxBounds1.z ),
+			Vector3( min.x, min.y, min.z ),
+			Vector3( min.x, max.y, min.z ),
+			Vector3( min.x, max.y, max.z ),
+			Vector3( min.x, min.y, max.z ),
 		},
 		{
-			Vector3( maxBounds1.x, minBounds1.y, minBounds1.z ),
-			Vector3( maxBounds1.x, minBounds1.y, maxBounds1.z ),
-			Vector3( maxBounds1.x, maxBounds1.y, maxBounds1.z ),
-			Vector3( maxBounds1.x, maxBounds1.y, minBounds1.z ),
+			Vector3( max.x, min.y, min.z ),
+			Vector3( max.x, min.y, max.z ),
+			Vector3( max.x, max.y, max.z ),
+			Vector3( max.x, max.y, min.z ),
 		},
 		{
-			Vector3( minBounds1.x, minBounds1.y, minBounds1.z ),
-			Vector3( maxBounds1.x, minBounds1.y, minBounds1.z ),
-			Vector3( maxBounds1.x, minBounds1.y, maxBounds1.z ),
-			Vector3( minBounds1.x, minBounds1.y, maxBounds1.z ),
+			Vector3( min.x, min.y, min.z ),
+			Vector3( max.x, min.y, min.z ),
+			Vector3( max.x, min.y, max.z ),
+			Vector3( min.x, min.y, max.z ),
 		},
 		{
-			Vector3( minBounds1.x, maxBounds1.y, minBounds1.z ),
-			Vector3( minBounds1.x, maxBounds1.y, maxBounds1.z ),
-			Vector3( maxBounds1.x, maxBounds1.y, maxBounds1.z ),
-			Vector3( maxBounds1.x, maxBounds1.y, minBounds1.z ),
+			Vector3( min.x, max.y, min.z ),
+			Vector3( min.x, max.y, max.z ),
+			Vector3( max.x, max.y, max.z ),
+			Vector3( max.x, max.y, min.z ),
 		},
 		{
-			Vector3( minBounds1.x, minBounds1.y, minBounds1.z ),
-			Vector3( maxBounds1.x, minBounds1.y, minBounds1.z ),
-			Vector3( maxBounds1.x, maxBounds1.y, minBounds1.z ),
-			Vector3( minBounds1.x, maxBounds1.y, minBounds1.z ),
+			Vector3( min.x, min.y, min.z ),
+			Vector3( max.x, min.y, min.z ),
+			Vector3( max.x, max.y, min.z ),
+			Vector3( min.x, max.y, min.z ),
 		},
 		{
-			Vector3( minBounds1.x, minBounds1.y, maxBounds1.z ),
-			Vector3( minBounds1.x, maxBounds1.y, maxBounds1.z ),
-			Vector3( maxBounds1.x, maxBounds1.y, maxBounds1.z ),
-			Vector3( maxBounds1.x, minBounds1.y, maxBounds1.z ),
+			Vector3( min.x, min.y, max.z ),
+			Vector3( min.x, max.y, max.z ),
+			Vector3( max.x, max.y, max.z ),
+			Vector3( max.x, min.y, max.z ),
 		},
 	};
 
@@ -120,23 +117,23 @@ void GetProjectedCubeBounds(  AxisAlignedBoundingBox& box, const Matrix& worldVi
 	for( int side = 0; side < 6; ++side )
 	{
 		for( int edge = 0; edge < 4; ++edge )
-		{
+	{
 			const Vector3& vertex1 = sides[side][edge];
 			const Vector3& vertex2 = sides[side][( edge + 1 ) % 4];
 			float v0 = D3DXPlaneDotCoord( &plane, &vertex1 );
 			float v1 = D3DXPlaneDotCoord( &plane, &vertex2 );
 			if( v0 <= 0 )
-			{
+		{
 				points[count++] = sides[side][edge];
-			}
+		}
 			if( v0 * v1 < 0 )
-			{
+		{
 				Vector3 result;
 				D3DXPlaneIntersectLine( &result, &plane, &vertex1, &vertex2 );
 				points[count++] = result;
 			}
 		}
-	}
+		}
 
 	D3DXVec4TransformArray( points, sizeof( Vector4 ), points, sizeof( Vector4 ), &proj, count );
 	for( int i = 0; i < count; ++i )
@@ -162,7 +159,10 @@ EveCloud::EveCloud( IRoot* lockobj )
 	m_scaling( 1.0f, 1.0f, 1.0f ),
 	m_display( true ),
 	m_declaration( Tr2EffectStateManager::UNINITIALIZED_DECLARATION ),
-	m_preTesselationLevel( 32 )
+	m_preTesselationLevel( 32 ),
+	m_min( -0.5f, -0.5f, -0.5f ),
+	m_max( 0.5f, 0.5f, 0.5f ),
+	m_sortingModifier( 1.0f )
 {
 	PrepareResources();
 }
@@ -212,9 +212,7 @@ void EveCloud::UpdateSyncronous( EveUpdateContext& updateContext )
 
 void EveCloud::UpdateAsyncronous( EveUpdateContext& updateContext )
 {
-	Vector3 min = Vector3( -0.5f, -0.5f, -0.5f );
-	Vector3 max = Vector3( 0.5f, 0.5f, 0.5f );
-	BoundingSphereFromBox( m_boundingSphere, min, max, &m_worldTransform );
+	BoundingSphereFromBox( m_boundingSphere, m_min, m_max, &m_worldTransform );
 }
 
 void EveCloud::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
@@ -262,8 +260,8 @@ void EveCloud::GetCurrentModelCenterWorldPosition( Vector3 &position )
 
 bool EveCloud::GetLocalBoundingBox( Vector3 &min, Vector3 &max ) 
 { 
-	min = Vector3( -0.5f, -0.5f, -0.5f );
-	max = Vector3( 0.5f, 0.5f, 0.5f );
+	min = m_min;
+	max = m_max;
 	return true; 
 }
 
@@ -280,7 +278,7 @@ bool EveCloud::HasTransparentBatches()
 float EveCloud::GetSortValue()
 {
 	Vector3 d = Tr2Renderer::GetViewPosition() - m_worldTransform.GetTranslation();
-	float distance = D3DXVec3Length( &d );
+	float distance = D3DXVec3Length( &d ) - D3DXVec3Length( &m_scaling ) * m_sortingModifier;
 	return distance;
 }
 
@@ -332,6 +330,7 @@ bool EveCloud::OnPrepareResources()
 		}
 		CR_RETURN_VAL( m_vertexBuffer.Create( sizeof( Vector2 ) * uint32_t( data.size() ), USAGE_IMMUTABLE, &data.front(), renderContext ), false );
 	}
+
 	if( !m_indexBuffer.IsValid() )
 	{
 		std::vector<uint16_t> data( dimension * dimension * 6 );
@@ -415,9 +414,8 @@ Tr2PerObjectData* EveCloud::GetPerObjectData( ITriRenderBatchAccumulator* accumu
 	D3DXVec3TransformCoord( &center, &zero, &worldViewProjection );
 	data->m_data.m_screenDepth = center.z;
 
-
 	AxisAlignedBoundingBox box;
-	GetProjectedCubeBounds( box, m_worldTransform * Tr2Renderer::GetViewTransform(), fakeProjection, fakeNearPlane );
+	GetProjectedCubeBounds( box, m_worldTransform * Tr2Renderer::GetViewTransform(), fakeProjection, fakeNearPlane, m_min, m_max );
 
 	data->m_data.m_screenSize.x = box.m_min.x;
 	data->m_data.m_screenSize.y = box.m_min.y;
