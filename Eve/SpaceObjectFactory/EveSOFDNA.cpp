@@ -6,6 +6,7 @@
 #include "StdAfx.h"
 #include "Utilities/StringUtils.h"
 #include "EveSOFDNA.h"
+#include "EveSOFUtils.h"
 #include "Eve/SpaceObject/EveSpaceObject2.h"
 #include "ITr2Renderable.h"
 
@@ -137,6 +138,9 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
+	// rember dna string
+	m_dna = dnaString;
+
 	// remember the pointer to the BIG lib as long as this DNA object lives
 	m_dataMgr = dataMgr;
 
@@ -218,6 +222,15 @@ float EveSOFDNA::GetDirtLevel() const
 		}
 	}
 	return EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return the dna string as a whole
+// --------------------------------------------------------------------------------
+const char* EveSOFDNA::GetDnaString() const
+{
+	return m_dna.c_str();
 }
 
 // --------------------------------------------------------------------------------
@@ -556,27 +569,15 @@ const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( const BlueSharedString& 
 	std::vector<std::string> meshCommandArgs;
 	if( GetDnaCommandArgs( CMD_MESH, meshCommandArgs ) )
 	{
-		size_t argIdx = (size_t)-1;
-		std::string materialDataParameterName = std::string( parameterName.c_str() );
-		// identify material mask, submask
-		for( size_t i = 0; i < m_genericData->materialPrefixes.size(); ++i )
-		{
-			if( StringStartsWithI( parameterName.c_str(), m_genericData->materialPrefixes[i].c_str() ) )
-			{
-				// found it!
-				argIdx = i;
-				StringRemove( materialDataParameterName, m_genericData->materialPrefixes[i].c_str() );
-				break;
-			}
-		}
-
-		if( ( argIdx != (size_t)-1 ) && ( argIdx < meshCommandArgs.size() ) )
+		// indentify material paramater and material index
+		EveSOFUtilsParameterName parameterName( m_genericData, parameterName.c_str() );
+		if( parameterName.IsValid() && ( parameterName.GetMaterialIdx() < (int32_t)meshCommandArgs.size() ) )
 		{
 			// get the material from the lib
-			const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( meshCommandArgs[ argIdx ].c_str() );
+			const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( meshCommandArgs[ parameterName.GetMaterialIdx() ].c_str() );
 			if( materialData ) 
 			{
-				BlueSharedString pn( materialDataParameterName.c_str() );
+				BlueSharedString pn( parameterName.GetShortName() );
 				auto parameterIt = materialData->parameters.find( pn );
 				if( parameterIt != materialData->parameters.end() )
 				{
@@ -608,6 +609,32 @@ const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( const BlueSharedString& 
 
 	// found it!
 	return &parameterIt->second;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return a shader parameter for a faction, but this time for a turret
+// --------------------------------------------------------------------------------
+const Vector4* EveSOFDNA::GetFactionTurretParameters( const BlueSharedString& parameterName ) const
+{
+	// must change the material number in the parameter name, is for turrets
+	EveSOFUtilsParameterName paramName( m_genericData, parameterName.c_str() );
+	// valid?
+	if( !paramName.IsValid() )
+	{
+		return nullptr;
+	}
+	// change the material index into the usage index, which in this case is the turret material index
+	int turretMaterialIdx = m_factionData->materialUsageList[ paramName.GetMaterialIdx() ];
+	if( ( turretMaterialIdx < 0 ) || ( turretMaterialIdx >= int(m_genericData->materialPrefixes.size()) ) )
+	{
+		return nullptr;
+	}
+	// generate new material name with this index
+	std::string turretParamName = paramName.ChangeMaterialIdx( m_genericData, turretMaterialIdx );
+
+	// now use this parameter name to get the actual value
+	return GetFactionMeshAreaParameters( BlueSharedString( "hull" ), BlueSharedString( turretParamName ) );
 }
 
 // --------------------------------------------------------------------------------

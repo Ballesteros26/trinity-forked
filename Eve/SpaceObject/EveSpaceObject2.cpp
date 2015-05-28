@@ -1934,6 +1934,15 @@ void EveSpaceObject2::SetModelTranslationCurve( ITriVectorFunctionPtr translatio
 	m_modelTranslation = translationCurve;
 }
 
+// --------------------------------------------------------------------------------
+// Description:
+//   Store the DNA string of this guy
+// --------------------------------------------------------------------------------
+void EveSpaceObject2::SetDnaString( const char* dna )
+{
+	m_dna = dna;
+}
+
 //GPU ship explosion test
 unsigned EveSpaceObject2::GetDamageLocatorCount() const 
 {

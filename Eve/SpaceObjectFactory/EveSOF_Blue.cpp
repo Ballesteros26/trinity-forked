@@ -21,7 +21,8 @@ const Be::ClassInfo* EveSOF::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( "BuildFromDNA", BuildFromDNA, "na" )
 		MAP_METHOD_AND_WRAP( "ValidateDNA", ValidateDNA, "Validates the content of a given DNA string. This is slow and should only be used for offline validation!" )
 
-		MAP_METHOD_AND_WRAP( "SetupTurretMaterial", SetupTurretMaterial, "na" )
+		MAP_METHOD_AND_WRAP( "SetupTurretMaterialFromDNA", SetupTurretMaterialFromDNA, "na" )
+		MAP_METHOD_AND_WRAP( "SetupTurretMaterialFromFaction", SetupTurretMaterialFromFaction, "na" )
 
     EXPOSURE_END()
 }

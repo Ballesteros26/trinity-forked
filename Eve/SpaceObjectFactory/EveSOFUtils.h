@@ -1,0 +1,44 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   May 2015
+//    Copyright: CCP 2015
+//
+#pragma once
+#ifndef EveSOFUtils_H
+#define EveSOFUtils_H
+
+#include "EveSOFDataMgr.h"
+
+// --------------------------------------------------------------------------------
+// Description:
+//   This class holds a material parameter name and has helper functions to fiddle
+//   with it. Mainly identity the material index and change it
+// SeeAlso:
+//   EveSOF
+// --------------------------------------------------------------------------------
+class EveSOFUtilsParameterName
+{
+public:
+	EveSOFUtilsParameterName( const EveSOFDataMgr::GenericData* genericData, const char* parameterName );
+
+	// queries
+	bool IsValid() const;
+	int32_t GetMaterialIdx() const;
+	const char* GetShortName() const;
+
+	// substitute
+	std::string ChangeMaterialIdx( const EveSOFDataMgr::GenericData* genericData, int32_t idx ) const;
+	
+private:
+	// direct copy of the original name
+	std::string m_fullname;
+	// name without the material prefix
+	std::string m_shortname;
+	// original material index
+	int32_t m_materialIdx;
+};
+
+
+
+
+#endif // EveSOFUtils_H

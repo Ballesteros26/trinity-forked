@@ -76,12 +76,14 @@ public:
 	const char* GetFactionResPathInsert() const;
 	void ModifyTextureResPath( std::string& resPath, const char* resName ) const;
 	const Vector4* GetFactionMeshAreaParameters( const BlueSharedString& areaDesignation, const BlueSharedString& parameterName ) const;
+	const Vector4* GetFactionTurretParameters( const BlueSharedString& parameterName ) const;
 	const EveSOFDataMgr::FactionDecalData* GetFactionDecalData( int groupIndex ) const;
 	const EveSOFDataMgr::FactionPlaneSetColorData* GetFactionPlaneSetData( int groupIndex ) const;
 	const EveSOFDataMgr::FactionSpotlightSetColorData* GetFactionSpotlightSetData( int groupIndex ) const;
 	const EveSOFDataMgr::FactionSpriteSetColorData* GetFactionSpriteSetData( int groupIndex ) const;
 
 	// get dna data
+	const char* GetDnaString() const;
 	float GetDirtLevel() const;
 
 

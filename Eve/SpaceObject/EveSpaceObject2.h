@@ -257,6 +257,9 @@ public:
 	ITriQuaternionFunctionPtr GetModelRotationCurve() const { return m_modelRotation; };
 	ITriVectorFunctionPtr GetModelTranslationCurve() const { return m_modelTranslation; };
 
+	// access to dna
+	void SetDnaString( const char* dna );
+
 	uint32_t GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const;
 	void UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* );
 
@@ -284,6 +287,7 @@ protected:
 	friend class EveShip2Builder;
 
 	std::string m_name;
+	std::string m_dna;
 
 	bool m_update;
 	bool m_display;
