@@ -570,14 +570,14 @@ const Vector4* EveSOFDNA::GetFactionMeshAreaParameters( const BlueSharedString& 
 	if( GetDnaCommandArgs( CMD_MESH, meshCommandArgs ) )
 	{
 		// indentify material paramater and material index
-		EveSOFUtilsParameterName parameterName( m_genericData, parameterName.c_str() );
-		if( parameterName.IsValid() && ( parameterName.GetMaterialIdx() < (int32_t)meshCommandArgs.size() ) )
+		EveSOFUtilsParameterName param( m_genericData, parameterName.c_str() );
+		if( param.IsValid() && ( param.GetMaterialIdx() < (int32_t)meshCommandArgs.size() ) )
 		{
 			// get the material from the lib
-			const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( meshCommandArgs[ parameterName.GetMaterialIdx() ].c_str() );
+			const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( meshCommandArgs[ param.GetMaterialIdx() ].c_str() );
 			if( materialData ) 
 			{
-				BlueSharedString pn( parameterName.GetShortName() );
+				BlueSharedString pn( param.GetShortName() );
 				auto parameterIt = materialData->parameters.find( pn );
 				if( parameterIt != materialData->parameters.end() )
 				{
