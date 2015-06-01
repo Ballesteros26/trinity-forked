@@ -559,6 +559,9 @@
     <ClInclude Include="Curves\Tr2ScalarExprKeyCurve.h">
       <Filter>Source Files\Curves</Filter>
     </ClInclude>
+    <ClInclude Include="Curves\Tr2ToggleCurve.h">
+      <Filter>Source Files\Curves</Filter>
+    </ClInclude>
     <ClInclude Include="Curves\Tr2Vector2Curve.h">
       <Filter>Source Files\Curves</Filter>
     </ClInclude>
@@ -2207,6 +2210,12 @@
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
     <ClCompile Include="Curves\Tr2ScalarExprKeyCurve_Blue.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Curves\Tr2ToggleCurve.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Curves\Tr2ToggleCurve_Blue.cpp">
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
     <ClCompile Include="Curves\Tr2Vector2Curve.cpp">
