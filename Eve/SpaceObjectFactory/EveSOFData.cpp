@@ -107,7 +107,8 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 {}
 
 
-EveSOFDataRace::EveSOFDataRace( IRoot* lockobj )
+EveSOFDataRace::EveSOFDataRace( IRoot* lockobj ) :
+	PARENTLOCK( m_hullAreas )
 {}
 
 

@@ -816,6 +816,20 @@ void EveSOFDataMgr::GenerateRaceData( RaceData& rd, EveSOFDataRacePtr srcData ) 
 	rd.boosters.symHaloScale = srcData->m_booster->m_symHaloScale;
 	rd.boosters.trailColor = srcData->m_booster->m_trailColor;
 	rd.boosters.trailSize = srcData->m_booster->m_trailSize;
+
+	// shader data
+	for( auto hait = srcData->m_hullAreas.begin(); hait != srcData->m_hullAreas.end(); ++hait )
+	{
+		EveSOFDataFactionHullAreaPtr hullAreaData = (*hait);
+
+		FactionAreaData fad;
+		for( auto hapit = hullAreaData->m_parameters.begin(); hapit != hullAreaData->m_parameters.end(); ++hapit )
+		{
+			EveSOFDataParameterPtr param = (*hapit);
+			fad.parameters[ param->m_name ] = param->m_value;
+		}
+		rd.hullAreaParameters[ hullAreaData->m_name ] = fad;
+	}
 }
 
 // --------------------------------------------------------------------------------

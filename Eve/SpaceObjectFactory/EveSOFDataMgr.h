@@ -253,6 +253,8 @@ public:
 	{
 		// boosters
 		RaceBoosterData boosters;
+		// hull area parameter overloads
+		std::map<BlueSharedString, FactionAreaData> hullAreaParameters;
 	};
 
 	// material data structs

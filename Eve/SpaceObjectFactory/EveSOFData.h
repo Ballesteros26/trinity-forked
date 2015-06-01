@@ -551,6 +551,9 @@ public:
 
 	// data
 	EveSOFDataBoosterPtr m_booster;
+
+	// hull area data
+	PEveSOFDataFactionHullAreaVector m_hullAreas;
 };
 TYPEDEF_BLUECLASS( EveSOFDataRace );
 BLUE_DECLARE_VECTOR( EveSOFDataRace );
