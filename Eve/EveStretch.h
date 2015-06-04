@@ -87,6 +87,7 @@ private:
 	EveTransformPtr m_sourceObject;
 	EveTransformPtr m_destObject;
 	EveTransformPtr m_stretchObject;
+	EveTransformPtr m_moveObject;
 
 	PTriCurveSetVector m_curveSets;
 

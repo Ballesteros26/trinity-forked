@@ -71,6 +71,15 @@ const Be::ClassInfo* EveStretch::ExposeToBlue()
 			"Object to be stretched from source to destination", 
 			Be::READWRITE | Be::PERSIST
 		)
+
+		MAP_ATTRIBUTE
+		(
+			"moveObject",
+			m_moveObject,
+			"Object to be translated from source to destination",
+			Be::READWRITE | Be::PERSIST
+		)
+
 		MAP_ATTRIBUTE
 		( 
 			"curveSets", 

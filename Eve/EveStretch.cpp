@@ -78,6 +78,11 @@ void EveStretch::UpdateAsyncronous( EveUpdateContext& updateContext )
 	{
 		m_stretchObject->Update( updateContext );
 	}
+
+	if( m_moveObject )
+	{
+		m_moveObject->Update( updateContext );
+	}
 	
 	if( m_destObject && m_displayDestObject )
 	{
@@ -130,7 +135,7 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 
 	Vector3 directionVec( m_sourcePosition - m_destinationPosition );
 	float scalingLength = D3DXVec3Length( &directionVec );
-
+	
 	if( m_sourceObject && m_displaySourceObject )
 	{
 		if( m_useTransformsForStretch )
@@ -154,7 +159,7 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 
 			m_sourceObject->GetRenderables( frustum, renderables, m );
 		}
-		// The object's LOD is the highest of it's stretch, dest and source object's LODs
+		// The object's LOD is the highest of it's move, stretch, dest and source object's LODs
 		m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, m_sourceObject->GetLODLevel() );
 	}
 
@@ -169,7 +174,7 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 		D3DXMatrixTransformation( &m, NULL, NULL, NULL, NULL, &rotation, &m_destinationPosition );
 
 		m_destObject->GetRenderables( frustum, renderables, m );
-		// The object's LOD is a combination of it's stretch, dest and source object's LODs
+		// The object's LOD is a combination of it's move, stretch, dest and source object's LODs
 		m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, m_destObject->GetLODLevel() );
 	}
 
@@ -201,8 +206,28 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 		}
 
 		m_stretchObject->GetRenderables( frustum, renderables, m );
-		// The object's LOD is a combination of it's stretch, dest and source object's LODs
+		// The object's LOD is a combination of it's move, stretch, dest and source object's LODs
 		m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, m_stretchObject->GetLODLevel() );
+	}
+
+	if( m_moveObject )
+	{
+		Matrix m;
+
+		// support pointing in -z!
+		if( !m_isNegZForward )
+		{
+			directionVec *= -1.f;
+		}
+
+		Quaternion rotation( 0.0f, 0.0f, 0.0f, 1.0f );
+		TriQuaternionArcFromForward( &rotation, &directionVec );
+
+		D3DXMatrixTransformation( &m, NULL, NULL, NULL, NULL, &rotation, &m_sourcePosition );
+
+		m_moveObject->GetRenderables( frustum, renderables, m );
+		// The object's LOD is a combination of it's move, stretch, dest and source object's LODs
+		m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, m_moveObject->GetLODLevel() );
 	}
 }
 
