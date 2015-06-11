@@ -113,30 +113,40 @@ struct CairoData
 cairo_surface_t* SurfaceCreate( void *closure, cairo_content_t, double width, double height, long )
 {
 	auto data = static_cast<CairoData*>( closure );
-	data->originalWidth = width;
-	data->originalHeight = height;
-	if( data->width == 0 && data->height == 0 )
+	if( data->surface )
 	{
-		data->width = uint32_t( width + 0.5f );
-		data->height = uint32_t( height + 0.5f );
+		return cairo_image_surface_create( CAIRO_FORMAT_ARGB32, int( width ), int( height ) );
 	}
-	else if( data->width == 0 )
+	else
 	{
-		data->width = uint32_t( width * data->height / height + 0.5f );
+		data->originalWidth = width;
+		data->originalHeight = height;
+		if( data->width == 0 && data->height == 0 )
+		{
+			data->width = uint32_t( width + 0.5f );
+			data->height = uint32_t( height + 0.5f );
+		}
+		else if( data->width == 0 )
+		{
+			data->width = uint32_t( width * data->height / height + 0.5f );
+		}
+		else if( data->height == 0 )
+		{
+			data->height = uint32_t( width * data->width / height + 0.5f );
+		}
+		data->surface = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, data->width, data->height );
+		return cairo_surface_reference( data->surface );
 	}
-	else if( data->height == 0 )
-	{
-		data->height = uint32_t( width * data->width / height + 0.5f );
-	}
-	data->surface = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, data->width, data->height );
-	return cairo_surface_reference( data->surface );
 }
 
 cairo_t* ContextCreate( void *closure, cairo_surface_t *surface )
 {
 	auto data = static_cast<CairoData*>( closure );
 	auto context = cairo_create( surface );
-	cairo_scale( context, data->width / data->originalWidth, data->height / data->originalHeight );
+	if( !data->surface || data->surface == surface )
+	{
+		cairo_scale( context, data->width / data->originalWidth, data->height / data->originalHeight );
+	}
 	return context;
 }
 
@@ -418,8 +428,8 @@ bool IsCairoScriptPath( const wchar_t* path )
     auto ext = path + length - 4;
 	return length > 4 && ext[0] == L'.' &&
         ( ext[1] == L'e' || ext[1] == L'E' ) &&
-        ( ext[1] == L'C' || ext[1] == L'C' ) &&
-        ( ext[1] == L'S' || ext[1] == L'S' );
+        ( ext[2] == L'c' || ext[2] == L'C' ) &&
+        ( ext[3] == L's' || ext[3] == L'S' );
 }
 
 bool RasterizeCairoScript( const char* script, size_t length, uint32_t width, uint32_t height, ImageIO::HostBitmap& bitmap )
@@ -447,7 +457,8 @@ bool RasterizeCairoScript( const char* script, size_t length, uint32_t width, ui
 
 		auto interpreter = cairo_script_interpreter_create();
 		cairo_script_interpreter_install_hooks( interpreter, &hooks );
-		success = cairo_script_interpreter_feed_string( interpreter, script, int( length ) ) == CAIRO_STATUS_SUCCESS;
+		auto result = cairo_script_interpreter_feed_string( interpreter, script, int( length ) );
+		success = result == CAIRO_STATUS_SUCCESS;
 		cairo_script_interpreter_finish( interpreter );
 		cairo_script_interpreter_destroy( interpreter );
 	}
@@ -463,14 +474,33 @@ bool RasterizeCairoScript( const char* script, size_t length, uint32_t width, ui
 		{
 			auto src = cairo_image_surface_get_data( data->surface );
 			auto srcStride = cairo_image_surface_get_stride( data->surface );
-			auto dest = bitmap.GetRawData();
+			auto dest = reinterpret_cast<uint8_t*>( bitmap.GetRawData() );
 			auto destStride = bitmap.GetPitch();
 
+			// we need to convert cairo's premultiplied alpha image to non-premultiplied alpha
 			for( uint32_t j = 0; j < data->height; ++j )
 			{
-				memcpy( dest, src, std::min( unsigned( srcStride ), destStride ) );
-				src += srcStride;
-				dest += destStride;
+				for( uint32_t i = 0; i < data->width; ++i )
+				{
+					float a = float( src[3] ) / 255.f;
+					if( a )
+					{
+						dest[0] = uint8_t( src[0] / a );
+						dest[1] = uint8_t( src[1] / a );
+						dest[2] = uint8_t( src[2] / a );
+					}
+					else
+					{
+						dest[0] = src[0];
+						dest[1] = src[1];
+						dest[2] = src[2];
+					}
+					dest[3] = src[3];
+					dest += 4;
+					src += 4;
+				}
+				src += srcStride - data->width * 4;
+				dest += destStride - data->width * 4;
 			}
 		}
 		else
