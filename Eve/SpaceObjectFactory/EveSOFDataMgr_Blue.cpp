@@ -28,6 +28,7 @@ const Be::ClassInfo* EveSOFDataMgr::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( "HasFactionData", HasFactionData, "Does this faction exist?" )
 		MAP_METHOD_AND_WRAP( "HasHullData", HasHullData, "Does this hull exist?" )
 		MAP_METHOD_AND_WRAP( "HasRaceData", HasRaceData, "Does this race exist?" )
+		MAP_METHOD_AND_WRAP( "HasMaterialData", HasMaterialData, "Does this material exist?" )
 
     EXPOSURE_END()
 }
