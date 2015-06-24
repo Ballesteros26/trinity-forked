@@ -115,7 +115,11 @@ cairo_surface_t* SurfaceCreate( void *closure, cairo_content_t, double width, do
 	auto data = static_cast<CairoData*>( closure );
 	if( data->surface )
 	{
-		return cairo_image_surface_create( CAIRO_FORMAT_ARGB32, int( width ), int( height ) );
+		double xscale = data->width / data->originalWidth;
+		double yscale = data->height / data->originalHeight;
+		auto surface = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, int( width * xscale ), int( height * yscale ) );
+		cairo_surface_set_device_scale( surface, xscale, yscale );
+		return surface;
 	}
 	else
 	{
@@ -135,19 +139,40 @@ cairo_surface_t* SurfaceCreate( void *closure, cairo_content_t, double width, do
 			data->height = uint32_t( width * data->width / height + 0.5f );
 		}
 		data->surface = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, data->width, data->height );
+		double xscale = data->width / data->originalWidth;
+		double yscale = data->height / data->originalHeight;
+		cairo_surface_set_device_scale( data->surface, xscale, yscale );
 		return cairo_surface_reference( data->surface );
 	}
 }
 
-cairo_t* ContextCreate( void *closure, cairo_surface_t *surface )
+bool ProtectedRasterize( const char* script, size_t length, CairoData* data )
 {
-	auto data = static_cast<CairoData*>( closure );
-	auto context = cairo_create( surface );
-	if( !data->surface || data->surface == surface )
+	cairo_script_interpreter_hooks_t hooks = {
+		data,
+		&SurfaceCreate,
+	};
+
+	bool success;
+
+#ifdef _MSC_VER
+	__try
+#endif
 	{
-		cairo_scale( context, data->width / data->originalWidth, data->height / data->originalHeight );
+		auto interpreter = cairo_script_interpreter_create();
+		cairo_script_interpreter_install_hooks( interpreter, &hooks );
+		auto result = cairo_script_interpreter_feed_string( interpreter, script, int( length ) );
+		success = result == CAIRO_STATUS_SUCCESS;
+		cairo_script_interpreter_finish( interpreter );
+		cairo_script_interpreter_destroy( interpreter );
 	}
-	return context;
+#ifdef _MSC_VER
+	__except( EXCEPTION_EXECUTE_HANDLER )
+	{ 
+		CCP_LOGERR( "Exception caught while rasterizing cairo script" );
+	}
+#endif
+	return success;
 }
 
 const BlueAsyncRes::QueryArgument* FindFirstQueryArgumentByName( const BlueAsyncRes::QueryArguments& arguments, const wchar_t* name )
@@ -443,26 +468,11 @@ bool RasterizeCairoScript( const char* script, size_t length, uint32_t width, ui
 	data->originalWidth = width;
 	data->originalHeight = height;
 
-	cairo_script_interpreter_hooks_t hooks = {
-		data.get(),
-		&SurfaceCreate,
-		nullptr,
-		&ContextCreate,
-	};
-
 	bool success;
-
 	{
 		CCP_STATS_ZONE( "Cairo rasterizing" );
-
-		auto interpreter = cairo_script_interpreter_create();
-		cairo_script_interpreter_install_hooks( interpreter, &hooks );
-		auto result = cairo_script_interpreter_feed_string( interpreter, script, int( length ) );
-		success = result == CAIRO_STATUS_SUCCESS;
-		cairo_script_interpreter_finish( interpreter );
-		cairo_script_interpreter_destroy( interpreter );
+		success = ProtectedRasterize( script, length, data.get() );
 	}
-
 	if( !data->surface )
 	{
 		success = false;
@@ -472,6 +482,7 @@ bool RasterizeCairoScript( const char* script, size_t length, uint32_t width, ui
 	{
 		if( bitmap.Create( data->width, data->height, 1, Tr2RenderContextEnum::PIXEL_FORMAT_B8G8R8A8_UNORM ) )
 		{
+			cairo_surface_flush( data->surface );
 			auto src = cairo_image_surface_get_data( data->surface );
 			auto srcStride = cairo_image_surface_get_stride( data->surface );
 			auto dest = reinterpret_cast<uint8_t*>( bitmap.GetRawData() );
