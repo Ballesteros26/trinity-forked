@@ -172,6 +172,7 @@ public:
 	static void SetProjectionTransform( const Matrix& proj );
 
     static const Matrix& GetProjectionTransform();
+	static Matrix GetReversedDepthProjectionTransform();
 	static const Matrix& GetProjectionRawTransform();
     static const Matrix& GetInverseProjectionTransform();
 	static const PROJECTION_TYPE GetCurrentProjectionType();

@@ -1509,7 +1509,7 @@ bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 		}
 
 		// now it's ok to clear z-buffer
-		Tr2Renderer::ClearDepthBuffer();
+		Tr2Renderer::ClearDepthBuffer( 0.f );
 	}
 
 	if( m_warpTunnel )
@@ -1558,7 +1558,7 @@ void EveSpaceScene::RenderDepthPass( Tr2RenderContext& renderContext )
 			PopulatePerFrameVSData( m_perFrameVS );
 			ApplyPerFrameData( renderContext );
 		}
-		Tr2Renderer::ClearDepthBuffer();
+		Tr2Renderer::ClearDepthBuffer( 0.0f );
 
 		ApplyPerFrameData( renderContext );
 
@@ -1831,6 +1831,9 @@ void EveSpaceScene::PopulateAndApplyPerFrameData( Tr2RenderContext& renderContex
 
 void EveSpaceScene::Render( Tr2RenderContext& renderContext )
 {
+	renderContext.m_esm.SetInvertedDepthTest( true );
+	ON_BLOCK_EXIT( [&] { renderContext.m_esm.SetInvertedDepthTest( false ); } );
+
 	BeginRender( renderContext );
 	RenderBackgroundPass( renderContext );
 	//RenderDepthPass( renderContext );
@@ -1840,6 +1843,9 @@ void EveSpaceScene::Render( Tr2RenderContext& renderContext )
 
 ITr2MultiPassScene::RenderPassResult EveSpaceScene::RenderPass( PassType pass, Tr2RenderContext& renderContext )
 {
+	renderContext.m_esm.SetInvertedDepthTest( true );
+	ON_BLOCK_EXIT( [&] { renderContext.m_esm.SetInvertedDepthTest( false ); } );
+
 	switch( pass )
 	{
 	case RP_BEGIN_RENDER:
@@ -1929,8 +1935,9 @@ void EveSpaceScene::PopulatePerFrameVSData( PerFrameVSData &data )
 {
 	// column_major for shaders
 	D3DXMatrixTranspose( &data.ViewMat, &Tr2Renderer::GetViewTransform() );
-	D3DXMatrixTranspose( &data.ProjectionMat, &Tr2Renderer::GetProjectionTransform() );
-	Matrix viewProject( Tr2Renderer::GetViewTransform() * Tr2Renderer::GetProjectionTransform() );
+	Matrix proj = Tr2Renderer::GetReversedDepthProjectionTransform();
+	D3DXMatrixTranspose( &data.ProjectionMat, &proj );
+	Matrix viewProject( Tr2Renderer::GetViewTransform() * proj );
 	D3DXMatrixTranspose( &data.ViewProjectionMat, &viewProject );
 	// attention: need the transposed, but shader also needs column_major, so it is transpose(transpose(m)) == m
 	data.ViewInverseTransposeMat = Tr2Renderer::GetInverseViewTransform();
@@ -2028,7 +2035,7 @@ void EveSpaceScene::PopulatePerFramePSData( PerFramePSData &data )
 	data.ShadowLightness = 0;
 	data.DepthMapSampleCount = float( m_depthMap ? m_depthMap->m_depthStencil.GetMsaaType() : 0 );
 
-	const Matrix& projection = Tr2Renderer::GetProjectionTransform();
+	const Matrix& projection = Tr2Renderer::GetReversedDepthProjectionTransform();
 	data.ProjectionToView.x = projection._43;
 	data.ProjectionToView.y = projection._33;
 
@@ -2266,6 +2273,9 @@ IRoot* EveSpaceScene::PickObjectAndArea( int x, int y, TriProjection* proj, TriV
 
 	if ( !collisionSet.empty() )
 	{
+		renderContext.m_esm.SetInvertedDepthTest( true );
+		ON_BLOCK_EXIT( [&] { renderContext.m_esm.SetInvertedDepthTest( false ); } );
+
 		renderContext.m_esm.BeginManagedRendering();
 		ON_BLOCK_EXIT( [&]{ renderContext.m_esm.EndManagedRendering(); } );
 		
@@ -2278,7 +2288,7 @@ IRoot* EveSpaceScene::PickObjectAndArea( int x, int y, TriProjection* proj, TriV
 		unsigned short objId = 0xffff;
 		unsigned short aId = 0xffff;
 
-		if ( m_pickBuffer.BeginRendering( initialDepth, renderContext ) )
+		if ( m_pickBuffer.BeginRendering( 1 - initialDepth, renderContext ) )
 		{
 			for ( unsigned int i = 0; i < collisionSet.size(); i++ )
 			{

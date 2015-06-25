@@ -89,8 +89,12 @@ void Tr2PrimitiveScene::Render( Tr2RenderContext& renderContext )
 	}
 
 	m_opaqueBatches->Finalize();
+
+	renderContext.m_esm.SetInvertedDepthTest( true );
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
 	renderContext.RenderBatches( m_opaqueBatches );
+	renderContext.m_esm.SetInvertedDepthTest( false );
+
 	m_opaqueBatches->Clear();
 	m_allocator->Clear();
 
@@ -177,9 +181,12 @@ void Tr2PrimitiveScene::SetupPerFrameData( )
 
 	// column_major for shaders
 	data.ViewMat = XMMatrixTranspose( Tr2Renderer::GetViewTransform() );
-	data.ProjectionMat = XMMatrixTranspose( Tr2Renderer::GetProjectionTransform() );
+
+	Matrix proj = Tr2Renderer::GetReversedDepthProjectionTransform();
+
+	data.ProjectionMat = XMMatrixTranspose( proj );
 	data.ViewProjectionMat = XMMatrixTranspose( 
-		XMMatrixMultiply( Tr2Renderer::GetViewTransform(), Tr2Renderer::GetProjectionTransform() ) );
+		XMMatrixMultiply( Tr2Renderer::GetViewTransform(), proj ) );
 
 	FillAndSetConstants( m_vertexConstants, data, Tr2RenderContextEnum::VERTEX_SHADER, Tr2Renderer::GetPerFrameVSStartRegister(), renderContext );
 }

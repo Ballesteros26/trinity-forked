@@ -619,6 +619,14 @@ const Matrix& Tr2Renderer::GetProjectionTransform()
     return s_projectionTransform;
 }
 
+Matrix Tr2Renderer::GetReversedDepthProjectionTransform()
+{
+	Matrix proj = s_projectionTransform;
+	proj._33 = -proj._33 - 1.f;
+	proj._43 = -proj._43;
+	return proj;
+}
+
 const Matrix& Tr2Renderer::GetProjectionRawTransform()
 {
     return s_projectionRawTransform;

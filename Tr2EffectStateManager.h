@@ -104,11 +104,8 @@ public:
 	void SetInvertedCullMode( bool b );
 	bool IsCullModeInverted();
 
-	
-
-	// Shared across managers:
-	// - sampler setups
-	// - vertex declarations
+	void SetInvertedDepthTest( bool invertedDepthTest );
+	bool IsDepthTestInverted() const;
 
 	static uint32_t RegisterSamplerSetup( const Tr2SamplerDescription& description );
 	
@@ -122,6 +119,9 @@ public:
 private:
 	friend class Tr2EffectRes;
 	friend class Tr2LowLevelShader;
+
+	void SetRenderStateOverride( Tr2RenderContextEnum::RenderState state, const uint32_t* overrides );
+	void DoApplyRenderStates( uint32_t ix );
 
 	Tr2RenderContext&	m_renderContext;
 
@@ -154,9 +154,21 @@ private:
 
 	CurrentValues m_currentValues;
 
-	uint32_t		m_fillMode;
-	bool			m_isCullModeInverted;
-	bool			m_isManagedRendering;
+	bool m_isManagedRendering;
+
+	struct RenderStates
+	{
+		RenderStates()
+			:dirty( true )
+		{
+		}
+
+		std::vector<uint32_t> states;
+		bool dirty;
+	};
+
+	std::vector<RenderStates> m_renderStates;
+	const uint32_t* m_renderStateOverrides[Tr2RenderContextEnum::RS_MAX_STATE];
 
 	Tr2EffectStateManager( const Tr2EffectStateManager & );
 	Tr2EffectStateManager& operator=( const Tr2EffectStateManager & );

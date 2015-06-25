@@ -168,7 +168,11 @@ TriDevice::TriDevice(IRoot* lockobj) :
 	mPresentParam.outputWindow	   = 0;
 	mPresentParam.windowed		   = true;
 	
-	mPresentParam.depthStencilFormat = DSFMT_D24S8; //enough for most purposes, yea.
+#if( TRINITY_PLATFORM==TRINITY_DIRECTX11 )
+	mPresentParam.depthStencilFormat = DSFMT_D32F;
+#else
+	mPresentParam.depthStencilFormat = DSFMT_D24S8;
+#endif
 
 	mPresentParam.presentInterval = PRESENT_INTERVAL_ONE;
 
