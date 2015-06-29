@@ -81,6 +81,10 @@ private:
 	void DecodeBufferPixel( const void* pBuffer, PickComponents pass, BufferResults& results ) const;
 
 	Tr2PickBuffer& GetPickBuffer( void );
+
+	virtual bool RenderPicking( ITriRenderBatchAccumulator* pOpaquePickingBatches,
+						ITriRenderBatchAccumulator* pPickingBatches,
+						PickComponents pass );
 private:
 	// typedef to shorten the iterator declaration
 	typedef Tr2PrimitiveSetVector::const_iterator PrimitiveIterator;

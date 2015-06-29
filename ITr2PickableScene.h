@@ -205,6 +205,9 @@ protected:
 
     bool RenderPickingBuffer( ITr2RenderableArray const& pickableObjects, PickComponents pass );
 
+	virtual bool RenderPicking( ITriRenderBatchAccumulator* pOpaquePickingBatches,
+						ITriRenderBatchAccumulator* pPickingBatches,
+						PickComponents pass );
 private:
     // Do-all combo method. If pickedUV is not none, this switches to UV 
     // picking and pickedObject and area are no longer filled in.
@@ -216,9 +219,6 @@ private:
 	void GetBatches( std::vector<ITr2Renderable*> const& pickableObjects,
 					 ITriRenderBatchAccumulator*& pOpaquePickingBatches,
 					 ITriRenderBatchAccumulator*& pPickingBatches );
-	bool RenderPicking( ITriRenderBatchAccumulator* pOpaquePickingBatches,
-						ITriRenderBatchAccumulator* pPickingBatches,
-						PickComponents pass );
 };
 
 #endif // ITr2PickableScene_H

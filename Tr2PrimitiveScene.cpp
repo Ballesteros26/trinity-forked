@@ -218,6 +218,60 @@ const std::vector<ITr2Renderable*>& Tr2PrimitiveScene::GetObjectsInsideFrustum( 
 
 }
 
+bool Tr2PrimitiveScene::RenderPicking( 
+	ITriRenderBatchAccumulator* pOpaquePickingBatches,
+	ITriRenderBatchAccumulator* pPickingBatches,
+	PickComponents pass )
+{
+	USE_MAIN_THREAD_RENDER_CONTEXT();
+	renderContext.m_esm.SetInvertedDepthTest( true );
+	ON_BLOCK_EXIT( [&] { renderContext.m_esm.SetInvertedDepthTest( false ); } );
+
+    int objectNum = 0xffffffff;
+
+	// Use a shader variable for identifying which components are expected.
+	// We can't use situations here because the flags might change during a single
+	// frame.
+	Vector4 componentsParam = Vector4( 
+		pass & PICK_OBJECT ? 1.0f : 0.0f, 
+		pass & PICK_AREA ? 1.0f : 0.0f, 
+		pass & PICK_POSITION ? 1.0f : 0.0f, 
+		pass & PICK_UV ? 1.0f : 0.0f );
+
+	GlobalStore().RegisterVariable( "PickingComponents", componentsParam );
+
+    // Get the pick buffer
+    Tr2PickBuffer& pickBuffer = GetPickBuffer();
+
+    if( !pickBuffer.BeginRendering( 0, renderContext ) )
+    {
+        return false;
+    }
+
+    TriRenderBatch* p = pOpaquePickingBatches->GetFirstBatch();
+
+    if( p != NULL )
+    {
+        renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
+        renderContext.RenderBatchesForPicking( GetPickingEffect( pass ), p, objectNum );
+    }
+
+    if( pPickingBatches && RenderPickingAreasForComponents( pass ) )
+    {
+        pPickingBatches->Finalize();
+
+        renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
+		renderContext.RenderBatchesForPickingWithoutOverride( pPickingBatches, objectNum );
+    }
+
+    if( !pickBuffer.EndRendering( renderContext ) )
+    {
+        return false;
+    }
+
+    return true;
+}
+
 const std::vector<ITr2Renderable*>& Tr2PrimitiveScene::GetPickingObjectsToRender( const Vector3& dirWorld )
 {
 	m_pickingObjects.clear();
