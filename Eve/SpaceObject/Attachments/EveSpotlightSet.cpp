@@ -298,9 +298,9 @@ bool EveSpotlightSet::OnPrepareResources()
 			vertex.m_spriteColor[0] = m_spotlightItems[i]->m_spriteColor.r;
 			vertex.m_spriteColor[1] = m_spotlightItems[i]->m_spriteColor.g;
 			vertex.m_spriteColor[2] = m_spotlightItems[i]->m_spriteColor.b;
-			vertex.m_flareColor[0] = m_spotlightItems[i]->m_spriteColor.r;
-			vertex.m_flareColor[1] = m_spotlightItems[i]->m_spriteColor.g;
-			vertex.m_flareColor[2] = m_spotlightItems[i]->m_spriteColor.b;
+			vertex.m_flareColor[0] = m_spotlightItems[i]->m_flareColor.r;
+			vertex.m_flareColor[1] = m_spotlightItems[i]->m_flareColor.g;
+			vertex.m_flareColor[2] = m_spotlightItems[i]->m_flareColor.b;
 			vertex.m_scale[0] = m_spotlightItems[i]->m_spriteScale.x;
 			vertex.m_scale[1] = m_spotlightItems[i]->m_spriteScale.x;
 			vertex.m_scale[2] = m_spotlightItems[i]->m_spriteScale.z;
