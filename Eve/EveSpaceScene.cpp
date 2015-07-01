@@ -2594,6 +2594,10 @@ bool EveSpaceScene::IsMeshUnloadingEnabled()
 
 void EveSpaceScene::RenderDebugInfo( Tr2RenderContext& renderContext )
 {
+	auto bkProjection = Tr2Renderer::GetProjectionRawTransform();
+	Tr2Renderer::SetProjectionTransform( Tr2Renderer::GetReversedDepthProjectionTransform() );
+	ON_BLOCK_EXIT( [&] { Tr2Renderer::SetProjectionTransform( bkProjection ); } );
+
 	for( IEveSpaceObject2Vector::iterator it = m_objects.begin(); it != m_objects.end(); ++it )
 	{
 		IEveSpaceObject2* obj = *it;
