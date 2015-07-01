@@ -75,6 +75,15 @@ Tr2LightManager::Tr2LightManager( const char* effectPath )
 	PrepareResources();
 }
 
+Tr2LightManager::~Tr2LightManager()
+{
+	Tr2GpuStructuredBufferPtr empty;
+	empty.CreateInstance();
+
+	m_lightBufferVariable.Register( "LightBuffer", empty );
+	m_indexBufferVariable.Register( "LightIndexBuffer", empty );
+}
+
 void Tr2LightManager::Clear()
 {
 	m_lightData.Clear();

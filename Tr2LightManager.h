@@ -59,6 +59,7 @@ class Tr2LightManager: public Tr2DeviceResource
 {
 public:
 	Tr2LightManager( const char* effectPath );
+	~Tr2LightManager();
 
 	void Clear();
 	void SetFrustum( const TriFrustum& frustum );
