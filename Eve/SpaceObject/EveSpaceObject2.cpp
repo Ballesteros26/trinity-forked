@@ -825,7 +825,7 @@ bool EveSpaceObject2::FindLocatorTransformByName( const char* name, unsigned int
 void EveSpaceObject2::UpdateShLighting( Tr2ShLightingManager& manager )
 {
 	memset( m_shLightingCoefficients, 0, sizeof( m_shLightingCoefficients ) );
-	if( m_estimatedPixelDiameterWithChildren > g_eveSpaceSceneLowDetailThreshold )
+	if( m_display && m_isInFrustum && m_estimatedPixelDiameterWithChildren > g_eveSpaceSceneLowDetailThreshold )
 	{
 		float intensityFadeRadius = ( g_eveSpaceSceneMediumDetailThreshold - g_eveSpaceSceneLowDetailThreshold ) * 0.25f;
 		float intensity = ( m_estimatedPixelDiameterWithChildren - g_eveSpaceSceneLowDetailThreshold ) / intensityFadeRadius;
