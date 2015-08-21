@@ -5,7 +5,6 @@
     <Filter Include="Source Files\Shaders.DX11"/>
     <Filter Include="Source Files\Shaders.DX9"/>
     <Filter Include="Source Files\Shaders.GLES2"/>
-    <Filter Include="Source Files\Shaders.Orbis"/>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="autoversion.h">
@@ -182,48 +181,6 @@
     <ClInclude Include="Shaders.GLES2\TexCoordAndPosition.vs.patched.h">
       <Filter>Source Files\Shaders.GLES2</Filter>
     </ClInclude>
-    <ClInclude Include="Shaders.Orbis\ConstantColor.ps.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\ConstantColor.ps.patched.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\InstancedRendering.vs.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\InstancedRendering.vs.patched.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\OutputTexCoord.ps.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\OutputTexCoord.ps.patched.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\PositionOnly.vs.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\PositionOnly.vs.patched.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\PositionOnlyWithPerObjectData.vs.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\PositionOnlyWithPerObjectData.vs.patched.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\SampleTextureFromTexCoord.ps.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\SampleTextureFromTexCoord.ps.patched.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\TexCoordAndPosition.vs.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
-    <ClInclude Include="Shaders.Orbis\TexCoordAndPosition.vs.patched.h">
-      <Filter>Source Files\Shaders.Orbis</Filter>
-    </ClInclude>
     <ClCompile Include="ALResultTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -264,9 +221,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RenderWindow_Glfw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderWindow_Orbis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RenderWindow_Stub.cpp">
@@ -321,9 +275,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WithWindowFixture_Glfw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="WithWindowFixture_Orbis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WithWindowFixture_Stub.cpp">

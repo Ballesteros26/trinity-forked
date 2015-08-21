@@ -872,20 +872,6 @@
     <ClInclude Include="Shaders.GLES2\SampleTextureMipFromTexCoord.ps.patched.h"/>
     <ClInclude Include="Shaders.GLES2\TexCoordAndPosition.vs.h"/>
     <ClInclude Include="Shaders.GLES2\TexCoordAndPosition.vs.patched.h"/>
-    <ClInclude Include="Shaders.Orbis\ConstantColor.ps.h"/>
-    <ClInclude Include="Shaders.Orbis\ConstantColor.ps.patched.h"/>
-    <ClInclude Include="Shaders.Orbis\InstancedRendering.vs.h"/>
-    <ClInclude Include="Shaders.Orbis\InstancedRendering.vs.patched.h"/>
-    <ClInclude Include="Shaders.Orbis\OutputTexCoord.ps.h"/>
-    <ClInclude Include="Shaders.Orbis\OutputTexCoord.ps.patched.h"/>
-    <ClInclude Include="Shaders.Orbis\PositionOnly.vs.h"/>
-    <ClInclude Include="Shaders.Orbis\PositionOnly.vs.patched.h"/>
-    <ClInclude Include="Shaders.Orbis\PositionOnlyWithPerObjectData.vs.h"/>
-    <ClInclude Include="Shaders.Orbis\PositionOnlyWithPerObjectData.vs.patched.h"/>
-    <ClInclude Include="Shaders.Orbis\SampleTextureFromTexCoord.ps.h"/>
-    <ClInclude Include="Shaders.Orbis\SampleTextureFromTexCoord.ps.patched.h"/>
-    <ClInclude Include="Shaders.Orbis\TexCoordAndPosition.vs.h"/>
-    <ClInclude Include="Shaders.Orbis\TexCoordAndPosition.vs.patched.h"/>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ALResultTest.cpp"/>
@@ -902,7 +888,6 @@
     <ClCompile Include="RenderTarget.cpp"/>
     <ClCompile Include="RenderWindow_Egl.cpp"/>
     <ClCompile Include="RenderWindow_Glfw.cpp"/>
-    <ClCompile Include="RenderWindow_Orbis.cpp"/>
     <ClCompile Include="RenderWindow_Stub.cpp"/>
     <ClCompile Include="RenderWindow_Win32.cpp"/>
     <ClCompile Include="SamplerState.cpp"/>
@@ -923,7 +908,6 @@
     <ClCompile Include="WithValidRenderContextFixture.cpp"/>
     <ClCompile Include="WithWindowFixture_Egl.cpp"/>
     <ClCompile Include="WithWindowFixture_Glfw.cpp"/>
-    <ClCompile Include="WithWindowFixture_Orbis.cpp"/>
     <ClCompile Include="WithWindowFixture_Stub.cpp"/>
     <ClCompile Include="WithWindowFixture_Win32.cpp"/>
   </ItemGroup>
