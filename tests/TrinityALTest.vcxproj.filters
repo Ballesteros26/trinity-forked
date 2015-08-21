@@ -1,11 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files" />
-    <Filter Include="Source Files\Shaders.DX11" />
-    <Filter Include="Source Files\Shaders.DX9" />
-    <Filter Include="Source Files\Shaders.GLES2" />
-    <Filter Include="Source Files\Shaders.Orbis" />
+    <Filter Include="Source Files"/>
+    <Filter Include="Source Files\Shaders.DX11"/>
+    <Filter Include="Source Files\Shaders.DX9"/>
+    <Filter Include="Source Files\Shaders.GLES2"/>
+    <Filter Include="Source Files\Shaders.Orbis"/>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="autoversion.h">
@@ -266,6 +266,9 @@
     <ClCompile Include="RenderWindow_Glfw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenderWindow_Orbis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="RenderWindow_Stub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -318,6 +321,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WithWindowFixture_Glfw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WithWindowFixture_Orbis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WithWindowFixture_Stub.cpp">

@@ -29,9 +29,6 @@
     <ClInclude Include="Tr2BufferImplALDx11.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2BufferImplALOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2CapsALDx11.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -39,9 +36,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2CapsALGLES2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tr2CapsALOrbis.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2CapsALStub.h">
@@ -56,9 +50,6 @@
     <ClInclude Include="Tr2ConstantBufferALGLES2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2ConstantBufferALOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2ConstantBufferALStub.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -69,9 +60,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2DepthStencilALGLES2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tr2DepthStencilALOrbis.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2DepthStencilALStub.h">
@@ -92,9 +80,6 @@
     <ClInclude Include="Tr2FenceALGLES2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2FenceALOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2FenceALStub.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -108,9 +93,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2GpuBufferALGLES2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tr2GpuBufferALOrbis.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2GpuBufferALStub.h">
@@ -137,9 +119,6 @@
     <ClInclude Include="Tr2IndexBufferALGLES2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2IndexBufferALOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2IndexBufferALStub.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -152,16 +131,10 @@
     <ClInclude Include="Tr2LockedRenderTargetALGLES2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2LockedRenderTargetALOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2LockedRenderTargetALStub.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2LockGuard.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tr2MemoryAllocator.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2OcclusionQueryALDx11.h">
@@ -171,9 +144,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2OcclusionQueryALGLES2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tr2OcclusionQueryALOrbis.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2OcclusionQueryALStub.h">
@@ -197,9 +167,6 @@
     <ClInclude Include="Tr2RenderContextGLES2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2RenderContextOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2RenderContextStub.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -215,9 +182,6 @@
     <ClInclude Include="Tr2RenderTargetALGLES2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2RenderTargetALOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2RenderTargetALStub.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -228,9 +192,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2SamplerStateALGLES2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tr2SamplerStateALOrbis.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2SamplerStateALStub.h">
@@ -245,9 +206,6 @@
     <ClInclude Include="Tr2ShaderALGLES2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2ShaderALOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2ShaderALStub.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -260,9 +218,6 @@
     <ClInclude Include="Tr2SwapChainALGLES2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2SwapChainALOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2SwapChainALStub.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -273,9 +228,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2TextureALGLES2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tr2TextureALOrbis.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2TextureALStub.h">
@@ -296,9 +248,6 @@
     <ClInclude Include="Tr2VertexBufferALGLES2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2VertexBufferALOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2VertexBufferALStub.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -314,9 +263,6 @@
     <ClInclude Include="Tr2VertexLayoutALGLES2.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tr2VertexLayoutALOrbis.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tr2VertexLayoutALStub.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -327,9 +273,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2VideoAdapterInfoALGLES2.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Tr2VideoAdapterInfoALOrbis.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Tr2VideoAdapterInfoALStub.h">
@@ -359,9 +302,6 @@
     <ClCompile Include="Tr2BufferImplALDx11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tr2BufferImplALOrbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tr2CapsALDx11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -369,9 +309,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2CapsALGLES2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tr2CapsALOrbis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2CapsALStub.cpp">
@@ -386,9 +323,6 @@
     <ClCompile Include="Tr2ConstantBufferALGLES2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tr2ConstantBufferALOrbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tr2ConstantBufferALStub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -399,9 +333,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2DepthStencilALGLES2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tr2DepthStencilALOrbis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2DepthStencilALStub.cpp">
@@ -420,9 +351,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2FenceALGLES2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tr2FenceALOrbis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2FenceALStub.cpp">
@@ -452,9 +380,6 @@
     <ClCompile Include="Tr2IndexBufferALGLES2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tr2IndexBufferALOrbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tr2IndexBufferALStub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -467,16 +392,10 @@
     <ClCompile Include="Tr2LockedRenderTargetALGLES2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tr2LockedRenderTargetALOrbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tr2LockedRenderTargetALStub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2LockGuard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tr2MemoryAllocator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2OcclusionQueryALDx11.cpp">
@@ -486,9 +405,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2OcclusionQueryALGLES2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tr2OcclusionQueryALOrbis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2OcclusionQueryALStub.cpp">
@@ -512,9 +428,6 @@
     <ClCompile Include="Tr2RenderContextGLES2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tr2RenderContextOrbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tr2RenderContextStub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -530,9 +443,6 @@
     <ClCompile Include="Tr2RenderTargetALGLES2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tr2RenderTargetALOrbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tr2RenderTargetALStub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -545,9 +455,6 @@
     <ClCompile Include="Tr2SamplerStateALGLES2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tr2SamplerStateALOrbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tr2SamplerStateALStub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -558,9 +465,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2ShaderALGLES2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tr2ShaderALOrbis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2ShaderALStub.cpp">
@@ -587,9 +491,6 @@
     <ClCompile Include="Tr2TextureALGLES2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tr2TextureALOrbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tr2TextureALStub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -603,9 +504,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2VertexBufferALGLES2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tr2VertexBufferALOrbis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2VertexBufferALStub.cpp">
@@ -623,9 +521,6 @@
     <ClCompile Include="Tr2VertexLayoutALGLES2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Tr2VertexLayoutALOrbis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Tr2VertexLayoutALStub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -636,9 +531,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2VideoAdapterInfoALGLES2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tr2VideoAdapterInfoALOrbis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2VideoAdapterInfoALStub.cpp">
