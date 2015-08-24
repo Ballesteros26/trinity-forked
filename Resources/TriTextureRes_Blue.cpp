@@ -235,6 +235,13 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			GetTrueMipCount,	
 			"Physical number of miplevels in this resource"
 		)
+		MAP_ATTRIBUTE
+		( 
+			"arraySize",	
+			m_arraySize,	
+			"Number of elements in texture array.", 
+			Be::READ
+		)
 		MAP_ATTRIBUTE_WITH_CHOOSER
 		(
 			"format",

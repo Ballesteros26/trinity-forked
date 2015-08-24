@@ -208,35 +208,54 @@ bool Create2DTexture(	ImageIO::HostBitmap& bitmap, Tr2TextureAL &out,
 
 	const unsigned trueMipLevelCount = bitmap.GetTrueMipCount();
 
-	std::vector<Tr2SubresourceData> initData( trueMipLevelCount );
+	std::vector<Tr2SubresourceData> initData( trueMipLevelCount * bitmap.GetArraySize() );
 
-	for( unsigned i = 0; i != trueMipLevelCount; ++i )
+	for( unsigned j = 0; j < bitmap.GetArraySize(); ++j )
 	{
-		Tr2SubresourceData& srd = initData[i];
+		for( unsigned i = 0; i != trueMipLevelCount; ++i )
+		{
+			Tr2SubresourceData& srd = initData[i + j * trueMipLevelCount];
 
-		srd.m_sysMem			= const_cast<char*>( bitmap.GetMipRawData( i ) );
-		srd.m_sysMemSlicePitch	= bitmap.GetMipSize( i );
-		srd.m_sysMemPitch		= bitmap.GetMipPitch( i );	
+			srd.m_sysMem			= const_cast<char*>( bitmap.GetMipRawData( i, j ) );
+			srd.m_sysMemSlicePitch	= bitmap.GetMipSize( i );
+			srd.m_sysMemPitch		= bitmap.GetMipPitch( i );	
 
-		if( !srd.m_sysMem )
+			if( !srd.m_sysMem )
+			{
+				return false;
+			}
+
+			memoryUse += srd.m_sysMemSlicePitch;
+		}
+	}
+
+	if( bitmap.GetArraySize() > 1 )
+	{
+		if( FAILED( out.Create2DArray( 
+			bitmap.GetWidth(), 
+			bitmap.GetHeight(), 
+			bitmap.GetTrueMipCount(), 
+			bitmap.GetArraySize(), 
+			bitmap.GetFormat(), 
+			usage, 
+			&initData[0], 
+			renderContext ) ) )
 		{
 			return false;
 		}
-
-		memoryUse += srd.m_sysMemSlicePitch;
-
-		//REPORT_TIME( "COPY: %5.5f sec '%s' - %d\n", t, m_sourceName.c_str(), i );
 	}
-
-	if( FAILED( out.Create2D(	bitmap.GetWidth(), 
-								bitmap.GetHeight(), 
-								bitmap.GetTrueMipCount(), 
-								bitmap.GetFormat(), 
-								usage, 
-								&initData[0], 
-								renderContext ) ) )
+	else
 	{
-		return false;
+		if( FAILED( out.Create2D(	bitmap.GetWidth(), 
+									bitmap.GetHeight(), 
+									bitmap.GetTrueMipCount(), 
+									bitmap.GetFormat(), 
+									usage, 
+									&initData[0], 
+									renderContext ) ) )
+		{
+			return false;
+		}
 	}
 
 	return true;

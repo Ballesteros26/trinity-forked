@@ -213,10 +213,10 @@ bool Tr2HostBitmap::CopyFromTextureRes ( TriTextureRes& res, Tr2RenderContext& r
 	}
 
 	const uint32_t mipCount  = std::min( GetTrueMipCount(), res.GetTrueMipCount() );
-	const uint32_t faceCount = GetType() == TEX_TYPE_CUBE ? 6 : 1;
+	const uint32_t faceCount = GetArraySize();
 
 
-	for( uint32_t face = CUBEMAP_FACE_FIRST; face != faceCount; ++face )
+	for( uint32_t face = 0; face != faceCount; ++face )
 	{
 		for( uint32_t mipLevel = 0; mipLevel != mipCount; ++mipLevel )
 		{
@@ -229,10 +229,9 @@ bool Tr2HostBitmap::CopyFromTextureRes ( TriTextureRes& res, Tr2RenderContext& r
 			{
 				hr = res.m_wrappedRenderTarget->GetRenderTarget().Lock( mipLevel, nullptr, srcData, srcPitch, renderContext );
 			}
-			else
-			if( res.GetTexture() )
+			else if( res.GetTexture() )
 			{
-				hr = res.GetTexture()->Lock( CubemapFace( face ), mipLevel, nullptr, srcData, srcPitch, LOCK_READONLY, renderContext );
+				hr = res.GetTexture()->Lock( face, mipLevel, nullptr, srcData, srcPitch, LOCK_READONLY, renderContext );
 			}
 			if( FAILED( hr ) || srcData == nullptr )
 			{
@@ -241,7 +240,7 @@ bool Tr2HostBitmap::CopyFromTextureRes ( TriTextureRes& res, Tr2RenderContext& r
 			}
 
 
-			uint8_t* dst = (uint8_t*)GetMipRawData( mipLevel, CubemapFace( face ) );
+			uint8_t* dst = (uint8_t*)GetMipRawData( mipLevel, face );
 			const uint8_t* src = (uint8_t*)srcData;
 
 			const uint32_t dstPitch  = GetMipPitch( mipLevel );

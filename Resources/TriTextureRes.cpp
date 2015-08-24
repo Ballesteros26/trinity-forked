@@ -233,23 +233,11 @@ bool TriTextureRes::Save( const wchar_t* filename )
 	
 	Tr2HostBitmapPtr saveBitmap;
 
-	if( m_type == TEX_TYPE_2D )
+	if( !saveBitmap.CreateInstance() ||
+		!saveBitmap->CreateFromBitmapDimensions( *this )	||
+		!saveBitmap->CopyFromTextureRes( *this, renderContext ) )
 	{
-		if( !saveBitmap.CreateInstance()										||
-			!saveBitmap->Create( GetWidth(), GetHeight(), GetTrueMipCount(), GetFormat() )	||
-			!saveBitmap->CopyFromTextureRes( *this, renderContext ) )
-		{
-			return false;
-		}
-	}
-	else
-	{
-		if( !saveBitmap.CreateInstance()										||
-			!saveBitmap->CreateCube( GetWidth(), GetTrueMipCount(), GetFormat() ) ||
-			!saveBitmap->CopyFromTextureRes( *this, renderContext ) )
-		{
-			return false;
-		}
+		return false;
 	}
 
 	return saveBitmap->Save( filename );
@@ -282,27 +270,11 @@ bool TriTextureRes::DoPrepareAsyncSave( void )
 		return false;
 	}
 	
-	switch( GetType() )
+	if( !m_asyncSaveBitmap.CreateInstance()																||
+		!m_asyncSaveBitmap->CreateFromBitmapDimensions( *this )	||
+		!m_asyncSaveBitmap->CopyFromTextureRes( *this, renderContext ) )
 	{
-	case TEX_TYPE_2D:
-		if( !m_asyncSaveBitmap.CreateInstance()																||
-			!m_asyncSaveBitmap->Create( GetWidth(), GetHeight(), GetTrueMipCount(), GetFormat() )	||
-			!m_asyncSaveBitmap->CopyFromTextureRes( *this, renderContext ) )
-		{
-			CCP_LOGERR( "Failed to save (%S)", m_saveFilename.c_str() );
-			return false;
-		}
-		break;
-	case TEX_TYPE_CUBE:
-		if( !m_asyncSaveBitmap.CreateInstance()														||
-			!m_asyncSaveBitmap->CreateCube( GetWidth(), GetTrueMipCount(), GetFormat() )	||
-			!m_asyncSaveBitmap->CopyFromTextureRes( *this, renderContext ) )
-		{
-			return false;
-		}
-		break;
-	default:
-		CCP_LOGERR( "Unsupported texture type for saving (%S)", m_saveFilename.c_str() );
+		CCP_LOGERR( "Failed to save (%S)", m_saveFilename.c_str() );
 		return false;
 	}
 
@@ -602,13 +574,7 @@ bool TriTextureRes::Create(	uint32_t width,
 									renderContext )
 			, false );
 
-	m_mipCount	= m_texture.GetMipCount();
-	m_type		= m_texture.GetType();
-
-	m_width		= m_texture.GetWidth();
-	m_height	= m_texture.GetHeight();
-	m_volumeDepth = m_texture.GetDepth();
-	m_format	= m_texture.GetFormat();
+	*static_cast<Tr2BitmapDimensions*>( this ) = m_texture;
 
 	if( !m_memoryUse )
 	{
@@ -623,6 +589,7 @@ bool TriTextureRes::Create(	uint32_t width,
 			h /= 2;
 			m_memoryUse += w * h * bpp;
 		}
+		m_memoryUse *= m_arraySize;
 	}
 
 	CCP_STATS_ADD( textureResBytes, m_memoryUse );
@@ -645,14 +612,7 @@ bool TriTextureRes::SetTexture( Tr2TextureAL& texture )
 		return true;
 	}
 
-	m_texture = texture;
-	m_mipCount = texture.GetMipCount();
-	m_type = texture.GetType();
-
-	m_width  = texture.GetWidth();
-	m_height = texture.GetHeight();
-	m_volumeDepth  = texture.GetDepth();
-	m_format = texture.GetFormat();
+	*static_cast<Tr2BitmapDimensions*>( this ) = texture;
 		
 	if( !m_memoryUse )
 	{
@@ -668,6 +628,7 @@ bool TriTextureRes::SetTexture( Tr2TextureAL& texture )
 			h /= 2;
 			m_memoryUse += w * h * 4;
 		}
+		m_memoryUse *= m_arraySize;
 	}
 
 	CCP_STATS_ADD( textureResBytes, m_memoryUse );
