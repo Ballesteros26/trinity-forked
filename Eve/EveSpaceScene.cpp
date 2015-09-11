@@ -1065,21 +1065,18 @@ void EveSpaceScene::TAAOffset()
 		m_taaSamplingIndex = m_taaSamplingIndex % 2;
 		m_xProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetWidth() * m_taaSamplingPatterns[m_taaSamplingIndex].x;
 		m_yProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetHeight() * m_taaSamplingPatterns[m_taaSamplingIndex].y;
-		m_taaSamplingIndex++;
 	}
 	else if( m_taaPattern == TAA_3X )
 	{
 		m_taaSamplingIndex = m_taaSamplingIndex % 3;
 		m_xProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetWidth() * m_taaSamplingPatterns[m_taaSamplingIndex + 6].x;
 		m_yProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetHeight() * m_taaSamplingPatterns[m_taaSamplingIndex + 6].y;
-		m_taaSamplingIndex++;
 	}
 	else
 	{
 		m_taaSamplingIndex = m_taaSamplingIndex % 4;
 		m_xProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetWidth() * m_taaSamplingPatterns[m_taaSamplingIndex+2].x;
 		m_yProjOffset = m_taaPixelOffsetScale / (float)Tr2Renderer::GetRenderTargetHeight() * m_taaSamplingPatterns[m_taaSamplingIndex+2].y;
-		m_taaSamplingIndex++;
 	}
 }
 
@@ -1165,6 +1162,8 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 	frustum.DeriveFrustum( &Tr2Renderer::GetViewTransform(), &Tr2Renderer::GetViewPosition(), &Tr2Renderer::GetProjectionTransform(), Tr2Renderer::GetViewport() );
 	
 	TAAOffset();
+	m_taaSamplingIndex++;
+
 	Matrix proj = Tr2Renderer::GetProjectionTransform();
 	if( m_taaPattern != TAA_NONE )
 	{
@@ -1880,9 +1879,22 @@ void EveSpaceScene::EndRender( Tr2RenderContext& renderContext )
 			Tr2Renderer::DrawTexture( m_shadowMap->GetTexture() );
 		}
 	}
-	
-	m_viewProjectLast = Tr2Renderer::GetViewTransform() * Tr2Renderer::GetReversedDepthProjectionTransform();
 
+	float xOffset = m_xProjOffset;
+	float yOffset = m_yProjOffset;
+	TAAOffset();
+	Matrix currentProj = Tr2Renderer::GetReversedDepthProjectionTransform();
+	if( m_dynamicClipPlanes )
+	{
+		currentProj = m_frameData.projectionDynamic;
+		currentProj = EveCamera::AddCenterOffset( currentProj, m_xProjOffset-xOffset, m_yProjOffset-yOffset, m_nearClip, m_farClip );
+	}
+	else
+	{
+		currentProj = m_frameData.projection;
+		currentProj = EveCamera::AddCenterOffset( currentProj, m_xProjOffset-xOffset, m_yProjOffset-yOffset, Tr2Renderer::GetFrontClip(), Tr2Renderer::GetBackClip() );
+	}
+	m_viewProjectLast = Tr2Renderer::GetViewTransform() * currentProj; 
 	ClearVariableStore();
 }
 
