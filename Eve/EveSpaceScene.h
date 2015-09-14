@@ -258,7 +258,9 @@ protected:
 		Matrix ShadowViewMat;
 		Matrix ShadowViewProjectionMat;
 		Matrix EnvMapRotationMat;
+#if( TRINITY_PLATFORM==TRINITY_DIRECTX11 )
 		Matrix ViewProjectionLast;
+#endif
 
 		// pass sun data to vertexshader, so certain lighting-calculations can be done per-vertex and not per-pixel
 		SunData Sun;
