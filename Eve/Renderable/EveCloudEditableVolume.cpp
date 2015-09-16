@@ -65,6 +65,12 @@ EveCloudEditableVolume::~EveCloudEditableVolume()
 	}
 }
 
+bool EveCloudEditableVolume::Initialize()
+{
+	OnVolumeModified();
+	return true;
+}
+
 bool EveCloudEditableVolume::OnModified( Be::Var* value )
 {
 	OnVolumeModified();
@@ -358,4 +364,108 @@ void EveCloudEditableVolume::GetPickingBatches( ITriRenderBatchAccumulator* batc
 			break;
 		}
 	}
+}
+
+TriTextureRes* EveCloudEditableVolume::GetTexture() const
+{
+	return m_texture;
+}
+
+
+
+EveCloudVolumeTextureParameter::EveCloudVolumeTextureParameter( IRoot* lockobj )
+{
+}
+
+EveCloudVolumeTextureParameter::~EveCloudVolumeTextureParameter()
+{
+}
+
+const char* EveCloudVolumeTextureParameter::GetParameterName() const
+{
+	return m_name.c_str();
+}
+
+bool EveCloudVolumeTextureParameter::IsZeroOrNull( void ) const
+{
+	return m_volume != nullptr;
+}
+
+void EveCloudVolumeTextureParameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
+{
+	m_isUsedByEffect = false;
+	if ( m_name.empty() || !effectRes )
+	{
+		return;
+	}
+
+	auto resource = effectRes->GetResource( m_name.c_str() );
+	if( !resource )
+	{
+		return;
+	}
+	m_isUsedByEffect = true;
+}
+
+void EveCloudVolumeTextureParameter::ReloadResources()
+{
+}
+
+bool EveCloudVolumeTextureParameter::LoadResources()
+{
+	return true;
+}
+
+void EveCloudVolumeTextureParameter::UnloadResources()
+{
+}
+
+void* EveCloudVolumeTextureParameter::GetResourcePointer() const
+{
+	return m_volume;
+}
+
+bool EveCloudVolumeTextureParameter::IsPrepared() const
+{
+	return true;
+}
+
+void EveCloudVolumeTextureParameter::CopyValueToEffect(	
+	Tr2RenderContextEnum::ShaderType inputType, 
+	unsigned char* destHandle, 
+	size_t resourceFlags,
+	Tr2RenderContext &renderContext ) const
+{
+	unsigned int ix = *destHandle;
+	bool isUav = ( resourceFlags & RESOURCE_FLAG_UAV ) != 0;
+	TriTextureRes* resource = m_volume ? m_volume->GetTexture() : nullptr;
+	if( Tr2TextureAL* tex = ( resource ? resource->GetTexture() : nullptr ) )
+	{		
+		if( isUav )
+		{
+			renderContext.SetUav( inputType, ix, *tex );
+		}
+		else
+		{
+			bool isSrgb = ( resourceFlags & RESOURCE_FLAG_SRGB ) != 0;
+			auto colorSpace = isSrgb ? Tr2RenderContextEnum::COLOR_SPACE_SRGB : Tr2RenderContextEnum::COLOR_SPACE_LINEAR;
+			renderContext.m_esm.ApplyTexture( inputType, ix, *tex, colorSpace );
+		}
+	}
+	else
+	{
+		if( isUav )
+		{
+			renderContext.SetUav( inputType, ix, const_cast<Tr2TextureAL&>( nullTX ) );
+		}
+		else
+		{
+			Tr2Renderer::ApplyFallbackTexture( inputType, ix, Tr2EffectResource::TEXTURE_3D, m_name.c_str(), renderContext );
+		}
+	}
+}
+
+unsigned EveCloudVolumeTextureParameter::GetHashValue( unsigned startingHash ) const
+{
+	return CcpHashFNV1( &m_volume.p, sizeof( m_volume.p ), startingHash );
 }

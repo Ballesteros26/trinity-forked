@@ -8,6 +8,8 @@
 #ifndef EveCloudVolumeBall_H
 #define EveCloudVolumeBall_H
 
+#include "include/ITriEffectParameter.h"
+
 BLUE_DECLARE( TriTextureRes );
 BLUE_DECLARE( Tr2HostBitmap );
 BLUE_DECLARE( EveCloudEditableVolume );
@@ -54,6 +56,7 @@ BLUE_DECLARE_VECTOR( EveCloudVolumeBall );
 //   (EveCloudVolumeBall) that are rasterized into a volume texture.
 // --------------------------------------------------------------------------------
 BLUE_CLASS( EveCloudEditableVolume ): 
+	public IInitialize,
 	public INotify,
 	public IListNotify
 {
@@ -62,6 +65,10 @@ public:
 
 	EveCloudEditableVolume(IRoot* lockobj = NULL);
 	~EveCloudEditableVolume();
+
+	//////////////////////////////////////////////////////////////////////////
+	// IInitialize
+	virtual bool Initialize();
 
 	//////////////////////////////////////////////////////////////////////////
 	// INotify
@@ -84,6 +91,7 @@ public:
 	void Update( Be::Time time );
 	void RenderDebugInfo( const Matrix& world, Tr2RenderContext& renderContext );
 
+	TriTextureRes* GetTexture() const;
 private:
 	static const size_t MAX_FRAMES = 4;
 
@@ -127,5 +135,43 @@ private:
 
 TYPEDEF_BLUECLASS( EveCloudEditableVolume );
 BLUE_DECLARE_VECTOR( EveCloudEditableVolume );
+
+
+BLUE_CLASS( EveCloudVolumeTextureParameter ):
+	public ITriEffectResourceParameter
+{
+
+public:
+	EveCloudVolumeTextureParameter( IRoot* lockobj = nullptr );
+	~EveCloudVolumeTextureParameter();
+
+	EXPOSE_TO_BLUE();
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITriEffectParameter
+	const char* GetParameterName() const;
+	virtual bool IsZeroOrNull( void ) const;
+	void RebuildEffectHandles( ITr2ShaderState* effectRes );
+
+	//////////////////////////////////////////////////////////////////////////
+	// ITriEffectResourceParameter
+	void ReloadResources();
+	bool LoadResources();
+	void UnloadResources();
+	void* GetResourcePointer() const;
+	bool IsPrepared() const;
+	void CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType, 
+							unsigned char* destHandle, 
+							size_t isSRGB,
+							Tr2RenderContext &renderContext ) const;
+	unsigned GetHashValue( unsigned startingHash ) const;
+private:
+	BlueSharedString m_name;
+	EveCloudEditableVolumePtr m_volume;
+	bool m_isUsedByEffect;
+};
+
+TYPEDEF_BLUECLASS( EveCloudVolumeTextureParameter );
+BLUE_DECLARE_VECTOR( EveCloudVolumeTextureParameter );
 
 #endif

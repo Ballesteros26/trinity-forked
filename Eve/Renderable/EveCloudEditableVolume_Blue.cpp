@@ -30,6 +30,8 @@ const Be::ClassInfo* EveCloudEditableVolume::ExposeToBlue()
     EXPOSURE_BEGIN( EveCloudEditableVolume, "Volume texture editor" )
         MAP_INTERFACE( EveCloudEditableVolume )
 		MAP_INTERFACE( IListNotify )
+		MAP_INTERFACE( IInitialize )
+		MAP_INTERFACE( INotify )
 
 		MAP_ATTRIBUTE( "texture", m_texture, "Result texture", Be::READ )
 		MAP_ATTRIBUTE( "bitmap", m_bitmap, "Result bitmap", Be::READ )
@@ -41,5 +43,19 @@ const Be::ClassInfo* EveCloudEditableVolume::ExposeToBlue()
 		MAP_ATTRIBUTE( "animated", m_animated, "If set than balls are sampled at different time intervals and packed into a texture", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "curveSets", m_curveSets, "Curve sets for balls", Be::READWRITE | Be::PERSIST )
 		MAP_METHOD_AND_WRAP( "OnVolumeModified", OnVolumeModified, "Trigger re-rasterizing of the volume into the texture" )
+    EXPOSURE_END()
+}
+
+BLUE_DEFINE( EveCloudVolumeTextureParameter );
+
+const Be::ClassInfo* EveCloudVolumeTextureParameter::ExposeToBlue()
+{
+    EXPOSURE_BEGIN( EveCloudVolumeTextureParameter, "Cloud volume texture parameter" )
+        MAP_INTERFACE( EveCloudVolumeTextureParameter )
+		MAP_INTERFACE( ITriEffectResourceParameter )
+
+		MAP_ATTRIBUTE( "name", m_name, "Parameter name", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "volume", m_volume, "Cloud editor volume", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "isUsedByEffect", m_isUsedByEffect, "Is parameter used by effect", Be::READ )
     EXPOSURE_END()
 }
