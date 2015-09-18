@@ -434,6 +434,10 @@ void EveBoosterSet2::Add( const Matrix* localMatrix, const Vector4* functionalit
 	{
 		scale = std::max( D3DXVec3Length( &localMatrix->GetX() ),  D3DXVec3Length( &localMatrix->GetY() ) );
 		D3DXVec3Normalize( &dir, &dir );
+		if( scale < 3.f )
+		{
+			dir *= scale / 3.f;
+		}
 	}
 	else
 	{
