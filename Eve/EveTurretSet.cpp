@@ -271,17 +271,10 @@ void EveTurretSet::InitializeFiringEffect()
 					}
 
 					// firing bones should always be on the format Pos_FireXX where XX can range form 01 to 99
-					char boneNameBuffer[10];
+					char boneNameBuffer[11];
 					unsigned int boneNameIndex = i+1;
-					if(boneNameIndex < 10)
-					{
-						sprintf_s(boneNameBuffer, "Pos_Fire0%d", boneNameIndex);
-					}
-					else
-					{
-						sprintf_s(boneNameBuffer, "Pos_Fire%d", boneNameIndex);
-					}
-
+					sprintf_s(boneNameBuffer, "Pos_Fire%.2d", boneNameIndex);
+					
 					// in case we don't find positional bone, ::FindJoint() returns 0xffffffff
 					m_firingEffect->SetMuzzleBoneID( i, skeletonData->FindJoint( boneNameBuffer ) );
 				}
