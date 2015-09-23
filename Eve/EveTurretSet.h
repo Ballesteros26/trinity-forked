@@ -222,6 +222,9 @@ private:
 		SYSBONE_SCALED_PITCH01,
 		SYSBONE_SCALED_PITCH02,
 		SYSBONE_SCALED_PITCH03,
+		SYSBONE_SCALED_PITCH04,
+		SYSBONE_SCALED_PITCH05,
+		SYSBONE_SCALED_PITCH06,
 		SYSBONE_MAX,
 	};
 	// accuracy of shot
@@ -247,7 +250,12 @@ private:
 	void ModifySystemBoneTransform( SystemBones bone, const Vector3* target, granny_transform* transform ) const;
 
 	// Calculates the pitch for a bone based on the parameters
-	void CalcTransformForPitchBone( const Vector3* target, granny_transform* transform, float minPitch, float pitchFactor, float pitchOffset ) const;
+	void CalcTransformForPitchBone( const Vector3* target, granny_transform* transform, float minPitch, unsigned int boneIndex ) const;
+	
+	// Returns the correct pitch factor for a specific bone index
+	float GetBonePitchFactor(unsigned int boneIndex) const;
+	// Returns the correct pitch offset for a specific bone index
+	float GetBonePitchOffset(unsigned int boneIndex) const;
 
 	// animation
 	float PlayAnimation( unsigned int turretIndex, const std::string& animName, const std::string& animNameIdle, float delay );

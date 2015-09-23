@@ -34,6 +34,9 @@ static std::string s_systemBoneSkeletonNames[] = {
 	"Sys_Pitch_Arm01",		// SYSBONE_SCALED_PITCH01
 	"Sys_Pitch_Arm02",		// SYSBONE_SCALED_PITCH02
 	"Sys_Pitch_Arm03",		// SYSBONE_SCALED_PITCH03
+	"Sys_Pitch_Arm04",		// SYSBONE_SCALED_PITCH04
+	"Sys_Pitch_Arm05",		// SYSBONE_SCALED_PITCH05
+	"Sys_Pitch_Arm06",		// SYSBONE_SCALED_PITCH06
 };
 
 // invalids
@@ -957,7 +960,7 @@ void EveTurretSet::ModifySystemBoneTransform( SystemBones bone, const Vector3* t
 	case SYSBONE_PITCH2:
 		if( transform )
 		{
-			CalcTransformForPitchBone( target, transform, XMConvertToRadians( m_sysBonePitchMin ), m_sysBonePitchFactor, m_sysBonePitchOffset );
+			CalcTransformForPitchBone( target, transform, XMConvertToRadians( m_sysBonePitchMin ), bone );
 		}
 		break;
 	case SYSBONE_SCALED_HEIGHT:
@@ -975,21 +978,14 @@ void EveTurretSet::ModifySystemBoneTransform( SystemBones bone, const Vector3* t
 		}
 		break;
 	case SYSBONE_SCALED_PITCH01:
-		if( transform )
-		{
-			CalcTransformForPitchBone( target, transform, 0.0f, m_sysBonePitch01Factor, m_sysBonePitch01Offset );
-		}
-		break;
 	case SYSBONE_SCALED_PITCH02:
-		if( transform )
-		{
-			CalcTransformForPitchBone( target, transform, 0.0f, m_sysBonePitch02Factor, m_sysBonePitch02Offset );			
-		}
-		break;
 	case SYSBONE_SCALED_PITCH03:
+	case SYSBONE_SCALED_PITCH04:
+	case SYSBONE_SCALED_PITCH05:
+	case SYSBONE_SCALED_PITCH06:
 		if( transform )
 		{
-			CalcTransformForPitchBone( target, transform, 0.0f, m_sysBonePitch03Factor, m_sysBonePitch03Offset );
+			CalcTransformForPitchBone( target, transform, 0.0f, bone );
 		}
 		break;
 	default:
@@ -2330,8 +2326,10 @@ void EveTurretSet::SetEffectEndPoint()
 // Description:
 //   Calculates the transform for a pitch bone 
 // --------------------------------------------------------------------------------
-void EveTurretSet::CalcTransformForPitchBone( const Vector3* target, granny_transform* transform, float minPitch, float pitchFactor, float pitchOffset ) const
+void EveTurretSet::CalcTransformForPitchBone( const Vector3* target, granny_transform* transform, float minPitch, unsigned int boneIndex ) const
 {
+	float pitchOffset = GetBonePitchOffset(boneIndex);
+	float pitchFactor = GetBonePitchFactor(boneIndex);
 	// pitch of barrel 90 degrees
 	Vector3 dirNrm;
 	D3DXVec3Normalize( &dirNrm, target );
@@ -2349,6 +2347,52 @@ void EveTurretSet::CalcTransformForPitchBone( const Vector3* target, granny_tran
 	GrannySetTransform( transform, transform->Position, (float*)&quat, (float*)transform->ScaleShear );
 }
 
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Returns the correct bone pitch factor based on the bone index
+//   If the bone index does not have a specific bone pitch factor, a default 1.0 is returned
+// --------------------------------------------------------------------------------
+float EveTurretSet::GetBonePitchFactor(unsigned int boneIndex) const{
+	switch(boneIndex)
+	{
+	case SYSBONE_PITCH:
+	case SYSBONE_PITCH1:
+	case SYSBONE_PITCH2:
+		return m_sysBonePitchFactor;
+	case SYSBONE_SCALED_PITCH01:
+		return m_sysBonePitch01Factor;
+	case SYSBONE_SCALED_PITCH02:
+		return m_sysBonePitch02Factor;
+	case SYSBONE_SCALED_PITCH03:
+		return m_sysBonePitch03Factor;
+	default:
+		return 1.0f;
+	}
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Returns the correct bone pitch offset based on the bone index
+//   If the bone index does not have a specific bone pitch offset, a default 0.0 is returned
+// --------------------------------------------------------------------------------
+float EveTurretSet::GetBonePitchOffset(unsigned int boneIndex) const{
+	switch(boneIndex)
+	{
+	case SYSBONE_PITCH:
+	case SYSBONE_PITCH1:
+	case SYSBONE_PITCH2:
+		return m_sysBonePitchOffset;
+	case SYSBONE_SCALED_PITCH01:
+		return m_sysBonePitch01Offset;
+	case SYSBONE_SCALED_PITCH02:
+		return m_sysBonePitch02Offset;
+	case SYSBONE_SCALED_PITCH03:
+		return m_sysBonePitch03Offset;
+	default:
+		return 0.0f;
+	}
+}
 
 // --------------------------------------------------------------------------------
 // Description:
