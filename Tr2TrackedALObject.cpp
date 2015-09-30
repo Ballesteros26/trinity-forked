@@ -713,4 +713,41 @@ bool Tr2TrackedALObjectBase::ObjectInfo<Tr2RenderContextEnum::OT_FENCE>::GetDesc
 }
 
 
+// ----------------------------------------------------------------------------------
+// Description:
+//   Returns name of AL type this structure applies to.
+// Return Value:
+//   AL type name
+// ----------------------------------------------------------------------------------
+const char* Tr2TrackedALObjectBase::ObjectInfo<Tr2RenderContextEnum::OT_TIMER>::GetName()
+{
+	return "Tr2GpuTimerAL";
+}
+
+// ----------------------------------------------------------------------------------
+// Description:
+//   Returns information about the AL object (as string -> int values).
+// Arguments:
+//   flags - Resource memory class filter
+//   object - AL object
+//   description - (out) information on AL object (as string -> int values)
+// Return value:
+//   true If object is alive and matches memory filter
+//   false Otherwise
+// ----------------------------------------------------------------------------------
+bool Tr2TrackedALObjectBase::ObjectInfo<Tr2RenderContextEnum::OT_TIMER>::GetDescription( 
+	Tr2ALMemoryTypes flags, 
+	ObjectType* object, 
+	std::map<std::string, uint32_t>& description )
+{
+	if( object->IsValid() && ( object->GetMemoryClass() & flags ) != 0 )
+	{
+		REPORT_LAST_FRAME_USED;
+		description["memory"] = object->GetMemoryClass();
+		return true;
+	}
+	return false;
+}
+
+
 #endif

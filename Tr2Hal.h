@@ -63,6 +63,7 @@ class Tr2VertexBufferAL;
 class Tr2VertexLayoutAL;
 class Tr2GpuBufferAL;
 class Tr2FenceAL;
+class Tr2GpuTimerAL;
 class Tr2LockedRenderTargetAL;
 
 #if( TRINITY_PLATFORM != TRINITY_DIRECTX11 )
@@ -116,6 +117,7 @@ const float AL_TEXEL_OFFSET = 0.5f;
 
 #include "Tr2OcclusionQueryALDx9.h"
 #include "Tr2FenceALDx9.h"
+#include "Tr2GpuTimerALDx9.h"
 #include "Tr2LockedRenderTargetALDx9.h"
 
 #elif( TRINITY_PLATFORM==TRINITY_OPENGLES2 )
@@ -172,6 +174,7 @@ const float AL_TEXEL_OFFSET = 0.0f;
 
 #include "Tr2OcclusionQueryALGLES2.h"
 #include "Tr2FenceALGLES2.h"
+#include "Tr2GpuTimerALGLES2.h"
 #include "Tr2LockedRenderTargetALGLES2.h"
 
 
@@ -209,6 +212,7 @@ const float AL_TEXEL_OFFSET = 0.0f;
 
 #include "Tr2OcclusionQueryALDx11.h"
 #include "Tr2FenceALDx11.h"
+#include "Tr2GpuTimerALDx11.h"
 #include "Tr2LockedRenderTargetALDx11.h"
 
 #elif( TRINITY_PLATFORM==TRINITY_STUB )
@@ -236,12 +240,14 @@ const float AL_TEXEL_OFFSET = 0.0f;
 
 #include "Tr2OcclusionQueryALStub.h"
 #include "Tr2FenceALStub.h"
+#include "Tr2GpuTimerALStub.h"
 #include "Tr2LockedRenderTargetALStub.h"
 
 #endif
 
 #include "Tr2TrackedALObjectImpl.h"
 #include "Tr2GpuTelemetry.h"
+#include "Tr2GpuTimerALContext.h"
 
 
 #endif //Tr2Hal_h_

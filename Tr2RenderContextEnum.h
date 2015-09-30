@@ -23,6 +23,7 @@ namespace Tr2RenderContextEnum
 		OT_SWAP_CHAIN,
 		OT_GPU_BUFFER,
 		OT_FENCE,
+		OT_TIMER,
 
 		OBJECT_TYPE_COUNT
 	};

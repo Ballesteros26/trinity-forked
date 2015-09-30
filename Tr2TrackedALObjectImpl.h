@@ -311,6 +311,25 @@ struct Tr2TrackedALObjectBase::ObjectInfo<Tr2RenderContextEnum::OT_FENCE>
 	static bool GetDescription( Tr2ALMemoryTypes flags, ObjectType* object, std::map<std::string, uint32_t>& description );
 };
 
+// --------------------------------------------------------------------------------------
+// Description:
+//   Description structure for Tr2GpuTimer. 
+// See Also:
+//   Tr2TrackedALObjectBase
+// --------------------------------------------------------------------------------------
+template<>
+struct Tr2TrackedALObjectBase::ObjectInfo<Tr2RenderContextEnum::OT_TIMER>
+{
+	// ----------------------------------------------------------------------------------
+	// Description:
+	//   AL object type this information structure is applied to.
+	// ----------------------------------------------------------------------------------
+	typedef Tr2GpuTimerAL ObjectType;
+
+	static const char* GetName();
+	static bool GetDescription( Tr2ALMemoryTypes flags, ObjectType* object, std::map<std::string, uint32_t>& description );
+};
+
 
 // --------------------------------------------------------------------------------------
 // Description:
