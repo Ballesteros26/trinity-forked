@@ -63,7 +63,8 @@ public:
 
 	enum 
 	{ 
-		UNINITIALIZED_DECLARATION = ~0u 
+		UNINITIALIZED_DECLARATION = ~0u,
+		NULL_DECLARATION = ~0u - 1
 	};
 
 	void ApplyStandardStates( RenderingMode rm );

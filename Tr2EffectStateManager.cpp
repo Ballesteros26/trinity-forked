@@ -703,18 +703,25 @@ void Tr2EffectStateManager::ApplyVertexDeclaration( uint32_t declaration )
 
 	
 	CCP_ASSERT( declaration != UNINITIALIZED_DECLARATION );
-	CCP_ASSERT( declaration < s_vertexLayoutMap.size() );
 
-	if( declaration < s_vertexLayoutMap.size() )
+	if( declaration == NULL_DECLARATION )
 	{
-		Tr2VertexLayoutAL& hvl = *s_vertexLayoutMap[declaration].second;
-		if( !hvl.IsValid() )
-		{
-			hvl.Create( s_vertexLayoutMap[declaration].first, m_renderContext );	
-		}
-		m_renderContext.SetVertexLayout( hvl );
+		m_renderContext.SetVertexLayout( nullVL );
 	}
+	else
+	{
+		CCP_ASSERT( declaration < s_vertexLayoutMap.size() );
 
+		if( declaration < s_vertexLayoutMap.size() )
+		{
+			Tr2VertexLayoutAL& hvl = *s_vertexLayoutMap[declaration].second;
+			if( !hvl.IsValid() )
+			{
+				hvl.Create( s_vertexLayoutMap[declaration].first, m_renderContext );	
+			}
+			m_renderContext.SetVertexLayout( hvl );
+		}
+	}
 	m_currentValues.m_vertexDeclaration = declaration;
 }
 
