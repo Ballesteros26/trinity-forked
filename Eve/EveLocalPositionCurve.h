@@ -31,14 +31,14 @@ public:
 		POS_NEAREST_BOUNDING_POINT			= 1,
 		POS_CENTER_BOUNDING_POINT			= 2,
 		POS_TARGET_DMG_LOCATOR				= 3,
-		POS_COUNT							= 4,
+		POS_TARGET_DMG_LOCATOR_SHIELDIMPACT = 4,
+		POS_TARGET_DMG_LOCATOR_ARMORIMPACT  = 5,
+		POS_COUNT							= 6,
 	};
-
 	LocalPositionBehavior m_behavior;
+
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITriVectorFunction
-	/////////////////////////////////////////////////////////////////////////////////////
-
 	void UpdateValue( double time ) { Vector3 v; Update( &v, time ); }
 
 	Vector3* Update( Vector3* in, Be::Time time );
@@ -56,8 +56,6 @@ public:
 	Vector3d* InterpolatedPosition( Vector3d* out, Be::Time time );
 
 private:
-
-	int m_index;
 	IEveSpaceObject2Ptr         m_parentObject;
 	ITriVectorFunctionPtr		m_parentPositionCurve;
 	ITriQuaternionFunctionPtr	m_parentRotationCurve;
@@ -66,10 +64,17 @@ private:
 	Vector3 m_value;
 	Vector3 m_boundingBoxSize;
 
+	// damage locator data
+	int m_damageLocatorIndex;
+
+	// impact data
+	int m_impactEffectIndex;
 
 	Vector3* CalculateNearestBoundingPoint( Vector3* in, Be::Time t );
 	Vector3* GetCenterBoundingSphere( Vector3* in, Be::Time t );
 	Vector3* GetDamageLocator( Vector3* in, Be::Time t );
+	Vector3* GetDamageLocatorShieldImpact( Vector3* in, Be::Time t );
+	Vector3* GetDamageLocatorArmorImpact( Vector3* in, Be::Time t );
 	void SetBehavior( LocalPositionBehavior behavior );
 };
 

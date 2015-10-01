@@ -292,6 +292,7 @@ public:
 	// access to impacts
 	int CreateShieldImpact( const Vector3& position, const Vector3& direction );
 	bool GetShieldImpactPosition( Vector3& out, int shieldImpactIndex ) const;
+	int CreateArmorImpact( const Vector3& position );
 
 	uint32_t GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const;
 	void UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* );

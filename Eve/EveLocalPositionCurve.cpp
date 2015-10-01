@@ -1,11 +1,14 @@
 #include "StdAfx.h"
 #include "EveLocalPositionCurve.h"
 #include "Vector3d.h"
+#include "Eve/SpaceObject/EveSpaceObject2.h"
+
 
 EveLocalPositionCurve::EveLocalPositionCurve(IRoot* lockobj) :
 	m_value( 0.0f, 0.0f, 0.0f ),
 	m_boundingBoxSize( 0.0f, 0.0f, 0.0f ),
-	m_index( -1 ),
+	m_damageLocatorIndex( -1 ),
+	m_impactEffectIndex( -1 ),
 	m_behavior ( POS_NONE ),
 	m_offset( 0.0f )
 {	
@@ -114,15 +117,15 @@ Vector3* EveLocalPositionCurve::GetDamageLocator( Vector3* in, Be::Time t )
 			return in;
 		}
 
-		if ( m_index == -1 )
+		if ( m_damageLocatorIndex == -1 )
 		{
 			Vector3 parentPos;
 			m_alignPositionCurve->GetValueAt( &parentPos, t );
-			m_index = target->GetGoodDamageLocatorIndex( parentPos );
+			m_damageLocatorIndex = target->GetGoodDamageLocatorIndex( parentPos );
 		}
 
 		Vector3 locatorPos;
-		target->GetDamageLocatorPosition( &locatorPos, m_index );
+		target->GetDamageLocatorPosition( &locatorPos, m_damageLocatorIndex );
 
 		in->x = locatorPos.x;
 		in->y = locatorPos.y;
@@ -130,6 +133,119 @@ Vector3* EveLocalPositionCurve::GetDamageLocator( Vector3* in, Be::Time t )
 	}
 	return in;
 }
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Calculate impact position onto the surface of the shield aiming for a
+//   damage locator
+// --------------------------------------------------------------------------------
+Vector3* EveLocalPositionCurve::GetDamageLocatorShieldImpact( Vector3* in, Be::Time t )
+{	
+	if( m_alignPositionCurve && m_parentObject )
+	{
+		ITriTargetablePtr target;
+		if( !m_parentObject->QueryInterface( BlueInterfaceIID<ITriTargetable>(), (void**)&target ) )
+		{
+			CCP_LOGERR( "Parent object is not targetable. Unable to get valid damage locators." );
+			return in;
+		}
+
+		EveSpaceObject2Ptr spaceObject;
+		if( !m_parentObject->QueryInterface( BlueInterfaceIID<EveSpaceObject2>(), (void**)&spaceObject ) )
+		{
+			CCP_LOGERR( "Parent object is not a EveSpaceObject2. Unable to get valid damage locators." );
+			return in;
+		}
+
+		// need shooter's pos
+		Vector3 parentPos;
+		m_alignPositionCurve->GetValueAt( &parentPos, t );
+
+		// find a damage locator first
+		if( m_damageLocatorIndex == -1 )
+		{
+			m_damageLocatorIndex = target->GetGoodDamageLocatorIndex( parentPos );
+		}
+
+		// get it's position
+		Vector3 locatorPos;
+		target->GetDamageLocatorPosition( &locatorPos, m_damageLocatorIndex );
+
+		// create a shield impact on the target object
+		if( m_impactEffectIndex == -1 )
+		{
+			m_impactEffectIndex = spaceObject->CreateShieldImpact( locatorPos, parentPos - locatorPos );
+		}
+
+		// get the position from that shield impact effect
+		if( m_impactEffectIndex != -1 )
+		{
+			Vector3 shieldPos;
+			if( spaceObject->GetShieldImpactPosition( shieldPos, m_impactEffectIndex ) )
+			{
+				in->x = shieldPos.x;
+				in->y = shieldPos.y;
+				in->z = shieldPos.z;
+			}
+		}
+	}
+	return in;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Calculate impact position onto the surface of the ship with armor
+// --------------------------------------------------------------------------------
+Vector3* EveLocalPositionCurve::GetDamageLocatorArmorImpact( Vector3* in, Be::Time t )
+{	
+	if( m_alignPositionCurve && m_parentObject )
+	{
+		ITriTargetablePtr target;
+		if( !m_parentObject->QueryInterface( BlueInterfaceIID<ITriTargetable>(), (void**)&target ) )
+		{
+			CCP_LOGERR( "Parent object is not targetable. Unable to get valid damage locators." );
+			return in;
+		}
+
+		EveSpaceObject2Ptr spaceObject;
+		if( !m_parentObject->QueryInterface( BlueInterfaceIID<EveSpaceObject2>(), (void**)&spaceObject ) )
+		{
+			CCP_LOGERR( "Parent object is not a EveSpaceObject2. Unable to get valid damage locators." );
+			return in;
+		}
+
+		// need shooter's pos
+		Vector3 parentPos;
+		m_alignPositionCurve->GetValueAt( &parentPos, t );
+
+		// find a damage locator first
+		if( m_damageLocatorIndex == -1 )
+		{
+			m_damageLocatorIndex = target->GetGoodDamageLocatorIndex( parentPos );
+		}
+
+		// get it's position
+		Vector3 locatorPos;
+		target->GetDamageLocatorPosition( &locatorPos, m_damageLocatorIndex );
+
+		// create a armor impact on the target object
+		if( m_impactEffectIndex == -1 )
+		{
+			m_impactEffectIndex = spaceObject->CreateArmorImpact( locatorPos );
+		}
+
+		// that is then armor impact effect pos
+		if( m_impactEffectIndex != -1 )
+		{
+			in->x = locatorPos.x;
+			in->y = locatorPos.y;
+			in->z = locatorPos.z;
+		}
+	}
+	return in;
+}
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 // ITriFunction
@@ -148,6 +264,10 @@ Vector3* EveLocalPositionCurve::Update(
 		return GetCenterBoundingSphere( in, t );
 	case POS_TARGET_DMG_LOCATOR:
 		return GetDamageLocator( in, t );
+	case POS_TARGET_DMG_LOCATOR_SHIELDIMPACT:
+		return GetDamageLocatorShieldImpact( in, t );
+	case POS_TARGET_DMG_LOCATOR_ARMORIMPACT:
+		return GetDamageLocatorArmorImpact( in, t );
 	default:
 		break;
 	}

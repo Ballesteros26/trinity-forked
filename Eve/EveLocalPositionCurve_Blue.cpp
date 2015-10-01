@@ -25,6 +25,16 @@ Be::VarChooser EveLocalPositionChooser[] =
 		BeCast( EveLocalPositionCurve::POS_TARGET_DMG_LOCATOR ),
 		"Use a damage locator of the target object."
 	},
+	{
+		"damageLocatorShieldImpact",
+		BeCast( EveLocalPositionCurve::POS_TARGET_DMG_LOCATOR_SHIELDIMPACT ),
+		"Use a damage locator of the target object, but the impact point is intercepted by shields"
+	},
+	{
+		"damageLocatorArmorImpact",
+		BeCast( EveLocalPositionCurve::POS_TARGET_DMG_LOCATOR_ARMORIMPACT ),
+		"Use a damage locator of the target object, but the impact point makes a hole"
+	},
 	{ 0 }
 };
 

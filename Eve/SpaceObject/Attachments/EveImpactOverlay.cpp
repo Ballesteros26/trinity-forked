@@ -19,6 +19,7 @@ EveImpactOverlay::EveImpactOverlay( IRoot* lockobj ):
 	m_shieldEllipsoidCenter( 0.f, 0.f, 0.f ),
 	m_shieldEllipsoidRadii( 1.f, 1.f, 1.f ),
 	m_shieldImpactDataNextIdx( 1 ),
+	m_armorImpactDataNextIdx( 1 ),
 	m_shieldDataVar( "ImpactShieldDataMap", &m_shieldDataTexture )
 {
 
@@ -68,9 +69,9 @@ bool EveImpactOverlay::OnPrepareResources()
 	USE_MAIN_THREAD_RENDER_CONTEXT();
 
 	// create the shield impact data texture here, prefill it with zeros
-	std::vector<Vector4> prefillData( m_maxShieldImpacts * 1, Vector4( 0.0, 0.0, 0.0, 0.0 ) );
-	Tr2SubresourceData init = { &prefillData, m_maxShieldImpacts * sizeof(Vector4), 1 * m_maxShieldImpacts * sizeof(Vector4) };
-	if( FAILED( m_shieldDataTexture.Create2D( m_maxShieldImpacts, 1, 1, Tr2RenderContextEnum::PIXEL_FORMAT_R32G32B32A32_FLOAT, Tr2RenderContextEnum::USAGE_CPU_WRITE, &init, renderContext ) ) )
+	std::vector<Vector4> prefillData( m_maxShieldImpacts * 2, Vector4( 0.f, 0.f, 0.f, 0.f ) );
+	Tr2SubresourceData init = { &prefillData, m_maxShieldImpacts * uint32_t(sizeof(Vector4)), 2 * m_maxShieldImpacts * uint32_t(sizeof(Vector4)) };
+	if( FAILED( m_shieldDataTexture.Create2D( m_maxShieldImpacts, 2, 1, Tr2RenderContextEnum::PIXEL_FORMAT_R32G32B32A32_FLOAT, Tr2RenderContextEnum::USAGE_CPU_WRITE, &init, renderContext ) ) )
 	{
 		return false;
 	}
@@ -92,31 +93,57 @@ void EveImpactOverlay::UpdateSyncronous( EveUpdateContext& updateContext, EveSpa
 	if( SUCCEEDED( m_shieldDataTexture.Lock( 0, data, pitch, Tr2RenderContextEnum::LOCK_WRITEONLY, renderContext ) ) )
 	{
 		uint8_t* mem = (uint8_t*)data;
-		for( uint32_t y = 0; y < m_shieldDataTexture.GetHeight(); ++y )
-		{
-			for( uint32_t x = 0; x < m_shieldDataTexture.GetWidth(); ++x )
-			{
-				Vector4* texel = (Vector4*)&mem[pitch * y + 16 * x];
 
-				// first one is special
-				if( x == 0 )
+		// shield info in first lines
+		uint32_t y = 0;
+		for( uint32_t x = 0; x < m_shieldDataTexture.GetWidth(); ++x )
+		{
+			Vector4* texel = (Vector4*)&mem[pitch * y + 16 * x];
+
+			// first one is special
+			if( x == 0 )
+			{
+				texel->x = float( m_shieldTexelData.size() );
+				texel->y = texel->z = texel->w = 0.f;
+			}
+			else
+			{
+				if( x - 1 < m_shieldTexelData.size() )
 				{
-					texel->x = float( m_shieldTexelData.size() );
-					texel->y = texel->z = texel->w = 0.f;
+					*texel = m_shieldTexelData[ x - 1 ].row0;
 				}
 				else
 				{
-					if( x - 1 < m_shieldTexelData.size() )
-					{
-						*texel = m_shieldTexelData[ x - 1 ].row0;
-					}
-					else
-					{
-						texel->x = texel->y = texel->z = texel->w = 0.f;
-					}
+					texel->x = texel->y = texel->z = texel->w = 0.f;
 				}
 			}
 		}
+
+		// armor data on second line
+		y = 1;
+		for( uint32_t x = 0; x < m_shieldDataTexture.GetWidth(); ++x )
+		{
+			Vector4* texel = (Vector4*)&mem[pitch * y + 16 * x];
+
+			// first one is special
+			if( x == 0 )
+			{
+				texel->x = float( m_armorTexelData.size() );
+				texel->y = texel->z = texel->w = 0.f;
+			}
+			else
+			{
+				if( x - 1 < m_armorTexelData.size() )
+				{
+					*texel = m_armorTexelData[ x - 1 ].row0;
+				}
+				else
+				{
+					texel->x = texel->y = texel->z = texel->w = 0.f;
+				}
+			}
+		}
+
 		m_shieldDataTexture.Unlock( renderContext );
 	}
 }
@@ -166,6 +193,20 @@ void EveImpactOverlay::UpdateAsyncronous( EveUpdateContext& updateContext, EveSp
 			++i;
 		}
 	}
+
+	// armor
+	m_armorTexelData.resize( m_armorImpactData.size() );
+	size_t i = 0;
+	for( auto aidit = m_armorImpactData.begin(); aidit != m_armorImpactData.end(); ++aidit )
+	{
+		ArmorImpactData* armorData = &aidit->second;
+		ArmorTexelData* texelData = &m_armorTexelData[i];
+
+		// convert position
+		texelData->row0 = Vector4( armorData->impactPosition, 0.f );
+
+		++i;
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -209,7 +250,6 @@ int EveImpactOverlay::CreateShieldImpact( const Vector3& position, const Vector3
 	sid.interceptPosition = Vector3( 0.f, 0.f, 0.f );
 	sid.timeLeft = 0.f;
 	m_shieldImpactData[ m_shieldImpactDataNextIdx ] = sid;
-
 	return m_shieldImpactDataNextIdx++;
 }
 
@@ -227,5 +267,49 @@ bool EveImpactOverlay::GetShieldImpactPosition( Vector3& out, int shieldImpactIn
 	out = finder->second.interceptPosition;
 	return true;
 }
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Use this method to add a new armor impact
+// --------------------------------------------------------------------------------
+int EveImpactOverlay::CreateArmorImpact( const Vector3& position )
+{
+	// fill our struct, but keep it in world space
+	ArmorImpactData aid;
+	aid.impactPosition = position;
+	aid.timeLeft = 0.f;
+	m_armorImpactData[ m_armorImpactDataNextIdx ] = aid;
+	return m_armorImpactDataNextIdx++;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Hand out the intercept position of a given impact
+// --------------------------------------------------------------------------------
+bool EveImpactOverlay::GetArmorImpactPosition( Vector3& out, int armorImpactIndex ) const
+{
+	auto finder = m_armorImpactData.find( armorImpactIndex );
+	if( finder == m_armorImpactData.end() )
+	{
+		return false;
+	}
+	out = finder->second.impactPosition;
+	return true;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Hand out the shader for armor efects
+// --------------------------------------------------------------------------------
+Tr2EffectPtr EveImpactOverlay::GetArmorDamageShader( TriBatchType batchType ) const
+{
+	if( batchType == TRIBATCHTYPE_DECAL )
+	{
+		return m_armorDamageShader;
+	}
+	return nullptr;
+}
+
+
 
 

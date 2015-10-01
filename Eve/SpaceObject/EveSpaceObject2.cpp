@@ -673,11 +673,6 @@ void EveSpaceObject2::GetSortedBatchesFromMeshAreaVector( const Tr2MeshAreaVecto
 // ---------------------------------------------------------------------------------------
 void EveSpaceObject2::GetBatchesFromOverlayVector( ITriRenderBatchAccumulator* batches, const Tr2PerObjectData* perObjectData, TriBatchType batchType )
 {
-	if( m_overlayEffects.empty() )
-	{
-		return;
-	}
-
 	TriGeometryRes* geomRes = NULL;
 	if( !geomRes )
 	{
@@ -691,6 +686,29 @@ void EveSpaceObject2::GetBatchesFromOverlayVector( ITriRenderBatchAccumulator* b
 
 	int meshIx = m_mesh->GetMeshIndex();
 
+	// first the damage overlays
+	if( m_impactOverlay )
+	{
+		Tr2EffectPtr effect = m_impactOverlay->GetArmorDamageShader( batchType );
+		if( effect )
+		{
+			for( auto areaBlock = m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_ALL].begin(); areaBlock != m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_ALL].end(); ++areaBlock )
+			{
+				TriGeometryBatch* batch = batches->Allocate<TriGeometryBatch>();
+				// Note that this can fail if the accumulator can't add more batches!
+				if( batch )
+				{
+					batch->SetShaderMaterial( effect );
+					batch->SetPerObjectData( perObjectData );
+					batch->SetGeometryResource( geomRes );
+					batch->SetMeshParameters( meshIx, areaBlock->m_startIndex, areaBlock->m_count );
+					batches->Commit( batch );
+				}
+			}
+		}
+	}
+
+	// second the effects
 	for( auto it = m_overlayEffects.begin(); it != m_overlayEffects.end(); ++it )
 	{
 		EveMeshOverlayEffectPtr overlay = *it;
@@ -2105,6 +2123,20 @@ bool EveSpaceObject2::GetShieldImpactPosition( Vector3& out, int shieldImpactInd
 	}
 	return false;
 }
+
+// -----------------------------------------------------------------------------
+// Description:
+//   Create an armor impact effect on this object
+// -----------------------------------------------------------------------------
+int EveSpaceObject2::CreateArmorImpact( const Vector3& position )
+{
+	if( m_impactOverlay )
+	{
+		return m_impactOverlay->CreateArmorImpact( position );
+	}
+	return -1;
+}
+
 
 //GPU ship explosion test
 unsigned EveSpaceObject2::GetDamageLocatorCount() const 
