@@ -252,6 +252,7 @@ public:
 	// bounding sphere
 	void SetBoundingSphereInformation( const Vector4* centerAndRadius );
 	Be::Result<std::string> GetLocalBoundingBoxFromScript( std::pair<Vector3, Vector3>& result );
+	void GetShapeEllipsoid( Vector3& center, Vector3& radius );
 
 	// access curve sets
 	void UpdateCurveSet( const std::string& name, Be::Time time );
@@ -371,7 +372,8 @@ protected:
 	
 	Tr2GrannyAnimationPtr m_animationUpdater;
 
-	// Bounding Sphere Stuff - used by the camera
+	/////////////////////////////////////////////////////////////////////////////////////
+	// bounding sphere info
 	Vector3 m_boundingSphereCenter;
 	float m_boundingSphereRadius;
 
@@ -389,8 +391,15 @@ protected:
 
 	bool RebuildBoundingSphereInformation();
 
+	/////////////////////////////////////////////////////////////////////////////////////
+	// bounding box info
 	Vector3 m_localAabbMin;
 	Vector3 m_localAabbMax;
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// shape ellipsoid info
+	Vector3 m_shapeEllipsoidCenter;
+	Vector3 m_shapeEllipsoidRadius;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// overlay effects

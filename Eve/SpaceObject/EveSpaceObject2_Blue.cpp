@@ -233,6 +233,9 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "customMask", m_customMask, "\n", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "dirtLevel", m_dirtLevel, "The dirt amount of the object", Be::READWRITE )
+		MAP_ATTRIBUTE( "shapeEllipsoidCenter", m_shapeEllipsoidCenter, "User-authored ellipsoid data for center", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "shapeEllipsoidRadius", m_shapeEllipsoidRadius, "User-authored ellipsoid data for radii", Be::READWRITE | Be::PERSIST )
+
 		MAP_ATTRIBUTE
 		(
 			"effectChildren",

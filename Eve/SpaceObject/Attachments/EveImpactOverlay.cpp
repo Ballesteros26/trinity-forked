@@ -174,13 +174,8 @@ void EveImpactOverlay::UpdateAsyncronous( EveUpdateContext& updateContext, EveSp
 		}
 	}
 
-	// get parent's bounding ellipsoid and put it in word space
-	Vector3 parentBBoxMin( -1.f, -1.f, -1.f ), parentBBoxMax( 1.f, 1.f, 1.f );
-	if( parent->GetLocalBoundingBox( parentBBoxMin, parentBBoxMax ) )
-	{
-		m_shieldEllipsoidRadii = 0.5f * TRI_SQRT3 * ( parentBBoxMax - parentBBoxMin );
-		m_shieldEllipsoidCenter = parentBBoxMin + 0.5f * ( parentBBoxMax - parentBBoxMin );
-	}
+	// get parent's bounding ellipsoid shape
+	parent->GetShapeEllipsoid( m_shieldEllipsoidCenter, m_shieldEllipsoidRadii );
 
 	// need the inverse world matrix
 	Matrix parentWorldTransform, parentInverseWorldTransform;

@@ -90,8 +90,10 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_debugShowDynamicBounds( true ),
 	m_isVisible( false ),
 	m_isMeshVisible( false ),
-	m_localAabbMin( 0,0,0 ),
-	m_localAabbMax( 0,0,0 ),
+	m_localAabbMin( 0.f, 0.f, 0.f ),
+	m_localAabbMax( 0.f, 0.f, 0.f ),
+	m_shapeEllipsoidCenter( 0.f, 0.f, 0.f ),
+	m_shapeEllipsoidRadius( -1.f, -1.f, -1.f ),
 	m_lastCurveUpdateTime( 0 ),
 	m_previousPosition( UNINITIALIZED_POSITION, UNINITIALIZED_POSITION, UNINITIALIZED_POSITION ),
 	m_spaceObjectMiscData( 1.f, 1.f, EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT, 1.f ),
@@ -316,14 +318,10 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 	D3DXMatrixTranspose( &m_vsData.worldTransform, &m_worldTransform );
 	m_vsData.miscData = m_spaceObjectMiscData;
 
-
-	Vector3 parentBBoxMin( -1.f, -1.f, -1.f ), parentBBoxMax( 1.f, 1.f, 1.f );
-	if( GetLocalBoundingBox( parentBBoxMin, parentBBoxMax ) )
-	{
-		m_vsData.ellpsoidRadii = Vector4( 0.5f * TRI_SQRT3 * ( parentBBoxMax - parentBBoxMin ), 0.f );
-		m_vsData.ellpsoidCenter = Vector4( parentBBoxMin + 0.5f * ( parentBBoxMax - parentBBoxMin ), 0.f );
-	}
-
+	Vector3 shapeCenter( 0.f, 0.f, 0.f ), shapeRadius( 0.f, 0.f, 0.f );
+	GetShapeEllipsoid( shapeCenter, shapeRadius );
+	m_vsData.ellpsoidRadii = Vector4( shapeRadius, 0.f );
+	m_vsData.ellpsoidCenter = Vector4( shapeCenter, 0.f );
 
 	if( !m_curveSets.empty() || !m_overlayEffects.empty() )
 	{
@@ -2176,6 +2174,28 @@ Be::Result<std::string> EveSpaceObject2::GetLocalBoundingBoxFromScript( std::pai
 
 	result = std::make_pair( min, max );
 	return Be::Result<std::string>();
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Get the shape ellipsoid. Try the user-authored data first (if set), then
+//   fallback to the dynamiccally generated
+// --------------------------------------------------------------------------------
+void EveSpaceObject2::GetShapeEllipsoid( Vector3& center, Vector3& radius )
+{
+	// do we have static, hans-authored data?
+	if( m_shapeEllipsoidRadius.x > 0.f )
+	{
+		center = m_shapeEllipsoidCenter;
+		radius = m_shapeEllipsoidRadius;
+		return;
+	}
+
+	// ok, let's calc it!
+	Vector3 mn( -1.f, -1.f, -1.f ), mx( 1.f, 1.f, 1.f );
+	GetLocalBoundingBox( mn, mx );
+	radius = 0.5f * TRI_SQRT3 * ( mx - mn );
+	center = mn + 0.5f * ( mx - mn );
 }
 
 // --------------------------------------------------------------------------------
