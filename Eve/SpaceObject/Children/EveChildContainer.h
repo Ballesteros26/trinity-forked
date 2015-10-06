@@ -27,6 +27,8 @@ public:
 	void UpdateSyncronous( EveUpdateContext& updateContext, EveSpaceObject2* parent );
 	void UpdateAsyncronous( EveUpdateContext& updateContext, EveSpaceObject2* parent );
 	
+	void Transform( const Vector3* scale, const Quaternion* rotation, const Vector3* translation );
+
 	void PlayCurveSet( const std::string& name );
 	void StopCurveSet( const std::string& name );
 	float GetCurveSetDuration( const std::string& name ) const;

@@ -16,8 +16,7 @@
 #include "Utilities/BoundingSphere.h"
 
 EveChildBillboard::EveChildBillboard( IRoot* lockobj ):
-	m_translation( 0, 0, 0 ),
-	m_scaling( 0, 0, 0 )
+	EveChildTransform()
 {
 }
 
@@ -107,10 +106,9 @@ void EveChildBillboard::UpdateSyncronous( EveUpdateContext& updateContext, EveSp
 
 void EveChildBillboard::UpdateAsyncronous( EveUpdateContext& updateContext, EveSpaceObject2* parent )
 {
-	Matrix localTransform, localToWorldTransform;
-	D3DXMatrixTransformation( &localTransform, 0, 0, &m_scaling, 0, 0, &m_translation );
+	Matrix localToWorldTransform;
 	parent->GetLocalToWorldTransform( localToWorldTransform );
-	D3DXMatrixMultiply( &m_worldTransform, &localTransform, &localToWorldTransform );
+	UpdateTransform( localToWorldTransform );
 }
 
 Tr2PerObjectData* EveChildBillboard::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )

@@ -793,6 +793,7 @@ void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNA
 		else if( p->QueryInterface( BlueInterfaceIID<IEveSpaceObjectChild>(), (void**)&effectChild ) )
 		{
 			obj->AddToEffectChildrenList( effectChild );
+			effectChild->Transform( &childIt->scaling, &childIt->rotation, &childIt->translation );
 		}
 		else
 		{

@@ -1938,7 +1938,7 @@ void EveSpaceObject2::UpdateDamageLocatorDirections()
 	{
 		return;
 	}
-		
+
 	// Update the aligned transform matrix
 	*m_alignedTransformMatrix = (XMMATRIX)m_worldTransform;
 

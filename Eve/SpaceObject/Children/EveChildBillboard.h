@@ -8,6 +8,7 @@
 #define EveChildBillboard_H
 
 #include "IEveSpaceObjectChild.h"
+#include "EveChildTransform.h"
 #include "ITr2Renderable.h"
 #include "ITr2GeometryProvider.h"
 #include "Resources/Tr2LodResource.h"
@@ -19,6 +20,7 @@ BLUE_DECLARE( EveSpaceObject2 );
 
 BLUE_CLASS( EveChildBillboard ) :
 	public IEveSpaceObjectChild,
+	public EveChildTransform,
 	public ITr2Renderable
 {
 public:
@@ -36,7 +38,9 @@ public:
 
 	void PlayCurveSet( const std::string& name ) {};
 	void StopCurveSet( const std::string& name ) {};
-	float GetCurveSetDuration( const std::string& name ) const { return 0; } 
+	float GetCurveSetDuration( const std::string& name ) const { return 0; }
+
+	virtual void Transform( const Vector3* scale, const Quaternion* rotation, const Vector3* translation ) { EveChildTransform::Transform( scale, rotation, translation ); }
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable
@@ -48,15 +52,8 @@ public:
 
 private:
 	BlueSharedString m_name;
-
-	Vector4 m_boundingSphere;
-
-	Vector3 m_translation;
-	Vector3 m_scaling;
-
-	Matrix m_worldTransform;
-
 	Tr2MeshBasePtr m_mesh;
+	Vector4 m_boundingSphere;
 
 	bool m_display;
 };

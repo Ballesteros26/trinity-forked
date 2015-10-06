@@ -5,13 +5,14 @@
 #include "Tr2MeshBase.h"
 
 #include "Eve/SpaceObject/EveSpaceObject2.h"
+#include "Eve/EveTransform.h"
 #include "Resources/TriGeometryRes.h"
 
 
 EveChildMesh::EveChildMesh( IRoot* lockobj ):
 	m_display( true ),
-	m_rotation( 0.0f, 0.0f, 0.0f, 1.0f ),
-	m_translation( 0.0f, 0.0f, 0.0f )
+	m_useSpaceObjectData( true ),
+	EveChildTransform()
 {
 }
 
@@ -77,6 +78,20 @@ float EveChildMesh::GetSortValue()
 
 Tr2PerObjectData* EveChildMesh::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )
 {
+	if( !m_useSpaceObjectData )
+	{
+		EveBasicPerObjectData* perObjectData = accumulator->Allocate<EveBasicPerObjectData>();
+
+		if( !perObjectData )
+		{
+			return NULL;
+		}
+
+		perObjectData->m_world = m_vsData.worldTransform;
+		D3DXMatrixInverse( &perObjectData->m_worldInverseTranspose, NULL, &m_worldTransform );
+		return perObjectData;
+	}
+	
 	Tr2PerObjectDataWithPersistentBuffers<EveChildMesh>* perObjectData = accumulator->Allocate<Tr2PerObjectDataWithPersistentBuffers<EveChildMesh>>();
 	if( !perObjectData )
 	{
@@ -122,11 +137,11 @@ void EveChildMesh::UpdateAsyncronous( EveUpdateContext& updateContext, EveSpaceO
 	m_perObjectDataVs.InvalidateBufferData();
 	m_perObjectDataPs.InvalidateBufferData();
 
-	Matrix localTransform, localToWorldTransform;
-	D3DXMatrixTransformation( &localTransform, 0, 0, 0, 0, &m_rotation, &m_translation );
-	parent->GetLocalToWorldTransform( localToWorldTransform );
-
-	D3DXMatrixMultiply( &m_worldTransform, &localTransform, &localToWorldTransform );
 	parent->GetPerObjectStructs( m_vsData, m_psData );
+	m_vsData.worldTransformLast = m_worldTransform;
+
+	Matrix localToWorldTransform;
+	parent->GetLocalToWorldTransform( localToWorldTransform );
+	UpdateTransform( localToWorldTransform );
 	D3DXMatrixTranspose( &m_vsData.worldTransform, &m_worldTransform );
 }

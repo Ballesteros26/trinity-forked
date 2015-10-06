@@ -19,12 +19,10 @@
 #include "Utilities/BoundingSphere.h"
 
 EveChildParticleSystem::EveChildParticleSystem( IRoot* lockobj ):
+	EveChildTransform(),
 	PARENTLOCK( m_particleEmitters ),
 	PARENTLOCK( m_particleSystems ),
 	m_boundingSphere( 0, 0, 0, -1 ),
-	m_translation( 0, 0, 0 ),
-	m_rotation( 0, 0, 0, 1 ),
-	m_scaling( 1, 1, 1 ),
 	m_display( true )
 {
 }
@@ -113,10 +111,9 @@ void EveChildParticleSystem::UpdateSyncronous( EveUpdateContext& updateContext, 
 
 void EveChildParticleSystem::UpdateAsyncronous( EveUpdateContext& updateContext, EveSpaceObject2* parent )
 {
-	Matrix localTransform, localToWorldTransform;
-	D3DXMatrixTransformation( &localTransform, 0, 0, &m_scaling, 0, &m_rotation, &m_translation );
+	Matrix localToWorldTransform;
 	parent->GetLocalToWorldTransform( localToWorldTransform );
-	D3DXMatrixMultiply(&m_worldTransform, &localTransform, &localToWorldTransform );
+	UpdateTransform( localToWorldTransform );
 	
 	Vector3 minBounds, maxBounds;
 	if( m_mesh && m_mesh->GetBoundingBox( minBounds, maxBounds ) )

@@ -9,6 +9,7 @@
 #define EveChildMesh_H
 
 #include "IEveSpaceObjectChild.h"
+#include "EveChildTransform.h"
 #include "Eve/SpaceObject/EveSpaceObject2.h"
 #include "ITr2Renderable.h"
 #include "ITr2GeometryProvider.h"
@@ -21,6 +22,7 @@ BLUE_DECLARE( EveSpaceObject2 );
 
 BLUE_CLASS( EveChildMesh ) :
 	public IEveSpaceObjectChild,
+	public EveChildTransform,
 	public ITr2Renderable
 {
 public:
@@ -38,7 +40,9 @@ public:
 
 	virtual void PlayCurveSet( const std::string& name ) {};
 	virtual void StopCurveSet( const std::string& name ) {};
-	virtual float GetCurveSetDuration( const std::string& name ) const { return 0; } 
+	virtual float GetCurveSetDuration( const std::string& name ) const { return 0; }
+
+	virtual void Transform( const Vector3* scale, const Quaternion* rotation, const Vector3* translation ) { EveChildTransform::Transform( scale, rotation, translation ); }
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable
@@ -55,13 +59,10 @@ public:
 
 protected:
 	BlueSharedString m_name;
-	Vector3 m_translation;
-	Quaternion m_rotation;
-	Matrix m_worldTransform;
-	
 	Tr2MeshBasePtr m_mesh;
 	bool m_display;
 	
+	bool m_useSpaceObjectData;
 	Tr2PersistentPerObjectData<EveChildMesh> m_perObjectDataVs;
 	Tr2PersistentPerObjectData<EveChildMesh> m_perObjectDataPs;
 	EveSpaceObjectPSData m_psData;

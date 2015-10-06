@@ -8,6 +8,7 @@
 #define EveChildParticleSystem_H
 
 #include "IEveSpaceObjectChild.h"
+#include "EveChildTransform.h"
 #include "ITr2Renderable.h"
 
 #include "Eve/SpaceObject/EveSpaceObject2.h"
@@ -25,6 +26,7 @@ BLUE_DECLARE_IVECTOR( ITr2GenericEmitter );
 
 BLUE_CLASS( EveChildParticleSystem ) :
 	public IEveSpaceObjectChild,
+	public EveChildTransform,
 	public ITr2Renderable
 {
 public:
@@ -44,6 +46,8 @@ public:
 	void StopCurveSet( const std::string& name ) {};
 	float GetCurveSetDuration( const std::string& name ) const { return 0; } 
 	
+	virtual void Transform( const Vector3* scale, const Quaternion* rotation, const Vector3* translation ) { EveChildTransform::Transform( scale, rotation, translation ); }
+	
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable
 	bool HasTransparentBatches();
@@ -55,11 +59,6 @@ public:
 private:
 	BlueSharedString m_name;
 	bool m_display;
-
-	Vector3 m_scaling;
-	Vector3 m_translation;
-	Quaternion m_rotation;
-	Matrix m_worldTransform;
 
 	Vector4 m_boundingSphere;
 
