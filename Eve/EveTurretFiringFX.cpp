@@ -6,7 +6,7 @@
 #include "StdAfx.h"
 #include "EveTurretFiringFX.h"
 #include "EveUpdateContext.h"
-#include "EveStretch.h"
+#include "Eve/Renderable/Stretch/EveStretch.h"
 #include "Utilities/BoundingSphere.h"
 
 // invalids

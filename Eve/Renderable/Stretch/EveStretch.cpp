@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "EveStretch.h"
 #include "TriFloat.h"
-#include "EveUpdateContext.h"
+#include "Eve/EveUpdateContext.h"
 #include "Include/TriMath.h"
 #include "Utilities/BoundingSphere.h"
 

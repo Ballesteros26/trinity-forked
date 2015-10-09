@@ -343,3 +343,10 @@ void EveLocalPositionCurve::SetBehavior( LocalPositionBehavior behavior )
 {
 	m_behavior = behavior;
 }
+
+
+
+
+
+
+

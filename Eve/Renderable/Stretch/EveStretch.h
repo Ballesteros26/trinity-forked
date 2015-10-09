@@ -3,8 +3,8 @@
 #define EveStretch_h
 
 
-#include "SpaceObject/EveSpaceObject2.h"
-#include "EveTransform.h"
+#include "Eve/SpaceObject/EveSpaceObject2.h"
+#include "Eve/EveTransform.h"
 #include "Curves/TriCurveSet.h"
 #include "Curves/Tr2ScalarCurve.h"
 

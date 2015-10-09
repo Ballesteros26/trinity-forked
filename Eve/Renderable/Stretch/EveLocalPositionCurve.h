@@ -8,7 +8,7 @@
 #define _EVELOCALPOSITIONCURVE_H_
 
 #include "include/ITriFunction.h"
-#include "IEveSpaceObject2.h"
+#include "Eve/IEveSpaceObject2.h"
 #include "include/ITriTargetable.h"
 
 /* This is an ITriVectorFunction compatible object that calculates a\r\n 
