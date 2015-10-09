@@ -2936,7 +2936,6 @@
     <ClInclude Include="Eve\EveEffectRoot.h"/>
     <ClInclude Include="Eve\EveLensflare.h"/>
     <ClInclude Include="Eve\EveLineSet.h"/>
-    <ClInclude Include="Eve\EveLocalPositionCurve.h"/>
     <ClInclude Include="Eve\EveLODHelper.h"/>
     <ClInclude Include="Eve\EveOccluder.h"/>
     <ClInclude Include="Eve\EveParticleDirectForce.h"/>
@@ -2951,7 +2950,6 @@
     <ClInclude Include="Eve\EveSpherePin.h"/>
     <ClInclude Include="Eve\EveSpherePinIndexTree.h"/>
     <ClInclude Include="Eve\EveStarfield.h"/>
-    <ClInclude Include="Eve\EveStretch.h"/>
     <ClInclude Include="Eve\EveTransform.h"/>
     <ClInclude Include="Eve\EveTurretFiringFX.h"/>
     <ClInclude Include="Eve\EveTurretSet.h"/>
@@ -2969,6 +2967,9 @@
     <ClInclude Include="Eve\Renderable\EveMetaballItem.h"/>
     <ClInclude Include="Eve\Renderable\EveMetaballTables.h"/>
     <ClInclude Include="Eve\Renderable\EveSceneStaticParticles.h"/>
+    <ClInclude Include="Eve\Renderable\Stretch\EveLocalPositionCurve.h"/>
+    <ClInclude Include="Eve\Renderable\Stretch\EveRemotePositionCurve.h"/>
+    <ClInclude Include="Eve\Renderable\Stretch\EveStretch.h"/>
     <ClInclude Include="Eve\SpaceObject\EveMissile.h"/>
     <ClInclude Include="Eve\SpaceObject\EveMissileWarhead.h"/>
     <ClInclude Include="Eve\SpaceObject\EveMobile.h"/>
@@ -3529,8 +3530,6 @@
     <ClCompile Include="Eve\EveLensflare_Blue.cpp"/>
     <ClCompile Include="Eve\EveLineSet.cpp"/>
     <ClCompile Include="Eve\EveLineSet_Blue.cpp"/>
-    <ClCompile Include="Eve\EveLocalPositionCurve.cpp"/>
-    <ClCompile Include="Eve\EveLocalPositionCurve_Blue.cpp"/>
     <ClCompile Include="Eve\EveLODHelper.cpp"/>
     <ClCompile Include="Eve\EveOccluder.cpp"/>
     <ClCompile Include="Eve\EveOccluder_Blue.cpp"/>
@@ -3557,8 +3556,6 @@
     <ClCompile Include="Eve\EveSpherePin_Blue.cpp"/>
     <ClCompile Include="Eve\EveStarfield.cpp"/>
     <ClCompile Include="Eve\EveStarfield_Blue.cpp"/>
-    <ClCompile Include="Eve\EveStretch.cpp"/>
-    <ClCompile Include="Eve\EveStretch_Blue.cpp"/>
     <ClCompile Include="Eve\EveTransform.cpp"/>
     <ClCompile Include="Eve\EveTransform_Blue.cpp"/>
     <ClCompile Include="Eve\EveTurretFiringFX.cpp"/>
@@ -3581,6 +3578,12 @@
     <ClCompile Include="Eve\Renderable\EveMetaball_Blue.cpp"/>
     <ClCompile Include="Eve\Renderable\EveSceneStaticParticles.cpp"/>
     <ClCompile Include="Eve\Renderable\EveSceneStaticParticles_Blue.cpp"/>
+    <ClCompile Include="Eve\Renderable\Stretch\EveLocalPositionCurve.cpp"/>
+    <ClCompile Include="Eve\Renderable\Stretch\EveLocalPositionCurve_Blue.cpp"/>
+    <ClCompile Include="Eve\Renderable\Stretch\EveRemotePositionCurve.cpp"/>
+    <ClCompile Include="Eve\Renderable\Stretch\EveRemotePositionCurve_Blue.cpp"/>
+    <ClCompile Include="Eve\Renderable\Stretch\EveStretch.cpp"/>
+    <ClCompile Include="Eve\Renderable\Stretch\EveStretch_Blue.cpp"/>
     <ClCompile Include="Eve\SpaceObject\EveMissile.cpp"/>
     <ClCompile Include="Eve\SpaceObject\EveMissileWarhead.cpp"/>
     <ClCompile Include="Eve\SpaceObject\EveMissileWarhead_Blue.cpp"/>

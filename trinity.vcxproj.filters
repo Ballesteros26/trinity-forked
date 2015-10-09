@@ -9,6 +9,7 @@
     <Filter Include="Source Files\Eve"/>
     <Filter Include="Source Files\Eve\Animation"/>
     <Filter Include="Source Files\Eve\Renderable"/>
+    <Filter Include="Source Files\Eve\Renderable\Stretch"/>
     <Filter Include="Source Files\Eve\SpaceObject"/>
     <Filter Include="Source Files\Eve\SpaceObjectFactory"/>
     <Filter Include="Source Files\Eve\SpaceObject\Attachments"/>
@@ -662,9 +663,6 @@
     <ClInclude Include="Eve\EveLineSet.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
-    <ClInclude Include="Eve\EveLocalPositionCurve.h">
-      <Filter>Source Files\Eve</Filter>
-    </ClInclude>
     <ClInclude Include="Eve\EveLODHelper.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
@@ -705,9 +703,6 @@
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
     <ClInclude Include="Eve\EveStarfield.h">
-      <Filter>Source Files\Eve</Filter>
-    </ClInclude>
-    <ClInclude Include="Eve\EveStretch.h">
       <Filter>Source Files\Eve</Filter>
     </ClInclude>
     <ClInclude Include="Eve\EveTransform.h">
@@ -760,6 +755,15 @@
     </ClInclude>
     <ClInclude Include="Eve\Renderable\EveSceneStaticParticles.h">
       <Filter>Source Files\Eve\Renderable</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\Renderable\Stretch\EveLocalPositionCurve.h">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\Renderable\Stretch\EveRemotePositionCurve.h">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\Renderable\Stretch\EveStretch.h">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClInclude>
     <ClInclude Include="Eve\SpaceObject\EveMissile.h">
       <Filter>Source Files\Eve\SpaceObject</Filter>
@@ -2429,12 +2433,6 @@
     <ClCompile Include="Eve\EveLineSet_Blue.cpp">
       <Filter>Source Files\Eve</Filter>
     </ClCompile>
-    <ClCompile Include="Eve\EveLocalPositionCurve.cpp">
-      <Filter>Source Files\Eve</Filter>
-    </ClCompile>
-    <ClCompile Include="Eve\EveLocalPositionCurve_Blue.cpp">
-      <Filter>Source Files\Eve</Filter>
-    </ClCompile>
     <ClCompile Include="Eve\EveLODHelper.cpp">
       <Filter>Source Files\Eve</Filter>
     </ClCompile>
@@ -2513,12 +2511,6 @@
     <ClCompile Include="Eve\EveStarfield_Blue.cpp">
       <Filter>Source Files\Eve</Filter>
     </ClCompile>
-    <ClCompile Include="Eve\EveStretch.cpp">
-      <Filter>Source Files\Eve</Filter>
-    </ClCompile>
-    <ClCompile Include="Eve\EveStretch_Blue.cpp">
-      <Filter>Source Files\Eve</Filter>
-    </ClCompile>
     <ClCompile Include="Eve\EveTransform.cpp">
       <Filter>Source Files\Eve</Filter>
     </ClCompile>
@@ -2584,6 +2576,24 @@
     </ClCompile>
     <ClCompile Include="Eve\Renderable\EveSceneStaticParticles_Blue.cpp">
       <Filter>Source Files\Eve\Renderable</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveLocalPositionCurve.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveLocalPositionCurve_Blue.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveRemotePositionCurve.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveRemotePositionCurve_Blue.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveStretch.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\Renderable\Stretch\EveStretch_Blue.cpp">
+      <Filter>Source Files\Eve\Renderable\Stretch</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\EveMissile.cpp">
       <Filter>Source Files\Eve\SpaceObject</Filter>
