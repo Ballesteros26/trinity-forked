@@ -9,7 +9,7 @@
 #include "Tr2GpuBuffer.h"
 #include "Tr2GpuStructuredBuffer.h"
 #include "Tr2Renderer.h"
-#include "Tr2Effect.h"
+#include "Shader/Tr2Effect.h"
 #include "Tr2VariableStore.h"
 #include "Tr2RenderTarget.h"
 #include "Resources/TriTextureRes.h"
