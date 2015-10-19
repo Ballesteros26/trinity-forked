@@ -3155,6 +3155,7 @@
     <ClInclude Include="Shader\Parameter\TriTextureParameter.h"/>
     <ClInclude Include="Shader\Parameter\TriTransformParameter.h"/>
     <ClInclude Include="Shader\Parameter\TriVariableParameter.h"/>
+    <ClInclude Include="Shader\Utils\Tr2DataTextureManager.h"/>
     <ClInclude Include="Sprite2d\ITr2Sprite2dRenderer.h"/>
     <ClInclude Include="Sprite2d\ITr2Sprite2dTexture.h"/>
     <ClInclude Include="Sprite2d\ITr2SpriteObject.h"/>
@@ -3844,6 +3845,8 @@
     <ClCompile Include="Shader\Parameter\TriTransformParameter_Blue.cpp"/>
     <ClCompile Include="Shader\Parameter\TriVariableParameter.cpp"/>
     <ClCompile Include="Shader\Parameter\TriVariableParameter_Blue.cpp"/>
+    <ClCompile Include="Shader\Utils\Tr2DataTextureManager.cpp"/>
+    <ClCompile Include="Shader\Utils\Tr2DataTextureManager_Blue.cpp"/>
     <ClCompile Include="Sprite2d\Tr2Sprite2d.cpp"/>
     <ClCompile Include="Sprite2d\Tr2Sprite2dArc.cpp"/>
     <ClCompile Include="Sprite2d\Tr2Sprite2dArc_Blue.cpp"/>

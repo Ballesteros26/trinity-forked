@@ -22,6 +22,7 @@
     <Filter Include="Source Files\Resources"/>
     <Filter Include="Source Files\Shader"/>
     <Filter Include="Source Files\Shader\Parameter"/>
+    <Filter Include="Source Files\Shader\Utils"/>
     <Filter Include="Source Files\Sprite2d"/>
     <Filter Include="Source Files\UI"/>
     <Filter Include="Source Files\Utilities"/>
@@ -1320,6 +1321,9 @@
     </ClInclude>
     <ClInclude Include="Shader\Parameter\TriVariableParameter.h">
       <Filter>Source Files\Shader\Parameter</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader\Utils\Tr2DataTextureManager.h">
+      <Filter>Source Files\Shader\Utils</Filter>
     </ClInclude>
     <ClInclude Include="Sprite2d\ITr2Sprite2dRenderer.h">
       <Filter>Source Files\Sprite2d</Filter>
@@ -3375,6 +3379,12 @@
     </ClCompile>
     <ClCompile Include="Shader\Parameter\TriVariableParameter_Blue.cpp">
       <Filter>Source Files\Shader\Parameter</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader\Utils\Tr2DataTextureManager.cpp">
+      <Filter>Source Files\Shader\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader\Utils\Tr2DataTextureManager_Blue.cpp">
+      <Filter>Source Files\Shader\Utils</Filter>
     </ClCompile>
     <ClCompile Include="Sprite2d\Tr2Sprite2d.cpp">
       <Filter>Source Files\Sprite2d</Filter>
