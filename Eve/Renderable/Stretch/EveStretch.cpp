@@ -114,10 +114,10 @@ void EveStretch::UpdateCurves( EveUpdateContext& updateContext )
 	}
 
 	float delta = (float)TimeAsDouble( time - m_lastCurveUpdateTime );
-	m_lastCurveUpdateTime = time;
-
+	
 	if( EveLODHelper::ShouldUpdate( m_lodLevel, delta ) )
 	{
+		m_lastCurveUpdateTime = time;
 		if( m_moving && m_progressCurve )
 		{
 			Be::Time elapsedTime = time - m_startTime;
@@ -223,7 +223,7 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 			D3DXMatrixTransformation( &m, NULL, NULL, &scaling, NULL, &rotation, &m_sourcePosition );
 		}
 
-		m_stretchObject->GetRenderables( frustum, renderables, m );
+		m_stretchObject->GetRenderables( frustum, renderables, m );		
 		// The object's LOD is a combination of it's move, stretch, dest and source object's LODs
 		m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, m_stretchObject->GetLODLevel() );
 	}
