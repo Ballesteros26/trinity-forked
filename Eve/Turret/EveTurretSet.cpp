@@ -791,7 +791,7 @@ void EveTurretSet::UpdateAsyncronous( float deltaT, Be::Time time, const ParentD
 
 				m_firingEffectMuzzlePosSet = true;
 			}
-			m_firingEffect->SetDisplayDestObject( !GetShotMissed() || m_projectileMissBehaviour );
+			m_firingEffect->SetDisplayDestObject( m_target->ShowDestObject() );
 		}
 	}
 }
@@ -2106,15 +2106,6 @@ const Tr2Effect* EveTurretSet::GetShader() const
 Tr2Effect* EveTurretSet::GetShader()
 {
 	return m_turretEffect;
-}
-
-// --------------------------------------------------------------------------------
-// Description:
-//   Get the hit/miss status of the last shot info.
-// --------------------------------------------------------------------------------
-bool EveTurretSet::GetShotMissed() const
-{ 
-	return m_target->GetShotMissed();
 }
 
 // --------------------------------------------------------------------------------

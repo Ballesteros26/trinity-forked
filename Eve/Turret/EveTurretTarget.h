@@ -44,6 +44,7 @@ public:
 
 	// target object queries
 	float GetRadius() const;
+	bool ShowDestObject() const;
 
 private:
 	// data

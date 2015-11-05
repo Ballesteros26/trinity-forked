@@ -22,7 +22,7 @@ EveImpactOverlay::EveImpactOverlay( IRoot* lockobj ) :
 	PARENTLOCK( m_curveSets ),
 	m_display( true ),
 	m_overallShieldImpact( -1.f ),
-	m_maxShieldImpacts( 128 ),
+	m_maxShieldImpacts( 8 ),
 	m_shieldEllipsoidCenter( 0.f, 0.f, 0.f ),
 	m_shieldEllipsoidRadii( 1.f, 1.f, 1.f ),
 	m_parentBoundingSphere( 0.f, 0.f, 0.f, -1.f ),
@@ -267,6 +267,39 @@ int EveImpactOverlay::CreateShieldImpact( int damageLocatorIndex, const Vector3&
 {
 	// settings
 	if( !g_eveSpaceObjectImpactEffectEnabled )
+	{
+		return -1;
+	}
+
+	// only need normal
+	Vector3 nrmDir;
+	D3DXVec3Normalize( &nrmDir, &direction );
+	
+	// be carefull: try to find an already existing impact, which is close enough!
+	int closestImpactIdx = -1;
+	float closestImpactAngle = FLT_MIN;
+	for( auto it = m_shieldImpactData.begin(); it != m_shieldImpactData.end(); ++it )
+	{
+		if( damageLocatorIndex == it->second.damageLocatorIndex )
+		{
+			float a = D3DXVec3Dot( &nrmDir, &it->second.direction );
+			if( a > closestImpactAngle )
+			{
+				closestImpactAngle = a;
+				closestImpactIdx = it->first;
+			}
+		}
+	}
+	// if we have one that is close enough, use it instead and hand back that index
+	if( closestImpactAngle > 0.95f )
+	{
+		m_shieldImpactData[ closestImpactIdx ].direction = nrmDir;
+		m_shieldImpactData[ closestImpactIdx ].timeLeft = 2.f * lifeTime;
+		return closestImpactIdx;
+	}
+
+	// check size limitation
+	if( m_shieldImpactData.size() >= m_maxShieldImpacts )
 	{
 		return -1;
 	}

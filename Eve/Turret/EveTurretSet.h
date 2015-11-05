@@ -173,7 +173,6 @@ public:
 	Matrix GetFiringBoneWorldTransform( unsigned int muzzle ) const;
 
 	// missed shots
-	bool GetShotMissed() const;
 	void SetShotMissed( bool missed );
 	double GetLastShotTime() const;
 	float GetShotTimeVariance() const { return EVE_TURRET_RANDOM_DELAY_MAX; }

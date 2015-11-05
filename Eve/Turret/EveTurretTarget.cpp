@@ -304,3 +304,24 @@ float EveTurretTarget::GetRadius() const
 	return -1.f;
 }
 
+// --------------------------------------------------------------------------------
+// Description:
+//   This determines if we show the dest-object of the stretch effect. We usually
+//   do, except in some scenarios
+// --------------------------------------------------------------------------------
+bool EveTurretTarget::ShowDestObject() const
+{
+	// never show it when we have an active shield impact
+	if( m_shieldImpactID != -1 )
+	{
+		return false;
+	}
+
+	// never show it when we are a projectile weapon and are missing
+	if( m_projectileMissBehaviour && GetShotMissed() )
+	{
+		return false;
+	}
+
+	return true;
+}
