@@ -633,6 +633,14 @@ void EveTurretSet::UpdateSyncronous( float deltaT, Be::Time time, const Matrix* 
 			}
 		}
 	}
+
+	// update the target locator position
+	Vector3 p = m_parentData.transform.GetTranslation();
+	if( m_firingEffect )
+	{
+		m_firingEffect->GetStartPosition( p );
+	}
+	m_target->Update( deltaT, &p );
 }
 
 // --------------------------------------------------------------------------------
@@ -746,14 +754,6 @@ void EveTurretSet::UpdateAsyncronous( float deltaT, Be::Time time, const ParentD
 			GrannyBuildWorldPose( it->grnSkeleton, 0, it->grnSkeleton->BoneCount, it->grnLocalPose, &Tr2Renderer::GetIdentityTransform().m[0][0], it->grnWorldPose );
 		}
 	}
-
-	// update the target locator position
-	Vector3 p = m_parentData.transform.GetTranslation();
-	if( m_firingEffect )
-	{
-		m_firingEffect->GetStartPosition( p );
-	}
-	m_target->Update( deltaT, &p );
 
 	// setup and update attached firing effect
 	if( m_firingEffect )
