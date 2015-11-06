@@ -388,6 +388,16 @@ int EveImpactOverlay::CreateShieldImpact( int damageLocatorIndex, const Vector3&
 // --------------------------------------------------------------------------------
 int EveImpactOverlay::CreateArmorImpact( int damageLocatorIndex, float size )
 {
+	// be carefull: try to find an already existing impact at this index
+	for( auto it = m_armorImpactData.begin(); it != m_armorImpactData.end(); ++it )
+	{
+		if( damageLocatorIndex == it->second.damageLocatorIndex )
+		{
+			it->second.size =size;
+			return it->first;
+		}
+	}
+
 	// fill our struct, but keep it in world space
 	ArmorImpactData aid;
 	aid.damageLocatorIndex = damageLocatorIndex;
