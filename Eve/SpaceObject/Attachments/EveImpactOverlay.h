@@ -18,6 +18,7 @@ BLUE_DECLARE( Tr2MeshBase );
 BLUE_DECLARE( EveUpdateContext );
 BLUE_DECLARE( EveSpaceObject2 );
 BLUE_DECLARE( Tr2Effect );
+BLUE_DECLARE( Tr2GpuUniqueEmitter );
 BLUE_DECLARE( TriCurveSet );
 BLUE_DECLARE_VECTOR( TriCurveSet );
 
@@ -68,6 +69,7 @@ public:
 	{
 		int damageLocatorIndex;
 		float size;
+		bool requestSpawnDebris;
 	};
 
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -86,6 +88,7 @@ public:
 
 	// getters
 	int32_t GetDataTextureOffset() const;
+	ImpactConfiguration GetImpactConfiguration() const { return m_configuration; };
 
 	// control animation
 	void PlayCurveSet( const std::string& name );
@@ -95,7 +98,7 @@ public:
 	void SetDamageState( float shield, float armor, float hull, bool doCreateArmorImpacts );
 
 	// control impacts
-	int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime );
+	int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size );
 	bool UpdateImpact( Vector3& out, const Vector3& direction, int impactIndex );
 
 	// helper for checking activity
@@ -115,35 +118,33 @@ private:
 	// non-directional impacts
 	float m_overallShieldImpact;
 
-	// limits
-	uint32_t m_maxShieldImpacts;
+	// a list of data used in the data texture
+	std::vector<DataRow> m_impactTexelData;
+
+	// the data texture block ID
+	int32_t m_dataTextureBlockID;
+	int32_t m_dataTextureOffset;
 
 	// parent object
 	Vector3 m_shieldEllipsoidRadii;
 	Vector3 m_shieldEllipsoidCenter;
 	Vector4 m_parentBoundingSphere;
 
-	// a map of all shield impacts going on at the moment
+	// a map of all impacts going on at the moment
 	std::map<int, ShieldImpactData> m_shieldImpactData;
-
-	// a list of data used in the data texture
-	std::vector<DataRow> m_impactTexelData;
-
-	// a map of all armor impacts going on at the moment
 	std::map<int, ArmorImpactData> m_armorImpactData;
 
-	// the data texture block ID
-	int32_t m_dataTextureBlockID;
-	int32_t m_dataTextureOffset;
-
-	// what to render
+	// shield damage
 	Tr2MeshBasePtr m_mesh;
+	uint32_t m_maxShieldImpacts;
+	float m_shieldImpactColorFade;
 
 	// armor damage
 	Tr2EffectPtr m_armorDamageShader;
 	float m_armorImpactSizeFactor;
 	float m_armorImpactSizeMax;
 	size_t m_armorImpactGoalCount;
+	Tr2GpuUniqueEmitterPtr m_armorImpactEmitter;
 
 	// animate
 	PTriCurveSetVector m_curveSets;

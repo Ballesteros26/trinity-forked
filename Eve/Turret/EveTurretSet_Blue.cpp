@@ -94,6 +94,8 @@ const Be::ClassInfo* EveTurretSet::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "laserMissBehaviour", m_laserMissBehaviour, "Whether or not to use laser-like properties when this turret misses", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "projectileMissBehaviour", m_projectileMissBehaviour, "Whether or not to use projectile properties when this turret misses", Be::READWRITE | Be::PERSIST )
+		
+		MAP_ATTRIBUTE( "impactEnabled", m_impactEnabled, "Should impacts be displayed when the turret set is fired", Be::READWRITE | Be::PERSIST )
 
 		MAP_METHOD_AND_WRAP(
 			"RebuildBoundingSphere",

@@ -1598,9 +1598,7 @@ bool EveSpaceObject2::GetDamageLocatorPosition( Vector3* out, int index )
 {
 	if( (index < 0) || ((unsigned int)index >= m_allocatedDamageLocatorCount) || !m_damageLocatorPositions || !m_transformedDamageLocators )
 	{
-		out->x = m_worldTransform._41;
-		out->y = m_worldTransform._42;
-		out->z = m_worldTransform._43;
+		*out = m_worldTransform.GetTranslation();
 		return false;
 	}
 
@@ -1613,6 +1611,56 @@ bool EveSpaceObject2::GetDamageLocatorPosition( Vector3* out, int index )
 	}
 
 	*out = m_transformedDamageLocators[ index ];
+
+	return true;
+}
+
+void EveSpaceObject2::GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction )
+{
+	if( !m_impactOverlay || m_impactOverlay->GetImpactConfiguration() != EveImpactOverlay::IMPACT_SHIELD )
+	{
+		GetDamageLocatorPosition( &out, damageLocatorIndex );
+		return;
+	}
+
+	Matrix worldTransform, inverseWorldTransform;
+	GetLocalToWorldTransform( worldTransform );
+	if( !D3DXMatrixInverse( &inverseWorldTransform, nullptr, &worldTransform ) )
+	{
+		inverseWorldTransform = worldTransform;
+	}
+
+	Vector3 tgtPosWS( 0.f, 0.f, 0.f );
+	GetDamageLocatorPosition( &tgtPosWS, damageLocatorIndex );
+
+	// convert position and direction into object space
+	Vector3 tgtPosOS, dirOS;
+	D3DXVec3TransformCoord( &tgtPosOS, &tgtPosWS, &inverseWorldTransform );
+	D3DXVec3TransformNormal( &dirOS, &direction, &inverseWorldTransform );
+	
+	Vector3 center, radii;
+	GetShapeEllipsoid(center, radii);
+	IntersectEllipsoidRay( out, center, radii, tgtPosOS, dirOS );
+	D3DXVec3TransformCoord( &out, &out, &worldTransform );
+}
+
+bool EveSpaceObject2::GetDamageLocatorDirection( Vector3* out, int index )
+{
+	if( ( index < 0 ) || ( (unsigned int)index >= m_allocatedDamageLocatorCount ) || !m_transformedImpactDirections )
+	{
+		*out = Vector3( 0.f, 1.f, 0.f );
+		return false;
+	}
+
+	{
+		CcpAutoMutex lock( GetObjectMutex() );
+		if( !m_impactDirectionsUpdatedThisFrame  )
+		{
+			UpdateDamageLocatorDirections();
+		}
+	}
+
+	*out = m_transformedImpactDirections[ index ];
 
 	return true;
 }
@@ -2083,11 +2131,11 @@ void EveSpaceObject2::SetImpactAnimation( const std::string& name, bool enable )
 // Description:
 //   Create an impact effect on this object
 // -----------------------------------------------------------------------------
-int EveSpaceObject2::CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime )
+int EveSpaceObject2::CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size )
 {
 	if( m_impactOverlay )
 	{
-		return m_impactOverlay->CreateImpact( damageLocatorIndex, direction, lifeTime );
+		return m_impactOverlay->CreateImpact( damageLocatorIndex, direction, lifeTime, size );
 	}
 	return -1;
 }

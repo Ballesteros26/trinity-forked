@@ -19,6 +19,7 @@ const Be::ClassInfo* EveImpactOverlay::ExposeToBlue()
 		MAP_ATTRIBUTE( "configuration", m_configuration, "Impact goes into what?", Be::READ )
 		MAP_ATTRIBUTE( "impactDataNextIdx", m_impactDataNextIdx, "", Be::READ )
 		MAP_ATTRIBUTE( "armorImpactGoalCount", m_armorImpactGoalCount, "", Be::READ )
+		MAP_ATTRIBUTE( "shieldImpactColorFade", m_shieldImpactColorFade, "", Be::READWRITE )
 
 		MAP_ATTRIBUTE( "mesh", m_mesh, "", Be::READWRITE | Be::PERSIST )
 
@@ -32,6 +33,7 @@ const Be::ClassInfo* EveImpactOverlay::ExposeToBlue()
 		MAP_ATTRIBUTE( "armorDamageShader", m_armorDamageShader, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "armorImpactSizeFactor", m_armorImpactSizeFactor, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "armorImpactSizeMax", m_armorImpactSizeMax, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "armorImpactEmitter", m_armorImpactEmitter, "", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "curveSets", m_curveSets, "", Be::READWRITE | Be::PERSIST )
 

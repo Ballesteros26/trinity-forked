@@ -35,7 +35,7 @@ public:
 	void Update( float deltaT, const Vector3* source );
 
 	// hit/miss
-	void SetBehaviour( bool laserMiss, bool projectileMiss );
+	void SetBehaviour( bool laserMiss, bool projectileMiss, bool impactEnabled );
 	bool GetShotMissed() const;
 	void SetShotMissed( bool missed );
 	double GetLastShotTime() const;
@@ -55,6 +55,7 @@ private:
 	float m_impactDelay;
 	float m_impactLength;
 	int m_impactID;
+	bool m_impactEnabled;
 
 	// actual target position and smoothing
 	Vector3 m_position;

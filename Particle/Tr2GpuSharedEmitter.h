@@ -44,7 +44,13 @@ public:
 								 const Vector3 *positionStart, const Vector3 *positionEnd,
 								 const Vector3 *velocityStart, const Vector3 *velocityEnd,
 								 float deltaTime );
+	void SpawnOnce( const UpdateArguments& arguments, const Vector3& velocity );
 	virtual void SetThreadSafeFlag() {}
+
+	// access
+	void SetDirection( const Vector3* direction );
+	void SetPosition( const Vector3* position );
+
 protected:
 	virtual void GenerateID();
 	void UpdateHash();

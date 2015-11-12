@@ -31,6 +31,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IEveSpaceObject2
 	virtual void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
+	void Update( EveUpdateContext& updateContext );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable - overriding EveTransform implementations
@@ -81,6 +82,7 @@ public:
 	};
 	// state handling
 	StateChangeEvent UpdateState( float deltaT, float estimatedAliveTime, ITriTargetable* target );
+	StateChangeEvent CheckImpact( float deltaT, float estimatedTotalAliveTime, ITriTargetable* target );
 	State GetState() const { return m_state; }
 
 	// this warhead's unique ID
@@ -98,6 +100,9 @@ private:
 	// timing
 	float m_flyingTime;
 
+	// impact effect time
+	float m_impactDuration;
+
 	// state of this warhead
 	State m_state;
 
@@ -107,6 +112,10 @@ private:
 	// dynamic start data valid?
 	bool m_startDataValid;
 	bool m_doSpread;
+
+	// 
+	Vector3 m_movement;
+	Vector3 m_posLastFrame;
 
 	// dynamic end data
 	Vector3 m_endOffset;

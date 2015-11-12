@@ -76,6 +76,17 @@ bool EveRootTransform::GetDamageLocatorPosition( Vector3* out, int index )
 	return true;
 }
 
+bool EveRootTransform::GetDamageLocatorDirection( Vector3* out, int index )
+{
+	*out = Vector3( 0.f, 1.f, 0.f );
+	return true;
+}
+
+void EveRootTransform::GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction )
+{
+	GetDamageLocatorPosition( &out, damageLocatorIndex );
+}
+
 int EveRootTransform::GetClosestDamageLocatorIndex( const Vector3* position )
 {
 	return 0;
@@ -101,7 +112,7 @@ float EveRootTransform::GetRadius() const
 //   Create an impact effect on this object
 //   Is empty for transforms!
 // -----------------------------------------------------------------------------
-int EveRootTransform::CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime )
+int EveRootTransform::CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size )
 {
 	return -1;
 }

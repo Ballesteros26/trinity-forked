@@ -14,6 +14,7 @@
 #include "Shader/Utils/Tr2DataTextureManager.h"
 #include "Eve/SpaceObject/EveSpaceObject2.h"
 #include "Eve/EveUpdateContext.h"
+#include "Particle/Tr2GpuUniqueEmitter.h"
 
 // settings
 extern bool g_eveSpaceObjectImpactEffectEnabled;
@@ -36,7 +37,8 @@ EveImpactOverlay::EveImpactOverlay( IRoot* lockobj ) :
 	m_dataTextureOffset( -1 ),
 	m_armorImpactSizeFactor( 1.f / 77.5f ),
 	m_armorImpactSizeMax( 10.f ),
-	m_armorImpactGoalCount( 0 )
+	m_armorImpactGoalCount( 0 ),
+	m_shieldImpactColorFade( 0.f )
 {
 }
 
@@ -55,7 +57,7 @@ bool EveImpactOverlay::Initialize()
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Trinity's way of providing batches to render
+//   Do everyting non-threadsafe here
 // --------------------------------------------------------------------------------
 void EveImpactOverlay::UpdateSyncronous( EveUpdateContext& updateContext, EveSpaceObject2* parent )
 {
@@ -67,26 +69,48 @@ void EveImpactOverlay::UpdateSyncronous( EveUpdateContext& updateContext, EveSpa
 	}
 
 	// the texture buffer needs to be up-to-date to be passed to the shader via texture
-	if( m_impactTexelData.size() != std::max( m_shieldImpactData.size(), m_armorImpactData.size() ) )
+	if( m_impactTexelData.size() == std::max( m_shieldImpactData.size(), m_armorImpactData.size() ) )
 	{
-		return;
+		// this comes from the scene via EveUpdateContext
+		Tr2DataTextureManagerPtr dataTextureMgr = updateContext.GetDataTextureManager();
+
+		// what's our ofset in pixels for the data texture?
+		m_dataTextureOffset = dataTextureMgr->GetTextureOffset( m_dataTextureBlockID );
+
+		// the block header is the first column in the data texture, set it!
+		DataRow header;
+		header.v[0] = Vector4( float( m_shieldImpactData.size() ), m_overallShieldImpact, m_shieldImpactColorFade, 0.f );
+		header.v[1] = Vector4( 0.f, 0.f, 0.f, 0.f );
+		header.v[2] = Vector4( float( m_armorImpactData.size() ), 0.f, 0.f, 0.f );
+		header.v[3] = Vector4( 0.f, 0.f, 0.f, 0.f );
+
+		// update block data
+		m_dataTextureBlockID = dataTextureMgr->RequestBlockData( &header.v[0], (uint32_t)m_impactTexelData.size(), m_impactTexelData.empty() ? nullptr : &m_impactTexelData[0].v[0] );
 	}
 
-	// this comes from the scene via EveUpdateContext
-	Tr2DataTextureManagerPtr dataTextureMgr = updateContext.GetDataTextureManager();
-
-	// what's our ofset in pixels for the data texture?
-	m_dataTextureOffset = dataTextureMgr->GetTextureOffset( m_dataTextureBlockID );
-
-	// the block header is the first column in the data texture, set it!
-	DataRow header;
-	header.v[0] = Vector4( float( m_shieldImpactData.size() ), m_overallShieldImpact, 0.f, 0.f );
-	header.v[1] = Vector4( 0.f, 0.f, 0.f, 0.f );
-	header.v[2] = Vector4( float( m_armorImpactData.size() ), 0.f, 0.f, 0.f );
-	header.v[3] = Vector4( 0.f, 0.f, 0.f, 0.f );
-
-	// update block data
-	m_dataTextureBlockID = dataTextureMgr->RequestBlockData( &header.v[0], (uint32_t)m_impactTexelData.size(), m_impactTexelData.empty() ? nullptr : &m_impactTexelData[0].v[0] );
+	// spawn armor impact particles?
+	if( m_armorImpactEmitter )
+	{
+		for( auto aidit = m_armorImpactData.begin(); aidit != m_armorImpactData.end(); ++aidit )
+		{
+			if( aidit->second.requestSpawnDebris )
+			{
+				// where?
+				Vector3 impactPosWS( 0.f, 0.f, 0.f );
+				parent->GetDamageLocatorPosition( &impactPosWS, aidit->second.damageLocatorIndex );
+				m_armorImpactEmitter->SetPosition( &impactPosWS );
+				// facing?
+				Vector3 impactDirWS( 0.f, 1.f, 0.f );
+				parent->GetDamageLocatorDirection( &impactDirWS, aidit->second.damageLocatorIndex );
+				m_armorImpactEmitter->SetDirection( &impactDirWS );
+				// put together particle update info
+				ITr2GenericEmitter::UpdateArguments args( updateContext.GetTime(), updateContext.GetGpuParticleSystem(), Tr2Renderer::GetIdentityTransform(), updateContext.GetOriginShift() );
+				// do the spawn here once!
+				m_armorImpactEmitter->SpawnOnce( args, Vector3( 0.f, 0.f, 0.f ) );
+				aidit->second.requestSpawnDebris = false;
+			}
+		}
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -312,6 +336,9 @@ void EveImpactOverlay::SetDamageState( float shield, float armor, float hull, bo
 	// always calculate the expected/desired number of impact effects
 	m_armorImpactGoalCount = (size_t)( IMPACT_ARMOR_HOLE_TO_DAMAGE_RATIO * Clamp( 1.f - armor, 0.f, 1.f ) );
 
+	// have a color fade between full shield and zero shield
+	m_shieldImpactColorFade = Clamp( pow( 1.f - shield, 4.f ), 0.f, 1.f );
+
 	// do we forcefully have to create the amror impact holes?
 	if( doCreateArmorImpacts )
 	{
@@ -327,7 +354,7 @@ void EveImpactOverlay::SetDamageState( float shield, float armor, float hull, bo
 //   Use this method to add a new impact effect. Internal states determines
 //   what effect to use
 // --------------------------------------------------------------------------------
-int EveImpactOverlay::CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime )
+int EveImpactOverlay::CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size )
 {
 	// settings
 	if( !g_eveSpaceObjectImpactEffectEnabled )
@@ -446,7 +473,8 @@ int EveImpactOverlay::CreateArmorImpact( int damageLocatorIndex, float size )
 	{
 		if( damageLocatorIndex == it->second.damageLocatorIndex )
 		{
-			it->second.size =size;
+			it->second.size = size;
+			it->second.requestSpawnDebris = true;
 			return it->first;
 		}
 	}
@@ -455,6 +483,7 @@ int EveImpactOverlay::CreateArmorImpact( int damageLocatorIndex, float size )
 	ArmorImpactData aid;
 	aid.damageLocatorIndex = damageLocatorIndex;
 	aid.size = size;
+	aid.requestSpawnDebris = true;
 	m_armorImpactData[ m_impactDataNextIdx ] = aid;
 	return m_impactDataNextIdx++;
 }

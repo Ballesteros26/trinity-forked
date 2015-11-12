@@ -30,12 +30,14 @@ BLUE_INTERFACE(ITriTargetable): IRoot
 {
 	virtual int GetClosestDamageLocatorIndex( const Vector3* position ) = 0;
 	virtual bool GetDamageLocatorPosition( Vector3* out, int index ) = 0;
+	virtual bool GetDamageLocatorDirection( Vector3* out, int index ) = 0;
 	virtual void GetMissPosition( const Vector3* hit, const Vector3* source, Vector3* out ) = 0;
 	virtual int GetInterestingDamageLocatorIndex( const Vector3 &position ) const = 0;
 	virtual int GetGoodDamageLocatorIndex( const Vector3& position ) = 0;
 	virtual float GetRadius() const = 0;
-	virtual int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime ) = 0;
+	virtual int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size ) = 0;
 	virtual bool UpdateImpact( Vector3& out, const Vector3& direction, int impactIndex ) = 0;
+	virtual void GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction ) = 0;
 };
 
 

@@ -167,7 +167,7 @@ Vector3* EveLocalPositionCurve::GetDamageLocatorImpact( Vector3* in, Be::Time t 
 		// create an impact on the target object
 		if( m_impactEffectIndex == -1 )
 		{
-			m_impactEffectIndex = target->CreateImpact( m_damageLocatorIndex, parentPos - locatorPos, 2.f );
+			m_impactEffectIndex = target->CreateImpact( m_damageLocatorIndex, parentPos - locatorPos, 2.f, 1.f );
 		}
 
 		// update impact effect and get the position from that impact effect or use locator pos

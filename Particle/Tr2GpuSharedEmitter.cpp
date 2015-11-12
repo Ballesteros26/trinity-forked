@@ -57,6 +57,24 @@ void Tr2GpuSharedEmitter::GenerateID()
 	m_id = m_paramsHash & ~( 1 << ( sizeof( uintptr_t ) - 1 ) );
 }
 
+// --------------------------------------------------------------------------------
+// Description:
+//   Simple setter to access direction
+// --------------------------------------------------------------------------------
+void Tr2GpuSharedEmitter::SetDirection( const Vector3* direction )
+{
+	m_direction = *direction;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Simple setter to access position
+// --------------------------------------------------------------------------------
+void Tr2GpuSharedEmitter::SetPosition( const Vector3* position )
+{
+	m_position = *position;
+}
+
 void Tr2GpuSharedEmitter::Update( const UpdateArguments& arguments )
 {
 	if( !arguments.system )
@@ -162,4 +180,23 @@ float Tr2GpuSharedEmitter::SpawnParticles(
 		arguments.system->Emit( m_emitter, m_id, m_paramsHash, m_params );
 	}
 	return carryOverCount;
+}
+
+void Tr2GpuSharedEmitter::SpawnOnce( const UpdateArguments& arguments, const Vector3& velocity )
+{
+	m_emitter.count = int( m_rate );
+
+	if( m_emitter.count )
+	{
+		m_emitter.position = XMVector3TransformCoord( m_position, arguments.parentTransform );
+		m_emitter.positionPrevious = m_emitter.position;
+
+		m_emitter.velocity = velocity;
+		m_emitter.velocityPrevious = m_emitter.velocity;
+
+		m_emitter.direction = XMVector3TransformNormal( m_direction, arguments.parentTransform );
+		m_emitter.directionPrevious = m_emitter.direction;
+
+		arguments.system->Emit( m_emitter, m_id, m_paramsHash, m_params );
+	}
 }

@@ -152,17 +152,9 @@ void EveMissile::UpdateSyncronous( EveUpdateContext& updateContext )
 	// update the submissiles aka warheads
 	for( EveMissileWarheadVector::const_iterator it = m_warheads.begin(); it != m_warheads.end(); ++it )
 	{
-		EveMissileWarhead* wh = *it;		
+		EveMissileWarhead* wh = *it;
 		// Handle the warhead state
 		const EveMissileWarhead::StateChangeEvent evt = wh->UpdateState( deltaT, m_estimatedTotalAliveTime, m_target ) ;
-		if( evt == EveMissileWarhead::EVT_EXPLODE )
-		{
-			if( m_callback )
-			{
-				D3DPERF_EVENT(L"EveMissile explosion callback");
-				m_callback.CallVoid( wh->GetWarheadID() );
-			}
-		}
 
 		if( wh->GetState() != EveMissileWarhead::STATE_DEAD )
 		{
@@ -190,6 +182,16 @@ void EveMissile::UpdateSyncronous( EveUpdateContext& updateContext )
 
 			// Propagate warhead LODs to the missile.
 			m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, wh->GetLODLevel() );
+		}
+
+		const EveMissileWarhead::StateChangeEvent evt2 = wh->CheckImpact( deltaT, m_estimatedTotalAliveTime, m_target ) ;
+		if( evt2 == EveMissileWarhead::EVT_EXPLODE )
+		{
+			if( m_callback )
+			{
+				D3DPERF_EVENT(L"EveMissile explosion callback");
+				m_callback.CallVoid( wh->GetWarheadID() );
+			}
 		}
 	}
 

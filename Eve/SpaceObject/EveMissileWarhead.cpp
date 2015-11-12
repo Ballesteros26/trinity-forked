@@ -7,6 +7,7 @@
 #include "Utilities/BoundingSphere.h"
 
 #include "EveMissileWarhead.h"
+#include "Eve/EveUpdateContext.h"
 #include "Tr2Mesh.h"
 #include "include/TriMath.h"
 
@@ -22,6 +23,8 @@ EveMissileWarhead::EveMissileWarhead( IRoot* lockobj ) :
 	EveTransform( lockobj ),
 	m_state( STATE_DELAYED ),
 	m_flyingTime( 0.f ),
+	m_impactDuration( 0.6f ),
+	m_posLastFrame( 0.f, 0.f, 0.f ),
 	m_currentStartOffset( 0.f, 0.f, 0.f ),
 	m_startOrientation( 0.f, 0.f, 0.f, 1.f ),
 	m_startDataValid( false ),
@@ -305,27 +308,6 @@ EveMissileWarhead::StateChangeEvent EveMissileWarhead::UpdateState( float deltaT
 		}
 		break;
 	case STATE_TRACKING_FINAL:
-		{
-			if( !target )
-			{
-				position = *GetWorldPosition();
-			}
-			else
-			{
-				target->GetDamageLocatorPosition( &position, m_targetLocator );
-			}
-
-			Vector3 dir(position - *GetWorldPosition());
-			if( D3DXVec3LengthSq( &dir ) <= m_explosionDistance || flight01 >= 1.0f )
-			{
-				if( m_id > -1 )
-				{
-					m_explosionPosition = *GetWorldPosition();
-					evt = EVT_EXPLODE;
-					m_state = STATE_EXPLODED;
-				}
-			}
-		}
 		break;
 	case STATE_EXPLODED:
 		m_state = STATE_DEAD;
@@ -335,6 +317,69 @@ EveMissileWarhead::StateChangeEvent EveMissileWarhead::UpdateState( float deltaT
 	};
 
 	return evt;
+}
+
+EveMissileWarhead::StateChangeEvent EveMissileWarhead::CheckImpact( float deltaT, float estimatedTotalAliveTime, ITriTargetable* target )
+{
+	StateChangeEvent evt = EVT_NONE;
+	Vector3 targetPosition, posNow, posLast;
+
+	if( m_state != STATE_TRACKING_FINAL )
+	{
+		return EVT_NONE;
+	}
+	const float estimatedTotalFlyingTime = (estimatedTotalAliveTime + 0.1f) * m_speedModifier;
+	// calc a value from 0 to 1 across the whole (estimated) flying time, (excluding eject-phase time and delay time)
+	const float flight01 = Clamp( ( m_flyingTime - deltaT ) / estimatedTotalFlyingTime, 0.f, 1.f );
+
+	if( !target )
+	{
+		m_explosionPosition = *GetWorldPosition();
+		m_state = STATE_EXPLODED;
+		return EVT_EXPLODE;
+	}
+
+	posNow = *GetWorldPosition();
+	posLast = posNow - m_movement;
+	target->GetImpactPosition( targetPosition, m_targetLocator, -m_movement );
+			
+	Vector3 dir( targetPosition - posNow );
+	float lensq = D3DXVec3LengthSq( &dir );
+	if( lensq <= m_explosionDistance || flight01 >= 1.0f )
+	{
+		if( m_id > -1 )
+		{
+			m_explosionPosition = *GetWorldPosition();
+			evt = EVT_EXPLODE;
+			m_state = STATE_EXPLODED;
+			if( target )
+			{
+				// Check if we've gone past the impact position
+				if( D3DXVec3Dot( &dir, &m_movement ) < 0 )
+				{
+					m_explosionPosition = targetPosition;
+				}
+				else
+				{
+					m_explosionPosition = posNow;
+				}
+				target->CreateImpact( m_targetLocator, -m_movement, m_impactDuration, 1.f );
+			}
+		}
+	}
+	return evt;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   EveTransform update
+// --------------------------------------------------------------------------------
+void EveMissileWarhead::Update( EveUpdateContext& updateContext )
+{
+	m_posLastFrame -= updateContext.GetOriginShift();
+	EveTransform::Update( updateContext );
+	m_movement = *GetWorldPosition() - m_posLastFrame;
+	m_posLastFrame = *GetWorldPosition();
 }
 
 // --------------------------------------------------------------------------------

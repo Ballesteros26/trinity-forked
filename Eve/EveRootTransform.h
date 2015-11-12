@@ -29,14 +29,16 @@ public:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITriTargetable
-	virtual int GetClosestDamageLocatorIndex( const Vector3* position );
-	virtual bool GetDamageLocatorPosition( Vector3* out, int index );
+	int GetClosestDamageLocatorIndex( const Vector3* position );
+	bool GetDamageLocatorPosition( Vector3* out, int index );
+	bool GetDamageLocatorDirection( Vector3* out, int index );
 	void GetMissPosition( const Vector3* hit, const Vector3* source, Vector3* out );
 	int GetInterestingDamageLocatorIndex( const Vector3 &position ) const;
 	int GetGoodDamageLocatorIndex( const Vector3& position );
 	float GetRadius() const;
-	int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime );
+	int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size );
 	bool UpdateImpact( Vector3& out, const Vector3& direction, int impactIndex );
+	void GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Tr2Transform

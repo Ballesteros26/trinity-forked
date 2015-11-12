@@ -323,6 +323,9 @@ private:
 	// miss-related state
 	bool m_laserMissBehaviour, m_projectileMissBehaviour;
 
+	// impacts
+	bool m_impactEnabled;
+
 	// tracking
 	float m_trackingInfluence;
 	float m_trackingInfluenceDelta;
