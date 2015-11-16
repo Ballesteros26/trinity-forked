@@ -329,39 +329,22 @@ IRoot* EveShip2::GetAudioParameter() const
 // --------------------------------------------------------------------------------------
 void EveShip2::UpdateShipSpeedForAudio()
 {
-	if( m_maxSpeed == 0.0f )
+	if(( m_maxSpeed == 0.0f ) || ( m_boosters == NULL ))
 	{
 		return;
 	}
 
 	if( m_audioParameterInfo.destinationValue )
 	{
-		float speedFraction = (m_speed->m_value)/m_maxSpeed;
-		float audioIntensityResult = 0.0f;
-
-		// Scale audio intensity depending on the speed of the object
-		// These values were taken from an authored curve. Ideally, they could be moved to WWise
-		if( speedFraction < 0.1f )
-		{
-			audioIntensityResult = 0.0;
-		}
-		else if( speedFraction < 1.0f )
-		{
-			audioIntensityResult = (speedFraction - 0.1f) * (1.0f/0.9f);
-		}
-		else
-		{
-			audioIntensityResult = 1.0f + 9.0f*(min(speedFraction,1000000000.0f) - 1.0f)/(1000000000.0f-1.0f) ;
-		}
-
 		// copy value
-		m_audioParameterInfo.destinationValue->mFloat = audioIntensityResult;
+		m_audioParameterInfo.destinationValue->mFloat = m_boosters->GetBoosterIntensity();
 
 		// Notify it of the change
 		if( m_audioSpeedNotify )
 		{
 			m_audioSpeedNotify->OnModified( (Be::Var*)m_audioParameterInfo.destinationValue );
 		}
+
 	}
 }
 
