@@ -104,40 +104,44 @@ void Tr2DataTextureManager::Update( EveUpdateContext& updateContext )
 	{
 		uint8_t* mem = (uint8_t*)data;
 
-		// encode all the blocks in the texture
-		for( auto it = m_blockData.begin(); it != m_blockData.end(); ++it )
+		// encode all the blocks in the texture, go through them by priority
+		for( auto it = m_blockPriority.rbegin(); it != m_blockPriority.rend(); ++it )
 		{
-			int32_t blockID = it->first;
-			BlockData* block = &it->second;
-
-			// check if we still have room for one more block
-			if( pixelOffset + block->blockLength + 1 >= m_textureWidth )
+			auto finder = m_blockData.find( it->second );
+			if( finder != m_blockData.end() )
 			{
-				break;
-			}
+				int32_t blockID = finder->first;
+				BlockData* block = &finder->second;
 
-			// save pixeloffset
-			m_dataTextureOffsets[ blockID ] = pixelOffset;
-
-			// header
-			for( uint32_t y = 0; y < m_textureHeight; ++y )
-			{
-				memcpy( &mem[ y * pitch ], &block->header[ y ], sizeof( Vector4 ) );
-			}
-
-			// data
-			mem += sizeof( Vector4 );
-			for( uint32_t y = 0; y < m_textureHeight; ++y )
-			{
-				for( uint32_t x = 0; x < block->blockLength; ++x )
+				// check if we still have room for one more block
+				if( pixelOffset + block->blockLength + 1 >= m_textureWidth )
 				{
-					memcpy( &mem[ y * pitch + x * sizeof( Vector4 )], &block->data[ x * m_textureHeight + y ], sizeof( Vector4 ) );
+					break;
 				}
-			}
 
-			// next
-			mem += block->blockLength * sizeof( Vector4 );
-			pixelOffset += block->blockLength + 1;
+				// save pixeloffset
+				m_dataTextureOffsets[ blockID ] = pixelOffset;
+
+				// header
+				for( uint32_t y = 0; y < m_textureHeight; ++y )
+				{
+					memcpy( &mem[ y * pitch ], &block->header[ y ], sizeof( Vector4 ) );
+				}
+
+				// data
+				mem += sizeof( Vector4 );
+				for( uint32_t y = 0; y < m_textureHeight; ++y )
+				{
+					for( uint32_t x = 0; x < block->blockLength; ++x )
+					{
+						memcpy( &mem[ y * pitch + x * sizeof( Vector4 )], &block->data[ x * m_textureHeight + y ], sizeof( Vector4 ) );
+					}
+				}
+
+				// next
+				mem += block->blockLength * sizeof( Vector4 );
+				pixelOffset += block->blockLength + 1;
+			}
 		}
 		m_dataTexture.Unlock( renderContext );
 	}
@@ -148,6 +152,7 @@ void Tr2DataTextureManager::Update( EveUpdateContext& updateContext )
 
 	// ok, the texture and the per-block offsets are done, so we don't need the data blocks anymore!
 	m_blockData.clear();
+	m_blockPriority.clear();
 }
 
 // --------------------------------------------------------------------------------
@@ -157,8 +162,9 @@ void Tr2DataTextureManager::Update( EveUpdateContext& updateContext )
 //   headerData - pointer to Vec4's memory buffer, as long as the requested row number
 //   blockLength - the number of columns in the data texture (NOT including the header!)
 //   blockData - the block data, column-wise (column0[n], column1[n], column2[n], ...)
+//   priority - the block's priority, the higher the more important
 // --------------------------------------------------------------------------------
-int32_t Tr2DataTextureManager::RequestBlockData( const Vector4* headerData, uint32_t blockLength, const Vector4* blockData )
+int32_t Tr2DataTextureManager::RequestBlockData( const Vector4* headerData, uint32_t blockLength, const Vector4* blockData, float priority )
 {
 	// set the data
 	BlockData bd;
@@ -175,6 +181,10 @@ int32_t Tr2DataTextureManager::RequestBlockData( const Vector4* headerData, uint
 
 	// insert it into the map
 	m_blockData[ m_blockDataNextIdx ] = bd;
+
+	// and insert it into the priority map, keeps it sorted!
+	m_blockPriority[ priority ] = m_blockDataNextIdx;
+
 	return m_blockDataNextIdx++;
 }
 

@@ -46,6 +46,9 @@ EveImpactOverlay::EveImpactOverlay( IRoot* lockobj ) :
 	m_shieldImpactParentSize( 0.f ),
 	m_hullDamageFactor( 0.f )
 {
+	// 0
+	memset( &m_impactTexelHeader, 0, sizeof( DataRow ) );
+
 	// create the faders
 	m_armorHardening.CreateInstance();
 	m_armorRepairing.CreateInstance();
@@ -79,37 +82,17 @@ void EveImpactOverlay::UpdateSyncronous( EveUpdateContext& updateContext, EveSpa
 		return;
 	}
 
-	// the texture buffer needs to be up-to-date to be passed to the shader via texture
-	if( m_impactTexelData.size() == std::max( m_shieldImpactData.size(), m_armorImpactData.size() ) )
-	{
-		// this comes from the scene via EveUpdateContext
-		Tr2DataTextureManagerPtr dataTextureMgr = updateContext.GetDataTextureManager();
+	// this comes from the scene via EveUpdateContext
+	Tr2DataTextureManagerPtr dataTextureMgr = updateContext.GetDataTextureManager();
 
-		// what's our ofset in pixels for the data texture?
-		m_dataTextureOffset = dataTextureMgr->GetTextureOffset( m_dataTextureBlockID );
+	// what's our ofset in pixels for the data texture?
+	m_dataTextureOffset = dataTextureMgr->GetTextureOffset( m_dataTextureBlockID );
 
-		// the block header is the first column in the data texture, set it!
-		DataRow header;
-		header.v[0] = Vector4( float( m_shieldImpactData.size() ),
-			m_overallShieldImpact,
-			m_shieldImpactColorFade,
-			m_shieldImpactParentSize );
-		header.v[1] = Vector4( m_shieldHardening->GetFaderValue(),
-			m_shieldBoosting->GetFaderValue(),
-			m_shieldHardening->GetKickInValue(),
-			m_shieldBoosting->GetKickInValue() );
-		header.v[2] = Vector4( float( m_armorImpactData.size() ),
-			m_armorImpactParentSize,
-			0.f,
-			0.f );
-		header.v[3] = Vector4( m_armorRepairing->GetFaderValue(),
-			m_armorHardening->GetFaderValue(),
-			m_armorRepairing->GetKickInValue(),
-			m_armorHardening->GetKickInValue() );
-
-		// update block data
-		m_dataTextureBlockID = dataTextureMgr->RequestBlockData( &header.v[0], (uint32_t)m_impactTexelData.size(), m_impactTexelData.empty() ? nullptr : &m_impactTexelData[0].v[0] );
-	}
+	// update block data
+	m_dataTextureBlockID = dataTextureMgr->RequestBlockData( &m_impactTexelHeader.v[0],
+		(uint32_t)m_impactTexelData.size(),
+		m_impactTexelData.empty() ? nullptr : &m_impactTexelData[0].v[0],
+		parent->GetEstimatedPixelDiameter() );
 
 	// spawn armor impact particles?
 	if( updateContext.GetGpuParticleSystem() )
@@ -187,7 +170,6 @@ void EveImpactOverlay::UpdateAsyncronous( EveUpdateContext& updateContext, EveSp
 		}
 	}
 
-
 	// update the faders
 	m_armorHardening->Update( updateContext );
 	m_armorRepairing->Update( updateContext );
@@ -202,6 +184,24 @@ void EveImpactOverlay::UpdateAsyncronous( EveUpdateContext& updateContext, EveSp
 	{
 		return;
 	}
+
+	// the block header is the first column in the data texture, set it!
+	m_impactTexelHeader.v[0] = Vector4( float( m_shieldImpactData.size() ),
+		m_overallShieldImpact,
+		m_shieldImpactColorFade,
+		m_shieldImpactParentSize );
+	m_impactTexelHeader.v[1] = Vector4( m_shieldHardening->GetFaderValue(),
+		m_shieldBoosting->GetFaderValue(),
+		m_shieldHardening->GetKickInValue(),
+		m_shieldBoosting->GetKickInValue() );
+	m_impactTexelHeader.v[2] = Vector4( float( m_armorImpactData.size() ),
+		m_armorImpactParentSize,
+		0.f,
+		0.f );
+	m_impactTexelHeader.v[3] = Vector4( m_armorRepairing->GetFaderValue(),
+		m_armorHardening->GetFaderValue(),
+		m_armorRepairing->GetKickInValue(),
+		m_armorHardening->GetKickInValue() );
 
 	// need the inverse world matrix
 	Matrix parentWorldTransform, parentInverseWorldTransform;
@@ -291,6 +291,10 @@ void EveImpactOverlay::GetBatches( ITriRenderBatchAccumulator* accumulator, TriB
 		return;
 	}
 	if( m_dataTextureBlockID == -1 )
+	{
+		return;
+	}
+	if( m_dataTextureOffset == -1 )
 	{
 		return;
 	}

@@ -125,7 +125,8 @@ private:
 	// non-directional impacts
 	float m_overallShieldImpact;
 
-	// a list of data used in the data texture
+	// all the data used in the data texture
+	DataRow m_impactTexelHeader;
 	std::vector<DataRow> m_impactTexelData;
 
 	// the data texture block ID

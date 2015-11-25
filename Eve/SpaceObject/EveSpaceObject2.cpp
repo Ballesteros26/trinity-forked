@@ -2152,7 +2152,10 @@ int EveSpaceObject2::CreateImpact( int damageLocatorIndex, const Vector3& direct
 {
 	if( m_impactOverlay )
 	{
-		return m_impactOverlay->CreateImpact( damageLocatorIndex, direction, lifeTime, size );
+		if( m_lodLevel > TR2_LOD_LOW )
+		{
+			return m_impactOverlay->CreateImpact( damageLocatorIndex, direction, lifeTime, size );
+		}
 	}
 	return -1;
 }
@@ -2236,6 +2239,16 @@ void EveSpaceObject2::SetShapeEllipsoid( const Vector3* center, const Vector3* r
 {
 	m_shapeEllipsoidCenter = *center;
 	m_shapeEllipsoidRadius = *radius;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Get the estimated onscreen pixel diameter (might be of the last frame). Is
+//   0.0 if not visible
+// --------------------------------------------------------------------------------
+float EveSpaceObject2::GetEstimatedPixelDiameter() const
+{
+	return m_isInFrustum ? m_estimatedPixelDiameter : 0.f;
 }
 
 // --------------------------------------------------------------------------------

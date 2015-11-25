@@ -253,6 +253,9 @@ public:
 	void GetShapeEllipsoid( Vector3& center, Vector3& radius );
 	void SetShapeEllipsoid( const Vector3* center, const Vector3* radius );
 
+	// access to visiblity
+	float GetEstimatedPixelDiameter() const;
+
 	// access curve sets
 	void UpdateCurveSet( const std::string& name, Be::Time time );
 	void PlayCurveSet( const std::string& name );
