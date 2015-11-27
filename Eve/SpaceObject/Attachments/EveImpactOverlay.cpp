@@ -38,6 +38,8 @@ EveImpactOverlay::EveImpactOverlay( IRoot* lockobj ) :
 	m_maxShieldImpacts( 8 ),
 	m_impactDataNextIdx( 1 ),
 	m_debugForceSpawnDebris( false ),
+	m_renderPriority( 0.f ),
+	m_isVisibleLast( false ),
 	m_dataTextureBlockID( -1 ),
 	m_dataTextureOffset( -1 ),
 	m_armorImpactGoalCount( 0 ),
@@ -92,7 +94,7 @@ void EveImpactOverlay::UpdateSyncronous( EveUpdateContext& updateContext, EveSpa
 	m_dataTextureBlockID = dataTextureMgr->RequestBlockData( &m_impactTexelHeader.v[0],
 		(uint32_t)m_impactTexelData.size(),
 		m_impactTexelData.empty() ? nullptr : &m_impactTexelData[0].v[0],
-		parent->GetEstimatedPixelDiameter() );
+		m_renderPriority );
 
 	// spawn armor impact particles?
 	if( updateContext.GetGpuParticleSystem() )
@@ -203,6 +205,19 @@ void EveImpactOverlay::UpdateAsyncronous( EveUpdateContext& updateContext, EveSp
 		return;
 	}
 
+	// calculate render priority, but take into account the visibility of the last frame. To counter
+	// the fact that the actual visibility data might not be correct (because of picking etc.)
+	// needs fixing! Steve, 2015
+	if( m_isVisibleLast )
+	{
+		m_renderPriority = parent->GetEstimatedPixelDiameter();
+	}
+	else
+	{
+		m_renderPriority = parent->IsInFrustum() ? parent->GetEstimatedPixelDiameter() : 0.f;
+	}
+	m_isVisibleLast = parent->IsInFrustum();
+
 	// need the inverse world matrix
 	Matrix parentWorldTransform, parentInverseWorldTransform;
 	parent->GetLocalToWorldTransform( parentWorldTransform );
@@ -290,11 +305,7 @@ void EveImpactOverlay::GetBatches( ITriRenderBatchAccumulator* accumulator, TriB
 	{
 		return;
 	}
-	if( m_dataTextureBlockID == -1 )
-	{
-		return;
-	}
-	if( m_dataTextureOffset == -1 )
+	if( ( m_dataTextureBlockID == -1 ) || ( m_dataTextureOffset == -1 ) )
 	{
 		return;
 	}
@@ -650,9 +661,12 @@ Tr2EffectPtr EveImpactOverlay::GetArmorDamageShader( TriBatchType batchType ) co
 	{
 		return nullptr;
 	}
-
 	// no activity?
 	if( !HasArmorActivity() )
+	{
+		return nullptr;
+	}
+	if( ( m_dataTextureBlockID == -1 ) || ( m_dataTextureOffset == -1 ) )
 	{
 		return nullptr;
 	}

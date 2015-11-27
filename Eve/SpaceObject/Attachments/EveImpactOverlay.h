@@ -123,6 +123,10 @@ private:
 	int m_impactDataNextIdx;
 	bool m_debugForceSpawnDebris;
 
+	// priotiy
+	float m_renderPriority;
+	bool m_isVisibleLast;
+
 	// non-directional impacts
 	float m_overallShieldImpact;
 

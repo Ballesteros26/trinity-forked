@@ -166,6 +166,12 @@ void Tr2DataTextureManager::Update( EveUpdateContext& updateContext )
 // --------------------------------------------------------------------------------
 int32_t Tr2DataTextureManager::RequestBlockData( const Vector4* headerData, uint32_t blockLength, const Vector4* blockData, float priority )
 {
+	// reject zero priority calls
+	if( priority <= 0.f )
+	{
+		return -1;
+	}
+
 	// set the data
 	BlockData bd;
 	bd.header.resize( m_textureHeight );

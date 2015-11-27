@@ -2028,7 +2028,7 @@ void EveSpaceObject2::UpdateDamageLocatorDirections()
 		quat = m_persistedDamageLocators[i].m_impactDirection;
 		m_transformedImpactDirections[i] = XMVector3Rotate( Vector3( 0.f, 1.f, 0.f ), quat );
 		// We're assuming for now that the bone 0 isn't animated for performance reasons.
-		if( m_persistedDamageLocators[i].m_boneIndex > 0 )
+		if( bones && m_persistedDamageLocators[i].m_boneIndex > 0 )
 		{
 			TriMatrixCopyFrom3x4( &boneTF, &bones[ m_persistedDamageLocators[i].m_boneIndex ] );
 			m_transformedImpactDirections[i] = XMVector3TransformNormal( m_transformedImpactDirections[i], boneTF );
@@ -2306,12 +2306,21 @@ void EveSpaceObject2::SetShapeEllipsoid( const Vector3* center, const Vector3* r
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Get the estimated onscreen pixel diameter (might be of the last frame). Is
-//   0.0 if not visible
+//   Get the estimated onscreen pixel diameter. Warning: you will get a number
+//   even when the object is not in the frustum
 // --------------------------------------------------------------------------------
 float EveSpaceObject2::GetEstimatedPixelDiameter() const
 {
-	return m_isInFrustum ? m_estimatedPixelDiameter : 0.f;
+	return m_estimatedPixelDiameter;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Is this object in the frustum
+// --------------------------------------------------------------------------------
+bool EveSpaceObject2::IsInFrustum() const
+{
+	return m_isInFrustum;
 }
 
 // --------------------------------------------------------------------------------

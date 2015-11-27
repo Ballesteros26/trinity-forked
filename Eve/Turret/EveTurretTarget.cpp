@@ -312,15 +312,6 @@ float EveTurretTarget::GetRadius() const
 // --------------------------------------------------------------------------------
 bool EveTurretTarget::ShowDestObject() const
 {
-	// never show it when we have an active shield impact
-	if( m_object )
-	{
-		if( m_object->HasImpactConfigurationShield() )
-		{
-			return false;
-		}
-	}
-
 	// never show it when we are a projectile weapon and are missing
 	if( m_projectileMissBehaviour && GetShotMissed() )
 	{

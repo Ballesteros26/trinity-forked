@@ -256,6 +256,7 @@ public:
 
 	// access to visiblity
 	float GetEstimatedPixelDiameter() const;
+	bool IsInFrustum() const;
 
 	// access curve sets
 	void UpdateCurveSet( const std::string& name, Be::Time time );
