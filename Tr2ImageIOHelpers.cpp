@@ -76,7 +76,7 @@ bool CreateVolumeTexture( ImageIO::HostBitmap& bitmap, Tr2TextureAL &out,
 		Tr2SubresourceData srd;
 
 		srd.m_sysMem			= const_cast<char*>( bitmap.GetMipRawData( i ) );
-		srd.m_sysMemSlicePitch	= bitmap.GetMipSize( i );
+		srd.m_sysMemSlicePitch	= bitmap.GetMipSize( i ) / bitmap.GetMipDepth( i );
 		srd.m_sysMemPitch		= bitmap.GetMipPitch( i );	
 
 		if( !srd.m_sysMem )
@@ -89,7 +89,7 @@ bool CreateVolumeTexture( ImageIO::HostBitmap& bitmap, Tr2TextureAL &out,
 
 		initData.push_back( srd );
 
-		memoryUse += bitmap.GetMipSize( i ) * bitmap.GetMipDepth( i );
+		memoryUse += bitmap.GetMipSize( i );
 	}
 
 	if( FAILED( out.CreateVolume( bitmap.GetWidth(), bitmap.GetHeight(), bitmap.GetDepth(), bitmap.GetTrueMipCount(), bitmap.GetFormat(), USAGE_IMMUTABLE, &initData[0], renderContext ) ) )
