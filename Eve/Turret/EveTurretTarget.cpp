@@ -159,6 +159,12 @@ void EveTurretTarget::Update( float deltaT, const Vector3* source )
 			m_positionMiss += direction * ( dist + 5000.f) * ( 1.f + 0.5f * m_randomMissDistanceOffset );
 		}
 
+		// update the impacts
+		if( m_impactID != -1 )
+		{
+			m_object->UpdateImpact( m_position, dirToSource, m_impactID );
+		}
+
 		// what about delayed impact creation?
 		if( m_impactDelay > 0.f )
 		{
@@ -168,12 +174,6 @@ void EveTurretTarget::Update( float deltaT, const Vector3* source )
 				m_impactID = m_object->CreateImpact( m_locator, dirToSource, m_impactLength, m_impactSize );
 				m_impactDelay = -1.f;
 			}
-		}
-
-		// update the impacts
-		if( m_impactID != -1 )
-		{
-			m_object->UpdateImpact( m_position, dirToSource, m_impactID );
 		}
 	}
 
