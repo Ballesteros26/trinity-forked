@@ -98,6 +98,9 @@ public:
 
 		Vector3 velocityPrevious;
 		float maxSpeed;
+
+		float innerAngle;
+		Vector3 unused;
 	};
 
 	virtual bool Initialize();
@@ -235,6 +238,7 @@ private:
 		Vector4 offsetSeed;
 		Vector4 velocityMinSpeed;
 		Vector4 velocityPreviousMaxSpeed;
+		Vector4 innerAngleUnused;
 	};
 
 	// ----------------------------------------------------------------------------------

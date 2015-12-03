@@ -62,6 +62,11 @@ const Be::ClassInfo* Tr2GpuSharedEmitter::ExposeToBlue()
 			"Particle spread angle (in radians) around primary direction; if greater than pi/2, the emitter emits in all directions", 
 			Be::READWRITE | Be::PERSIST )
         MAP_ATTRIBUTE( 
+			"innerAngle", 
+			m_emitter.innerAngle, 
+			"Exclude angle (in radians) around primary direction: particles are spawned in a hollow cone between innerAngle and angle", 
+			Be::READWRITE | Be::PERSIST )
+        MAP_ATTRIBUTE( 
 			"radius", 
 			m_emitter.radius, 
 			"Emitter radius", 

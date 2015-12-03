@@ -1027,6 +1027,7 @@ void Tr2GpuParticleSystem::Emit( const Emitter& emitter, uintptr_t id, uintptr_t
 	request.emitter.velocityMinSpeed = Vector4( emitter.velocity, emitter.minSpeed );
 	request.emitter.velocityPreviousMaxSpeed = Vector4( emitter.velocityPrevious, emitter.maxSpeed );
 	request.emitter.offsetSeed = Vector4( float( start % m_positions[0]->GetWidth() ), float( ( start / m_positions[0]->GetWidth() ) % m_positions[0]->GetHeight() ), float( rand() ), 0.f );
+	request.emitter.innerAngleUnused.x = emitter.innerAngle;
 #endif
 
 	request.id = id;
