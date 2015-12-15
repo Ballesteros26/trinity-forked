@@ -96,7 +96,8 @@ float Tr2ScalarFader::GetKickInValue() const
 		return 0.f;
 	}
 	// calc some simple kicking curve
-	return sinf( TRI_PI * Clamp( m_fadeTime / m_kickInLength, 0.f, 1.f ) );
+	float x = Clamp( m_fadeTime / m_kickInLength, 0.f, 1.f );
+	return powf( sinf( TRI_PI * powf( x, 0.66f ) ), 3.f );
 }
 
 // --------------------------------------------------------------------------------
