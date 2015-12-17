@@ -2,7 +2,7 @@
 
 #if( TRINITY_PLATFORM==TRINITY_DIRECTX9 )
 
-bool g_wantsEXDevice = false;
+extern bool g_wantsEXDevice;
 
 #include "Tr2VideoAdapterInfoALDx9.h"
 
