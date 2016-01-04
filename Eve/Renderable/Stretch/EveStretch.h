@@ -58,6 +58,7 @@ public:
 
 	void UpdateCurves( EveUpdateContext& updateContext );
 	void Start();
+	void StartMoving();
 
 	void SetSourceObjectScale( float scale ) { m_sourceObjectScale = scale; };
 	void SetDestObjectScale( float scale ) { m_destObjectScale = scale; };

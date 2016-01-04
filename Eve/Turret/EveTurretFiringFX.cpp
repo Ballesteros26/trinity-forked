@@ -287,6 +287,7 @@ void EveTurretFiringFX::StartMuzzleEffect( int muzzleID )
 			if( curveSet->GetName() == "play_start" )
 			{
 				curveSet->PlayFrom( -m_perMuzzleData[ muzzleID ].currentStartDelay );
+				stretchEffect->StartMoving();
 			}
 			else if( curveSet->GetName() == "play_loop" )
 			{

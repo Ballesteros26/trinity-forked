@@ -272,7 +272,7 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 	}
 }
 
-void EveStretch::Start()
+void EveStretch::StartMoving()
 {
 	m_startTime = -1;
 	m_moving = true;
@@ -282,6 +282,11 @@ void EveStretch::Start()
 	{
 		m_moveObject->SetDisplay( true );
 	}
+}
+
+void EveStretch::Start()
+{
+	StartMoving();
 
 	for( auto it = m_curveSets.begin(); it != m_curveSets.end(); it++ )
 	{
