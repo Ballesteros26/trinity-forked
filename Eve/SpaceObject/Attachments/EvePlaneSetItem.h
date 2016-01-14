@@ -44,6 +44,8 @@ public:
 	Vector4 m_layer2Scroll;
 	// animation granny parent bone index
 	int m_boneIndex;
+	// supports atlasing
+	uint32_t m_maskAtlasID;
 };
 
 TYPEDEF_BLUECLASS( EvePlaneSetItem );

@@ -81,7 +81,7 @@ public:
 		Quaternion rotation;
 		Color color;
 		Vector4 layer1Transform, layer2Transform, layer1Scroll, layer2Scroll;
-		int boneIndex, groupIndex;
+		int boneIndex, groupIndex, maskMapAtlasIndex;
 	};
 
 	struct HullPlaneSetData

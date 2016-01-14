@@ -25,8 +25,9 @@ struct PlaneVertex
 	Vector4 layer2Scroll;
 	uint8_t index;
 	uint8_t boneIndex;
+	uint8_t maskMapAtlasIndex;
 
-	uint8_t padding[2];
+	uint8_t padding;
 };
 
 
@@ -150,6 +151,7 @@ bool EvePlaneSet::OnPrepareResources()
 			vertex.layer2Scroll = m_planes[i]->m_layer2Scroll;
 			vertex.index = j;
 			vertex.boneIndex = m_planes[i]->m_boneIndex;
+			vertex.maskMapAtlasIndex = m_planes[i]->m_maskAtlasID;
 		}
 		// We cache this for updating view distance info
 		m_cachedTransforms.push_back( itemTransform );

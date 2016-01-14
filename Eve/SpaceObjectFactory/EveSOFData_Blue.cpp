@@ -131,7 +131,8 @@ const Be::ClassInfo* EveSOFDataHullPlaneSetItem::ExposeToBlue()
 		MAP_ATTRIBUTE( "layer2Scroll", m_layer2Scroll, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "boneIndex", m_boneIndex, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "groupIndex", m_groupIndex, "", Be::READWRITE | Be::PERSIST )
-    EXPOSURE_END()
+		MAP_ATTRIBUTE( "maskMapAtlasIndex", m_maskMapAtlasIndex, "", Be::READWRITE | Be::PERSIST )
+	EXPOSURE_END()
 }
 
 
