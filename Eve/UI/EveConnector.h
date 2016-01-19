@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////
 //
-//    Created:   2015
-//    Copyright: CCP 2015
+//    Created:   2016
+//    Copyright: CCP 2016
 //
 #pragma once
 #ifndef EveConnector_H
@@ -23,12 +23,16 @@ public:
 	EveConnector( IRoot* lockobj = NULL );
 	~EveConnector();
 
+	enum ConnectorType { PointToPoint, XZ_CircleStraight, XZ_Circle, StraightAnchor, CurvedAnchor };
+
 	void Update( EveUpdateContext& context );
 	void AddLine( EveCurveLineSet* lineSet );
 
 private:
 	ITriVectorFunctionPtr m_sourceObject;
 	ITriVectorFunctionPtr m_destObject;
+
+	ConnectorType m_type;
 
 	Vector3 m_sourcePosition;
 	Vector3 m_destPosition;
@@ -41,6 +45,12 @@ private:
 	float m_width;
 
 	bool m_isAnimated;
+
+	// Some helper functions(inline)
+	void AnimateSegment( EveCurveLineSet* lineSet, int lineID );
+	void AddCircle( EveCurveLineSet* lineSet, const Vector3& center, float radius );
+	void AddStraightLine( EveCurveLineSet* lineSet, const Vector3& source, const Vector3& destination );
+	void AddSpheredSegment( EveCurveLineSet* lineSet, const Vector3& p0, const Vector3& p1, const Vector3& center );
 };
 
 TYPEDEF_BLUECLASS( EveConnector );

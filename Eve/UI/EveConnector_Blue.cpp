@@ -1,10 +1,47 @@
 ////////////////////////////////////////////////////////////
 //
-//    Created:   2015
-//    Copyright: CCP 2015
+//    Created:   2016
+//    Copyright: CCP 2016
 //
 #include "StdAfx.h"
 #include "EveConnector.h"
+
+Be::VarChooser EveConnectorTypeChooser[] =
+{
+	{
+		"PointToPoint",
+		BeCast( EveConnector::PointToPoint ),
+		"Connection between two points"
+	},
+	{
+		"StraightAnchor",
+		BeCast( EveConnector::StraightAnchor ),
+		"Anchor line from dest to xz plane containing source"
+	},
+	{
+		"CurvedAnchor",
+		BeCast( EveConnector::CurvedAnchor ),
+		"Sphered line from dest to xz plane containing source using source as the center"
+	},
+	{
+		"XZ_Circle",
+		BeCast( EveConnector::XZ_Circle ),
+		"Circle in xz plane going through the 'CurvedAnchor' point with source as the center"
+	},
+	{
+		"XZ_CircleStraight",
+		BeCast( EveConnector::XZ_CircleStraight ),
+		"Circle in xz plane going through the 'StraightAnchor' point with source as the center"
+	},
+	{ 0 }
+};
+
+BLUE_REGISTER_ENUM_EX( 
+	"BuildClass",
+	EveConnector::ConnectorType,
+	EveConnectorTypeChooser,
+	ENUM_REG_ENUM_OBJECT_ON_MODULE
+);
 
 BLUE_DEFINE( EveConnector );
 
@@ -25,6 +62,8 @@ const Be::ClassInfo* EveConnector::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "destObject", m_destObject, "", Be::READWRITE | Be::PERSIST );
 		MAP_ATTRIBUTE( "sourceObject", m_sourceObject, "", Be::READWRITE | Be::PERSIST );
+
+		MAP_ATTRIBUTE_WITH_CHOOSER( "type", m_type, "", Be::READWRITE | Be::PERSIST | Be::ENUM, EveConnectorTypeChooser );
 
     EXPOSURE_END()
 }
