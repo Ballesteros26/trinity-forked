@@ -632,6 +632,11 @@ const Be::VarChooser TriOperator[] =
 		VAL(TRIOP_ADD),   
 		"add"
 	},
+	{
+		"TRIOP_AVERAGE", 
+		VAL(TRIOP_AVERAGE),   
+		"average"
+	},
 	{0}
 };
 

@@ -218,8 +218,10 @@ Vector3* TriVectorSequencer::GetValueAt(
 {	
 	if (mOperator == TRIOP_MULTIPLY)
 		return GetValueAtMult(in, now);
-	else
+	else if(mOperator == TRIOP_ADD)
 		return GetValueAtAdd(in, now);
+	else
+		return GetValueAtAverage(in, now);
 }
 
 Vector3* TriVectorSequencer::GetValueAtMult(
@@ -235,6 +237,22 @@ Vector3* TriVectorSequencer::GetValueAtMult(
 		in->x *= temp.x;
 		in->y *= temp.y;
 		in->z *= temp.z;
+	}
+	return in;
+}
+
+Vector3* TriVectorSequencer::GetValueAtAverage(
+	Vector3* in,
+	Be::Time now
+	)
+{
+	*in = Vector3(0.0f, 0.0f, 0.0f);
+	Vector3 temp;
+	float multiplier = 1.f / (float)mFunctions.GetSize();
+	for(int i = 0; i < mFunctions.GetSize();  i++)
+	{
+		mFunctions[i]->GetValueAt(&temp, now);
+		*in += temp * multiplier;
 	}
 	return in;
 }
@@ -261,8 +279,10 @@ Vector3* TriVectorSequencer::GetValueAt(
 {
 	if (mOperator == TRIOP_MULTIPLY)
 		return GetValueAtMult(in, pos);
-	else
+	else if(mOperator == TRIOP_ADD)
 		return GetValueAtAdd(in, pos);
+	else
+		return GetValueAtAverage(in, pos);
 }
 
 Vector3* TriVectorSequencer::GetValueAtMult(
@@ -293,6 +313,22 @@ Vector3* TriVectorSequencer::GetValueAtAdd(
 	{
 		mFunctions[i]->GetValueAt(&temp, pos);
 		*in += temp;
+	}
+	return in;
+}
+
+Vector3* TriVectorSequencer::GetValueAtAverage(
+	Vector3* in,
+	double pos
+	)
+{
+	*in = Vector3(0.0f, 0.0f, 0.0f);
+	Vector3 temp;
+	float multiplier = 1.f / (float)mFunctions.GetSize();
+	for(int i = 0; i < mFunctions.GetSize();  i++)
+	{
+		mFunctions[i]->GetValueAt(&temp, pos);
+		*in += temp * multiplier;
 	}
 	return in;
 }

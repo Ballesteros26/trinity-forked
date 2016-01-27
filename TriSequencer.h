@@ -181,8 +181,10 @@ public:
 private:
 	Vector3* GetValueAtMult(Vector3* in, double pos);
 	Vector3* GetValueAtAdd(Vector3* in, double pos);
+	Vector3* GetValueAtAverage(Vector3* in, double pos);
 	Vector3* GetValueAtMult(Vector3* in, Be::Time now);
 	Vector3* GetValueAtAdd(Vector3* in, Be::Time now);
+	Vector3* GetValueAtAverage(Vector3* in, Be::Time now);
 public:
 #if BLUE_WITH_PYTHON
     PyObject* PyGetValueDoubleDotAt( PyObject* args );

@@ -48,6 +48,7 @@ public:
 	void GetLocalToWorldTransform( Matrix &transform ) const;
 
 private:
+	BlueSharedString m_name; 
 	PEveConnectorVector m_connectors;
 	EveCurveLineSetPtr m_lineSet;
 };
