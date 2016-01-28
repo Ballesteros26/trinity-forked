@@ -5,8 +5,6 @@
 
 // forwards
 BLUE_DECLARE( EveStation2 );
-BLUE_DECLARE( EveDynamicPlaneSet );
-BLUE_DECLARE_VECTOR( EveDynamicPlaneSet );
 BLUE_DECLARE( EveSpriteSet );
 BLUE_DECLARE_VECTOR( EveSpriteSet );
 
@@ -26,15 +24,6 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Overrides of animation controller
 	virtual bool ExecuteAnimationStateCommand( const EveAnimationCommand& cmd, const std::map<std::string, float>& parameters );
-
-private:
-	/////////////////////////////////////////////////////////////////////////////////////
-	// dynamic planesets (used for holograms, etc.)
-	PEveDynamicPlaneSetVector m_hologramSets;
-
-	/////////////////////////////////////////////////////////////////////////////////////
-	// environment spritesets (used for landing strips etc.)
-	PEveSpriteSetVector m_environmentSpriteSets;
 };
 
 TYPEDEF_BLUECLASS( EveStation2 );

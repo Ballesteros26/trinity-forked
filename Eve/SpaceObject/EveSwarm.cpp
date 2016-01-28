@@ -12,8 +12,8 @@
 #include "include/TriMath.h"
 #include "Utilities/BoundingBox.h"
 
-#include "Attachments/EveSpriteSet.h"
-#include "Attachments/EveSpotlightSet.h"
+#include "Eve/SpaceObject/Attachments/Sets/EveSpriteSet.h"
+#include "Eve/SpaceObject/Attachments/Sets/EveSpotlightSet.h"
 
 EveSwarmRenderable::EveSwarmRenderable( IRoot* lockobj )
 {

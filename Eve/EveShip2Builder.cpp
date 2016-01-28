@@ -2,8 +2,8 @@
 
 #include "EveShip2Builder.h"
 #include "SpaceObject/EveShip2.h"
-#include "SpaceObject/Attachments/EveSpriteSet.h"
-#include "SpaceObject/Attachments/EveSpotlightSet.h"
+#include "Eve/SpaceObject/Attachments/Sets/EveSpriteSet.h"
+#include "Eve/SpaceObject/Attachments/Sets/EveSpotlightSet.h"
 #include "SpaceObject/Attachments/EveSpaceObjectDecal.h"
 #include "Tr2Mesh.h"
 #include "Tr2MeshLod.h"

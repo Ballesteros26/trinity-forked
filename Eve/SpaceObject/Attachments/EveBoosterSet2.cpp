@@ -10,7 +10,7 @@
 #include "Curves/TriVectorCurve.h"
 #include "Include/TriMath.h"
 
-#include "EveSpriteSet.h"
+#include "Eve/SpaceObject/Attachments/Sets/EveSpriteSet.h"
 #include "EveTrailsSet.h"
 #include "Tr2LightManager.h"
 

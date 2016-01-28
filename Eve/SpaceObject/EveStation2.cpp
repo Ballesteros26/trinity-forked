@@ -3,17 +3,14 @@
 #include "EveStation2.h"
 
 #include "Tr2Mesh.h"
-#include "Attachments/EveDynamicPlaneSet.h"
-#include "Attachments/EveSpriteSet.h"
+#include "Eve/SpaceObject/Attachments/Sets/EveSpriteSet.h"
 
 // --------------------------------------------------------------------------------
 // Description:
 //   Initialize data members
 // --------------------------------------------------------------------------------
 EveStation2::EveStation2( IRoot* lockobj ) : 
-	EveSpaceObject2( lockobj ),
-	PARENTLOCK( m_hologramSets ),
-	PARENTLOCK( m_environmentSpriteSets )
+	EveSpaceObject2( lockobj )
 {
 }
 
@@ -33,30 +30,6 @@ EveStation2::~EveStation2()
 void EveStation2::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData )
 {
 	EveSpaceObject2::GetBatches( batches, batchType, perObjectData );
-
-	if( !m_mesh )
-	{
-		return;
-	}
-
-	if( m_mesh->IsHidden() )
-	{
-		return;
-	}
-
-	// only additives here
-	if( batchType == TRIBATCHTYPE_ADDITIVE )
-	{
-		for( auto it = m_environmentSpriteSets.begin(); it != m_environmentSpriteSets.end(); ++it )
-		{
-			(*it)->GetBatches( batches, perObjectData );
-		}
-		for (auto it = m_hologramSets.begin(); it != m_hologramSets.end(); ++it )
-		{
-			(*it)->GetBatches( batches, perObjectData );
-		}
-	}
-
 }
 
 // --------------------------------------------------------------------------------

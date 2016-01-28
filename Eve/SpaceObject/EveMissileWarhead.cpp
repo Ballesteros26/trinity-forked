@@ -8,7 +8,7 @@
 
 #include "EveMissileWarhead.h"
 #include "Eve/EveUpdateContext.h"
-#include "Eve/SpaceObject/Attachments/EveSpriteSet.h"
+#include "Eve/SpaceObject/Attachments/Sets/EveSpriteSet.h"
 #include "Tr2Mesh.h"
 #include "include/TriMath.h"
 #include "TriFrustum.h"
