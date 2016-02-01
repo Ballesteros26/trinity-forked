@@ -127,7 +127,7 @@ bool EveSpriteLineSet::OnPrepareResources()
 			// fill static pool data
 			vtx->position = pos;
 			vtx->warpColor = vtx->color = ( ( spriteLine->m_color & 0xff0000 ) >> 16 ) | ( spriteLine->m_color & 0xff00ff00 ) | ( ( spriteLine->m_color & 0xff ) << 16 );
-			vtx->blinkPhase = spriteLine->m_blinkPhaseShift * (float)i;
+			vtx->blinkPhase = spriteLine->m_blinkPhase + spriteLine->m_blinkPhaseShift * (float)i;
 			vtx->blinkRate = spriteLine->m_blinkRate;
 			vtx->minScale = spriteLine->m_minScale;
 			vtx->maxScale = spriteLine->m_maxScale;

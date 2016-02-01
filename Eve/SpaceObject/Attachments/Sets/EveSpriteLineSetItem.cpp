@@ -18,6 +18,7 @@ EveSpriteLineSetItem::EveSpriteLineSetItem( IRoot* lockobj ) :
 	m_spacing( 1.f ),
 	m_color( 1.f, 1.f, 1.f, 1.f ),
 	m_blinkRate( 0.1f ),
+	m_blinkPhase( 0.f ),
 	m_blinkPhaseShift( 0.f ),
 	m_minScale( 1.f ),
 	m_maxScale( 10.f ),

@@ -32,6 +32,7 @@ public:
 	Vector3 m_scaling;
 	float m_spacing;
 	float m_blinkRate;
+	float m_blinkPhase;
 	float m_blinkPhaseShift;
 	float m_minScale;
 	float m_maxScale;

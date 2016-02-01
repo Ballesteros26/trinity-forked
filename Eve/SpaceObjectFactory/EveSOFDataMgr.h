@@ -111,7 +111,7 @@ public:
 	{
 		Vector3 position, scaling;
 		Quaternion rotation;
-		float spacing, blinkRate, blinkPhaseShift, minScale, maxScale, falloff;
+		float spacing, blinkRate, blinkPhase, blinkPhaseShift, minScale, maxScale, falloff;
 		int boneIndex, groupIndex;
 	};
 

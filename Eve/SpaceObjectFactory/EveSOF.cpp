@@ -730,6 +730,7 @@ void EveSOF::SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna
 
 			// set it up the per-hull data
 			spriteLineSetItem->m_blinkPhaseShift = slsiit->blinkPhaseShift;
+			spriteLineSetItem->m_blinkPhase = slsiit->blinkPhase;
 			spriteLineSetItem->m_blinkRate = slsiit->blinkRate;
 			spriteLineSetItem->m_boneIndex = slsiit->boneIndex;
 			spriteLineSetItem->m_falloff = slsiit->falloff;

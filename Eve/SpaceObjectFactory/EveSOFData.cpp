@@ -329,7 +329,7 @@ EveSOFDataHullSpriteLineSet::EveSOFDataHullSpriteLineSet( IRoot* lockobj ) :
 EveSOFDataHullSpriteLineSetItem::EveSOFDataHullSpriteLineSetItem( IRoot* lockobj ) :
 	m_position( 0.f, 0.f, 0.f ), m_scaling( 1.f, 1.f, 1.f ),
 	m_rotation( 0.f, 0.f, 0.f, 1.f ),
-	m_spacing( 1.f ), m_blinkRate( 0.1f ), m_blinkPhaseShift( 0.f ), m_minScale( 1.f ), m_maxScale( 10.f ), m_falloff( 0.f ),
+	m_spacing( 1.f ), m_blinkRate( 0.1f ), m_blinkPhase( 0.f ), m_blinkPhaseShift( 0.f ), m_minScale( 1.f ), m_maxScale( 10.f ), m_falloff( 0.f ),
 	m_boneIndex( 0 ), m_groupIndex( -1 )
 {}
 

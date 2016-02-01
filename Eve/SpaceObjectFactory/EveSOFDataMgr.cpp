@@ -526,6 +526,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 
 			HullSpriteLineSetItemData hslsid;
 			hslsid.blinkPhaseShift = spriteLineSetItemData->m_blinkPhaseShift;
+			hslsid.blinkPhase = spriteLineSetItemData->m_blinkPhase;
 			hslsid.blinkRate = spriteLineSetItemData->m_blinkRate;
 			hslsid.boneIndex = spriteLineSetItemData->m_boneIndex;
 			hslsid.falloff = spriteLineSetItemData->m_falloff;

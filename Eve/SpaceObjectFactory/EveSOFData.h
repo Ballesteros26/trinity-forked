@@ -227,7 +227,7 @@ public:
 	// per-hull data of a sprite line set
 	Vector3 m_position, m_scaling;
 	Quaternion m_rotation;
-	float m_spacing, m_blinkRate, m_blinkPhaseShift, m_minScale, m_maxScale, m_falloff;
+	float m_spacing, m_blinkRate, m_blinkPhase, m_blinkPhaseShift, m_minScale, m_maxScale, m_falloff;
 	int m_boneIndex, m_groupIndex;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullSpriteLineSetItem );
