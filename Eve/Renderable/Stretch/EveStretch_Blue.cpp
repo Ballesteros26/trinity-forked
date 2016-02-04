@@ -117,7 +117,7 @@ const Be::ClassInfo* EveStretch::ExposeToBlue()
 			"moveCompleted",
 			m_moveCompleted,
 			"Gets set to true when the move object reached destination",
-			Be::READWRITE | Be::PERSIST
+			Be::READWRITE
 		)
 
 		MAP_ATTRIBUTE
@@ -125,7 +125,7 @@ const Be::ClassInfo* EveStretch::ExposeToBlue()
 			"moving",
 			m_moving,
 			"Flag that is set when Play is called. Tells you that the move has started.",
-			Be::READWRITE | Be::PERSIST
+			Be::READWRITE
 		)
 
 		MAP_ATTRIBUTE
