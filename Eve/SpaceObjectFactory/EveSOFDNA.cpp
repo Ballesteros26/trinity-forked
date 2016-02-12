@@ -26,6 +26,7 @@ static std::string s_dnaCommands[] = {
 	"invalid",				// CMD_INVALID
 	"mesh",					// CMD_MESH
 	"respathinsert",		// CMD_RESPATHINSERT
+	"variant",				// CMD_VARIANT
 };
 
 // --------------------------------------------------------------------------------
@@ -123,6 +124,17 @@ bool EveSOFDNA::ValidateContent()
 				return false;
 			}
 			break;
+		case CMD_VARIANT:
+			// has one argument
+			if( cit->second.size() != 1 )
+			{
+				// variant must exists in generic data
+				if( m_genericData->variants.find( BlueSharedString( cit->second[0] ) ) == m_genericData->variants.end() )
+				{
+					return false;
+				}
+			}
+			break;
 		}
 	}
 
@@ -203,6 +215,47 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 	}
 	// generics
 	m_genericData = m_dataMgr->GetGenericData();
+
+	// some dna commands require a custom block data
+	if( HasDnaCommand( CMD_VARIANT ) )
+	{
+		SetupCustomData();
+	}
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return the dna string as a whole
+// --------------------------------------------------------------------------------
+void EveSOFDNA::SetupCustomData()
+{
+	// ok we need custom hull data, but set up basic stuff here
+	m_customHullData.buildClass = m_hullData->buildClass;
+	m_customHullData.geometryResFilePath = m_hullData->geometryResFilePath;
+	m_customHullData.boundingSphere = m_hullData->boundingSphere;
+	m_customHullData.shapeEllipsoidCenter = m_hullData->shapeEllipsoidCenter;
+	m_customHullData.shapeEllipsoidRadius = m_hullData->shapeEllipsoidRadius;
+	m_customHullData.isSkinned = m_hullData->isSkinned;
+	m_customHullData.audioPosition = m_hullData->audioPosition;
+
+	// do we have a dna variant command for this?
+	std::vector<std::string> variantCommandArgs;
+	if( GetDnaCommandArgs( CMD_VARIANT, variantCommandArgs ) )
+	{
+		// do we have this variant's data?
+		auto finder = m_genericData->variants.find( BlueSharedString( variantCommandArgs[0] ) );
+		if( finder != m_genericData->variants.end() )
+		{
+			// for now only use a single additive area
+			for( auto it = m_hullData->opaqueAreas.begin(); it != m_hullData->opaqueAreas.end(); ++it )
+			{
+				m_customHullData.additiveAreas.push_back( finder->second );
+			}
+		}
+	}
+
+	// adjust pointer
+	m_hullData = &m_customHullData;
 }
 
 // --------------------------------------------------------------------------------
@@ -793,16 +846,20 @@ const EveSOFDataMgr::HullBoosterData* EveSOFDNA::GetHullBoosterData() const
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Just try to find a command
+// --------------------------------------------------------------------------------
+bool EveSOFDNA::HasDnaCommand( DnaCommand cmd ) const
+{
+	// try to find it!
+	return ( m_commands.find( s_dnaCommands[cmd] ) != m_commands.end() );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Try to find a command in our cmd list and return it's arguments
 // --------------------------------------------------------------------------------
 bool EveSOFDNA::GetDnaCommandArgs( DnaCommand cmd, std::vector<std::string>& args ) const
 {
-	// straight out in mode cases:
-	if( m_commands.empty() )
-	{
-		return false;
-	}
-
 	// try to find it!
 	auto commandIt = m_commands.find( s_dnaCommands[ cmd ] );
 	if( commandIt == m_commands.end() )

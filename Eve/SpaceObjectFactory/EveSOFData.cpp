@@ -92,7 +92,8 @@ EveSOFDataGeneric::EveSOFDataGeneric( IRoot* lockobj ) :
 	PARENTLOCK( m_areaShaders ),
 	PARENTLOCK( m_decalShaders ),
 	PARENTLOCK( m_textureExtensions ),
-	PARENTLOCK( m_hullAreas )
+	PARENTLOCK( m_hullAreas ),
+	PARENTLOCK( m_variants )
 {}
 
 
@@ -172,7 +173,6 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 	PARENTLOCK( m_depthAreas ),
 	PARENTLOCK( m_distortionAreas ),
 	PARENTLOCK( m_locatorTurrets ),
-	PARENTLOCK( m_damageLocators ),
 	PARENTLOCK( m_locatorSets ),
 	PARENTLOCK( m_children ),
 	PARENTLOCK( m_instancedMeshes ),

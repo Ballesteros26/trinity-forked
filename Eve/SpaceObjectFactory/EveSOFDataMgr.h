@@ -206,7 +206,6 @@ public:
 		std::vector<HullDecalData> hullDecals;
 		HullBoosterData boosters;
 		std::vector<LocatorData> locatorTurrets;
-		std::vector<LocatorDirectionData> locatorDamage;
 		std::map<BlueSharedString, std::vector<LocatorDirectionData>> locatorSets;
 		std::vector<HullChild> children;
 		std::vector<HullInstancedMesh> instancedMeshes;
@@ -388,6 +387,8 @@ public:
 		GenericDamageData damage;
 		// hull area parameter overloads
 		std::map<BlueSharedString, FactionAreaData> hullAreaParameters;
+		// variants
+		std::map<BlueSharedString, HullAreas> variants;
 	};
 
 

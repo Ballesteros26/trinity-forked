@@ -624,19 +624,6 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		hd.locatorTurrets.push_back( ld );
 	}
 
-	// damage locators
-	hd.locatorDamage.clear();
-	for( auto dlit = srcData->m_damageLocators.begin(); dlit != srcData->m_damageLocators.end(); ++dlit )
-	{
-		EveSOFDataTransformPtr locatorData = (*dlit);
-
-		LocatorDirectionData ldd;
-		ldd.position = locatorData->m_position;
-		ldd.rotation = locatorData->m_rotation;
-		ldd.boneIndex = locatorData->m_boneIndex;
-		hd.locatorDamage.push_back( ldd );
-	}
-
 	// locator sets
 	hd.locatorSets.clear();
 	for( auto lsit = srcData->m_locatorSets.begin(); lsit != srcData->m_locatorSets.end(); ++lsit )
@@ -1164,6 +1151,14 @@ void EveSOFDataMgr::GenerateGenericData( GenericData& gd, EveSOFDataGenericPtr s
 			ad.parameters[parameterData->m_name] = parameterData->m_value;
 		}
 		gd.hullAreaParameters[hullAreaData->m_name] = ad;
+	}
+
+	// variants
+	gd.variants.clear();
+	for( auto vit = srcData->m_variants.begin(); vit != srcData->m_variants.end(); ++vit )
+	{
+		EveSOFDataHullAreaPtr variantData = ( *vit );
+		gd.variants[variantData->m_name] = LoadHullAreaData( variantData );
 	}
 }
 

@@ -34,6 +34,7 @@ public:
 		CMD_INVALID = 0,
 		CMD_MESH,
 		CMD_RESPATHINSERT,
+		CMD_VARIANT,
 		CMD_MAX
 	}; 
 
@@ -95,8 +96,11 @@ public:
 
 
 private:
-	// search for a dna command and get it's args
+	// special cusomt data setup
+	void SetupCustomData();
+	// search for a dna
 	bool GetDnaCommandArgs( DnaCommand cmd, std::vector<std::string>& args ) const;
+	bool HasDnaCommand( DnaCommand cmd ) const;
 	// search and area collection to find the data of a specific parameter
 	const Vector4* SearchForParameterData( const std::map<BlueSharedString, EveSOFDataMgr::FactionAreaData>& areas, const BlueSharedString& areaDesignation, const BlueSharedString& parameterName ) const;
 
@@ -105,11 +109,14 @@ private:
 
 	// a temporary pointer to the BIG data
 	EveSOFDataMgrPtr m_dataMgr;
-	// pointers to the specific data inside the BIG data
+	// pointers to the specific data inside the BIG data or a custom data block
 	const EveSOFDataMgr::HullData* m_hullData;
 	const EveSOFDataMgr::FactionData* m_factionData;
 	const EveSOFDataMgr::RaceData* m_raceData;
 	const EveSOFDataMgr::GenericData* m_genericData;
+
+	// custom data blocks
+	EveSOFDataMgr::HullData m_customHullData;
 
 	// decoded data
 	std::string m_hullName;

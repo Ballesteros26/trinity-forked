@@ -497,7 +497,6 @@ const Be::ClassInfo* EveSOFDataHull::ExposeToBlue()
 		MAP_ATTRIBUTE( "instancedMeshes", m_instancedMeshes, "List of instanced meshes", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "locatorTurrets", m_locatorTurrets, "Turret locators", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "damageLocators", m_damageLocators, "Damage locators", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "locatorSets", m_locatorSets, "Damage locators", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "modelRotationCurvePath", m_modelRotationCurvePath, "Model rotation curve path", Be::READWRITE | Be::PERSIST )
@@ -741,7 +740,8 @@ const Be::ClassInfo* EveSOFDataGeneric::ExposeToBlue()
 		MAP_ATTRIBUTE( "textureExtensions", m_textureExtensions, "key/values for texturenames and their filename extensions", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "damage", m_damage, "Global visual damage data", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "hullAreas", m_hullAreas, "Global hull area shader data", Be::READWRITE | Be::PERSIST )
-    EXPOSURE_END()
+		MAP_ATTRIBUTE( "variants", m_variants, "All the hull  variants", Be::READWRITE | Be::PERSIST )
+		EXPOSURE_END()
 }
 
 

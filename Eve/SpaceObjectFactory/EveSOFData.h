@@ -482,7 +482,6 @@ public:
 
 	// locators
 	PEveSOFDataHullLocatorVector m_locatorTurrets;
-	PEveSOFDataTransformVector m_damageLocators;
 	PEveSOFDataHullLocatorSetVector m_locatorSets;
 
 	// children
@@ -865,8 +864,11 @@ public:
 	// damage data
 	EveSOFDataGenericDamagePtr m_damage;
 
-	// hull area data
+	// faction area data
 	PEveSOFDataFactionHullAreaVector m_hullAreas;
+
+	// effect data
+	PEveSOFDataHullAreaVector m_variants;
 };
 TYPEDEF_BLUECLASS( EveSOFDataGeneric );
 
