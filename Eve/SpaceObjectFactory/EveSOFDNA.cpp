@@ -251,7 +251,7 @@ void EveSOFDNA::SetupCustomData()
 			{
 				m_customHullData.additiveAreas.push_back( finder->second );
 				m_customHullData.additiveAreas[0].index = 0;
-				m_customHullData.additiveAreas[0].count = m_hullData->opaqueAreas.size();
+				m_customHullData.additiveAreas[0].count = (unsigned int)m_hullData->opaqueAreas.size();
 			}
 		}
 	}
