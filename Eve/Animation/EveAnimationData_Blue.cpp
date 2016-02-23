@@ -37,6 +37,7 @@ Be::VarChooser EveAnimCommandChooser[] =
 	{ "TurnonBoosters", BeCast( ANIM_CMD_TURNON_BOOSTERS ), "Tell non-warp boosters to start" },
 	{ "PlayClipSphere", BeCast( ANIM_CMD_PLAY_CLIPSPHERE ), "Modifies the clip sphere of the object" },
 	{ "StopClipSphere", BeCast( ANIM_CMD_STOP_CLIPSPHERE ), "Sets the clip sphere factor to 0 and stops the clip sphere animation" },
+	{ "SetClipSphere", BeCast( ANIM_CMD_SET_CLIPSPHERE ), "Sets the clip sphere factor to the value defined in the floatValue" },
 	{ 0 }
 };
 
