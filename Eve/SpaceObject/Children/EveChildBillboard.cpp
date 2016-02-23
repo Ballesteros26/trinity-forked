@@ -102,29 +102,42 @@ void EveChildBillboard::UpdateSyncronous( EveUpdateContext& updateContext, IEveS
 
 void EveChildBillboard::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
-	Matrix localToWorldTransform;
+	Matrix parentTransform;
 	if( spaceObjectParent )
 	{
-		spaceObjectParent->GetLocalToWorldTransform( localToWorldTransform );
+		spaceObjectParent->GetLocalToWorldTransform( parentTransform );
 	}
 	else if ( childParent )
 	{
-		childParent->GetLocalToWorldTransform( localToWorldTransform );
+		childParent->GetLocalToWorldTransform( parentTransform );
 	}
 	else
 	{
 		return;
 	}
 
-	UpdateTransform( localToWorldTransform );
-
+	UpdateTransform( parentTransform );
+	
 	// Do the billboard magic
 	Matrix invView = Tr2Renderer::GetInverseViewTransform();
-	invView._41 = 0.0;
-	invView._42 = 0.0;
-	invView._43 = 0.0;
-	invView._44 = 1.0;
-	D3DXMatrixMultiply( &m_worldTransform, &m_worldTransform, &invView );
+
+	float parentScaleX = D3DXVec3Length( &parentTransform.GetX() );
+	float parentScaleY = D3DXVec3Length( &parentTransform.GetY() );
+	float parentScaleZ = D3DXVec3Length( &parentTransform.GetZ() );
+	Vector3 finalScale = m_scaling;
+	finalScale.x *= parentScaleX;
+	finalScale.y *= parentScaleY;
+	finalScale.z *= parentScaleZ;
+
+	m_worldTransform._11 = invView._11 * finalScale.x;
+	m_worldTransform._12 = invView._12 * finalScale.x;
+	m_worldTransform._13 = invView._13 * finalScale.x;
+	m_worldTransform._21 = invView._21 * finalScale.y;
+	m_worldTransform._22 = invView._22 * finalScale.y;
+	m_worldTransform._23 = invView._23 * finalScale.y;
+	m_worldTransform._31 = invView._31 * finalScale.z;
+	m_worldTransform._32 = invView._32 * finalScale.z;
+	m_worldTransform._33 = invView._33 * finalScale.z;
 }
 
 void EveChildBillboard::GetLocalToWorldTransform( Matrix& transform ) const
