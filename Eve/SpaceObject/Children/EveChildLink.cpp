@@ -116,6 +116,10 @@ void EveChildLink::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpace
 	// combine inverse to link matrix, so we can do the intersection calculation in axis-aligned space
 	D3DXMatrixMultiply( &linkRotationMat, &linkRotationMat, &invRotationWorldMat );
 
+	// the link rotation matrix is rotation only so far, so put the offset to the target in it's translation part
+	Vector3 offsetToTarget = m_currentDistance * m_currentDirection;
+	TriMatrixOverwriteTranslation( &linkRotationMat, &linkRotationMat, &offsetToTarget );
+
 	// update perobject data buffers
 	m_perObjectDataVs.InvalidateBufferData();
 	m_perObjectDataPs.InvalidateBufferData();
@@ -124,7 +128,6 @@ void EveChildLink::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpace
 	{
 		spaceObjectParent->GetPerObjectStructs( m_vsData, m_psData );
 	}
-	m_vsData.worldTransformLast = linkRotationMat;
 	D3DXMatrixTranspose( &m_vsData.worldTransform, &m_worldTransform );
 	D3DXMatrixTranspose( &m_vsData.worldTransformLast, &linkRotationMat );
 }
