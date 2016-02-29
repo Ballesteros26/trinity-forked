@@ -310,6 +310,7 @@ public:
 	void SetImpactOverlay( EveImpactOverlayPtr overlay );
 	void SetImpactDamageState( float shield, float armor, float hull, bool doCreateArmorImpacts );
 	void SetImpactAnimation( const std::string& name, bool enable, float duration );
+	void ClearImpactDamage();
 
 	uint32_t GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const;
 	void UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* );

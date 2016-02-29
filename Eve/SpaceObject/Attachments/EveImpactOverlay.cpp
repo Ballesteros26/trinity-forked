@@ -499,6 +499,17 @@ void EveImpactOverlay::SetDamageState( float shield, float armor, float hull, bo
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Takes out all damage/impact effects. Heals the ship.
+// --------------------------------------------------------------------------------
+void EveImpactOverlay::Clear()
+{
+	// remove all impacts
+	m_shieldImpactData.clear();
+	m_armorImpactData.clear();
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Use this method to add a new impact effect. Internal states determines
 //   what effect to use
 // --------------------------------------------------------------------------------

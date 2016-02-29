@@ -2083,6 +2083,18 @@ void EveSpaceObject2::SetImpactAnimation( const std::string& name, bool enable, 
 
 // -----------------------------------------------------------------------------
 // Description:
+//   Clear out all impact/damage effects on this ship
+// -----------------------------------------------------------------------------
+void EveSpaceObject2::ClearImpactDamage()
+{
+	if( m_impactOverlay )
+	{
+		m_impactOverlay->Clear();
+	}
+}
+
+// -----------------------------------------------------------------------------
+// Description:
 //   Create an impact effect on this object
 // -----------------------------------------------------------------------------
 int EveSpaceObject2::CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size )

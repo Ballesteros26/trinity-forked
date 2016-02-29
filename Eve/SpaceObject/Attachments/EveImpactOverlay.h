@@ -103,6 +103,7 @@ public:
 
 	// set the damages
 	void SetDamageState( float shield, float armor, float hull, bool doCreateArmorImpacts );
+	void Clear();
 
 	// control impacts
 	int CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size );
