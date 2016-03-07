@@ -72,6 +72,87 @@ public:
 	PixelShaderData m_psData;
 };
 
+BLUE_DECLARE( EveBoosterSet2 );
+
+BLUE_CLASS( EveBoosterSet2Renderable ):
+	public ITr2GeometryProvider,
+	public ITr2Renderable
+{
+public:
+	EXPOSE_TO_BLUE();
+
+	using ITr2GeometryProvider::Lock;
+	using ITr2GeometryProvider::Unlock;
+
+	EveBoosterSet2Renderable( IRoot* lockobj = NULL );
+	~EveBoosterSet2Renderable();
+	
+	void Update( float deltaT, Be::Time t, const Matrix& parentMatrix, float parentSpeed, const Vector3& parentAcceleration, const Quaternion& parentRotation );
+	// get the transformed bounding sphere, ready for use
+	void GetBoundingSphere( Vector4& boundingSphere ) const;
+	// rendering
+	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables );
+	void UpdateTrails( float deltaT, Be::Time t );
+	float GetIntensity() const { return m_overallIntensity; }
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	// ITr2GeometryProvider
+	void SubmitGeometry( Tr2RenderContext& renderContext );
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2Renderable
+	virtual void GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData );
+	virtual void GetShadowBatches( ITriRenderBatchAccumulator* batches, const Tr2PerObjectData* perObjectData ) {}
+
+	virtual bool HasTransparentBatches();
+	virtual float GetSortValue(); 
+
+	virtual Tr2PerObjectData* GetPerObjectData( ITriRenderBatchAccumulator* accumulator );
+	
+	BlueWeakRef<EveBoosterSet2> m_boosterSet;
+
+	// calculated the booster intensity (=gain) from ship's ball
+	float CalculateIntensity( const Vector3& acceleration, Be::Time t );
+	// calculate the spline's tangents (based on catmull-rom)
+	void CalculateSplineData( float deltaT );
+
+	// LODs and bounds
+	Vector3 m_trailsBoundsMin, m_trailsBoundsMax;
+	float m_boosterLOD;
+	float m_trailsLOD;
+		
+	// parent ship data
+	float m_parentSpeed;
+	// parent ship transform
+	Matrix m_parentTransform;
+	Quaternion m_parentRotation;
+	
+	// booster gain stuff
+	float m_lastAccFactor;
+	float m_lastValue;
+
+
+	// data of the trails
+	float m_overallIntensity;
+	float m_trailIntensity;
+
+	// trail spline data
+	Vector3 m_trailsControlPositions[EVE_MAX_CONTROL_POINT_COUNT];
+	Vector3 m_trailsControlNormals[EVE_MAX_CONTROL_POINT_COUNT];
+	float m_trailsControlNormalsFactor[EVE_MAX_CONTROL_POINT_COUNT];
+	float m_trailsSequenceLength[EVE_MAX_CONTROL_POINT_COUNT];
+	float m_trailsTotalLength;
+
+	// trail ingame positioning
+	XMVECTOR* m_trailsOffsets;
+	unsigned int m_trailsOffsetLatest;
+	Vector3 m_trailsOffsetAccu;
+	float m_trailsTimeToNext;
+	float m_trailsTimeDelta;
+};
+TYPEDEF_BLUECLASS( EveBoosterSet2Renderable );
+BLUE_DECLARE_VECTOR( EveBoosterSet2Renderable );
+
 // --------------------------------------------------------------------------------
 // Description:
 //   This class is for rendering all of one ship's boosters. This includes the
@@ -85,9 +166,7 @@ public:
 // --------------------------------------------------------------------------------
 BLUE_CLASS( EveBoosterSet2 ):
 	public IInitialize,
-	public ITr2GeometryProvider,
-	public Tr2DeviceResource,
-	public ITr2Renderable
+	public Tr2DeviceResource
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -108,21 +187,12 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize
 	bool Initialize();
-	
-	//////////////////////////////////////////////////////////////////////////////////////
-	// ITr2GeometryProvider
-	void SubmitGeometry( Tr2RenderContext& renderContext );
-
-	/////////////////////////////////////////////////////////////////////////////////////
-	// ITr2Renderable
-	bool HasTransparentBatches();
-	void GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData );
-	float GetSortValue();
-	Tr2PerObjectData* GetPerObjectData( ITriRenderBatchAccumulator* accumulator );
 
 	//////////////////////////////////////////////////////////////////////////////////////////
 	// ITriDeviceResource
 	void ReleaseResources( TriStorage s );
+
+	friend class EveBoosterSet2Renderable;
 private:
 	bool OnPrepareResources();
 
@@ -143,8 +213,11 @@ public:
 		float atlasIndex1;
 	};
 
+	void SetCount( unsigned count );
+	PEveBoosterSet2RenderableVector m_boosterRenderables;
+
 	// timing
-	void Update( float deltaT, Be::Time t, const Matrix& parentMatrix, float parentSpeed, const Vector3& parentAcceleration, const Quaternion& parentRotation );
+	void Update( float deltaT, Be::Time t, const Matrix& parentMatrix, float parentSpeed, const Vector3& parentAcceleration, const Quaternion& parentRotation, int boosterInstance=0 );
 	void UpdateTrails( float deltaT, Be::Time t );
 	// manage individual exhaust points
 	void Clear();
@@ -168,6 +241,7 @@ public:
 	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables );
 	// query booster intensity
 	float GetBoosterIntensity() const;
+	float GetBoosterIntensity( int index ) const;
 	// just debug info
 	void RenderDebugInfo( Tr2RenderContext& renderContext );
 	// get the transformed bounding sphere, ready for use
@@ -181,10 +255,6 @@ public:
 private:
 	// re-alloc and init the instance vertex buffers
 	void RebuildInstanceData( Tr2RenderContext& renderContext );
-	// calculated the booster intensity (=gain) from ship's ball
-	float CalculateIntensity( const Vector3& acceleration, Be::Time t );
-	// calculate the spline's tangents (based on catmull-rom)
-	void CalculateSplineData( float deltaT );
 
 	// toggle display
 	bool m_display;
@@ -193,19 +263,9 @@ private:
 	float m_alwaysOnIntensity;
 	// toggle debug drawing
 	bool m_drawDebugInfo;
-	// LODs
-	float m_boosterLOD;
-	float m_trailsLOD;
-
-	// parent ship transform
-	Matrix m_parentTransform;
-	// parent ship data
-	float m_parentSpeed;
-	Quaternion m_parentRotation;
 
 	// bounding info (is setup dynamically)
 	Vector4 m_boosterBoundingSphere;
-	Vector3 m_trailsBoundsMin, m_trailsBoundsMax;
 
 	// the shader used for rendering the instanced boosters
 	Tr2EffectPtr m_effect;
@@ -236,9 +296,6 @@ private:
 
 	// booster gain
 	float m_maxVel;
-	float m_lastAccFactor;
-	float m_lastValue;
-	float m_overallIntensity;
 	float m_warpIntensity;
 
 	// data of the booster
@@ -251,25 +308,9 @@ private:
 	Color m_haloColor;
 	Color m_warpGlowColor;
 	Color m_warpHaloColor;
-
-	// data of the trails
-	float m_trailIntensity;
-
+	
 	// trail spline data
-	Vector3 m_trailsControlPositions[EVE_MAX_CONTROL_POINT_COUNT];
-	Vector3 m_trailsControlNormals[EVE_MAX_CONTROL_POINT_COUNT];
-	float m_trailsControlNormalsFactor[EVE_MAX_CONTROL_POINT_COUNT];
-	float m_trailsSequenceLength[EVE_MAX_CONTROL_POINT_COUNT];
 	float m_trailsSmoothing;
-	float m_trailsTotalLength;
-
-	// trail ingame positioning
-	XMVECTOR* m_trailsOffsets;
-	unsigned int m_trailsOffsetLatest;
-	Vector3 m_trailsOffsetAccu;
-	float m_trailsTimeToNext;
-	float m_trailsTimeDelta;
-
 	// toggle trail physics updates
 	bool m_physicsUpdate;
 	// toggle destiny updates

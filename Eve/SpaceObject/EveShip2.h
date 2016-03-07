@@ -55,8 +55,12 @@ public:
 protected:
 	// keep track of some ship's speed (in m/s)
 	TriFloatPtr m_speed;
-private:
 	Vector3 m_acceleration;
+	// boosters and trails
+	EveBoosterSet2Ptr m_boosters;
+
+	virtual void UpdateBoosters( EveUpdateContext& updateContext );
+private:
 
 	// For Audio
 	IRootPtr m_audioSpeedParameter;
@@ -77,9 +81,6 @@ private:
 	// Property accessors
 	void SetAudioParameter( IRoot* aud );
 	IRoot* GetAudioParameter() const;
-
-	// boosters and trails
-	EveBoosterSet2Ptr m_boosters;
 
 	// on ship info displays
 	uint32_t m_displayKillCounterValue;

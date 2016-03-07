@@ -8,6 +8,7 @@
 #include "Eve/EveUpdateContext.h"
 #include "Tr2MeshArea.h"
 #include "Tr2MeshBase.h"
+#include "Tr2MeshLod.h"
 
 #include "include/TriMath.h"
 #include "Utilities/BoundingBox.h"
@@ -113,7 +114,25 @@ void EveSwarmRenderable::SetWorldTransform( const Matrix& transform )
 	m_perObjectDataPs.InvalidateBufferData();
 }
 
+void EveSwarmRenderable::SetBoosterIntensity( float intensity )
+{
+	m_psData.shipData.x = intensity;
+}
 
+void EveSwarmRenderable::SetShaderData( const EveSpaceObjectVSData& vsData, const EveSpaceObjectPSData& psData )
+{
+	m_vsData.clipData = vsData.clipData;
+	m_vsData.ellpsoidCenter = vsData.ellpsoidCenter;
+	m_vsData.ellpsoidRadii = vsData.ellpsoidRadii;
+	m_vsData.shipData = vsData.shipData;
+
+	m_psData.clipData = psData.clipData;
+	m_psData.miscData = psData.miscData;
+	memcpy( (void*)&m_psData.shLightingCoefficients, (void*)&psData.shLightingCoefficients, sizeof( m_psData.shLightingCoefficients ) );
+	m_psData.shipData.y = psData.shipData.y;
+	m_psData.shipData.z = psData.shipData.z;
+	m_psData.shipData.w = psData.shipData.w;
+}
 
 
 
@@ -183,7 +202,7 @@ void EveSwarm::RebuildCachedData( BlueAsyncRes* p )
 	EveShip2::RebuildCachedData( p );
 	for( auto it = m_renderables.begin(); it != m_renderables.end(); ++it )
 	{
-		(*it)->SetMesh( m_mesh );
+		(*it)->SetMesh( m_meshLod );
 	}
 }
 
@@ -241,6 +260,12 @@ void EveSwarm::UpdateAsyncronous( EveUpdateContext& context )
 		if( m_renderables.size() > 0 )
 		{
 			m_renderables[0]->SetWorldTransform( m_worldTransform );
+			EveShip2::UpdateBoosters( context );
+			if( m_boosters )
+			{
+				m_renderables[0]->SetBoosterIntensity( m_boosters->GetBoosterIntensity() );
+			}
+			m_renderables[0]->SetShaderData( m_vsData, m_psData );
 		}
 		return;
 	}
@@ -334,6 +359,22 @@ void EveSwarm::UpdateAsyncronous( EveUpdateContext& context )
 		UpdateOrientation( &m_vehicles[i], timeSeconds );
 		D3DXMatrixAffineTransformation( &world, 1.f, nullptr, &(m_vehicles[i].rotation), &(m_vehicles[i].position) );
 		(*rit)->SetWorldTransform( world );
+		
+		if( m_boosters )
+		{
+			Be::Time time = context.GetTime();
+			float deltaT = context.GetDeltaT();
+			float speed = D3DXVec3Length( &m_vehicles[i].velocity );
+			m_boosters->Update( deltaT, time, world, speed, m_vehicles[i].acceleration, m_vehicles[i].rotation, i );
+			(*rit)->SetBoosterIntensity( m_boosters->GetBoosterIntensity() );
+		}
+		(*rit)->SetShaderData( m_vsData, m_psData );
+	}
+	if( m_boosters )
+	{
+		Be::Time time = context.GetTime();
+		float deltaT = context.GetDeltaT();
+		m_boosters->UpdateTrails( deltaT, time );
 	}
 }
 
@@ -355,6 +396,10 @@ void EveSwarm::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
 	{
 		(*it)->UseQuadRenderer( true, false );
 		(*it)->RegisterWithQuadRenderer( quadRenderer );
+	}
+	if( m_boosters )
+	{
+		m_boosters->RegisterWithQuadRenderer( quadRenderer );
 	}
 }
 
@@ -381,6 +426,10 @@ void EveSwarm::AddQuadsToQuadRenderer( Tr2QuadRenderer& quadRenderer )
 		{
 			(*it)->AddToQuadRenderer( quadRenderer, *(*rit)->GetWorldTransform(), 1, 1, nullptr, 0 );
 		}
+	}
+	if( m_boosters && DisplayChildren() )
+	{
+		m_boosters->AddToQuadRenderer( quadRenderer, Tr2Renderer::GetIdentityTransform() );
 	}
 }
 
@@ -538,6 +587,11 @@ void EveSwarm::AddSwarmer()
 		m_debugInfo.push_back( SwarmVehicleDebug() );
 	}
 	m_count++;
+	
+	if( m_boosters )
+	{
+		m_boosters->SetCount( m_count );
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -550,16 +604,23 @@ Vector3 EveSwarm::RemoveSwarmer()
 	{
 		return Vector3( 0, 0, 0 );
 	}
-	Vector3 position = m_vehicles.back().position;
-	m_vehicles.erase(m_vehicles.begin() + m_targetIndex);
+
+	SwarmVehicle v = m_vehicles[m_targetIndex];
+	m_vehicles[m_targetIndex] = m_vehicles.back();
+	m_vehicles.pop_back();
 	m_renderables.Remove( m_targetIndex );
 	if( m_debugShowForces )
 	{
 		m_debugInfo.pop_back();
 	}
 	m_count--;
+	
+	if( m_boosters )
+	{
+		m_boosters->SetCount( m_count );
+	}
 	m_targetIndex = TriRandInt( m_count );
-	return position;
+	return v.position;
 }
 
 // --------------------------------------------------------------------------------

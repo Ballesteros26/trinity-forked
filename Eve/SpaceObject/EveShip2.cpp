@@ -72,6 +72,11 @@ void EveShip2::UpdateAsyncronous( EveUpdateContext& updateContext )
 		return;
 	}
 	EveMobile::UpdateAsyncronous( updateContext );
+	UpdateBoosters( updateContext );
+}
+
+void EveShip2::UpdateBoosters( EveUpdateContext& updateContext )
+{
 	if( m_boosters )
 	{
 		Be::Time time = updateContext.GetTime();

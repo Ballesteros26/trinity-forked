@@ -44,6 +44,8 @@ public:
 	void SetMesh( Tr2MeshBase* mesh );
 	void SetWorldTransform( const Matrix& transform );
 	const Matrix* GetWorldTransform() const { return &m_worldTransform; }
+	void SetBoosterIntensity( float intensity );
+	void SetShaderData( const EveSpaceObjectVSData& vsData, const EveSpaceObjectPSData& psData );
 
 private:
 	Tr2MeshBasePtr m_mesh;
@@ -214,6 +216,8 @@ protected:
 	// EveShip2 override
 	Matrix GetObserverTransform() const;
 	const Matrix* GetTurretTransform() const;
+	
+	void UpdateBoosters( EveUpdateContext& updateContext ) {}
 private:
 	std::vector<SwarmVehicle> m_vehicles;
 	std::vector<SwarmVehicleDebug> m_debugInfo;
