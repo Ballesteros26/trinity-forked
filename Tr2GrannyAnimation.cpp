@@ -1077,7 +1077,7 @@ std::pair<TriGeometryRes*, std::map<std::pair<TriGeometryRes*, uint32_t>, uint32
 				}
 			}
 
-			result[std::make_pair( *it, i )] = areas.size();
+			result[std::make_pair( *it, i )] = uint32_t( areas.size() );
 
 			for( auto ai = data->m_areas.begin(); ai != data->m_areas.end(); ++ai )
 			{
@@ -1089,10 +1089,19 @@ std::pair<TriGeometryRes*, std::map<std::pair<TriGeometryRes*, uint32_t>, uint32
 	}
 
 	Tr2VertexBufferAL vb;
-	vb.Create( vbMirror.size(), Tr2RenderContextEnum::USAGE_IMMUTABLE, vbMirror.get(), renderContext );
+	vb.Create( 
+		uint32_t( vbMirror.size() ), 
+		Tr2RenderContextEnum::USAGE_IMMUTABLE, 
+		vbMirror.get(), 
+		renderContext );
 
 	Tr2IndexBufferAL ib;
-	ib.Create( ibMirror.size() / 4, Tr2RenderContextEnum::USAGE_IMMUTABLE, Tr2RenderContextEnum::IB_32BIT, ibMirror.get(), renderContext ); 
+	ib.Create( 
+		uint32_t( ibMirror.size() / 4 ), 
+		Tr2RenderContextEnum::USAGE_IMMUTABLE, 
+		Tr2RenderContextEnum::IB_32BIT, 
+		ibMirror.get(), 
+		renderContext ); 
 
 	auto declaration = Tr2EffectStateManager::GetVertexDeclarationHandle( 
 		BuildFromGrannyVertexDecl( &layout[0] ) );
