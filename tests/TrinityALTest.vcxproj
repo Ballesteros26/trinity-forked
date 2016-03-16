@@ -878,7 +878,6 @@
     <PostBuildEvent/>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="autoversion.h"/>
     <ClInclude Include="Dxt1Image.h"/>
     <ClInclude Include="Dxt3Image.h"/>
     <ClInclude Include="Dxt5Image.h"/>
