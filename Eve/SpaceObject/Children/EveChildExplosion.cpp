@@ -24,8 +24,7 @@ EveChildExplosion::EveChildExplosion( IRoot* lockobj )
 	m_nextLocalExplosionTime( 0.f ),
 	m_globalExplosionTime( 0.f ),
 	m_nextLocalExplosion( 0 ),
-	m_isPlaying( false ),
-	m_globalExplosionAdded( false )
+	m_isPlaying( false )
 {
 }
 
@@ -48,7 +47,6 @@ void EveChildExplosion::Play()
 	m_nextLocalExplosionTime = m_localExplosionDelay;
 	m_nextLocalExplosion = 0;
 	m_globalExplosionTime = m_globalExplosionDelay;
-	m_globalExplosionAdded = false;
 	m_objects.Append( m_localExplosionShared );
 	FindSharedObjects();
 	m_isPlaying = true;
@@ -61,8 +59,9 @@ void EveChildExplosion::Play()
 void EveChildExplosion::Stop()
 {
 	m_objects.Clear();
-	m_isPlaying = true;
+	m_isPlaying = false;
 	m_sharedObjects.clear();
+	m_globalExplosionInstance.Unlock();
 }
 
 // --------------------------------------------------------------------------------------
@@ -100,6 +99,21 @@ void EveChildExplosion::UpdateSyncronous(
 		m_playTime += dt;
 		if( m_localExplosion )
 		{
+			if( m_wreckSwitchTime > 0 && m_playTime > m_wreckSwitchTime )
+			{
+				m_nextLocalExplosion = m_localExplosionTransforms.size();
+				for( size_t i = 0; i < m_objects.size(); )
+				{
+					if( m_objects[i] != m_globalExplosionInstance && m_objects[i] != m_localExplosionShared )
+					{
+						m_objects.Remove( i );
+					}
+					else
+					{
+						++i;
+					}
+				}
+			}
 			m_nextLocalExplosionTime -= dt;
 			if( m_nextLocalExplosionTime < 0 )
 			{
@@ -120,16 +134,15 @@ void EveChildExplosion::UpdateSyncronous(
 		if( m_globalExplosion )
 		{
 			m_globalExplosionTime -= dt;
-			if( m_globalExplosionTime < 0 && !m_globalExplosionAdded )
+			if( m_globalExplosionTime < 0 )
 			{
-				if( !m_globalExplosionAdded )
+				if( !m_globalExplosionInstance )
 				{
-					IEveSpaceObjectChildPtr instance;
-					if( BeClasses->CopyTo( m_globalExplosion, (IRoot**)&instance.p ) )
+					m_globalExplosionInstance.Unlock();
+					if( BeClasses->CopyTo( m_globalExplosion, (IRoot**)&m_globalExplosionInstance.p ) )
 					{
-						m_objects.Append( instance );
+						m_objects.Append( m_globalExplosionInstance );
 					}
-					m_globalExplosionAdded = true;
 				}
 				else if( !m_localExplosion && -m_globalExplosionTime > m_globalDuration )
 				{

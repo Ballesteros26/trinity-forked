@@ -66,6 +66,7 @@ private:
 	IEveSpaceObjectChildPtr m_localExplosionShared;
 	// Child containing global explosion effect
 	IEveSpaceObjectChildPtr m_globalExplosion;
+	IEveSpaceObjectChildPtr m_globalExplosionInstance;
 
 	// Transforms for local explosions
 	TrackableStdVector<Matrix> m_localExplosionTransforms;
@@ -83,8 +84,6 @@ private:
 	
 	// Is the effect playing
 	bool m_isPlaying;
-	// Was the global explosion already added
-	bool m_globalExplosionAdded;
 };
 
 TYPEDEF_BLUECLASS( EveChildExplosion );
