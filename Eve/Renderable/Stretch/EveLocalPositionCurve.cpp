@@ -45,15 +45,22 @@ Vector3* EveLocalPositionCurve::CalculateOffsetPlaneRotation( Vector3* in, Be::T
 
 Vector3* EveLocalPositionCurve::CalculateOffsetPosition( Vector3* in, Be::Time t )
 {
+	Vector3 offset = m_positionOffset;
+	if( m_parentRotationCurve )
+	{
+		Quaternion rotation;
+		m_parentRotationCurve->GetValueAt( &rotation, t );
+		TriVectorRotateQuaternion( &offset, &offset, &rotation );
+	}
 	if( !m_parentPositionCurve )
 	{
-		*in = m_positionOffset;
+		*in = offset;
 	}
 	else
 	{
 		Vector3 parentPos;
 		m_parentPositionCurve->GetValueAt( &parentPos, t );
-		*in = parentPos + m_positionOffset;
+		*in = parentPos + offset;
 	}
 	return in;
 }
