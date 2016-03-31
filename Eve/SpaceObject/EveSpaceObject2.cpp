@@ -1032,15 +1032,18 @@ void EveSpaceObject2::GetRenderables( const TriFrustum& frustum, std::vector<ITr
 
 	if( m_isVisible )
 	{
-		if( g_lodLevelUltraEnabled && m_estimatedPixelDiameter > g_eveSpaceSceneHighDetailThreshold )
+		// base the LOD on the pixel diameter modulated with a value to lod out gigantic objects earlier
+		float detailLevel = m_estimatedPixelDiameter * min( 32.f * powf( m_boundingSphereWorld.w, -0.43f ), 1.f );
+
+		if( g_lodLevelUltraEnabled && detailLevel > g_eveSpaceSceneHighDetailThreshold )
 		{
 			m_lodLevel = TR2_LOD_ULTRA;
 		}
-		else if( m_estimatedPixelDiameter > g_eveSpaceSceneMediumDetailThreshold )
+		else if( detailLevel > g_eveSpaceSceneMediumDetailThreshold )
 		{
 			m_lodLevel = TR2_LOD_HIGH;
 		}
-		else if( m_estimatedPixelDiameter > g_eveSpaceSceneLowDetailThreshold )
+		else if( detailLevel > g_eveSpaceSceneLowDetailThreshold )
 		{
 			m_lodLevel = TR2_LOD_MEDIUM;
 		}
