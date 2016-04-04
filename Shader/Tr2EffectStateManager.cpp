@@ -843,6 +843,7 @@ void Tr2EffectStateManager::ReleaseDeviceResources( TriStorage s )
 		s_vertexLayoutMap.clear();
 
 		s_renderStateSetups.erase( s_renderStateSetups.begin() + RM_COUNT, s_renderStateSetups.end() );
+		m_renderStates.clear();
 		for( auto it = s_samplerSetups.begin(); it != s_samplerSetups.end(); ++it )
 		{
 			delete it->second;

@@ -73,14 +73,13 @@ public:
 
 protected:
 	/////////////////////////////////////////////////////////////////////////////////////
-	// children
-	virtual bool DisplayChildren() const;
+	// activation
+	float m_activationStrenght;
 
 	virtual const Matrix* GetTurretTransform() const;
 private:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// activation
-	float m_activationStrenght;
 	ITriScalarFunctionPtr m_activationStrengthCurve;
 	bool m_playActivationCurve;
 	float m_activationDelta;

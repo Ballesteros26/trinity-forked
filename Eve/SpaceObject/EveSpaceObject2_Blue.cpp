@@ -33,8 +33,6 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 			Be::READWRITE | Be::PERSIST
 		)
 
-		MAP_ATTRIBUTE( "displayChildren", m_displayChildren, "Specifies whether to render this object's children or not", Be::READWRITE )
-
 		MAP_ATTRIBUTE
 		( 
 			"update", 

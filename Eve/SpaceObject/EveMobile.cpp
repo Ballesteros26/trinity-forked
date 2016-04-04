@@ -376,7 +376,7 @@ void EveMobile::RebuildTurretPositions()
 		unsigned int locatorNumber = 0;
 
 		// Check whether this is a standard turret locator or a special case
-		size_t found = name.find( "turret" );
+		size_t found = name.find( "_turret_" );
 		if( found!=std::string::npos )
 		{
 			turretInName = true;
@@ -538,18 +538,6 @@ void EveMobile::ResetTurretLocatorCounter( bool updateTotal )
 			}
 		}
 	}
-}
-
-// --------------------------------------------------------------------------------
-// Description:
-//   Determines if we render this object's children or not.
-// SeeAlso:
-//   EveTransform
-// --------------------------------------------------------------------------------
-bool EveMobile::DisplayChildren() const
-{
-	// if it is more than .5 -> render the children!
-	return ( m_activationStrenght > 0.5f );
 }
 
 // --------------------------------------------------------------------------------

@@ -106,7 +106,6 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_lastCurveUpdateTime( 0 ),
 	m_previousPosition( UNINITIALIZED_POSITION, UNINITIALIZED_POSITION, UNINITIALIZED_POSITION ),
 	m_spaceObjectShipData( 1.f, 1.f, EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT, 1.f ),
-	m_displayChildren( true ),
 	m_dirtLevel( EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT ),
 	m_isAnimated( false )
 {
@@ -958,19 +957,16 @@ void EveSpaceObject2::PushRenderables( const TriFrustum& frustum, std::vector<IT
 		}
 	}
 
-	if( DisplayChildren() )
+	for( IEveTransformVector::const_iterator it = m_children.begin(); it != m_children.end(); ++it )
 	{
-		for( IEveTransformVector::const_iterator it = m_children.begin(); it != m_children.end(); ++it )
-		{
-			IEveTransform* p = *it;
-			p->GetRenderables( frustum, renderables, m_worldTransform );
-		}
-		for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt )
-		{
-			(*ecIt)->GetRenderables( frustum, renderables, m_worldTransform, m_lodLevelWithChildren );
-		}
+		IEveTransform* p = *it;
+		p->GetRenderables( frustum, renderables, m_worldTransform );
 	}
-
+	for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt )
+	{
+		(*ecIt)->GetRenderables( frustum, renderables, m_worldTransform, m_lodLevelWithChildren );
+	}
+	
 	// are decals visible?
 	if( DisplayDecals() && m_mesh && m_isMeshVisible )
 	{
@@ -1342,7 +1338,7 @@ bool EveSpaceObject2::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery qu
 	}
 
 	sphere = m_boundingSphereWorld;
-	if( query == EVE_BOUNDS_NORMAL || !DisplayChildren() )
+	if( query == EVE_BOUNDS_NORMAL )
 	{
 		return true;
 	}
@@ -1870,16 +1866,6 @@ bool EveSpaceObject2::DisplayDecals() const
 	return m_lodLevel >= TR2_LOD_HIGH;
 }
 
-// --------------------------------------------------------------------------------
-// Description:
-//   Determines if we render this object's children or not.
-// SeeAlso:
-//   EveTransform
-// --------------------------------------------------------------------------------
-bool EveSpaceObject2::DisplayChildren() const
-{
-	return true;
-}
 
 ITriVectorFunctionPtr EveSpaceObject2::GetPositionFunction() 
 { 

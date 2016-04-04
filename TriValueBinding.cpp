@@ -477,6 +477,17 @@ void TriValueBinding::RerouteDestination( void* dest )
 
 size_t TriValueBinding::DetermineCopyFunc( const Be::VarEntry* srcEntry, const Be::VarEntry* dstEntry, size_t dataSize, bool sourceFloatArrayAsFloat, bool destFloatArrayAsFloat )
 {
+	if( sourceFloatArrayAsFloat && srcEntry->mType != Be::FLOATARRAY )
+	{
+		CCP_LOGERR( "TriValueBinding \"%s\": float swizzle (.xyzw) on a non-array source value \"%s\"", m_name.c_str(), srcEntry->mName );
+		return dataSize;
+	}
+	if( destFloatArrayAsFloat && dstEntry->mType != Be::FLOATARRAY )
+	{
+		CCP_LOGERR( "TriValueBinding \"%s\": float swizzle (.xyzw) on a non-array destination value \"%s\"", m_name.c_str(), dstEntry->mName );
+		return dataSize;
+	}
+
 	if( srcEntry->mType == dstEntry->mType )
 	{
 		switch(srcEntry->mType)

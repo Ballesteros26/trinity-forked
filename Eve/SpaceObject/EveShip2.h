@@ -58,6 +58,7 @@ protected:
 	Vector3 m_acceleration;
 	// boosters and trails
 	EveBoosterSet2Ptr m_boosters;
+	virtual bool DisplayBoosters() const;
 
 	virtual void UpdateBoosters( EveUpdateContext& updateContext );
 private:

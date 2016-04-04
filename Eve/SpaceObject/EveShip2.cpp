@@ -96,12 +96,9 @@ void EveShip2::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Render
 	EveMobile::GetRenderables( frustum, renderables, parentTransform );
 
 	// collect renderables of the boosters
-	if( m_boosters )
+	if( DisplayBoosters() )
 	{
-		if( DisplayChildren() )
-		{
-			m_boosters->GetRenderables( frustum, renderables );
-		}
+		m_boosters->GetRenderables( frustum, renderables );
 	}
 }
 
@@ -121,13 +118,22 @@ void EveShip2::AddQuadsToQuadRenderer( Tr2QuadRenderer& quadRenderer )
 		return;
 	}
 	EveSpaceObject2::AddQuadsToQuadRenderer( quadRenderer );
-	if( m_boosters )
+	if( DisplayBoosters() )
 	{
-		if( DisplayChildren() )
-		{
-			m_boosters->AddToQuadRenderer( quadRenderer, m_worldTransform );
-		}
+		m_boosters->AddToQuadRenderer( quadRenderer, m_worldTransform );
 	}
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Determines if we render the boosters or not
+// SeeAlso:
+//   EveTransform
+// --------------------------------------------------------------------------------
+bool EveShip2::DisplayBoosters() const
+{
+	// if it is more than .5 -> render the children!
+	return m_boosters && ( m_activationStrenght > 0.5f );
 }
 
 // --------------------------------------------------------------------------------

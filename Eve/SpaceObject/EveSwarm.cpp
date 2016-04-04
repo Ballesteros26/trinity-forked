@@ -471,7 +471,7 @@ void EveSwarm::AddQuadsToQuadRenderer( Tr2QuadRenderer& quadRenderer )
 			(*it)->AddToQuadRenderer( quadRenderer, *(*rit)->GetWorldTransform(), 1, 1, nullptr, 0 );
 		}
 	}
-	if( m_boosters && DisplayChildren() )
+	if( DisplayBoosters() )
 	{
 		m_boosters->AddToQuadRenderer( quadRenderer, Tr2Renderer::GetIdentityTransform() );
 	}

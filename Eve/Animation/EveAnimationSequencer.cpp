@@ -272,10 +272,18 @@ void EveAnimationSequencer::Update( Be::Time time )
 
 void EveAnimationSequencer::GoToState( const std::string& name )
 {
+	if( !m_owner )
+	{
+		return;
+	}
+
+	IRoot* owner = m_owner;
+	owner->Lock();
 	for( auto it = m_stateMachines.begin(); it != m_stateMachines.end(); it++ )
 	{
 		(*it)->GoToState( m_owner, name );
 	}
+	owner->Unlock();
 }
 
 void EveAnimationSequencer::SetStateParameter( const std::string& stateName, const std::string& parameterName, float parameterValue )
