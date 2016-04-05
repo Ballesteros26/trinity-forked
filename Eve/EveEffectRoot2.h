@@ -39,27 +39,20 @@ public:
 	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
 	void GetLights( Tr2LightManager& lightManager ) const;
 	void GetPerObjectStructs( EveSpaceObjectVSData& vsData, EveSpaceObjectPSData& psData ) const;
-
-	// This version of the function should perform an update on the model / ball position
-	void GetModelCenterWorldPosition( Vector3 &position, Be::Time t );
-
-	// This version of the function should not update the object
-	void GetCurrentModelCenterWorldPosition( Vector3 &position );
-
-	// If possible, return an AABB in local coordinates
+	void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t );
+	void GetModelCenterWorldPosition( Vector3 &position ) const;
 	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max );
-	// Get the local to world transform
 	void GetLocalToWorldTransform( Matrix &transform ) const;
 
-	// Functions for starting and stopping the effect.
-	void Start();
-	void Stop();
-protected:
+private:
+	// general
+	std::string m_name;
+	bool m_display;
+
 	void UpdateWorldTransform( Be::Time time );
 
 	PIEveSpaceObjectChildVector m_effectChildren;
 
-	std::string m_name;
 
 	Vector3 m_scaling;
 	Quaternion m_rotation;
@@ -85,8 +78,6 @@ protected:
 	Tr2Lod m_lodLevel;
 	
 	PTr2PointLightVector m_lights;
-
-	bool m_display;
 	
 	float GetBoundingSphereRadius() { return m_boundingSphere.w; }
 	float m_estimatedSize;

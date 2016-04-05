@@ -253,12 +253,12 @@ void EveCloud::RenderDebugInfo( Tr2RenderContext& renderContext )
 	}
 }
 
-void EveCloud::GetModelCenterWorldPosition( Vector3 &position, Be::Time t )
+void EveCloud::UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t )
 {
 	position = m_worldTransform.GetTranslation();
 }
 
-void EveCloud::GetCurrentModelCenterWorldPosition( Vector3 &position ) 
+void EveCloud::GetModelCenterWorldPosition( Vector3 &position ) const
 {
 	position = m_worldTransform.GetTranslation();
 }

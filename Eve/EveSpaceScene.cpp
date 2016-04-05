@@ -575,14 +575,14 @@ void EveSpaceScene::PrepareShadowMap(
 	if( m_renderDebugInfo && m_debugShowShadowCasters )
 	{
 		Vector3 objectOfInterestPosition;
-		objectOfInterest->GetCurrentModelCenterWorldPosition( objectOfInterestPosition );
+		objectOfInterest->GetModelCenterWorldPosition( objectOfInterestPosition );
 
 		for( auto it = debugShadowCasters.begin(); it != debugShadowCasters.end(); ++it )
 		{
 			IEveSpaceObject2Ptr obj = BlueCastPtr( *it );
 			// Draw a line from each shadow caster to receiver
 			Vector3 casterPosition;
-			obj->GetModelCenterWorldPosition( casterPosition, 0 );
+			obj->UpdateModelCenterWorldPosition( casterPosition, 0 );
 			Tr2Renderer::DrawLine( casterPosition, 0xffffffff, objectOfInterestPosition, 0xffff0000 );
 		}
 	}

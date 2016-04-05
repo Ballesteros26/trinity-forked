@@ -144,7 +144,7 @@ Vector3* EveLocalPositionCurve::GetCenterBoundingSphere( Vector3* in, Be::Time t
 	if( m_parentObject )
 	{
 		Vector3 tr;
-		m_parentObject->GetModelCenterWorldPosition( tr, t );
+		m_parentObject->UpdateModelCenterWorldPosition( tr, t );
 
 		in->x = tr.x;
 		in->y = tr.y;

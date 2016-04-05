@@ -56,8 +56,8 @@ public:
 	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
 	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
 	void RenderDebugInfo( Tr2RenderContext& renderContext );
-	void GetModelCenterWorldPosition( Vector3 &position, Be::Time t );
-	void GetCurrentModelCenterWorldPosition( Vector3 &position );
+	void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t );
+	void GetModelCenterWorldPosition( Vector3 &position ) const;
 	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max );
 	void GetLocalToWorldTransform( Matrix &transform ) const;
 

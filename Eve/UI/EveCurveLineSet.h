@@ -40,8 +40,8 @@ public:
 	Tr2Lod GetLODLevel() const { return TR2_LOD_HIGH; }
 
 	// No sensible implementation?
-	void GetModelCenterWorldPosition( Vector3 &position, Be::Time t ) {}
-	void GetCurrentModelCenterWorldPosition( Vector3 &position ) {}
+	void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t ) {}
+	void GetModelCenterWorldPosition( Vector3 &position ) const {}
 	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max ) { return false; }
 	void GetLocalToWorldTransform( Matrix &transform ) const { D3DXMatrixIdentity( &transform ); }
 	void PlayCurveSet( const std::string& name ) {}

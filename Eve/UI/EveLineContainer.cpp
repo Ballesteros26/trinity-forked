@@ -60,20 +60,20 @@ bool EveLineContainer::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery q
 }
 
 // This version of the function should perform an update on the model / ball position
-void EveLineContainer::GetModelCenterWorldPosition( Vector3 &position, Be::Time t )
+void EveLineContainer::UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t )
 {
 	if( m_lineSet )
 	{
-		m_lineSet->GetModelCenterWorldPosition( position, t );
+		m_lineSet->UpdateModelCenterWorldPosition( position, t );
 	}
 }
 
 // This version of the function should not update the object
-void EveLineContainer::GetCurrentModelCenterWorldPosition( Vector3 &position )
+void EveLineContainer::GetModelCenterWorldPosition( Vector3 &position ) const
 {
 	if( m_lineSet )
 	{
-		m_lineSet->GetCurrentModelCenterWorldPosition( position );
+		m_lineSet->GetModelCenterWorldPosition( position );
 	}
 }
 

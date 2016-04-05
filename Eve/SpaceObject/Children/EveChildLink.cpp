@@ -54,7 +54,7 @@ void EveChildLink::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceO
 
 		if ( spaceObjectParent )
 		{
-			spaceObjectParent->GetCurrentModelCenterWorldPosition( srcPos );
+			spaceObjectParent->GetModelCenterWorldPosition( srcPos );
 		}
 		else
 		{

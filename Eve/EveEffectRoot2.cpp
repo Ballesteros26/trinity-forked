@@ -147,7 +147,7 @@ void EveEffectRoot2::UpdateWorldTransform( Be::Time time )
 }
 
 
-void EveEffectRoot2::GetModelCenterWorldPosition( Vector3 &position, Be::Time t )
+void EveEffectRoot2::UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t )
 {
 	// This version of the function should perform an update on the model / ball position
 	Matrix currentTransform;
@@ -158,7 +158,7 @@ void EveEffectRoot2::GetModelCenterWorldPosition( Vector3 &position, Be::Time t 
 	D3DXVec3TransformCoord( &position, (Vector3*)&m_boundingSphere, &currentTransform );
 }
 
-void EveEffectRoot2::GetCurrentModelCenterWorldPosition( Vector3 &position )
+void EveEffectRoot2::GetModelCenterWorldPosition( Vector3 &position ) const
 {
 	// This version of the function does not perform an update on the object
 	D3DXVec3TransformCoord( &position, (Vector3*)&m_boundingSphere, &m_lastUpdateMatrix );

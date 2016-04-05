@@ -254,7 +254,7 @@ void EveChildBulletStorm::UpdateAsyncronous( EveUpdateContext& updateContext, IE
 	{
 		// world position
 		Vector3 targetPosWS;
-		m_targetObjects[i]->GetCurrentModelCenterWorldPosition( targetPosWS );
+		m_targetObjects[i]->GetModelCenterWorldPosition( targetPosWS );
 		// radius
 		Vector4 targetSize;
 		m_targetObjects[i]->GetBoundingSphere( targetSize );

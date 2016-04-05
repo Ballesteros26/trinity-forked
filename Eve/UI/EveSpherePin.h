@@ -87,8 +87,8 @@ public:
 	bool OnModified( Be::Var* val );
 
 	// No sensible implementation?
-	virtual void GetModelCenterWorldPosition( Vector3 &position, Be::Time t ) {}
-	virtual void GetCurrentModelCenterWorldPosition( Vector3 &position ) {}
+	virtual void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t ) {}
+	virtual void GetModelCenterWorldPosition( Vector3 &position ) const {}
 	virtual bool GetLocalBoundingBox( Vector3 &min, Vector3 &max ) { return false; }
 	virtual void GetLocalToWorldTransform( Matrix &transform ) const { D3DXMatrixIdentity( &transform ); }
 

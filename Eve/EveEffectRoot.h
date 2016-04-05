@@ -37,16 +37,9 @@ public:
 	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
 	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
 	virtual void GetLights( Tr2LightManager& lightManager ) const;
-
-	// This version of the function should perform an update on the model / ball position
-	void GetModelCenterWorldPosition( Vector3 &position, Be::Time t );
-
-	// This version of the function should not update the object
-	void GetCurrentModelCenterWorldPosition( Vector3 &position );
-
-	// If possible, return an AABB in local coordinates
+	void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t );
+	void GetModelCenterWorldPosition( Vector3 &position ) const;
 	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max );
-	// Get the local to world transform
 	void GetLocalToWorldTransform( Matrix &transform ) const;
 
 	// Functions for starting and stopping the effect.

@@ -309,14 +309,13 @@ bool EveTransform::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query
 	return valid;
 }
 
-void EveTransform::GetModelCenterWorldPosition( Vector3 &position, Be::Time t )
+void EveTransform::UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t )
 {
 	// As with EveSpaceObject2, we need to make sure that we fully update the position to give to the camera
 	// This has to happen before the Scene2 update, where other objects may be camera aligned
 	EveUpdateContext ctx( t );
 	Update( ctx );
-	Vector3 zeroVector( 0.0f, 0.0f, 0.0f );
-	D3DXVec3TransformCoord( &position, &zeroVector, &m_worldTransform );
+	position = m_worldTransform.GetTranslation();
 }
 
 const Vector3* EveTransform::GetWorldPosition()
@@ -324,10 +323,9 @@ const Vector3* EveTransform::GetWorldPosition()
 	return (Vector3*)&m_worldTransform._41;
 }
 
-void EveTransform::GetCurrentModelCenterWorldPosition( Vector3 &position )
+void EveTransform::GetModelCenterWorldPosition( Vector3 &position ) const
 {
-	Vector3 zeroVector( 0.0f, 0.0f, 0.0f );
-	D3DXVec3TransformCoord( &position, &zeroVector, &m_worldTransform );
+	position = m_worldTransform.GetTranslation();
 }
 
 // --------------------------------------------------------------------------------

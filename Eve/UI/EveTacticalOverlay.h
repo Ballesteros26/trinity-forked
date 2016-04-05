@@ -54,27 +54,24 @@ public:
 		static const Tr2VertexDefinition& GetDefinition();
 	};
 	
+	/////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize
 	bool Initialize();
+
+	/////////////////////////////////////////////////////////////////////////////////////
 	// INotify
 	bool OnModified( Be::Var* value );
 
+	/////////////////////////////////////////////////////////////////////////////////////
 	// IEveSpaceObject2
 	void UpdateSyncronous( EveUpdateContext& updateContext );
 	void UpdateAsyncronous( EveUpdateContext& updateContext ) {}
 	void RenderDebugInfo( Tr2RenderContext& renderContext ) {}
 	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
 	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const { return false; }
-	// This version of the function should perform an update on the model / ball position
-	void GetModelCenterWorldPosition( Vector3 &position, Be::Time t ) { position = Vector3( 0, 0, 0 ); }
-
-	// This version of the function should not update the object
-	void GetCurrentModelCenterWorldPosition( Vector3 &position ) { position = Vector3( 0, 0, 0 ); }
-
-	// If possible, return an AABB in local coordinates
+	void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t ) { position = Vector3( 0.f, 0.f, 0.f ); }
+	void GetModelCenterWorldPosition( Vector3 &position ) const { position = Vector3( 0.f, 0.f, 0.f ); }
 	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max ) { return false; }
-
-	// Get the local to world transform
 	void GetLocalToWorldTransform( Matrix &transform ) const { D3DXMatrixIdentity( &transform ); }
 
 	// Registers an object and its attachments with the quad renderer

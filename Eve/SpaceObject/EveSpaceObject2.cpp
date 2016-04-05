@@ -1613,7 +1613,7 @@ bool EveSpaceObject2::GetDamageLocatorDirection( Vector3* out, int index, bool i
 	return true;
 }
 
-void EveSpaceObject2::GetModelCenterWorldPosition( Vector3 &position, Be::Time t )
+void EveSpaceObject2::UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t )
 {
 	// We are being looked at by a camera, so we need to make sure we update early enough
 	UpdateWorldTransform( t );
@@ -1772,7 +1772,7 @@ bool EveSpaceObject2::IsShadowReceiveEnabled()
 	return m_enableShadow && m_shadowEffect;
 }
 
-void EveSpaceObject2::GetCurrentModelCenterWorldPosition( Vector3 &position )
+void EveSpaceObject2::GetModelCenterWorldPosition( Vector3 &position ) const
 {
 	// This version of the function does not perform an update on the object
 	D3DXVec3TransformCoord( &position, &m_boundingSphereCenter, &m_worldTransform );

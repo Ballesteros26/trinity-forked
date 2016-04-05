@@ -550,7 +550,7 @@ bool EveSwarm::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) c
 //     how to do this on demand.
 // Original description: This version of the function should perform an update on the model / ball position
 // --------------------------------------------------------------------------------
-void EveSwarm::GetModelCenterWorldPosition( Vector3 &position, Be::Time t )
+void EveSwarm::UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t )
 {
 	if( m_swarmingEnabled )
 	{
@@ -560,7 +560,7 @@ void EveSwarm::GetModelCenterWorldPosition( Vector3 &position, Be::Time t )
 	}
 	else
 	{
-		EveShip2::GetModelCenterWorldPosition( position, t );
+		EveShip2::UpdateModelCenterWorldPosition( position, t );
 	}
 }
 
@@ -568,7 +568,7 @@ void EveSwarm::GetModelCenterWorldPosition( Vector3 &position, Be::Time t )
 // Description:
 //   From EveShip2
 // --------------------------------------------------------------------------------
-void EveSwarm::GetCurrentModelCenterWorldPosition( Vector3 &position )
+void EveSwarm::GetModelCenterWorldPosition( Vector3 &position ) const
 {
 	if( m_swarmingEnabled )
 	{
@@ -576,7 +576,7 @@ void EveSwarm::GetCurrentModelCenterWorldPosition( Vector3 &position )
 	}
 	else
 	{
-		EveShip2::GetCurrentModelCenterWorldPosition( position );
+		EveShip2::GetModelCenterWorldPosition( position );
 	}
 }
 

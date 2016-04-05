@@ -11,5 +11,7 @@ EveAnimationCurve::EveAnimationCurve( IRoot* lockobj )
 {}
 
 EveAnimationCommand::EveAnimationCommand( IRoot* lockobj ) :
-	m_command( ANIM_CMD_NONE )
+	m_command( ANIM_CMD_NONE ),
+	m_floatValue( 0 ),
+	m_data( "" )
 {}

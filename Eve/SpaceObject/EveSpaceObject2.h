@@ -177,8 +177,8 @@ public:
 	virtual void RenderDebugInfo( Tr2RenderContext& renderContext );
 	virtual void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
 	virtual bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
-	virtual void GetModelCenterWorldPosition( Vector3 &position, Be::Time t );
-	virtual void GetCurrentModelCenterWorldPosition( Vector3 &position );
+	virtual void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t );
+	virtual void GetModelCenterWorldPosition( Vector3 &position ) const;
 	virtual bool GetLocalBoundingBox( Vector3 &min, Vector3 &max );
 	virtual void GetLocalToWorldTransform( Matrix &transform ) const;
 	virtual void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
