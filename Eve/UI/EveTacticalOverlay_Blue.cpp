@@ -14,6 +14,7 @@ const Be::ClassInfo* EveTacticalOverlayTrackObject::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "translationCurve", m_positionCurve, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "position", m_position, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "radius", m_radius, "", Be::READWRITE | Be::PERSIST )
     EXPOSURE_END()
 }
 
@@ -33,6 +34,11 @@ const Be::ClassInfo* EveTacticalOverlay::ExposeToBlue()
 		MAP_ATTRIBUTE( "activeRange", m_ranges.x, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "rangeFadeLength", m_ranges.y, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "rangeMultiplier", m_ranges.z, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "sourceRadius", m_ranges.w, "", Be::READWRITE | Be::PERSIST )
+		
+		MAP_ATTRIBUTE( "interestRange", m_interestRange, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "outsideInterestIntensity", m_outsideInterestIntensity, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "minRadiusForRange", m_minRadiusForRange, "", Be::READWRITE | Be::PERSIST )
 		
 		MAP_ATTRIBUTE( "segmentsLow", m_connectorSegmentsLow, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "segmentsMedium", m_connectorSegmentsMedium, "", Be::READWRITE | Be::PERSIST )

@@ -23,9 +23,10 @@ public:
 
 	EXPOSE_TO_BLUE();
 
-	typedef unsigned EffectKey;
+	typedef uint64_t EffectKey; 
 
 	void RegisterEffect( EffectKey key, uint32_t instanceSize, uint32_t quadCount, const Tr2VertexDefinition& definition, ITr2ShaderMaterial* effect );
+	void UnregisterEffect( EffectKey key );
 
 	void AddQuads( EffectKey effectKey, const void* sprites, size_t count );
 	void BeginRendering( Tr2RenderContext& renderContext );

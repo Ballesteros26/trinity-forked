@@ -19,7 +19,7 @@ static const float BULLETSTORM_MIN_TARGETSIZE = 4050.f;
 // vertex layout struct
 struct BulletStormVertex
 {
-	uint32_t cornerID;
+	float cornerID;
 };
 
 struct PerInstanceVertex
@@ -114,7 +114,7 @@ bool EveChildBulletStorm::OnPrepareResources()
 	if( s_spriteVertexDecl.empty() )
 	{
 		Tr2VertexDefinition& vd = s_spriteVertexDecl;
-		vd.Add( vd.UINT32_1, vd.TEXCOORD, 0, 0 );
+		vd.Add( vd.FLOAT32_1, vd.TEXCOORD, 0, 0 );
 		vd.Add( vd.FLOAT32_3, vd.TEXCOORD, 1, 1, 1 );
 		vd.Add( vd.FLOAT32_3, vd.TEXCOORD, 2, 1, 1 );
 		vd.Add( vd.FLOAT32_4, vd.TEXCOORD, 3, 1, 1 );
@@ -130,10 +130,10 @@ bool EveChildBulletStorm::OnPrepareResources()
 	{
 		// prepare buffers
 		BulletStormVertex verts[4];
-		verts[0].cornerID = 0;
-		verts[1].cornerID = 1;
-		verts[2].cornerID = 2;
-		verts[3].cornerID = 3;
+		verts[0].cornerID = 0.f;
+		verts[1].cornerID = 1.f;
+		verts[2].cornerID = 2.f;
+		verts[3].cornerID = 3.f;
 
 		// crate vertexbuffer and init it
 		USE_MAIN_THREAD_RENDER_CONTEXT();

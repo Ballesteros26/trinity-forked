@@ -8,6 +8,7 @@
 #define EveTacticalOverlay_H
 
 #include "Eve/IEveSpaceObject2.h"
+#include "Tr2QuadRenderer.h"
 #include "include/ITriFunction.h"
 
 BLUE_DECLARE( Tr2Effect );
@@ -23,10 +24,12 @@ public:
 
 	void UpdatePosition( EveUpdateContext& updateContext );
 	inline Vector3 GetPosition() { return m_position; }
+	inline float GetRadius() { return m_radius; }
 
 private:
 	ITriVectorFunctionPtr m_positionCurve;
 	Vector3 m_position;
+	float m_radius;
 };
 TYPEDEF_BLUECLASS( EveTacticalOverlayTrackObject );
 BLUE_DECLARE_VECTOR( EveTacticalOverlayTrackObject );
@@ -45,12 +48,13 @@ public:
 	struct SphereConnectorVertex
 	{
 		Vector4 instanceData;
+		float instanceData2;
 		static const Tr2VertexDefinition& GetDefinition();
 	};
 
 	struct AnchorVertex
 	{
-		Vector3 position;
+		Vector4 instanceData;
 		static const Tr2VertexDefinition& GetDefinition();
 	};
 	
@@ -82,10 +86,10 @@ public:
 private:
 	Tr2EffectPtr m_connectorEffect;
 	Tr2EffectPtr m_anchorEffect;
-	unsigned m_connectorEffectHash;
-	unsigned m_anchorEffectHash;
+	Tr2QuadRenderer::EffectKey m_connectorEffectHash;
+	Tr2QuadRenderer::EffectKey m_anchorEffectHash;
 
-	std::vector<Vector3> m_anchorBuffer;
+	std::vector<AnchorVertex> m_anchorBuffer;
 	std::vector<SphereConnectorVertex> m_connectorBuffer;
 
 	float m_connectorSegmentsLow;
@@ -97,8 +101,13 @@ private:
 	float m_arcSegmentMultiplier;
 	float m_segmentCountMultiplier;
 
-	// x - active range; y - fadeout length; z - multiplier for range and fadeout
-	Vector3 m_ranges;
+	float m_interestRange;
+	float m_outsideInterestIntensity;
+	
+	// minimum radius of an object for us to bother drawing a radius line for it
+	float m_minRadiusForRange;
+	// x - active range; y - fadeout length; z - multiplier for range and fadeout; w - source radius
+	Vector4 m_ranges;
 
 	PEveTacticalOverlayTrackObjectVector m_trackObjects;
 	ITriVectorFunctionPtr m_positionCurve;

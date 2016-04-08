@@ -19,7 +19,8 @@ extern float g_eveSpaceSceneHighDetailThreshold;
 extern float g_eveSpaceSceneVisibilityThreshold;
 
 EveTacticalOverlayTrackObject::EveTacticalOverlayTrackObject( IRoot* lockobj ) :
-	m_position( 0, 0, 0 )
+	m_position( 0, 0, 0 ),
+	m_radius( 0 )
 {
 }
 
@@ -38,7 +39,7 @@ const Tr2VertexDefinition& EveTacticalOverlay::AnchorVertex::GetDefinition()
 	{
 		Tr2VertexDefinition& vd = s_definition;
 		vd.Add( vd.FLOAT32_1, vd.TEXCOORD, 5 );
-		vd.Add( vd.FLOAT32_3, vd.POSITION, 0, 1, 1 );
+		vd.Add( vd.FLOAT32_4, vd.TEXCOORD, 0, 1, 1 );
 	}
 	return s_definition;
 }
@@ -51,13 +52,14 @@ const Tr2VertexDefinition& EveTacticalOverlay::SphereConnectorVertex::GetDefinit
 		Tr2VertexDefinition& vd = s_definition;
 		vd.Add( vd.FLOAT32_1, vd.TEXCOORD, 5 );
 		vd.Add( vd.FLOAT32_4, vd.TEXCOORD, 0, 1, 1 );
+		vd.Add( vd.FLOAT32_1, vd.TEXCOORD, 1, 1, 1 );
 	}
 	return s_definition;
 }
 
 EveTacticalOverlay::EveTacticalOverlay( IRoot* lockobj ) :
 	PARENTLOCK( m_trackObjects ),
-	m_ranges( 200000.f, 50000.f, 1.f ),
+	m_ranges( 200000.f, 50000.f, 1.f, 50.f ),
 	m_connectorEffectHash( 0 ),
 	m_anchorEffectHash( 0 ),
 	m_connectorSegmentsLow( 2 ),
@@ -68,7 +70,10 @@ EveTacticalOverlay::EveTacticalOverlay( IRoot* lockobj ) :
 	m_totalSegmentsLast( 0.f ),
 	m_requestedSegmentsLast( 0.f ),
 	m_arcSegmentMultiplier( 1.f ),
-	m_segmentCountMultiplier( 2.f )
+	m_segmentCountMultiplier( 2.f ),
+	m_minRadiusForRange( 150.f ),
+	m_interestRange( 0.f ),
+	m_outsideInterestIntensity( 0.35f )
 {
 	m_variableStore.CreateInstance();
 	RegisterVariables();
@@ -106,12 +111,12 @@ void EveTacticalOverlay::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer
 {
 	if( m_connectorEffect )
 	{
-		m_connectorEffectHash = m_connectorEffect->GetHashValue();
+		m_connectorEffectHash = m_connectorEffect->GetHashValue() + (((uint64_t)this) << 32);
 		quadRenderer.RegisterEffect( m_connectorEffectHash, sizeof( SphereConnectorVertex ), 1, SphereConnectorVertex::GetDefinition(), m_connectorEffect );
 	}
 	if( m_anchorEffect )
 	{
-		m_anchorEffectHash = m_anchorEffect->GetHashValue();
+		m_anchorEffectHash = m_anchorEffect->GetHashValue() + (((uint64_t)this) << 32);
 		quadRenderer.RegisterEffect( m_anchorEffectHash, sizeof( AnchorVertex ), 1, AnchorVertex::GetDefinition(), m_anchorEffect );
 	}
 }
@@ -197,6 +202,7 @@ void EveTacticalOverlay::GetRenderables( const TriFrustum& frustum, std::vector<
 	for( auto it = m_trackObjects.begin(); it != m_trackObjects.end(); it++ )
 	{
 		Vector3 position = (*it)->GetPosition();
+		float radius = (*it)->GetRadius();
 		Vector3 direction = position - m_rootPosition;
 		float distance = D3DXVec3Length( &direction );
 		if( distance > distanceThreshold )
@@ -235,12 +241,21 @@ void EveTacticalOverlay::GetRenderables( const TriFrustum& frustum, std::vector<
 			}
 			segments = m_segmentCountMultiplier * floor( segments + 0.5f );
 		}
-		m_anchorBuffer.push_back( position );
-		for( int j = 0; j < segments; j++ )
+		float counter = radius > m_minRadiusForRange ? segments + 1 : segments;
+		float interestReducedIntensity = 0.0;
+		if( m_interestRange > 0.0001f && ( distance - radius - m_ranges.w ) > m_interestRange )
+		{
+			interestReducedIntensity = 1 - m_outsideInterestIntensity;
+		}
+		AnchorVertex avtx;
+		avtx.instanceData = Vector4( position.x, position.y, position.z, interestReducedIntensity );
+		m_anchorBuffer.push_back( avtx );
+		for( int j = 0; j < counter; j++ )
 		{
 			SphereConnectorVertex vtx;
 			float segmentInfo = segments * 256.f + j;
 			vtx.instanceData = Vector4( position, segmentInfo );
+			vtx.instanceData2 = floor( radius ) + interestReducedIntensity;
 			m_connectorBuffer.push_back(vtx);
 		}
 	}
