@@ -24,13 +24,13 @@ EveEffectRoot2::EveEffectRoot2( IRoot* lockobj ) :
 	m_display( true ),
 	m_startTime( 0 ),
 	m_effectDuration( -1 ),
-	m_lodLevel( TR2_LOD_HIGH )
+	m_lodLevel( TR2_LOD_HIGH ),
+	m_dynamicLODSelection( false )
 {
 }
 
 bool EveEffectRoot2::Initialize()
 {
-
 	return true;
 }
 

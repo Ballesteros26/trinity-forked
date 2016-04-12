@@ -73,8 +73,9 @@ private:
 
 	// Lodding
 	bool m_useDynamicLod;
-	unsigned m_particleLodFactorMedium;
-	unsigned m_particleLodClampLow;
+	float m_lodFactorMedium;
+	float m_lodFactorLow;
+	unsigned m_lodClampLow;
 };
 
 TYPEDEF_BLUECLASS( EveChildParticleSystem );

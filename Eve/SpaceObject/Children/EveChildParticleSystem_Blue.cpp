@@ -34,17 +34,25 @@ const Be::ClassInfo* EveChildParticleSystem::ExposeToBlue()
 		)
 		MAP_ATTRIBUTE
 		(
-				"particleLodClampLow",
-				m_particleLodClampLow,
-				"Amount of particles when the LOD is on Low \n"
+				"lodClampLow",
+				m_lodClampLow,
+				"Amount of particles when the LOD is on Low. Set this to 0 for no particles. \n"
+				":jessica-group: LOD",
+				Be::READWRITE | Be::PERSIST
+		)
+		MAP_ATTRIBUTE
+		(
+				"lodFactorLow",
+				m_lodFactorLow,
+				"Max particle multiplier when the LOD is low \n"
 				":jessica-group: LOD",
 				Be::READWRITE | Be::PERSIST
 		)
 		MAP_ATTRIBUTE
 		( 
-				"particleLodFactorMedium",
-				m_particleLodFactorMedium,
-				"Max particle division factor when the LOD is medium \n"
+				"lodFactorMedium",
+				m_lodFactorMedium,
+				"Max particle multiplier when the LOD is medium \n"
 				":jessica-group: LOD",
 				Be::READWRITE | Be::PERSIST
 		)

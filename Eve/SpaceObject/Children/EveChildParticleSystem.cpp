@@ -25,8 +25,9 @@ EveChildParticleSystem::EveChildParticleSystem( IRoot* lockobj ):
 	m_boundingSphere( 0, 0, 0, -1 ),
 	m_display( true ),
 	m_useDynamicLod( false ),
-	m_particleLodFactorMedium( 4 ),
-	m_particleLodClampLow( 5 )
+	m_lodFactorMedium( 0.25 ),
+	m_lodFactorLow( 0.125 ),
+	m_lodClampLow( 5 )
 {
 }
 
@@ -195,18 +196,17 @@ void EveChildParticleSystem::ChangeLOD( Tr2Lod lod )
 	for ( auto it = m_particleSystems.begin(); it != m_particleSystems.end(); ++it )
 	{
 		unsigned original = (*it)->GetOriginalMaxParticles();
+		unsigned particleCount = original;
 
 		if ( lod == TR2_LOD_LOW )
 		{
-			(*it)->SetMaxParticleCount( m_particleLodClampLow );
+			particleCount = min( m_lodClampLow, (unsigned)( original * m_lodFactorLow ));
 		}
-		else if ( lod == TR2_LOD_MEDIUM && m_particleLodFactorMedium != 0 )
+		else if ( lod == TR2_LOD_MEDIUM )
 		{
-			(*it)->SetMaxParticleCount( original / m_particleLodFactorMedium );
+			particleCount = (int)( original * m_lodFactorMedium );
 		}
-		else //high
-		{
-			(*it)->SetMaxParticleCount( original );
-		}
+		
+		(*it)->SetMaxParticleCount( particleCount );
 	}
 }
