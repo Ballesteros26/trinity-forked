@@ -467,7 +467,6 @@ public:
 	PEveSOFDataHullSpotlightSetVector m_spotlightSets;
 	PEveSOFDataHullPlaneSetVector m_planeSets;
 	PEveSOFDataHullSpriteLineSetVector m_spriteLineSets;
-	ImpactEffectType m_hasImpactEffect;
 	ImpactEffectType m_impactEffectType;
 
 	// decals
