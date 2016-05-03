@@ -157,6 +157,7 @@ EveCloud::EveCloud( IRoot* lockobj )
 	:m_localTransform( Tr2Renderer::GetIdentityTransform() ),
 	m_worldTransform( Tr2Renderer::GetIdentityTransform() ),
 	m_scaling( 1.0f, 1.0f, 1.0f ),
+	m_translation( 0.f, 0.f, 0.f ),
 	m_display( true ),
 	m_declaration( Tr2EffectStateManager::UNINITIALIZED_DECLARATION ),
 	m_preTesselationLevel( 32 ),
@@ -210,7 +211,11 @@ void EveCloud::UpdateSyncronous( EveUpdateContext& updateContext )
 		m_ballRotation->Update( &rotation, updateContext.GetTime() );
 	}
 
-	D3DXMatrixTransformation( &m_localTransform, 0, 0, &m_scaling, 0, &rotation, &translation );
+	Matrix preTransform;
+	D3DXMatrixTransformation( &preTransform, nullptr, nullptr, &m_scaling, 0, nullptr, &m_translation );
+	D3DXMatrixTransformation( &m_localTransform, nullptr, nullptr, nullptr, nullptr, &rotation, &translation );
+	D3DXMatrixMultiply( &m_localTransform, &preTransform, &m_localTransform );
+
 	m_worldTransform = m_localTransform;
 	m_secondaryLightingSphereRadiusWorld = m_secondaryLightingSphereRadiusLocal * 
 		( D3DXVec3Length( &m_worldTransform.GetX() ) +  D3DXVec3Length( &m_worldTransform.GetY() ) + D3DXVec3Length( &m_worldTransform.GetZ() ) ) / 3.f;

@@ -113,6 +113,7 @@ private:
 	ITriVectorFunctionPtr m_ballPosition;
 	ITriQuaternionFunctionPtr m_ballRotation;
 	Vector3 m_scaling;
+	Vector3 m_translation;
 
 	uint32_t m_preTesselationLevel;
 

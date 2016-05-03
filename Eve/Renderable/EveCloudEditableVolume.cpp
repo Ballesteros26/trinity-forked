@@ -330,9 +330,9 @@ void EveCloudEditableVolume::RasterizeBall( const EveCloudVolumeBall::BallData& 
 				float destG = pixels[offset + 1];
 				float destB = pixels[offset + 0];
 
-				pixels[offset] = destB * ( 1.f - alpha ) + selfIllumination.b * alpha;
-				pixels[offset + 1] = destG * ( 1.f - alpha ) + selfIllumination.g * alpha;
-				pixels[offset + 2] = destR * ( 1.f - alpha ) + selfIllumination.r * alpha;
+				pixels[offset] = destB + selfIllumination.b * alpha;
+				pixels[offset + 1] = destG + selfIllumination.g * alpha;
+				pixels[offset + 2] = destR + selfIllumination.r * alpha;
 				pixels[offset + 3] += alpha * ball.m_opacity;
 			}
 		}
