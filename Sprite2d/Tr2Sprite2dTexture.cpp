@@ -89,8 +89,6 @@ bool Tr2Sprite2dTexture::Initialize()
 
 void Tr2Sprite2dTexture::Apply( Tr2Sprite2dScene* renderer, unsigned int ix )
 {
-	uint32_t settings = S2D_TS_NONE;
-
 	renderer->SetTexture( ix, m_atlasTexture, m_settings );
 
 	if( m_hasTextureWindow )

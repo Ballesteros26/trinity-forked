@@ -21,8 +21,6 @@ void ReportErrorV(
 	const char *edsc = estr;
 	if (hr != (HRESULT)BE32 && hr != (HRESULT)BEDEF)
     {
-        estr = nullptr;
-        edsc = nullptr;
 #ifdef _WIN32
 		estr = DXGetErrorString(hr);
 		edsc = DXGetErrorDescription(hr);

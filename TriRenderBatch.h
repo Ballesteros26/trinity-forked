@@ -308,7 +308,8 @@ public:
 	// Constructor
 	TriClippingBatch() 
 		:m_isCullModeInverted( false ),
-		m_useClipPlane( false )
+		m_useClipPlane( false ),
+		m_scissorRect()
 	{
 		m_objectData = NULL;
 	}

@@ -188,8 +188,8 @@ static float ag_zeroin (float a, float b, float tol, AG_POLYNOMIAL *pars)
 */
 static int polyZeroes(float Poly[], int deg, float a, int a_closed, float b, int b_closed, float Roots[])
 {
-	int i, left_ok, right_ok, nr, ndr, skip;
-	float e, f, s, pe, ps, tol, *p, p_x[22], *d, d_x[22], *dr, dr_x[22];
+	int i, nr;
+	float e, f, pe, tol, *p, p_x[22], *d, d_x[22], *dr, dr_x[22];
 	AG_POLYNOMIAL ply;
 
 	e = pe = 0.0;  
@@ -218,8 +218,8 @@ static int polyZeroes(float Poly[], int deg, float a, int a_closed, float b, int
 	/* check for linear case */
 	if (deg == 1) {
 		Roots[0] = -p[0] / p[1];
-		left_ok  = (a_closed) ? (a<Roots[0]+tol) : (a<Roots[0]-tol);
-		right_ok = (b_closed) ? (b>Roots[0]-tol) : (b>Roots[0]+tol);
+		int left_ok  = (a_closed) ? (a<Roots[0]+tol) : (a<Roots[0]-tol);
+		int right_ok = (b_closed) ? (b>Roots[0]-tol) : (b>Roots[0]+tol);
 		nr = (left_ok && right_ok) ? 1 : 0;
 		if (nr) {
 			if (a_closed && Roots[0]<a) Roots[0] = a;
@@ -234,12 +234,15 @@ static int polyZeroes(float Poly[], int deg, float a, int a_closed, float b, int
 		/* compute derivative */
 		for (i=1; i<=deg; i++) d[i-1] = i*p[i];
 
+		int ndr, skip;
+
 		/* find roots of derivative */
 		ndr = polyZeroes ( d, deg-1, a, 0, b, 0, dr );
 		if (ndr == -1) return (0);
 
 		/* find roots between roots of the derivative */
 		for (i=skip=0; i<=ndr; i++) {
+			float s, ps;
 			if (nr>deg) return (nr);
 			if (i==0) {
 				s=a; ps = ag_horner1( p, deg, s);

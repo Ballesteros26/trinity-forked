@@ -25,19 +25,7 @@ struct InitializeWantsEXDevice
 {
 	InitializeWantsEXDevice()
 	{
-		g_wantsEXDevice = false;
-
-		std::vector<std::wstring> argv = BeOS->GetStartupArgs();
-
-		for ( size_t i = 1; i < argv.size(); ++i )
-		{
-			const std::wstring& arg = argv[i];
-			if ( arg.find( L"/enableExDevice" ) == 0 )
-			{
-				g_wantsEXDevice = true;
-				return;
-			}
-		}
+		g_wantsEXDevice = BeOS->HasStartupArg( L"/enableExDevice" );
 
 #ifdef _WIN32
 		char env[64];

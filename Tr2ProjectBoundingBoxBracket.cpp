@@ -28,7 +28,8 @@ Tr2ProjectBoundingBoxBracket::Tr2ProjectBoundingBoxBracket( IRoot* lockobj /*= N
 	m_projectedWidth( 0.0f ),
 	m_projectedHeight( 0.0f ),
 	m_integerCoordinates( true ),
-	m_screenMargin( 32.0f )
+	m_screenMargin( 32.0f ),
+	m_cameraDistance( 0 )
 {
 }
 

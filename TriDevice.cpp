@@ -709,6 +709,7 @@ void TriDevice::OnTick( Be::Time realTime, Be::Time simTime, void* cookie )
 	s_currentFpsValue %= s_fpsValuesCount;
 
 	double avgFps = 0.0;
+	// cppcheck-suppress variableScope
 	double avgFrametime = 0.0;
 	if( frameTime > 0.0 )
 	{

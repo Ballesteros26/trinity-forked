@@ -342,7 +342,7 @@ bool Tr2GrannyAnimation::GetDynamicBounds( Vector4& boundingSphere, Vector3 &aab
 
 	for( unsigned i = 0; i < m_boneBounds.size(); ++i )
 	{
-		const Matrix* mat = (const Matrix*)GrannyGetWorldPose4x4( m_worldPose, m_boneBounds[i].m_boneIndex );
+		const Matrix* mat = reinterpret_cast<const Matrix*>( GrannyGetWorldPose4x4( m_worldPose, m_boneBounds[i].m_boneIndex ) );
 
 		for( unsigned point = 0; point < 8; point++ )
 		{
@@ -389,7 +389,7 @@ void Tr2GrannyAnimation::RenderDynamicBounds( const Matrix& modelTransform )
 	for( unsigned i = 0; i < m_boneBounds.size(); ++i )
 	{
 		
-		Matrix mat = *(const Matrix*)GrannyGetWorldPose4x4( m_worldPose, m_boneBounds[i].m_boneIndex ) * modelTransform * initialTranslation;
+		Matrix mat = *reinterpret_cast<const Matrix*>( GrannyGetWorldPose4x4( m_worldPose, m_boneBounds[i].m_boneIndex ) ) * modelTransform * initialTranslation;
 
 		for( unsigned point = 0; point < 8; point++ )
 		{
@@ -1048,7 +1048,6 @@ std::pair<TriGeometryRes*, std::map<std::pair<TriGeometryRes*, uint32_t>, uint32
 				result.clear();
 				return std::make_pair( nullptr, result );
 			}
-			auto* dest = vbMirror.get() + vbOffset;
 			GrannyDeformVertices( 
 				deformer, 
 				indices, 

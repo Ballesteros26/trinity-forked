@@ -37,7 +37,7 @@ float evalpoly( float poly[], int deg, float s )
 // --------------------------------------------------------------------------------------
 float brents( float a, float b, float poly[], int deg )
 {
-	float fa, fb, fc, c, d, fs;
+	float fa, fb, fc, c, d;
 
 	fa = evalpoly( poly, deg, a );
 	if( fabs( fa ) < FLT_EPSILON ) 
@@ -53,7 +53,6 @@ float brents( float a, float b, float poly[], int deg )
 
 	bool m = true;
 	float n = -1.0f;
-	float s = 0.0f;
 	if( fabs( fa ) > fabs( fb ) )
 	{
 		fc = fa;
@@ -69,7 +68,7 @@ float brents( float a, float b, float poly[], int deg )
 	while( ( n < 0.0f || n >= 1.0f ) && ( fb != 0.0f && fabs( b - a ) > FLT_EPSILON ) )
 	{
 		fc = evalpoly( poly, deg, c );
-		s = 0.0f;
+		float s = 0.0f;
 
 		if( !( fa == fc || fb == fc ) )
 		{
@@ -95,7 +94,7 @@ float brents( float a, float b, float poly[], int deg )
 			m = false;
 		}
 
-		fs = evalpoly(poly, deg, s);
+		float fs = evalpoly(poly, deg, s);
 		d = c; 
 		c = b;
 		if( fa * fs < 0.0f )
@@ -139,10 +138,9 @@ int polyZeroes( float poly[], int deg, float a, bool a_closed, float b, bool b_c
 {/*
 	This numerical function is borrowed from the maya animEngine example
  */
-	int i, left_ok, right_ok, ndr;
-	bool skip;
+	int i;
 	int nr = 0;
-	float nf, e, f, s, pe, ps, tol, *p, p_x[22], *d, d_x[22], *dr, dr_x[22];
+	float nf, e, f, pe, tol, *p, p_x[22], *d, d_x[22], *dr, dr_x[22];
 
 	e = pe = 0.0;
 	f = 0.0;
@@ -180,6 +178,7 @@ int polyZeroes( float poly[], int deg, float a, bool a_closed, float b, bool b_c
 
 	if (deg == 1) 
 	{
+		int left_ok, right_ok;
 		roots[0] = -p[0] / p[1];
 
 		if ( a_closed )
@@ -227,15 +226,17 @@ int polyZeroes( float poly[], int deg, float a, bool a_closed, float b, bool b_c
 		}
 
 		/* find roots of derivative */
-		ndr = polyZeroes ( d, deg-1, a, false, b, false, dr );
+		int ndr = polyZeroes ( d, deg-1, a, false, b, false, dr );
 		if (ndr == -1) 
 		{
 			return 0;
 		}
 
+		bool skip;
 		/* find roots between roots of the derivative */
 		for (i = skip = 0 ; i <= ndr; i++) 
 		{
+			float s, ps;
 			if ( i == 0 ) 
 			{
 				// When we start

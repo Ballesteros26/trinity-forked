@@ -15,7 +15,11 @@ struct EveSpherePinIndexTree::TreeNode
 {
 	TreeNode() :
 		left( 0 ),
-		right( 0 )
+		right( 0 ),
+		thetaMin( 0 ),
+		thetaMax( 0 ),
+		phiMin( 0 ),
+		phiMax( 0 )
 	{}
 
 	float thetaMin, thetaMax, phiMin, phiMax;

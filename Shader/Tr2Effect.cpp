@@ -183,7 +183,7 @@ bool Tr2Effect::OnPrepareResources()
 	return true;
 }
 
-static bool ConvertEffectPath( const std::string path, std::string& actualPath )
+static bool ConvertEffectPath( const std::string& path, std::string& actualPath )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
