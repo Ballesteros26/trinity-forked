@@ -1014,7 +1014,7 @@ static PyObject* PyParseLabelText( PyObject* self, PyObject* args )
         }
     }
 
-    CCP_DELETE inString;
+    CCP_DELETE[] inString;
     return listOfLines;
 }
 
