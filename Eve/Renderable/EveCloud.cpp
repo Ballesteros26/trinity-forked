@@ -164,10 +164,7 @@ EveCloud::EveCloud( IRoot* lockobj )
 	m_preTesselationLevel( 32 ),
 	m_min( -0.5f, -0.5f, -0.5f ),
 	m_max( 0.5f, 0.5f, 0.5f ),
-	m_sortingModifier( 1.0f ),
-	m_secondaryLightingSphereRadiusLocal( 0.5f ),
-	m_secondaryLightingSphereRadiusWorld( 0.5f ),
-	m_secondaryLightingEmissiveColor( 0.f, 0.f, 0.f, 0.f )
+	m_sortingModifier( 1.0f )
 {
 	PrepareResources();
 }
@@ -193,47 +190,7 @@ bool EveCloud::OnModified( Be::Var* value )
 	return true;
 }
 
-void EveCloud::UpdateSyncronous( EveUpdateContext& updateContext )
-{
-	if( m_volume )
-	{
-		m_volume->Update( updateContext.GetTime() );
-	}
-
-	Quaternion rotation( 0.0f, 0.0f, 0.0f, 1.0f );
-	Vector3 translation( 0.0f, 0.0f, 0.0f );
-
-	if( m_ballPosition )
-	{
-		m_ballPosition->Update( &translation, updateContext.GetTime() );
-	}
-	if( m_ballRotation )
-	{
-		m_ballRotation->Update( &rotation, updateContext.GetTime() );
-	}
-
-	Matrix preTransform;
-	D3DXMatrixTransformation( &preTransform, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_translation );
-	D3DXMatrixTransformation( &m_localTransform, nullptr, nullptr, nullptr, nullptr, &rotation, &translation );
-	D3DXMatrixMultiply( &m_localTransform, &preTransform, &m_localTransform );
-
-	m_worldTransform = m_localTransform;
-	m_secondaryLightingSphereRadiusWorld = m_secondaryLightingSphereRadiusLocal * 
-		( D3DXVec3Length( &m_worldTransform.GetX() ) +  D3DXVec3Length( &m_worldTransform.GetY() ) + D3DXVec3Length( &m_worldTransform.GetZ() ) ) / 3.f;
-	BoundingSphereFromBox( m_boundingSphere, m_min, m_max, &m_worldTransform );
-}
-
-void EveCloud::UpdateAsyncronous( EveUpdateContext& updateContext )
-{
-	BoundingSphereFromBox( m_boundingSphere, m_min, m_max, &m_worldTransform );
-}
-
 void EveCloud::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform, Tr2Lod parentLod )
-{
-	GetRenderables( frustum, renderables, parentTransform );
-}
-
-void EveCloud::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
 {
 	if( !m_display || !frustum.IsSphereVisible( &m_boundingSphere ) )
 	{
@@ -246,31 +203,6 @@ bool EveCloud::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) c
 {
 	sphere = m_boundingSphere;
 	return true;
-}
-
-void EveCloud::RenderDebugInfo( Tr2RenderContext& renderContext )
-{
-	if( m_display && m_volume )
-	{
-		m_volume->RenderDebugInfo( m_worldTransform, renderContext );
-	}
-}
-
-void EveCloud::UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t )
-{
-	position = m_worldTransform.GetTranslation();
-}
-
-void EveCloud::GetModelCenterWorldPosition( Vector3 &position ) const
-{
-	position = m_worldTransform.GetTranslation();
-}
-
-bool EveCloud::GetLocalBoundingBox( Vector3 &min, Vector3 &max ) 
-{ 
-	min = m_min;
-	max = m_max;
-	return true; 
 }
 
 void EveCloud::GetLocalToWorldTransform( Matrix &transform ) const 
@@ -457,7 +389,12 @@ void EveCloud::GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr2PickTy
 
 void EveCloud::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
-	UpdateSyncronous( updateContext );
+	if( m_volume )
+	{
+		m_volume->Update( updateContext.GetTime() );
+	}
+
+	D3DXMatrixTransformation( &m_localTransform, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_translation );
 
 	Matrix parent;
 	if( childParent )
@@ -469,14 +406,12 @@ void EveCloud::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObjec
 		spaceObjectParent->GetLocalToWorldTransform( parent );
 	}
 	D3DXMatrixMultiply( &m_worldTransform, &m_localTransform, &parent );
-	m_secondaryLightingSphereRadiusWorld = m_secondaryLightingSphereRadiusLocal * 
-		( D3DXVec3Length( &m_worldTransform.GetX() ) +  D3DXVec3Length( &m_worldTransform.GetY() ) + D3DXVec3Length( &m_worldTransform.GetZ() ) ) / 3.f;
 	BoundingSphereFromBox( m_boundingSphere, m_min, m_max, &m_worldTransform );
 }
 
 void EveCloud::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
-	UpdateAsyncronous( updateContext );
+	BoundingSphereFromBox( m_boundingSphere, m_min, m_max, &m_worldTransform );
 }
 
 void EveCloud::PlayCurveSet( const std::string& name )
@@ -490,19 +425,4 @@ void EveCloud::StopCurveSet( const std::string& name )
 float EveCloud::GetCurveSetDuration( const std::string& name ) const
 {
 	return 0;
-}
-
-void EveCloud::RegisterSecondaryLightSource( Tr2ShLightingManager& manager )
-{
-	static const Color s_noAlbedoColor( 0.f, 0.f, 0.f, 0.f );
-	manager.RegisterSecondaryLightSource( 
-		&m_worldTransform.GetTranslation(), 
-		&m_secondaryLightingSphereRadiusWorld, 
-		&s_noAlbedoColor, 
-		&m_secondaryLightingEmissiveColor );
-}
-
-void EveCloud::UnregisterSecondaryLightSource( Tr2ShLightingManager& manager )
-{
-	manager.UnregisterSecondaryLightSource( &m_worldTransform.GetTranslation() );
 }

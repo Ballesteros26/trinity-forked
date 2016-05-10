@@ -25,15 +25,13 @@ BLUE_DECLARE_INTERFACE( ITriQuaternionFunction );
 //   plane at the back of the object's bounding sphere using provided effect.
 // --------------------------------------------------------------------------------
 BLUE_CLASS( EveCloud ) :
-	public IEveSpaceObject2,
 	public ITr2Renderable,
 	public ITr2Pickable,
 	public ITr2GeometryProvider,
 	public Tr2DeviceResource,
 	public IInitialize,
 	public INotify,
-	public IEveSpaceObjectChild,
-	public ITr2SecondaryLightSource
+	public IEveSpaceObjectChild
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -50,22 +48,12 @@ public:
 	virtual bool OnModified( Be::Var* value );
 
 	//////////////////////////////////////////////////////////////////////////////////////
-	// IEveSpaceObject2
-	void UpdateSyncronous( EveUpdateContext& updateContext );
-	void UpdateAsyncronous( EveUpdateContext& updateContext );
-	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
-	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
-	void RenderDebugInfo( Tr2RenderContext& renderContext );
-	void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t );
-	void GetModelCenterWorldPosition( Vector3 &position ) const;
-	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max );
-	void GetLocalToWorldTransform( Matrix &transform ) const;
-
-	//////////////////////////////////////////////////////////////////////////////////////
 	// IEveSpaceObjectChild
 	virtual void UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent );
 	virtual void UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent );
+	virtual void GetLocalToWorldTransform( Matrix &transform ) const;
 	virtual void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform, Tr2Lod parentLod );
+	virtual bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
 	virtual void PlayCurveSet( const std::string& name );
 	virtual void StopCurveSet( const std::string& name );
 	virtual float GetCurveSetDuration( const std::string& name ) const; 
@@ -92,11 +80,6 @@ public:
     virtual IRoot* GetID( uint16_t areaId );
 	virtual void GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr2PickTypes pickTypes, const Tr2PerObjectData* perObjectData );
 
-	//////////////////////////////////////////////////////////////////////////////////////
-	// ITr2SecondaryLightSource
-	virtual void RegisterSecondaryLightSource( Tr2ShLightingManager& );
-	virtual void UnregisterSecondaryLightSource( Tr2ShLightingManager& );
-
 private:
 	bool OnPrepareResources();
 
@@ -109,9 +92,6 @@ private:
 
 	ITr2ShaderMaterialPtr m_effect;
 
-	// The ability to attach the LineSet to a Ball
-	ITriVectorFunctionPtr m_ballPosition;
-	ITriQuaternionFunctionPtr m_ballRotation;
 	Vector3 m_scaling;
 	Vector3 m_translation;
 	Quaternion m_rotation;
@@ -131,10 +111,6 @@ private:
 	Vector3 m_max;
 
 	float m_sortingModifier;
-
-	float m_secondaryLightingSphereRadiusLocal;
-	float m_secondaryLightingSphereRadiusWorld;
-	Color m_secondaryLightingEmissiveColor;
 };
 
 TYPEDEF_BLUECLASS( EveCloud );
