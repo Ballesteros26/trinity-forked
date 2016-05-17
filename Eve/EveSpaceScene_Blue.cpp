@@ -48,6 +48,11 @@ Be::VarChooser EveVisualizerChooser[] =
 		BeCast( EveSpaceScene::VW_WIREFRAME ),
 		""
 	},
+	{
+		"LightCount",
+		BeCast( EveSpaceScene::VW_LIGHT_COUNT ),
+		""
+	},
 	{ 0 }
 };
 

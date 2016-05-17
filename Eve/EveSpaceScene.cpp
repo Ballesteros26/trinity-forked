@@ -98,6 +98,7 @@ namespace
 		"res:/Graphics/Effect/Managed/Space/Visualizer/White.fx",
 		"res:/Graphics/Effect/Managed/Space/Visualizer/Overdraw.fx",
 		"res:/Graphics/Effect/Managed/Space/Visualizer/Wireframe.fx",
+		"res:/Graphics/Effect/Managed/Space/Visualizer/LightCount.fx",
 	};
 }
 

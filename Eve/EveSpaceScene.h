@@ -130,6 +130,8 @@ public:
 		VM_OVERDRAW,
 		VW_WIREFRAME,
 
+		VW_LIGHT_COUNT,
+
 		VM_COUNT
 	};
 
