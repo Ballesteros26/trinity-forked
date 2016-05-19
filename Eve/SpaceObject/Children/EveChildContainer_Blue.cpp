@@ -15,6 +15,7 @@ const Be::ClassInfo* EveChildContainer::ExposeToBlue()
 		MAP_INTERFACE( IEveSpaceObjectChild )
 
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "display", m_display, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "objects", m_objects, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "curveSets", m_curveSets, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "hideOnLowQuality", m_hideOnLowQuality, "Disables all childs in this container on low quality mode.", Be::READWRITE | Be::PERSIST )
