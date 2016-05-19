@@ -11,6 +11,8 @@
 #include "Tr2Renderer.h"
 #include "Eve/EveUpdateContext.h"
 #include "TriObserverLocal.h"
+#include "Tr2LightManager.h"
+#include "Tr2PointLight.h"
 
 
 EveChildContainer::EveChildContainer( IRoot* lockobj ) :
@@ -18,6 +20,7 @@ EveChildContainer::EveChildContainer( IRoot* lockobj ) :
 	PARENTLOCK( m_objects ),
 	PARENTLOCK( m_curveSets ),
 	PARENTLOCK( m_observers ),
+	PARENTLOCK( m_lights ),
 	m_display( true ),
 	m_hideOnLowQuality( false )
 {
@@ -132,6 +135,22 @@ void EveChildContainer::ChangeLOD( Tr2Lod lod )
 	for( auto it = m_objects.begin(); it != m_objects.end(); it++ )
 	{
 		(*it)->ChangeLOD( lod );
+	}
+}
+
+void EveChildContainer::GetLights( Tr2LightManager& lightManager ) const
+{
+	XMMATRIX worldTransform = m_worldTransform;
+	for( auto it = std::begin( m_lights ); it != std::end( m_lights ); ++it )
+	{
+		lightManager.AddPointLight( 
+			Vector3( XMVector3TransformCoord( (* it )->m_position, worldTransform ) ), 
+			( *it )->m_radius, 
+			( *it )->m_color );
+	}
+	for( auto it = m_objects.begin(); it != m_objects.end(); ++it )
+	{
+		( *it )->GetLights( lightManager );
 	}
 }
 

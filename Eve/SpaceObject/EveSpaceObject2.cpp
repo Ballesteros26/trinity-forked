@@ -2434,6 +2434,10 @@ void EveSpaceObject2::GetLights( Tr2LightManager& lightManager ) const
 			( *it )->m_radius, 
 			( *it )->m_color );
 	}
+	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
+	{
+		( *it )->GetLights( lightManager );
+	}
 }
 
 namespace

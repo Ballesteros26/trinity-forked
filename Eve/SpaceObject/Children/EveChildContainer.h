@@ -14,6 +14,8 @@ BLUE_DECLARE( TriCurveSet );
 BLUE_DECLARE_VECTOR( TriCurveSet );
 BLUE_DECLARE( TriObserverLocal );
 BLUE_DECLARE_VECTOR( TriObserverLocal );
+BLUE_DECLARE( Tr2PointLight );
+BLUE_DECLARE_VECTOR( Tr2PointLight );
 
 BLUE_CLASS( EveChildContainer ) :
 	public IEveSpaceObjectChild,
@@ -33,6 +35,7 @@ public:
 	void UpdateAsyncronous( EveUpdateContext& updateContext, Matrix& parentTransform );
 	void GetLocalToWorldTransform( Matrix& transform ) const;
 	void ChangeLOD( Tr2Lod lod );
+	void GetLights( Tr2LightManager& lightManager ) const;
 
 	void Setup( const Vector3* scale, const Quaternion* rotation, const Vector3* translation, Tr2Lod lowestLodVisible );
 
@@ -50,6 +53,7 @@ protected:
 	PIEveSpaceObjectChildVector m_objects;
 	PTriCurveSetVector m_curveSets;
 	PTriObserverLocalVector m_observers;
+	PTr2PointLightVector m_lights;
 };
 
 TYPEDEF_BLUECLASS( EveChildContainer );

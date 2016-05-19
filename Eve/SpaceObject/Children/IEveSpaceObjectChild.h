@@ -7,6 +7,7 @@ class TriFrustum;
 struct ITr2Renderable;
 class EveSpaceObject2;
 class EveUpdateContext;
+class Tr2LightManager;
 
 BLUE_INTERFACE( IEveSpaceObjectChild ) : public IRoot
 {
@@ -25,6 +26,8 @@ BLUE_INTERFACE( IEveSpaceObjectChild ) : public IRoot
 	virtual void Setup( const Vector3* scale, const Quaternion* rotation, const Vector3* translation, Tr2Lod lowestLodVisible ) = 0;
 
 	virtual void ChangeLOD( Tr2Lod lod ) = 0;
+
+	virtual void GetLights( Tr2LightManager& lightManager ) const = 0;
 };
 
 BLUE_DECLARE_IVECTOR( IEveSpaceObjectChild );
