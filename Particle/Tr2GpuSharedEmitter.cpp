@@ -31,6 +31,7 @@ Tr2GpuSharedEmitter::Tr2GpuSharedEmitter( IRoot* lockObj )
 	memset( &m_emitter, 0, sizeof( m_emitter ) );
 	memset( &m_params, 0, sizeof( m_params ) );
 	m_params.turbulenceFrequency = 1;
+	m_params.colorMidpoint = 0.5f;
 }
 
 

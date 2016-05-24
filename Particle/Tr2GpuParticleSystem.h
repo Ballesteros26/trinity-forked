@@ -59,6 +59,7 @@ public:
 		float maxLifeTime;
 
 		uint32_t textureIndex;
+		float colorMidpoint;
 		Color colors[4];
 		Vector3 sizes;
 		float sizeVariance;
@@ -211,7 +212,7 @@ private:
 		float minLifeTime;
 		float maxLifeTime;
 
-		uint32_t textureIndex;
+		float textureIndex;
 		Color colors[4];
 		Vector3 sizes;
 		float sizeVariance;

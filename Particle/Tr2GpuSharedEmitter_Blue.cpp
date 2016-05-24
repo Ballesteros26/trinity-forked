@@ -141,6 +141,12 @@ const Be::ClassInfo* Tr2GpuSharedEmitter::ExposeToBlue()
 			":jessica-group: Particle", 
 			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
         MAP_ATTRIBUTE( 
+			"colorMidpoint", 
+			m_params.colorMidpoint, 
+			"Color curve midpoint from 0 to 1 (stored on GPU)\n"
+			":jessica-group: Particle", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+        MAP_ATTRIBUTE( 
 			"velocityStretchRotation", 
 			m_params.velocityStretchRotation, 
 			"Particle maximum rotation speed or velocity stretch coefficient if negative (stored on GPU)\n"

@@ -65,7 +65,7 @@ Tr2GpuParticleSystem::EmitterParamsGpu::EmitterParamsGpu( const EmitterParams& p
 	minLifeTime = params.minLifeTime;
 	maxLifeTime = params.maxLifeTime;
 	sizeVariance = params.sizeVariance;
-	textureIndex = params.textureIndex;
+	textureIndex = float( params.textureIndex ) + std::max( 0.001f, std::min( 0.99f, 1.f - params.colorMidpoint - std::floor( params.colorMidpoint ) ) );
 	colors[0] = params.colors[0];
 	colors[1] = params.colors[1];
 	colors[2] = params.colors[2];
@@ -91,7 +91,7 @@ Tr2GpuParticleSystem::EmitterParamsGpu::EmitterParamsGpu( const EmitterParams& p
 	colors[2] = params.colors[2];
 	colors[3] = params.colors[3];
 	sizes = Vector4( params.sizes, params.sizeVariance );
-	textureIndex = float( params.textureIndex );
+	textureIndex = float( params.textureIndex ) + std::max( 0.001f, std::min( 0.99f, 1.f - params.colorMidpoint - std::floor( params.colorMidpoint ) ) );
 	drag = params.drag;
 	turbulenceAmplitude = params.turbulenceAmplitude;
 	turbulenceFrequency = float( params.turbulenceFrequency ) / MAX_TURBULENCE_LENGTH;
