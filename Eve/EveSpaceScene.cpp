@@ -992,9 +992,11 @@ void EveSpaceScene::RenderObjectsReceivingShadows(	std::vector<ShadowReceiver>& 
 				Tr2BlockedRange<size_t>( 0, objectsReceivingShadows.size() ), 
 				[&]( const Tr2BlockedRange<size_t>& range ) -> void
 				{
-					size_t index = range.begin();
-					IEveSpaceObject2* obj = objectsReceivingShadows[index].object;
-					GetShadowCasterRenderables( obj, shadowReceivers[index], shadowCasters, shadowRenderables[index], debugCasters[index] );
+					for( size_t index = range.begin(); index != range.end(); ++index)
+					{
+						IEveSpaceObject2* obj = objectsReceivingShadows[index].object;
+						GetShadowCasterRenderables( obj, shadowReceivers[index], shadowCasters, shadowRenderables[index], debugCasters[index] );
+					}
 				} );
 		}
 	}
@@ -1242,7 +1244,7 @@ void EveSpaceScene::GatherBatches( Tr2RenderContext& renderContext )
 				Vector4 boundingSphere;
 				if( obj->GetBoundingSphere( boundingSphere ) )
 				{
-					if( frustum.IsSphereVisible( &boundingSphere ) )
+					if( frustum.IsSphereVisible( &boundingSphere, true ) )
 					{
 						float estimatedSize = frustum.GetPixelSizeAccross( &boundingSphere );
 
