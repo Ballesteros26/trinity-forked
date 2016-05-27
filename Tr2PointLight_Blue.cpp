@@ -12,5 +12,10 @@ const Be::ClassInfo* Tr2PointLight::ExposeToBlue()
 		MAP_ATTRIBUTE( "position", m_position, "Light position", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "radius", m_radius, "Light radius", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "color", m_color, "Light color (in linear space)", Be::READWRITE | Be::PERSIST )
-    EXPOSURE_END()
+		MAP_ATTRIBUTE( "brightness", m_brightness, "Light brightness (modulates color) for easier animation", Be::READWRITE | Be::PERSIST )
+
+		MAP_ATTRIBUTE( "noiseAmplitude", m_noiseAmplitude, "Brightness noise amplitude\n:jessica-group: Noise", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "noiseFrequency", m_noiseFrequency, "Brightness noise frequency\n:jessica-group: Noise", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "noiseOctaves", m_noiseOctaves, "Brightness turbulence octaves\n:jessica-group: Noise", Be::READWRITE | Be::PERSIST )
+	EXPOSURE_END()
 }

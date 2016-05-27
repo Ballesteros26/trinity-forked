@@ -425,11 +425,11 @@ void Tr2ShLightingManager::UpdateSourceData()
 	}
 	for( auto it = m_lights.begin(); it != m_lights.end(); ++it )
 	{
-		data->position = ( *it )->m_position;
-		data->radius = ( *it )->m_radius;
+		Color color;
+		( *it )->GetLight( data->position, data->radius, color );
 		data->albedo = Vector3( 0, 0, 0 );
 		data->cutoffMultiplier = 0;
-		data->emissive = *reinterpret_cast<const Vector3*>( &( *it )->m_color ) * m_primaryIntensity;
+		data->emissive = *reinterpret_cast<const Vector3*>( &color ) * m_primaryIntensity;
 		data->maxColorComponent = MaxVectorComponent( data->emissive );
 		++data;
 		++m_sourceCount;

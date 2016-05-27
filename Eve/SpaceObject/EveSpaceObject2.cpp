@@ -2435,10 +2435,7 @@ void EveSpaceObject2::GetLights( Tr2LightManager& lightManager ) const
 	XMMATRIX worldTransform = m_worldTransform;
 	for( auto it = std::begin( m_lights ); it != std::end( m_lights ); ++it )
 	{
-		lightManager.AddPointLight( 
-			Vector3( XMVector3TransformCoord( (* it )->m_position, worldTransform ) ), 
-			( *it )->m_radius, 
-			( *it )->m_color );
+		( *it )->AddLight( lightManager, worldTransform, 1.0f );
 	}
 	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
 	{
