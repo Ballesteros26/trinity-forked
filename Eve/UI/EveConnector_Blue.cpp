@@ -33,6 +33,11 @@ Be::VarChooser EveConnectorTypeChooser[] =
 		BeCast( EveConnector::XZ_CircleStraight ),
 		"Circle in xz plane going through the 'StraightAnchor' point with source as the center"
 	},
+	{
+		"Orbit",
+		BeCast( EveConnector::Orbit ),
+		"Draws an orbit using planeNormal and radius"
+	},
 	{ 0 }
 };
 
@@ -63,6 +68,9 @@ const Be::ClassInfo* EveConnector::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "destObject", m_destObject, "", Be::READWRITE | Be::PERSIST );
 		MAP_ATTRIBUTE( "sourceObject", m_sourceObject, "", Be::READWRITE | Be::PERSIST );
+
+		MAP_ATTRIBUTE( "planeNormal", m_normal, "", Be::READWRITE | Be::PERSIST );
+		MAP_ATTRIBUTE( "radius", m_radius, "", Be::READWRITE | Be::PERSIST );
 
 		MAP_ATTRIBUTE_WITH_CHOOSER( "type", m_type, "", Be::READWRITE | Be::PERSIST | Be::ENUM, EveConnectorTypeChooser );
 

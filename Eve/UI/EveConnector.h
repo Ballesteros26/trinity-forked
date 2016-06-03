@@ -23,7 +23,7 @@ public:
 	EveConnector( IRoot* lockobj = NULL );
 	~EveConnector();
 
-	enum ConnectorType { PointToPoint, XZ_CircleStraight, XZ_Circle, StraightAnchor, CurvedAnchor };
+	enum ConnectorType { PointToPoint, XZ_CircleStraight, XZ_Circle, StraightAnchor, CurvedAnchor, Orbit };
 
 	void Update( EveUpdateContext& context );
 	void AddLine( EveCurveLineSet* lineSet );
@@ -36,6 +36,7 @@ private:
 
 	Vector3 m_sourcePosition;
 	Vector3 m_destPosition;
+	Vector3 m_normal;
 
 	Color m_color;
 	Color m_animationColor;
@@ -44,6 +45,7 @@ private:
 	float m_animationScale;
 	float m_width;
 	float m_lineLength;
+	float m_radius;
 
 	bool m_isAnimated;
 	bool m_autoScaleAnimation;
@@ -51,6 +53,7 @@ private:
 	// Some helper functions(inline)
 	void AnimateSegment( EveCurveLineSet* lineSet, int lineID );
 	void AddCircle( EveCurveLineSet* lineSet, const Vector3& center, float radius );
+	void AddOrbit( EveCurveLineSet* lineSet, const Vector3& center, float radius, const Vector3& normal );
 	void AddStraightLine( EveCurveLineSet* lineSet, const Vector3& source, const Vector3& destination );
 	void AddSpheredSegment( EveCurveLineSet* lineSet, const Vector3& p0, const Vector3& p1, const Vector3& center );
 };

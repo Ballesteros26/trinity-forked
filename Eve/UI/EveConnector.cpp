@@ -14,6 +14,8 @@ EveConnector::EveConnector( IRoot* lockobj ) :
 	m_color( 0.5f, 0.5f, 0.5f, 1.f ),
 	m_destPosition( 0.f, 0.f, 0.f ),
 	m_sourcePosition( 0.f, 0.f, 0.f ),
+	m_normal( 0.f, 1.f, 0.f ),
+	m_radius( 1.f ),
 	m_animationScale( 1.f ),
 	m_animationSpeed( 0.f ),
 	m_width( 1.f ),
@@ -81,6 +83,9 @@ void EveConnector::AddLine( EveCurveLineSet* lineSet )
 		m_lineLength = D3DXVec3Length( D3DXVec3Subtract( &v, &m_sourcePosition, &m_destPosition ) );
 		AddStraightLine( lineSet, m_sourcePosition, m_destPosition );
 		break;
+	case Orbit:
+		AddOrbit( lineSet, m_destPosition, m_radius, m_normal );
+		break;
 	default:
 		break;
 	};
@@ -112,6 +117,38 @@ inline void EveConnector::AddCircle( EveCurveLineSet* lineSet, const Vector3& ce
 	AddSpheredSegment( lineSet, center + Vector3( radius, 0, 0 ), center + Vector3( 0, 0, -radius ), center );
 	AddSpheredSegment( lineSet, center + Vector3( 0, 0, -radius ), center + Vector3( -radius, 0, 0 ), center );
 	AddSpheredSegment( lineSet, center + Vector3( -radius, 0, 0 ), center + Vector3( 0, 0, radius ), center );
+}
+
+inline void EveConnector::AddOrbit( EveCurveLineSet* lineSet, const Vector3& center, float radius, const Vector3& planeNormal )
+{
+	Vector3 side( 1, 0, 0 ), front( 0, 0, -1 ), up( 0, 1, 0 ), upDir;
+
+	// Draw the orbit circle
+	D3DXVec3Normalize( &upDir, &planeNormal );
+	if( abs( D3DXVec3Dot( &upDir, &up ) ) < 0.999 )
+	{
+		D3DXVec3Cross( &side, &up, &upDir );
+		D3DXVec3Normalize( &side, &side );
+		D3DXVec3Cross( &front, &side, &upDir );
+		D3DXVec3Normalize( &front, &front );
+	}
+	side *= radius;
+	front *= radius;
+
+	AddSpheredSegment( lineSet, center + front, center + side, center );
+	AddSpheredSegment( lineSet, center + side, center - front, center );
+	AddSpheredSegment( lineSet, center - front, center - side, center );
+	AddSpheredSegment( lineSet, center - side, center + front, center );
+
+	// And a line to the orbit
+	Vector3 planeDir = center - m_sourcePosition;
+	float d = D3DXVec3Dot( &upDir, &planeDir );
+	planeDir = m_sourcePosition + upDir * d;
+	planeDir = planeDir - center;
+	D3DXVec3Normalize( &planeDir, &planeDir );
+	planeDir = planeDir * radius + center;
+
+	AddStraightLine( lineSet, m_sourcePosition, planeDir );
 }
 
 inline void EveConnector::AddStraightLine( EveCurveLineSet* lineSet, const Vector3& source, const Vector3& destination )
