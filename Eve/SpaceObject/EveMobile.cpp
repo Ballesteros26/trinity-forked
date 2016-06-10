@@ -388,38 +388,18 @@ void EveMobile::RebuildTurretPositions()
 		if( !turretInName )
 		{
 			unsigned int totalNumber = 0;
-			// Check whether we have a locator with the name
+			// Check whether we have a locator with the name. We will continue when running into issues here
+			// because some NPCs do not have an accurate number of turrets that they try to fit.
 			if( !GetTurretLocatorCountingInfo( name.c_str(), locatorNumber, totalNumber ) )
 			{
-				// Replace the locatorName with "locator_turret_" as a fallback
-				name = "locator_turret_";
-				// Try again
-				if( !GetTurretLocatorCountingInfo( name.c_str(), locatorNumber, totalNumber ) )
-				{
-					CCP_LOGWARN( "Unable to get valid locator count for '%s'", name.c_str() );
-					continue;
-				}
-				turretInName = true;
+				// Unable to fit turret: Ship does not have a locator with the name
+				continue;
 			}
 			// Check whether we have an empty slot
 			if( locatorNumber > totalNumber )
 			{
-				if( !turretInName )
-				{
-					// Replace the locatorName with "locator_turret_" as a fallback
-					name = "locator_turret_";
-					// Try again
-					if( !GetTurretLocatorCountingInfo( name.c_str(), locatorNumber, totalNumber ) )
-					{
-						CCP_LOGWARN( "Unable to get valid locator count for '%s'", name.c_str() );
-						continue;
-					}
-				}
-				else
-				{
-					CCP_LOGWARN( "Unable to get valid locator count for '%s'. Too many turrets used even with fallback", name.c_str() );
-					continue;
-				}
+				// Unable to fit turret since there are no empty slots left
+				continue;
 			}
 		}
 
