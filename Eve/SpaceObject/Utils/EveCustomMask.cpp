@@ -7,6 +7,8 @@
 
 #include "EveCustomMask.h"
 
+#include "Eve/SpaceObject/EveSpaceObject2.h"
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Initialize data members
@@ -43,33 +45,21 @@ void EveCustomMask::GetDebugDrawMatrix( Matrix* matrix, float objectRadius ) con
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Return the inv matrix used put worldpos into projection space
+//   Fill in the needed PPT data into the perobject data
 // --------------------------------------------------------------------------------
-void EveCustomMask::GetInvCustomMaskTransform( Matrix* matrix ) const
+void EveCustomMask::FillPerObjectDataPS( EveSpaceObjectPSData* psData ) const
 {
+	// projection matrix
 	Matrix customMaskTransform, invCustomMaskTransform;
 	D3DXMatrixTransformation( &customMaskTransform, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_position );
 	D3DXMatrixInverse( &invCustomMaskTransform, nullptr, &customMaskTransform );
-	D3DXMatrixTranspose( matrix, &invCustomMaskTransform );
-}
+	D3DXMatrixTranspose( &psData->customMaskMatrix, &invCustomMaskTransform );
 
-// --------------------------------------------------------------------------------
-// Description:
-//   Mirrors the mask at left/right, etc. all in one vector
-// --------------------------------------------------------------------------------
-void EveCustomMask::GetExtendedData( Vector4* data ) const
-{
-	// some additional features
-	*data = Vector4( m_isMirrored ? 1.f : 0.f, 0.f, 0.f, 0.f );
-}
+	// material IDs
+	psData->customMaskMaterialIDs = Vector4( (float)m_materialIndex1, 0.f, 0.f, 0.f );
 
-// --------------------------------------------------------------------------------
-// Description:
-//   Hands out the four materials IDs for the four additional materials
-// --------------------------------------------------------------------------------
-void EveCustomMask::GetMaterialID( Vector4* data ) const
-{
-	*data = Vector4( (float)m_materialIndex1, 0.f, 0.f, 0.f );
+	// additional data
+	psData->customMaskData = Vector4( 1.f, m_isMirrored ? 1.f : 0.f, 0.f, 0.f );
 }
 
 

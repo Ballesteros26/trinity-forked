@@ -352,6 +352,15 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 		m_psData.miscData.y = (float)m_impactOverlay->GetDataTextureOffset();
 	}
 
+	if( m_customMask )
+	{
+		m_customMask->FillPerObjectDataPS( &m_psData );
+	}
+	else
+	{
+		m_psData.customMaskData = Vector4( 0.f, 0.f, 0.f, 0.f );
+	}
+
 	if( !m_curveSets.empty() || !m_overlayEffects.empty() )
 	{
 		float delta = (float)TimeAsDouble( time - m_lastCurveUpdateTime );
@@ -846,12 +855,7 @@ uint32_t EveSpaceObject2::GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType
 {
 	if( shaderType == Tr2RenderContextEnum::PIXEL_SHADER )
 	{
-		uint32_t sz = sizeof( m_psData ); // m_spaceObjectMiscData + m_spaceObjectClipData + m_spaceObjectClipDataEx
-		if( m_customMask )
-		{
-			sz += 64 + 16 + 16;  // customMask data is optional for now
-		}
-		return sz;
+		return sizeof( m_psData );
 	}
 	else
 	{
@@ -876,16 +880,6 @@ void EveSpaceObject2::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType sh
 		uint8_t* perObjectPS = (uint8_t*)data;
 
 		memcpy( perObjectPS, &m_psData, sizeof( m_psData ) );
-		perObjectPS += sizeof( m_psData );
-
-		if( m_customMask )
-		{
-			m_customMask->GetInvCustomMaskTransform( (Matrix*)perObjectPS );
-			perObjectPS += sizeof( Matrix );
-			m_customMask->GetMaterialID( (Vector4*)perObjectPS );
-			perObjectPS += sizeof( Vector4 );
-			m_customMask->GetExtendedData( (Vector4*)perObjectPS );
-		}
 	}
 	else
 	{

@@ -7,8 +7,8 @@
 #ifndef EveCustomMask_H
 #define EveCustomMask_H
 
-
 // forwards
+struct EveSpaceObjectPSData;
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -27,9 +27,7 @@ public:
 
 	// access
 	void GetDebugDrawMatrix( Matrix* matrix, float objectRadius ) const;
-	void GetInvCustomMaskTransform( Matrix* matrix ) const;
-	void GetExtendedData( Vector4* data ) const;
-	void GetMaterialID( Vector4* data ) const;
+	void FillPerObjectDataPS( EveSpaceObjectPSData* psData ) const;
 
 
 private:

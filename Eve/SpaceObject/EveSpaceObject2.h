@@ -108,6 +108,9 @@ struct EveSpaceObjectPSData
 	Vector4 clipData;
 	Vector4 miscData;
 	Vector4 shLightingCoefficients[Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT];
+	Matrix customMaskMatrix;
+	Vector4 customMaskMaterialIDs;
+	Vector4 customMaskData;
 };
 
 // ---------------------------------------------------------------------------------------
