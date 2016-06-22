@@ -325,6 +325,14 @@ bool EveSOFDataMgr::SetData( EveSOFData* dbData )
 	}
 	CCP_LOGNOTICE( "SOF: loaded %d materials", m_materialData.size() );
 
+	// load pattern data
+	if( !LoadPatternData( dbData ) )
+	{
+		CCP_LOGERR( "Error loading pattern data!" );
+		return false;
+	}
+	CCP_LOGNOTICE( "SOF: loaded %d patternss", m_patternData.size() );
+
 	// load generic data
 	if(!LoadGenericData( dbData ) )
 	{

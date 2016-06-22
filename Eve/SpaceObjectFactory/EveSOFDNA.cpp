@@ -214,7 +214,7 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 	m_hullName = dnaParts[0];
 	m_factionName = dnaParts[1];
 	m_raceName = dnaParts[2];
-	m_patternName = "";
+	m_patternName = "default";
 
 	// pointers
 	m_hullData = m_dataMgr->GetHullData( m_hullName.c_str() );
@@ -237,8 +237,13 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 		CCP_LOGERR( "Couldn't find the requested race: %s", dnaString );
 		return;
 	}
-	// pattern data (is optional! so don't report error in case of nullptr)
+	// pattern data (is NOT optional, the default one must exist!)
 	m_patternData = m_dataMgr->GetPatternData( m_patternName.c_str() );
+	if( m_patternData == nullptr )
+	{
+		CCP_LOGERR( "Couldn't find the requested pattern: %s", m_patternName.c_str() );
+		return;
+	}
 	// generics
 	m_genericData = m_dataMgr->GetGenericData();
 

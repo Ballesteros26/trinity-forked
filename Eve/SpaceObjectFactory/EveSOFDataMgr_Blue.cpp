@@ -24,11 +24,13 @@ const Be::ClassInfo* EveSOFDataMgr::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( "UpdateRace", UpdateRace, "Update a specific race" )
 		MAP_METHOD_AND_WRAP( "UpdateGeneric", UpdateGeneric, "Update the generic data" )
 		MAP_METHOD_AND_WRAP( "UpdateMaterial", UpdateMaterial, "Update a specific material" )
+		MAP_METHOD_AND_WRAP( "UpdatePattern", UpdatePattern, "Update a specific pattern" )
 
 		MAP_METHOD_AND_WRAP( "HasFactionData", HasFactionData, "Does this faction exist?" )
 		MAP_METHOD_AND_WRAP( "HasHullData", HasHullData, "Does this hull exist?" )
 		MAP_METHOD_AND_WRAP( "HasRaceData", HasRaceData, "Does this race exist?" )
 		MAP_METHOD_AND_WRAP( "HasMaterialData", HasMaterialData, "Does this material exist?" )
+		MAP_METHOD_AND_WRAP( "HasPatternData", HasPatternData, "Does this pattern exist?" )
 
     EXPOSURE_END()
 }
