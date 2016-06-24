@@ -81,7 +81,8 @@ EveSOFDataGenericDamage::EveSOFDataGenericDamage( IRoot* lockobj ) :
 	m_armorParticleVelocityStretchRotation( 0.f ),
 	m_armorParticleDrag( 0.f ),
 	m_armorParticleTurbulenceAmplitude( 0.f ),
-	m_armorParticleTurbulenceFrequency( 1 )
+	m_armorParticleTurbulenceFrequency( 1 ),
+	m_armorParticleColorMidPoint( 0.5f )
 {}
 
 

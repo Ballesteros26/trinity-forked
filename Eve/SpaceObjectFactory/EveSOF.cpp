@@ -1201,6 +1201,7 @@ void EveSOF::SetupEffects( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) cons
 			psParams.drag = genericDamageData->armorParticleDrag;
 			psParams.turbulenceAmplitude = genericDamageData->armorParticleTurbulenceAmplitude;
 			psParams.turbulenceFrequency = genericDamageData->armorParticleTurbulenceFrequency;
+			psParams.colorMidpoint = genericDamageData->armorParticleColorMidPoint;
 			Tr2GpuUniqueEmitterPtr impactEmitter;
 			impactEmitter.CreateInstance();
 			impactEmitter->Setup( genericDamageData->armorParticleRate, &psEmitter, &psParams );

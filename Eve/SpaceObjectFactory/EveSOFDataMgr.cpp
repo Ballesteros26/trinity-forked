@@ -1176,6 +1176,7 @@ void EveSOFDataMgr::GenerateGenericData( GenericData& gd, EveSOFDataGenericPtr s
 		gd.damage.armorParticleDrag = srcData->m_damage->m_armorParticleDrag;
 		gd.damage.armorParticleTurbulenceAmplitude = srcData->m_damage->m_armorParticleTurbulenceAmplitude;
 		gd.damage.armorParticleTurbulenceFrequency = srcData->m_damage->m_armorParticleTurbulenceFrequency;
+		gd.damage.armorParticleColorMidPoint = srcData->m_damage->m_armorParticleColorMidPoint;
 
 		gd.damage.armorShader = srcData->m_damage->m_armorShader;
 		gd.damage.shieldShaderEllipsoid = srcData->m_damage->m_shieldShaderEllipsoid;

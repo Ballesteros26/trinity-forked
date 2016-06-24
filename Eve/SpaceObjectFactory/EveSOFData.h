@@ -845,6 +845,7 @@ public:
 	float m_armorParticleDrag;
 	float m_armorParticleTurbulenceAmplitude;
 	uint32_t m_armorParticleTurbulenceFrequency;
+	float m_armorParticleColorMidPoint;
 
 	// resources
 	std::string m_armorShader;
