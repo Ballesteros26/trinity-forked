@@ -1165,8 +1165,6 @@ void EveSOFDataMgr::GenerateGenericData( GenericData& gd, EveSOFDataGenericPtr s
 		gd.damage.flickerPerlinAlpha = srcData->m_damage->m_flickerPerlinAlpha;
 		gd.damage.flickerPerlinBeta = srcData->m_damage->m_flickerPerlinBeta;
 		gd.damage.flickerPerlinN = srcData->m_damage->m_flickerPerlinN;
-		gd.damage.flickerPerlinOffset = srcData->m_damage->m_flickerPerlinOffset;
-		gd.damage.flickerPerlinScale = srcData->m_damage->m_flickerPerlinScale;
 		gd.damage.flickerPerlinSpeed = srcData->m_damage->m_flickerPerlinSpeed;
 
 		gd.damage.armorParticleRate = srcData->m_damage->m_armorParticleRate;

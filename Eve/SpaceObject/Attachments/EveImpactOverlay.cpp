@@ -464,9 +464,9 @@ float EveImpactOverlay::GetActivationStrength( EveUpdateContext& updateContext )
 	{
 		if( m_hullDamageFlickerCurve )
 		{
-			float min = std::max( 0.f, 2.f * m_hullDamageFactor - 1.f );
-			float max = std::min( 1.f, 2.f * m_hullDamageFactor );
-			return TriLinearize( min, max, m_hullDamageFlickerCurve->Update( updateContext.GetTime() ) );
+			// Clamp the flicker curve so we don't get a zero value from the curve
+			float result = Clamp( m_hullDamageFlickerCurve->Update( updateContext.GetTime() ), 0.3f, 1.0f );
+			return result / std::exp( m_hullDamageFactor );
 		}
 	}
 
@@ -539,6 +539,13 @@ void EveImpactOverlay::SetDamageState( float shield, float armor, float hull, bo
 
 	// hull factor
 	m_hullDamageFactor = TriLinearize( 0.9f, 0.1f, hull );
+	if( m_hullDamageFlickerCurve )
+	{
+		float flickerCurveModifier = TriLinearize( 1.0f, 0.0f, hull );
+		// Modify the flickercurve so it scales with the damage factor
+		m_hullDamageFlickerCurve->mScale = flickerCurveModifier;
+		m_hullDamageFlickerCurve->mOffset = 1.0f - flickerCurveModifier;
+	}
 
 	// have a color fade between full shield and zero shield
 	m_shieldImpactColorFade = Clamp( pow( 1.f - shield, 2.f ), 0.f, 1.f );

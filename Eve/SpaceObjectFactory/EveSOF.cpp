@@ -1248,9 +1248,10 @@ void EveSOF::SetupEffects( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) cons
 			flickerCurve->mAlpha = genericDamageData->flickerPerlinAlpha;
 			flickerCurve->mBeta = genericDamageData->flickerPerlinBeta;
 			flickerCurve->mN = genericDamageData->flickerPerlinN;
-			flickerCurve->mOffset = genericDamageData->flickerPerlinOffset;
-			flickerCurve->mScale = genericDamageData->flickerPerlinScale;
 			flickerCurve->mSpeed = genericDamageData->flickerPerlinSpeed;
+			// These parameters are dynamically set based on the hullDamageFactor in the impactOverlay
+			flickerCurve->mOffset = 1.f;
+			flickerCurve->mScale = 0.f;
 
 			// setup the overlay effect and add it the object
 			impactOverlay->Set( flickerCurve, impactEmitter, hullImpactEmitter, armorDamageShader, shieldMesh, impactType == EveSOFDataHull::IMPACTEFFECT_ELLIPSOID );

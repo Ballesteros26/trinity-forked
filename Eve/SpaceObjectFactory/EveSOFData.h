@@ -826,8 +826,6 @@ public:
 	float m_flickerPerlinSpeed;
 	float m_flickerPerlinAlpha;
 	float m_flickerPerlinBeta;
-	float m_flickerPerlinOffset;
-	float m_flickerPerlinScale;
 	int m_flickerPerlinN;
 
 	// armor damage particles

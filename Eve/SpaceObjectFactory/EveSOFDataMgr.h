@@ -347,8 +347,6 @@ public:
 		float flickerPerlinSpeed;
 		float flickerPerlinAlpha;
 		float flickerPerlinBeta;
-		float flickerPerlinOffset;
-		float flickerPerlinScale;
 		int flickerPerlinN;
 
 		// armor damage particlesystem data

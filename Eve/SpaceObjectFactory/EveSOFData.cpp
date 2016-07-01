@@ -65,8 +65,6 @@ EveSOFDataGenericDamage::EveSOFDataGenericDamage( IRoot* lockobj ) :
 	m_flickerPerlinSpeed( 1.f ),
 	m_flickerPerlinAlpha( 1.1f ),
 	m_flickerPerlinBeta( 2.f ),
-	m_flickerPerlinOffset( 0.f ),
-	m_flickerPerlinScale( 1.f ),
 	m_flickerPerlinN( 3 ),
 	m_armorParticleRate( 0.f ),
 	m_armorParticleAngle( 0.f ),
