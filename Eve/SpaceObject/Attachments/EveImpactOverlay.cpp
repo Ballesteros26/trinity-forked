@@ -23,8 +23,8 @@
 extern bool g_eveSpaceObjectImpactEffectEnabled;
 
 // consts
-static const float IMPACT_HOLE_TO_ARMOR_DAMAGE_RATIO = 13.f;
-static const float IMPACT_HOLE_TO_HULL_DAMAGE_RATIO = 2.f;
+static const float IMPACT_HOLE_TO_ARMOR_DAMAGE_RATIO = 12.f;
+static const float IMPACT_HOLE_TO_HULL_DAMAGE_RATIO = 4.f; 
 static const float IMPACT_ARMOR_SIZE_FACTOR = 0.0129f;
 static const float IMPACT_ARMOR_SIZE_MAX = 10.f;
 static const float IMPACT_SHIELD_SIZE_MAX = 2000.f;
