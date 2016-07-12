@@ -341,6 +341,8 @@ public:
 
 	struct PatternData
 	{
+		// projection type
+		EveSOFDataPattern::ProjectionType projectionType;
 		// shared data
 		std::map<BlueSharedString, TextureData> patternTextures;
 		// non-shared data (per hull)

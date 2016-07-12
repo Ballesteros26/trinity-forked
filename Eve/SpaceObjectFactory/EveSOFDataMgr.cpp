@@ -1094,6 +1094,9 @@ void EveSOFDataMgr::GeneratePatternData( PatternData& pd, EveSOFDataPatternPtr s
 		}
 		pd.areaParameters[hullAreaData->m_name] = ad;
 	}
+
+	// projection type
+	pd.projectionType = srcData->m_projectionType;
 }
 
 // --------------------------------------------------------------------------------

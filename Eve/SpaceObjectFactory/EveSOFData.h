@@ -805,8 +805,19 @@ public:
 	EveSOFDataPattern( IRoot* lockobj = NULL );
 	~EveSOFDataPattern() {}
 
+	// texture projection type
+	enum ProjectionType
+	{
+		PROJECTION_REPEAT = 0,
+		PROJECTION_CLAMP,
+		PROJECTION_BORDER,
+	};
+
 	// pattern name
 	std::string m_name;
+
+	// how is the texture projected?
+	ProjectionType m_projectionType;
 
 	// pattern textures res path
 	PEveSOFDataTextureVector m_patternTextures;

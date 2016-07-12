@@ -167,7 +167,7 @@ const Be::ClassInfo* EveSOFDataHullPlaneSet::ExposeToBlue()
 		MAP_ATTRIBUTE( "layer1MapResPath", m_layer1MapResPath, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "layer2MapResPath", m_layer2MapResPath, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "maskMapResPath", m_maskMapResPath, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE_WITH_CHOOSER("usage", m_usage, "Choose the usage of this planeSet", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataHullPlaneSetUsageChooser)
+		MAP_ATTRIBUTE_WITH_CHOOSER("usage", m_usage, "Choose the usage of this planeSet", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataHullPlaneSetUsageChooser )
 		MAP_ATTRIBUTE( "planeData", m_planeData, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "skinned", m_skinned, "", Be::READWRITE | Be::PERSIST )
 
@@ -666,12 +666,41 @@ const Be::ClassInfo* EveSOFDataMaterial::ExposeToBlue()
 
 
 BLUE_DEFINE( EveSOFDataPattern );
+Be::VarChooser EveSOFDataPatternProjectionTypeChooser[] =
+{
+	{
+		"Repeat",
+		BeCast( EveSOFDataPattern::PROJECTION_REPEAT ),
+		"Repeat pattern texture projection"
+	},
+	{
+		"Clamp",
+		BeCast( EveSOFDataPattern::PROJECTION_CLAMP ),
+		"Clamp the projection"
+	},
+	{
+		"Border",
+		BeCast( EveSOFDataPattern::PROJECTION_BORDER ),
+		"Border the projection"
+	},
+	{ 0 }
+};
+
+BLUE_REGISTER_ENUM_EX(
+	"EveSOFDataPatternProjectionType",
+	EveSOFDataPattern::ProjectionType,
+	EveSOFDataPatternProjectionTypeChooser,
+	ENUM_REG_ENUM_OBJECT_ON_MODULE
+);
+
+
 const Be::ClassInfo* EveSOFDataPattern::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( EveSOFDataPattern, "" )
 		MAP_INTERFACE( EveSOFDataPattern )
 
 		MAP_ATTRIBUTE( "name", m_name, "The pattern name. This functions as an ID.", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE_WITH_CHOOSER( "projectionType", m_projectionType, "Choose the type of texture projection", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataPatternProjectionTypeChooser )
 		MAP_ATTRIBUTE( "patternTextures", m_patternTextures, "Main textures used for this pattern.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "areas", m_areas, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "projections", m_projections, "", Be::READWRITE | Be::PERSIST )
