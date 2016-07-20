@@ -337,6 +337,7 @@ public:
 		Vector3 position;
 		Vector3 scaling;
 		Quaternion rotation;
+		bool isMirrored;
 	};
 
 	struct PatternData
@@ -347,8 +348,6 @@ public:
 		Vector4 materialTargets;
 		// projection type
 		Tr2RenderContextEnum::TextureAddressMode projectionAddressModeU, projectionAddressModeV;
-		// mirrored on yz-plane
-		bool isMirrored;
 		// shared data
 		std::map<BlueSharedString, TextureData> patternTextures;
 		// non-shared data (per hull)

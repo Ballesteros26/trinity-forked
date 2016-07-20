@@ -1128,7 +1128,7 @@ void EveSOF::SetupCustomMask( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 	{
 		EveCustomMaskPtr customMask;
 		customMask.CreateInstance();
-		customMask->Setup( patternProjectionData->position, patternProjectionData->scaling, patternProjectionData->rotation, patternData->isMirrored, patternData->materialSourceID, patternData->materialTargets );
+		customMask->Setup( patternProjectionData->position, patternProjectionData->scaling, patternProjectionData->rotation, patternProjectionData->isMirrored, patternData->materialSourceID, patternData->materialTargets );
 
 		obj->SetCustomMask( customMask );
 	}

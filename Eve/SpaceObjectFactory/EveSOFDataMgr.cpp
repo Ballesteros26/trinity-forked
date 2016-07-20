@@ -1077,6 +1077,7 @@ void EveSOFDataMgr::GeneratePatternData( PatternData& pd, EveSOFDataPatternPtr s
 		ppd.position = pattern->m_position;
 		ppd.scaling = pattern->m_scaling;
 		ppd.rotation = pattern->m_rotation;
+		ppd.isMirrored = pattern->m_isMirrored;
 		pd.projectionData[pattern->m_name] = ppd;
 	}
 
@@ -1126,9 +1127,6 @@ void EveSOFDataMgr::GeneratePatternData( PatternData& pd, EveSOFDataPatternPtr s
 
 	// material targets are bools, but need to be stored as floats (for shader)
 	pd.materialTargets = Vector4( srcData->m_isTargetMtl1 ? 1.f : 0.f, srcData->m_isTargetMtl2 ? 1.f : 0.f, srcData->m_isTargetMtl3 ? 1.f : 0.f, srcData->m_isTargetMtl4 ? 1.f : 0.f );
-
-	// optional mirror on yz-plane
-	pd.isMirrored = srcData->m_isMirrored;
 }
 
 // --------------------------------------------------------------------------------

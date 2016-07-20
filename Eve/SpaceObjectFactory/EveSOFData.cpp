@@ -212,7 +212,8 @@ EveSOFDataMaterial::EveSOFDataMaterial( IRoot* lockobj ) :
 EveSOFDataPatternPerHull::EveSOFDataPatternPerHull( IRoot* lockobj ) :
 	m_position( 0.f, 0.f, 0.f ),
 	m_scaling( 1.f, 1.f, 1.f ),
-	m_rotation( 0.f, 0.f, 0.f, 1.f )
+	m_rotation( 0.f, 0.f, 0.f, 1.f ),
+	m_isMirrored( false )
 {}
 
 
@@ -224,7 +225,6 @@ EveSOFDataPattern::EveSOFDataPattern( IRoot* lockobj ) :
 	m_isTargetMtl2( true ),
 	m_isTargetMtl3( true ),
 	m_isTargetMtl4( true ),
-	m_isMirrored( false ),
 	PARENTLOCK( m_projections ),
 	PARENTLOCK( m_areas ),
 	PARENTLOCK( m_patternTextures )

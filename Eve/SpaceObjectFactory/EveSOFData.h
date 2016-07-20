@@ -789,6 +789,9 @@ public:
 	Vector3 m_position;
 	Vector3 m_scaling;
 	Quaternion m_rotation;
+
+	// mirrored at yz plane?
+	bool m_isMirrored;
 };
 TYPEDEF_BLUECLASS( EveSOFDataPatternPerHull );
 BLUE_DECLARE_VECTOR( EveSOFDataPatternPerHull );
@@ -834,9 +837,6 @@ public:
 
 	// what is the pattern's material target?
 	bool m_isTargetMtl1, m_isTargetMtl2, m_isTargetMtl3, m_isTargetMtl4;
-
-	// mirrored at yz plane?
-	bool m_isMirrored;
 
 	// pattern textures res path
 	PEveSOFDataTextureVector m_patternTextures;
