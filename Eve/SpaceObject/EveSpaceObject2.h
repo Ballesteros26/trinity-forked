@@ -96,6 +96,10 @@ struct EveSpaceObjectVSData
 	Vector4 clipData;
 	Vector4 ellpsoidRadii;
 	Vector4 ellpsoidCenter;
+	Matrix customMaskMatrix;
+	Vector4 customMaskMaterialIDs;
+	Vector4 customMaskData;
+	Vector4 customMaskTargets;
 };
 
 // --------------------------------------------------------------------------------

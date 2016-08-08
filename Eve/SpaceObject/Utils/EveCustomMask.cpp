@@ -62,20 +62,27 @@ void EveCustomMask::GetDebugDrawMatrix( Matrix* matrix, float objectRadius ) con
 // Description:
 //   Fill in the needed PPT data into the perobject data
 // --------------------------------------------------------------------------------
-void EveCustomMask::FillPerObjectDataPS( EveSpaceObjectPSData* psData ) const
+void EveCustomMask::FillPerObjectDataPS( EveSpaceObjectVSData* vsData, EveSpaceObjectPSData* psData ) const
 {
-	// projection matrix
+	// projection matrix goes into VS data
 	Matrix customMaskTransform, invCustomMaskTransform;
 	D3DXMatrixTransformation( &customMaskTransform, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_position );
 	D3DXMatrixInverse( &invCustomMaskTransform, nullptr, &customMaskTransform );
+	D3DXMatrixTranspose( &vsData->customMaskMatrix, &invCustomMaskTransform );
+	// additional data
+	vsData->customMaskData = Vector4( 1.f, m_isMirrored ? 1.f : 0.f, 0.f, 0.f );
+	// material source IDs goes into PS data
+	vsData->customMaskMaterialIDs = Vector4( (float)m_materialIndex1, 0.f, 0.f, 0.f );
+	// pattern targets
+	vsData->customMaskTargets = m_targetMaterials;
+
 	D3DXMatrixTranspose( &psData->customMaskMatrix, &invCustomMaskTransform );
-	// material source IDs
+	// additional data
+	psData->customMaskData = Vector4( 1.f, m_isMirrored ? 1.f : 0.f, 0.f, 0.f );
+	// material source IDs goes into PS data
 	psData->customMaskMaterialIDs = Vector4( (float)m_materialIndex1, 0.f, 0.f, 0.f );
 	// pattern targets
 	psData->customMaskTargets = m_targetMaterials;
-
-	// additional data
-	psData->customMaskData = Vector4( 1.f, m_isMirrored ? 1.f : 0.f, 0.f, 0.f );
 }
 
 

@@ -355,10 +355,11 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 
 	if( m_customMask )
 	{
-		m_customMask->FillPerObjectDataPS( &m_psData );
+		m_customMask->FillPerObjectDataPS( &m_vsData, &m_psData );
 	}
 	else
 	{
+		m_vsData.customMaskData = Vector4( 0.f, 0.f, 0.f, 0.f );
 		m_psData.customMaskData = Vector4( 0.f, 0.f, 0.f, 0.f );
 	}
 
