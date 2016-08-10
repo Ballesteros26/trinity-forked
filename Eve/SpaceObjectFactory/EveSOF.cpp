@@ -347,7 +347,6 @@ void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodRe
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	const std::vector<EveSOFDataMgr::HullAreas>* hullAreas = dna->GetHullMeshAreas( areaType );
-	const EveSOFDataMgr::PatternProjectionData* patternProjectionData = dna->GetPatternProjectionData( dna->GetHullName() );
 	const EveSOFDataMgr::PatternData* patternData = dna->GetPatternData();
 	for( auto area = hullAreas->begin(); area != hullAreas->end(); ++area )
 	{
