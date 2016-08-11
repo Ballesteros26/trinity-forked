@@ -1902,7 +1902,7 @@ void EveSpaceScene::PopulatePerFrameVSData( PerFrameVSData &data )
 	// attention: need the transposed, but shader also needs column_major, so it is transpose(transpose(m)) == m
 	data.ViewInverseTransposeMat = Tr2Renderer::GetInverseViewTransform();
 	
-#if( TRINITY_PLATFORM==TRINITY_DIRECTX11 )
+#if( TRINITY_PLATFORM==TRINITY_DIRECTX11 || TRINITY_PLATFORM==TRINITY_OPENGL4 )
 	D3DXMatrixTranspose( &data.ViewProjectionLast, &m_viewProjectLast );
 #endif
 
