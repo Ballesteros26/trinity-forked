@@ -288,3 +288,91 @@ void EveEffectRoot2::Stop()
 		}
 	}
 }
+
+
+
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Is mostly used for effects, so no damage locators at all!
+// --------------------------------------------------------------------------------
+unsigned int EveEffectRoot2::GetDamageLocatorCount() const
+{
+	return 0;
+}
+
+bool EveEffectRoot2::GetDamageLocatorPosition( Vector3* out, int index, bool inWorldSpace )
+{
+	*out = m_worldTransform.GetTranslation();
+	return true;
+}
+
+bool EveEffectRoot2::GetDamageLocatorDirection( Vector3* out, int index, bool inWorldSpace )
+{
+	*out = Vector3( 0.f, 1.f, 0.f );
+	return true;
+}
+
+void EveEffectRoot2::GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction )
+{
+	GetDamageLocatorPosition( &out, damageLocatorIndex, true );
+}
+
+bool EveEffectRoot2::HasImpactConfigurationShield() const
+{
+	return false;
+}
+
+int EveEffectRoot2::GetClosestDamageLocatorIndex( const Vector3* position )
+{
+	return 0;
+}
+
+int EveEffectRoot2::GetGoodDamageLocatorIndex( const Vector3 &position )
+{
+	return 0;
+}
+
+float EveEffectRoot2::GetRadius() const
+{
+	return m_boundingSphere.w;
+}
+
+// -----------------------------------------------------------------------------
+// Description:
+//   Create an impact effect on this object
+//   Is empty for transforms!
+// -----------------------------------------------------------------------------
+int EveEffectRoot2::CreateImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size )
+{
+	return -1;
+}
+
+// -----------------------------------------------------------------------------
+// Description:
+//   Update the effect on this object
+//   Is empty for transforms!
+// -----------------------------------------------------------------------------
+bool EveEffectRoot2::UpdateImpact( Vector3& out, const Vector3& direction, int impactIndex )
+{
+	return false;
+}
+
+void EveEffectRoot2::GetMissPosition( const Vector3* hit, const Vector3* source, Vector3* out )
+{
+	GetDamageLocatorPosition(out, -1, true );
+	
+	if( hit && source ) 
+	{
+		Vector3 local( *hit - *out );
+		Vector3 dir( *hit - *source );
+		
+		D3DXVec3Normalize( &dir, &dir );
+		local -= dir * D3DXVec3Dot( &dir, &local );
+
+		D3DXVec3Normalize( &local, &local );
+		const Vector3 off = local * m_boundingSphere.w * 1.125f;
+		*out += off;
+	}
+}
+

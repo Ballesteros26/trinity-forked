@@ -9,6 +9,7 @@ const Be::ClassInfo* EveEffectRoot2::ExposeToBlue()
 		MAP_INTERFACE( IEveSpaceObject2 )
 		MAP_INTERFACE( IInitialize )
 		MAP_INTERFACE( ITr2SecondaryLightSource )
+		MAP_INTERFACE( ITriTargetable )
 
 		MAP_ATTRIBUTE
 		(
@@ -138,6 +139,8 @@ const Be::ClassInfo* EveEffectRoot2::ExposeToBlue()
 			"Stop all top level curveSets.\n" 
 			":jessica-favorite:\n"
 			":jessica-icon: timeline/stop.png" )
+			
+		MAP_METHOD_AND_WRAP( "GetBoundingSphereRadius", GetBoundingSphereRadius, "Returns the bounding sphere radius." )	
 
     EXPOSURE_END();
 }
