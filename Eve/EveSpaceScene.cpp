@@ -164,7 +164,9 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_taaPattern( TAA_NONE ),
 	m_sunColor( 1.0f, 1.0f, 1.0f, 1.0f ),
 	m_sunColorWithDynamicLights( 1.0f, 1.0f, 1.0f, 1.0f ),
-	m_useSunColorWithDynamicLights( false )
+	m_useSunColorWithDynamicLights( false ),
+	m_nebulaBrightnessOverride( 0.f ),
+	m_nebulaBrightnessOverrideVar( "NebulaBrightnessOverride", m_nebulaBrightnessOverride )
 {
 	TriPoolAllocator* allocator = Tr2Renderer::GetPoolAllocator();
 	m_primaryBatches[TRIBATCHTYPE_OPAQUE] = CCP_NEW( "EveSpaceScene/m_batches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
@@ -1871,6 +1873,7 @@ void EveSpaceScene::UpdateVariableStore()
 	m_envMap2Var = m_envMap2;
 	m_reflectionMapVar = m_envMap1;
 	m_reflectionMaskMapVar = m_envMap2;
+	m_nebulaBrightnessOverrideVar = m_nebulaBrightnessOverride <= 0.0f ? 1.0f : m_nebulaBrightnessOverride;
 
 	// the environment cubemap (aka nebula) is passed theough the global variable store
 	m_envMapHandle->SetValue( m_envMapTextureRes );
@@ -1963,7 +1966,7 @@ void EveSpaceScene::PopulatePerFramePSData( PerFramePSData &data )
 	D3DXVec3Normalize( &data.Sun.DirWorld, &data.Sun.DirWorld );
 	data.Sun.DirWorld = -data.Sun.DirWorld;
 	data.AmbientColor = Vector3( m_ambientColor.r, m_ambientColor.g, m_ambientColor.b );
-	data.NebulaIntensity = m_nebulaIntensity;
+	data.NebulaIntensity = m_nebulaBrightnessOverride >= 0.0f ? m_nebulaBrightnessOverride : m_nebulaIntensity;
 	data.FogColor = Vector4( m_fogColor.r, m_fogColor.g, m_fogColor.b, 0.f );
 
 	// ps data of fog

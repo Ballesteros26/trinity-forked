@@ -628,6 +628,15 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 		MAP_PROPERTY( "gpuParticleSystem", GetGpuParticleSystem, SetGpuParticleSystem, "" );
 
 		MAP_ATTRIBUTE( "externalParameters", m_externalParameters, "List of external parameters to bind to scene elements", Be::READ | Be::PERSIST )
+
+		MAP_ATTRIBUTE
+		( 
+			"nebulaBrightnessOverride", 
+			m_nebulaBrightnessOverride, 
+			"Nebula brightness intensity override (including reflection). Set to 0 to disable.\n"
+			":jessica-group: Lighting",
+			Be::READWRITE
+		)
     EXPOSURE_END()
 }
 

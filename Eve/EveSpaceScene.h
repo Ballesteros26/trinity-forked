@@ -496,6 +496,9 @@ private:
 	float m_yProjOffset;
 
 	float m_taaPixelOffsetScale;
+
+	float m_nebulaBrightnessOverride;
+	Tr2Variable m_nebulaBrightnessOverrideVar;
 	void TAAOffset();
 };
 
