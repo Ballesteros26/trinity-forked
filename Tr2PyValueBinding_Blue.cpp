@@ -18,7 +18,7 @@ const Be::ClassInfo* Tr2PyValueBinding::ExposeToBlue()
 			"name", 
 			m_name, 
 			"Name of this value binding.",
-			Be::READWRITE
+			Be::READWRITE | Be::PERSIST
 		)
 		MAP_ATTRIBUTE
 		(
@@ -41,7 +41,7 @@ const Be::ClassInfo* Tr2PyValueBinding::ExposeToBlue()
 			m_sourceAttribute, 
 			"Attribute of the source object. The value of this is copied to the"
 			"named attribute of the destination object",
-			Be::READWRITE | Be::NOTIFY
+			Be::READWRITE | Be::NOTIFY | Be::PERSIST
 		)
 		MAP_ATTRIBUTE
 		( 
@@ -56,7 +56,7 @@ const Be::ClassInfo* Tr2PyValueBinding::ExposeToBlue()
 			m_destinationAttribute,
 			"Attribute of the destination object. The value coming from the"
 			"source object is copied to here",
-			Be::READWRITE | Be::NOTIFY
+			Be::READWRITE | Be::NOTIFY | Be::PERSIST
 		)
 
     EXPOSURE_END()
