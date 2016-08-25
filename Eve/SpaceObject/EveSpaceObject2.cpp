@@ -1116,6 +1116,10 @@ void EveSpaceObject2::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
 	{
 		( *it )->RegisterWithQuadRenderer( quadRenderer );
 	}
+	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
+	{
+		( *it )->RegisterWithQuadRenderer( quadRenderer );
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -1152,6 +1156,10 @@ void EveSpaceObject2::AddQuadsToQuadRenderer( Tr2QuadRenderer& quadRenderer )
 	for( auto it = m_spriteLineSets.begin(); it != m_spriteLineSets.end(); ++it )
 	{
 		( *it )->AddToQuadRenderer( quadRenderer, m_worldTransform, m_spaceObjectShipData.y, bones, boneCount );
+	}
+	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
+	{
+		( *it )->AddQuadsToQuadRenderer( quadRenderer );
 	}
 }
 

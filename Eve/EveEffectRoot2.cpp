@@ -206,6 +206,22 @@ void EveEffectRoot2::GetLocalToWorldTransform( Matrix &transform ) const
 	transform = m_lastUpdateMatrix;
 }
 
+void EveEffectRoot2::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
+{
+	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
+	{
+		( *it )->RegisterWithQuadRenderer( quadRenderer );
+	}
+}
+
+void EveEffectRoot2::AddQuadsToQuadRenderer( Tr2QuadRenderer& quadRenderer )
+{
+	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
+	{
+		( *it )->AddQuadsToQuadRenderer( quadRenderer );
+	}
+}
+
 void EveEffectRoot2::GetLights( Tr2LightManager& lightManager ) const
 {
 	XMMATRIX worldTransform = m_lastUpdateMatrix;

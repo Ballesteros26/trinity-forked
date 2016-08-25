@@ -66,7 +66,23 @@ bool EveChildContainer::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery 
 	}
 	return success;
 }
-	
+
+void EveChildContainer::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
+{
+	for( auto it = m_objects.begin(); it != m_objects.end(); it++ )
+	{
+		(*it)->RegisterWithQuadRenderer( quadRenderer );
+	}
+}
+
+void EveChildContainer::AddQuadsToQuadRenderer( Tr2QuadRenderer& quadRenderer ) const
+{
+	for( auto it = m_objects.begin(); it != m_objects.end(); it++ )
+	{
+		(*it)->AddQuadsToQuadRenderer( quadRenderer );
+	}
+}
+
 void EveChildContainer::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 	if( m_hideOnLowQuality && Tr2Renderer::IsLowQuality() )
