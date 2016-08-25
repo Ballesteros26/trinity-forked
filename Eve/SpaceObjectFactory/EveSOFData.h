@@ -861,9 +861,6 @@ public:
 
 	// pattern placement per hull
 	PEveSOFDataPatternPerHullVector m_projections;
-
-	// area parameters
-	PEveSOFDataFactionHullAreaVector m_areas;
 };
 TYPEDEF_BLUECLASS( EveSOFDataPattern );
 BLUE_DECLARE_VECTOR( EveSOFDataPattern );

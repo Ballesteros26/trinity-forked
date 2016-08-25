@@ -746,7 +746,6 @@ const Be::ClassInfo* EveSOFDataPattern::ExposeToBlue()
 		MAP_ATTRIBUTE( "isTargetMtl3", m_isTargetMtl3, "This pattern goes onto material 3.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "isTargetMtl4", m_isTargetMtl4, "This pattern goes onto material 4.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "patternTextures", m_patternTextures, "Main textures used for this pattern.", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "areas", m_areas, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "projections", m_projections, "", Be::READWRITE | Be::PERSIST )
 		EXPOSURE_END()
 }

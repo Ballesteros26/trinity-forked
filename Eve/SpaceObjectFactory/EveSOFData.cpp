@@ -232,7 +232,6 @@ EveSOFDataPattern::EveSOFDataPattern( IRoot* lockobj ) :
 	m_isTargetMtl3( true ),
 	m_isTargetMtl4( true ),
 	PARENTLOCK( m_projections ),
-	PARENTLOCK( m_areas ),
 	PARENTLOCK( m_patternTextures )
 {}
 
