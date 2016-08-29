@@ -1123,21 +1123,22 @@ void EveSOF::SetupInstancedMeshes( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr
 // --------------------------------------------------------------------------------
 void EveSOF::SetupCustomMask( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
 {
-	const EveSOFDataMgr::PatternProjectionData* patternProjectionData = dna->GetPatternProjectionData( dna->GetHullName(), 0 );
 	const EveSOFDataMgr::PatternData* patternData = dna->GetPatternData();
-
-	// if we don't have this specific hull in the patter data, we don't need to set it to the spaceobject!
-	if( patternProjectionData && patternData )
+	if( patternData )
 	{
-		if( patternData->layerData.size() > 0 )
+		size_t layerCount = patternData->layerData.size();
+		for( size_t i = 0; i < layerCount; ++i )
 		{
-			const EveSOFDataMgr::PatternLayerData* patternLayerData = &patternData->layerData[0];
+			const EveSOFDataMgr::PatternProjectionData* patternProjectionData = dna->GetPatternProjectionData( dna->GetHullName(), i );
+			if( patternProjectionData )
+			{
+				const EveSOFDataMgr::PatternLayerData* patternLayerData = &patternData->layerData[ i ];
 
-			EveCustomMaskPtr customMask;
-			customMask.CreateInstance();
-			customMask->Setup( patternProjectionData->position, patternProjectionData->scaling, patternProjectionData->rotation, patternProjectionData->isMirrored, patternLayerData->materialSourceID, patternLayerData->materialTargets );
-
-			obj->AddCustomMask( customMask );
+				EveCustomMaskPtr customMask;
+				customMask.CreateInstance();
+				customMask->Setup( patternProjectionData->position, patternProjectionData->scaling, patternProjectionData->rotation, patternProjectionData->isMirrored, patternLayerData->materialSourceID, patternLayerData->materialTargets );
+				obj->AddCustomMask( customMask );
+			}
 		}
 	}
 }

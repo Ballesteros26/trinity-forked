@@ -161,8 +161,8 @@ bool EveSOFDNA::ValidateContent()
 			}
 			break;
 		case CMD_PATTERN:
-			// has two argument: the pattern name and the material name
-			if( cit->second.size() != 2 )
+			// has three argument: the pattern name and two material names
+			if( cit->second.size() != 3 )
 			{
 				return false;
 			}
@@ -170,11 +170,11 @@ bool EveSOFDNA::ValidateContent()
 			{
 				return false;
 			}
-			if( cit->second[1].compare( "none" ) == 0 )
+			if( ( cit->second[1].compare( "none" ) == 0 ) || ( cit->second[2].compare( "none" ) == 0 ) )
 			{
 				continue;
 			}
-			else if( !m_dataMgr->HasMaterialData( cit->second[1].c_str() ) )
+			else if( ( !m_dataMgr->HasMaterialData( cit->second[1].c_str() ) ) || ( !m_dataMgr->HasMaterialData( cit->second[2].c_str() ) ) )
 			{
 				return false;
 			}
@@ -835,7 +835,7 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( const BlueSharedString& areaDesi
 		}
 	}
 
-	// do we have a dna patten command for this?
+	// do we have a dna pattern command for this?
 	if( GetDnaCommandArgs( CMD_PATTERN, commandArgs ) )
 	{
 		// indentify material paramater and material index
@@ -980,7 +980,7 @@ const EveSOFDataMgr::HullBoosterData* EveSOFDNA::GetHullBoosterData() const
 // Description:
 //   Return pattern data, but needs to exist for provided hull!
 // --------------------------------------------------------------------------------
-const EveSOFDataMgr::PatternProjectionData* EveSOFDNA::GetPatternProjectionData( const char* hullName, uint32_t layer ) const
+const EveSOFDataMgr::PatternProjectionData* EveSOFDNA::GetPatternProjectionData( const char* hullName, size_t layer ) const
 {
 	if( !HasDnaCommand( CMD_PATTERN ) )
 	{

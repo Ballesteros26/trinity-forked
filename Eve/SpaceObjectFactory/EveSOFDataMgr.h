@@ -357,9 +357,9 @@ public:
 
 	struct PatternData
 	{
-		// non-shared data (per hull)
+		// pattern data (per hull)
 		std::map<BlueSharedString, std::vector<PatternProjectionData>> projectionData;
-		// non-shared data (per layer)
+		// pattern data (per layer)
 		std::vector<PatternLayerData> layerData;
 	};
 

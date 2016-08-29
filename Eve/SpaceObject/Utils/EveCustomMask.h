@@ -40,7 +40,7 @@ private:
 	Quaternion m_rotation;
 
 	// source material index
-	uint8_t m_materialIndex1;
+	uint8_t m_materialIndex;
 
 	// target material
 	Vector4 m_targetMaterials;

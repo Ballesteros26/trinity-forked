@@ -97,7 +97,7 @@ public:
 	const EveSOFDataMgr::FactionSpriteSetColorData* GetFactionSpriteSetData( int groupIndex ) const;
 
 	// get pattern data
-	const EveSOFDataMgr::PatternProjectionData* GetPatternProjectionData( const char* hullName, uint32_t layer ) const;
+	const EveSOFDataMgr::PatternProjectionData* GetPatternProjectionData( const char* hullName, size_t layer ) const;
 	const EveSOFDataMgr::PatternData* GetPatternData() const;
 
 	// get mixed data

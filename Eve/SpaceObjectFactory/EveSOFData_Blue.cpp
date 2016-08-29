@@ -733,8 +733,13 @@ Be::VarChooser EveSOFDataPatternLayerMaterialSourceChooser[] =
 	},
 	{
 		"Pattern Material 1",
-		BeCast( EveSOFDataPatternLayer::SOURCE_CUSTOM1 ),
+		BeCast( EveSOFDataPatternLayer::SOURCE_PATTERN1 ),
 		"Pattern material 1"
+	},
+	{
+		"Pattern Material 2",
+		BeCast( EveSOFDataPatternLayer::SOURCE_PATTERN2 ),
+		"Pattern material 2"
 	},
 	{ 0 }
 };
