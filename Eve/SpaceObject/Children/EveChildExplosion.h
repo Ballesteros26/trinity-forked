@@ -85,7 +85,6 @@ private:
 	size_t m_nextLocalExplosion;
 
 	// Local explosion scaling
-	Vector3 m_localExplosionScaling;
 	Vector3 m_globalExplosionScaling;
 	
 	// Is the effect playing

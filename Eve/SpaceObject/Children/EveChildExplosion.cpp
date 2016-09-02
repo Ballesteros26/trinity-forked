@@ -27,7 +27,6 @@ EveChildExplosion::EveChildExplosion( IRoot* lockobj )
 	m_nextLocalExplosion( 0 ),
 	m_isPlaying( false )
 {
-	m_localExplosionScaling = Vector3( 1.0f, 1.0f, 1.0f );
 	m_globalExplosionScaling = Vector3( 1.0f, 1.0f, 1.0f );
 }
 
@@ -155,8 +154,9 @@ void EveChildExplosion::UpdateSyncronous(
 					{	
 						Quaternion rotation = Quaternion(0.0, 0.0 ,0.0, 1.0);
 						Vector3 translation = Vector3(0.0, 0.0, 0.0);
+						Vector3 scaling = m_globalExplosionScaling;
 
-						m_globalExplosionInstance->Setup( &m_globalExplosionScaling, &rotation, &translation, TR2_LOD_LOW );
+						m_globalExplosionInstance->Setup( &scaling, &rotation, &translation, TR2_LOD_LOW );
 
 						m_objects.Append( m_globalExplosionInstance );
 					}
@@ -341,7 +341,6 @@ void EveChildExplosion::SpawnLocalExplosion( const Matrix& transform )
 	Transform t;
 	Vector3 scale;
 	D3DXMatrixDecompose( &scale, &t.rotation, &t.position, &transform );
-	scale *= m_localExplosionScaling;
 
 	auto localExplosion = m_localExplosion;
 	if( !m_localExplosions.empty() )
