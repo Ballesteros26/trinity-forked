@@ -50,7 +50,7 @@ void EveChildExplosion::Play()
 	m_nextLocalExplosion = 0;
 	m_objects.Append( m_localExplosionShared );
 	FindSharedObjects();
-	CalculateExplosionTimes( m_localExplosionTransforms.size() );
+	CalculateExplosionTimes( uint32_t( m_localExplosionTransforms.size() ) );
 	m_isPlaying = true;
 	m_playTime = 0;
 }
@@ -102,7 +102,7 @@ void EveChildExplosion::SetLocalExplosionTransforms( const std::vector<Matrix>& 
 		transforms.begin(), 
 		transforms.end() );
 
-	CalculateExplosionTimes(m_localExplosionTransforms.size());
+	CalculateExplosionTimes( uint32_t( m_localExplosionTransforms.size() ) );
 }
 
 // --------------------------------------------------------------------------------------
