@@ -30,6 +30,8 @@ const uint32_t TILE_HEIGHT = 16;
 struct PerFrameData
 {
 	Matrix viewProjInverse;
+	Vector3 cameraPos;
+	float _padding0;
 	uint32_t width;
 	uint32_t height;
 	uint32_t tilesX;
@@ -180,6 +182,7 @@ ALResult Tr2LightManager::DoUpdateLists( Tr2RenderContext& renderContext )
 	Matrix viewProj = Tr2Renderer::GetViewTransform() * Tr2Renderer::GetProjectionTransform();
 	D3DXMatrixInverse( &viewProj, nullptr, &viewProj );
 	D3DXMatrixTranspose( &perFrameData.viewProjInverse, &viewProj );
+	perFrameData.cameraPos = Tr2Renderer::GetViewPosition();
 	perFrameData.width = uint32_t( Tr2Renderer::GetDeviceViewport().m_width );
 	perFrameData.height = uint32_t( Tr2Renderer::GetDeviceViewport().m_height );
 	perFrameData.tilesX = ( perFrameData.width + ( TILE_WIDTH - 1 ) ) / TILE_WIDTH;
