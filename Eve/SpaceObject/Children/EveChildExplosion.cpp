@@ -88,7 +88,9 @@ void EveChildExplosion::CalculateExplosionTimes( uint32_t localExplosionCount )
 	}
 	
 	m_globalExplosionTime += m_globalExplosionDelay;
-	m_totalDuration = m_globalExplosionTime + m_globalDuration;
+	// max this because we might have explosions that do not have a global explosion
+	m_totalDuration = max(m_localDuration, m_globalExplosionTime + m_globalDuration);
+
 	m_wreckSwitchTime = m_globalExplosionTime + m_wreckSwitchOffsetFromGlobalStart;
 }
 
@@ -128,7 +130,8 @@ void EveChildExplosion::UpdateSyncronous(
 		m_playTime += dt;
 		if( m_localExplosion || !m_localExplosions.empty() )
 		{
-			if( m_wreckSwitchTime > 0 && m_playTime > m_wreckSwitchTime )
+			// we only want to remove the small explosions if there is a big explosion
+			if( m_wreckSwitchTime > 0 && m_playTime > m_wreckSwitchTime && m_globalDuration > 0)
 			{
 				m_nextLocalExplosion = m_localExplosionTransforms.size();
 				for( size_t i = 0; i < m_objects.size(); )
