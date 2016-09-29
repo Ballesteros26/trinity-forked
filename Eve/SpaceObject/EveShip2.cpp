@@ -85,14 +85,14 @@ void EveShip2::UpdateBoosters( EveUpdateContext& updateContext )
 	}
 }
 
-void EveShip2::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+void EveShip2::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
 {
 	if( !m_display )
 	{
 		return;
 	}
 
-	EveMobile::GetRenderables( frustum, renderables, parentTransform );
+	EveMobile::GetRenderables( frustum, renderables, impostors, parentTransform );
 
 	// collect renderables of the boosters
 	if( DisplayBoosters() )

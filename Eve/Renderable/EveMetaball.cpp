@@ -79,7 +79,7 @@ void EveMetaball::UpdateAsyncronous( EveUpdateContext& updateContext )
 // --------------------------------------------------------------------------------
 // Description:
 // --------------------------------------------------------------------------------
-void EveMetaball::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+void EveMetaball::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
 {
 	// really?
 	if( !m_display )

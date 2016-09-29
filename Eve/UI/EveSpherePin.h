@@ -71,6 +71,7 @@ public:
 	virtual void UpdateAsyncronous( EveUpdateContext& updateContext );
 	virtual void RenderDebugInfo( Tr2RenderContext& renderContext );
 	virtual void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
+	virtual void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform );
 	virtual bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
 
 	/////////////////////////////////////////////////////////////////////////////////////

@@ -71,7 +71,7 @@ void EveCurveLineSet::UpdateViewDependentData( const Matrix& parentTransform, bo
 }
 
 // ------------------------------------------------------------------------------------------------------
-void EveCurveLineSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+void EveCurveLineSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
 {
 	if( !m_display )
 	{
@@ -88,6 +88,11 @@ void EveCurveLineSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr
 	{
 		renderables.push_back( this );
 	}
+}
+
+void EveCurveLineSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+{
+	GetRenderables( frustum, renderables, nullptr, parentTransform );
 }
 
 // ------------------------------------------------------------------------------------------------------

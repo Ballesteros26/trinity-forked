@@ -61,6 +61,7 @@ BLUE_DECLARE( Tr2DataTextureManager );
 BLUE_DECLARE( Tr2GpuParticleSystem );
 BLUE_DECLARE( Tr2ExternalParameter );
 BLUE_DECLARE_VECTOR( Tr2ExternalParameter );
+BLUE_DECLARE( Tr2ImpostorManager );
 
 enum TAASampling { TAA_NONE=0, TAA_RANDOM=1, TAA_2X=2, TAA_3X=3, TAA_4X=4 };
 
@@ -489,6 +490,8 @@ private:
 
 	Tr2QuadRenderer* GetQuadRenderer() const;
 
+	void UpdateImpostors();
+
 	Tr2ShLightingManagerPtr m_shLightingManager;
 
 	TAASampling m_taaPattern;
@@ -502,6 +505,8 @@ private:
 	float m_nebulaBrightnessOverride;
 	Tr2Variable m_nebulaBrightnessOverrideVar;
 	void TAAOffset();
+
+	Tr2ImpostorManagerPtr m_impostorManager;
 };
 
 TYPEDEF_BLUECLASS( EveSpaceScene );

@@ -512,7 +512,7 @@ void EveTurretFiringFX::GetRenderables( const TriFrustum& frustum, std::vector<I
 		{
 			if ( m_firingDuration >= m_perMuzzleData[i].elapsedTime || m_isLoopFiring )
 			{
-				m_stretch[i]->GetRenderables( frustum, renderables, m );
+				m_stretch[i]->GetRenderables( frustum, renderables, nullptr, m );
 			}
 		}
 	}

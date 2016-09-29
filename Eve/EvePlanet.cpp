@@ -301,7 +301,7 @@ void EvePlanet::GetZOnlyRenderables( const TriFrustum& frustum, std::vector<ITr2
 
 	if( m_zOnlyModel )
 	{
-		m_zOnlyModel->GetRenderables( frustum, renderables, m_worldTransform );
+		m_zOnlyModel->GetRenderables( frustum, renderables, nullptr, m_worldTransform );
 	}
 }
 

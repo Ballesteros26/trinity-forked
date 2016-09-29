@@ -84,7 +84,7 @@ void EveChildQuad::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
 {
 	if( m_effect )
 	{
-		quadRenderer.RegisterEffect( m_effectKey, sizeof( Quad ), 1, GetQuadDefinition(), m_effect );
+		quadRenderer.RegisterEffect( m_effectKey, TRIBATCHTYPE_ADDITIVE, sizeof( Quad ), 1, GetQuadDefinition(), m_effect );
 	}
 }
 

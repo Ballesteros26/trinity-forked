@@ -59,6 +59,7 @@ Tr2QuadRenderer* Tr2QuadRenderer::Instance()
 //   the function does nothing.
 // Arguments:
 //   key - a unique key for the effect
+//   batchType - render type the effect is going to be used with
 //   instanceSize - size of instance data
 //   quadCount - number of quads to render per instance
 //   definition - vertex definition for instance data
@@ -66,6 +67,7 @@ Tr2QuadRenderer* Tr2QuadRenderer::Instance()
 // --------------------------------------------------------------------------------------
 void Tr2QuadRenderer::RegisterEffect( 
 	EffectKey key, 
+	TriBatchType batchType,
 	uint32_t instanceSize, 
 	uint32_t quadCount, 
 	const Tr2VertexDefinition& definition, 
@@ -78,6 +80,7 @@ void Tr2QuadRenderer::RegisterEffect(
 	}
 	auto record = CCP_NEW( "Tr2QuadRenderer::EffectRecord" ) EffectRecord;
 	record->effect = effect;
+	record->batchType = batchType;
 	record->instanceSize = instanceSize;
 	record->count = 0;
 	record->quadCount = quadCount;
@@ -296,12 +299,13 @@ bool Tr2QuadRenderer::OnPrepareResources()
 //   Adds render batches for each effect with instance data.
 // Arguments:
 //   accumulator - batch accumulator
+//   batchType - batch rendering mode
 // --------------------------------------------------------------------------------------
-void Tr2QuadRenderer::GetBatches( ITriRenderBatchAccumulator* accumulator )
+void Tr2QuadRenderer::GetBatches( TriBatchType batchType, ITriRenderBatchAccumulator* accumulator )
 {
 	for( auto it = m_effects.begin(); it != m_effects.end(); ++it )
 	{
-		if( it->second->count )
+		if( it->second->count && it->second->batchType == batchType )
 		{
 			Tr2QuadRendererBatch* batch = accumulator->Allocate<Tr2QuadRendererBatch>();
 			if( batch )

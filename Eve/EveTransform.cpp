@@ -225,7 +225,7 @@ Tr2Lod EveTransform::GetLODLevel() const
 	return m_lodLevel;
 }
 
-void EveTransform::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+void EveTransform::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
 {
 	m_lodLevel = TR2_LOD_LOW;
 
@@ -296,6 +296,11 @@ void EveTransform::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Re
 		// Use the highest child LOD level.
 		m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, p->GetLODLevel() );
 	}
+}
+
+void EveTransform::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+{
+	GetRenderables( frustum, renderables, nullptr, parentTransform );
 }
 
 bool EveTransform::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) const

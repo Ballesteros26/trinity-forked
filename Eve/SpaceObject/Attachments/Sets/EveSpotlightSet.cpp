@@ -455,8 +455,8 @@ void EveSpotlightSet::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
 {
 	if( m_useQuadRenderer )
 	{
-		quadRenderer.RegisterEffect( m_coneEffectHash, sizeof( ConePoolVertex ), CONE_QUAD_COUNT, ConePoolVertex::GetDefinition(), m_coneEffect );
-		quadRenderer.RegisterEffect( m_glowEffectHash, sizeof( GlowPoolVertex ), SPRITE_QUAD_COUNT, GlowPoolVertex::GetDefinition(), m_glowEffect );
+		quadRenderer.RegisterEffect( m_coneEffectHash, TRIBATCHTYPE_ADDITIVE, sizeof( ConePoolVertex ), CONE_QUAD_COUNT, ConePoolVertex::GetDefinition(), m_coneEffect );
+		quadRenderer.RegisterEffect( m_glowEffectHash, TRIBATCHTYPE_ADDITIVE, sizeof( GlowPoolVertex ), SPRITE_QUAD_COUNT, GlowPoolVertex::GetDefinition(), m_glowEffect );
 	}
 }
 

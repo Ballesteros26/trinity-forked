@@ -121,7 +121,7 @@ void EveSceneStaticParticles::GetRenderables( const TriFrustum& frustum, std::ve
 	}
 
 	// eve transform does this
-	m_transform->GetRenderables( frustum, renderables, m_worldMatrix );
+	m_transform->GetRenderables( frustum, renderables, nullptr, m_worldMatrix );
 }
 
 // --------------------------------------------------------------------------------

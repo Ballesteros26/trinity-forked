@@ -135,17 +135,17 @@ void EveTacticalOverlay::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer
 	if( m_connectorEffect )
 	{
 		m_connectorEffectHash = m_connectorEffect->GetHashValue() + (((uint64_t)(Tr2Effect*)m_connectorEffect) << 32);
-		quadRenderer.RegisterEffect( m_connectorEffectHash, sizeof( SphereConnectorVertex ), 1, SphereConnectorVertex::GetDefinition(), m_connectorEffect );
+		quadRenderer.RegisterEffect( m_connectorEffectHash, TRIBATCHTYPE_ADDITIVE, sizeof( SphereConnectorVertex ), 1, SphereConnectorVertex::GetDefinition(), m_connectorEffect );
 	}
 	if( m_anchorEffect )
 	{
 		m_anchorEffectHash = m_anchorEffect->GetHashValue() + (((uint64_t)(Tr2Effect*)m_anchorEffect) << 32);
-		quadRenderer.RegisterEffect( m_anchorEffectHash, sizeof( AnchorVertex ), 1, AnchorVertex::GetDefinition(), m_anchorEffect );
+		quadRenderer.RegisterEffect( m_anchorEffectHash, TRIBATCHTYPE_ADDITIVE, sizeof( AnchorVertex ), 1, AnchorVertex::GetDefinition(), m_anchorEffect );
 	}
 	if( m_velocityEffect )
 	{
 		m_velocityEffectHash = m_velocityEffect->GetHashValue() + (((uint64_t)(Tr2Effect*)m_velocityEffect) << 32);
-		quadRenderer.RegisterEffect( m_velocityEffectHash, sizeof( VelocityConnectorVertex ), 1, VelocityConnectorVertex::GetDefinition(), m_velocityEffect );
+		quadRenderer.RegisterEffect( m_velocityEffectHash, TRIBATCHTYPE_ADDITIVE, sizeof( VelocityConnectorVertex ), 1, VelocityConnectorVertex::GetDefinition(), m_velocityEffect );
 	}
 }
 
@@ -222,7 +222,7 @@ void EveTacticalOverlay::SetVariableStore( Tr2Effect* effect )
 	}
 }
 
-void EveTacticalOverlay::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+void EveTacticalOverlay::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
 {
 	m_connectorBuffer.clear();
 	m_anchorBuffer.clear();

@@ -23,6 +23,7 @@
 #include "Eve/SpaceObject/Attachments/EveImpactOverlay.h"
 #include "Eve/SpaceObject/Children/IEveSpaceObjectChild.h"
 #include "Eve/SpaceObject/Utils/EveLocatorSets.h"
+#include "Tr2ImpostorManager.h"
 
 // consts
 #define EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT (0.f)
@@ -152,7 +153,8 @@ BLUE_CLASS( EveSpaceObject2 ):
 	public IWorldPosition,
 	public ITr2ShLightingReceiver,
 	public INotify,
-	public ITr2SecondaryLightSource
+	public ITr2SecondaryLightSource,
+	public ITr2ImpostorSource
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -198,7 +200,7 @@ public:
 	virtual void UpdateAsyncronous( EveUpdateContext& updateContext );
 	virtual void PrepareShaderData( EveUpdateContext& updateContext );
 	virtual void RenderDebugInfo( Tr2RenderContext& renderContext );
-	virtual void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
+	virtual void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform );
 	virtual bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
 	virtual void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t );
 	virtual void GetModelCenterWorldPosition( Vector3 &position ) const;
@@ -277,6 +279,12 @@ public:
 	void RegisterSecondaryLightSource( Tr2ShLightingManager& manager );
 	void UnregisterSecondaryLightSource( Tr2ShLightingManager& manager );
 
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2ImpostorSource
+	virtual void GetImpostorBatches( const TriFrustum& frustum, std::map<TriBatchType, ITriRenderBatchAccumulator*>& batches );
+	virtual float GetRenderPriority( const ImpostorHash& oldHash, const ImpostorHash& newHash ) const;
+	virtual bool GetImpostorBoundingSphere( Vector4& sphere ) const;
+
 	// For stateful GPU particles
 	ITriVectorFunctionPtr GetPositionFunction();
 
@@ -349,6 +357,8 @@ public:
 
 	// external parameters
 	void AddExternalParameter( Tr2ExternalParameter* externalParameter );
+
+	bool IsImpostor() const;
 protected:
 	// LODing
 	void UnloadLodIfNeeded( Be::Time time );
@@ -405,6 +415,7 @@ protected:
 
 	TriGeometryResPtr m_geometryResFromMesh;
 
+	bool m_impostorMode;
 	// Set to true if the object is inside the frustum
 	bool m_isInFrustum;
 	bool m_isInFrustumInShadow;

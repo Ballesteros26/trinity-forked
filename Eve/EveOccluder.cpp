@@ -165,7 +165,7 @@ void EveOccluder::RunQuery( Tr2RenderContext& renderContext, const TriFrustum& f
 	for( EveTransformVector::iterator it = m_sprites.begin(); it != m_sprites.end(); ++it )
 	{
 		(*it)->UpdateSyncronous( dummyContext );
-		(*it)->GetRenderables( frustum, renderables, transform );
+		(*it)->GetRenderables( frustum, renderables, nullptr, transform );
 	}
 	// collect batches from renderables (only from decal area, nothing else is important for
 	// occlusion queries)

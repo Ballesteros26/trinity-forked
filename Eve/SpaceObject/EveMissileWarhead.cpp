@@ -131,7 +131,7 @@ void EveMissileWarhead::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2Qu
 //   renderables - list of renderables we want to add to
 //   parentTransform - we are under EveMissile and thats out position
 // --------------------------------------------------------------------------------
-void EveMissileWarhead::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+void EveMissileWarhead::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
 {
 	// don't give out renderables until this warhead has valid data
 	if( !m_startDataValid )

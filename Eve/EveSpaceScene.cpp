@@ -30,6 +30,8 @@
 #include "Shader/Utils/Tr2DataTextureManager.h"
 #include "Shader/Tr2ShaderBuffer.h"
 #include "Particle/Tr2GpuParticleSystem.h"
+#include "Resources/TriTextureRes.h"
+#include "Tr2ImpostorManager.h"
 
 using namespace Tr2RenderContextEnum;
 
@@ -1030,7 +1032,7 @@ void EveSpaceScene::RenderObjectsReceivingShadows(	std::vector<ShadowReceiver>& 
 		}
 
 		std::vector<ITr2Renderable*> objectRenderables;
-		obj->GetRenderables( m_frameData.frustum, objectRenderables, Tr2Renderer::GetIdentityTransform() );
+		obj->GetRenderables( m_frameData.frustum, objectRenderables, nullptr, Tr2Renderer::GetIdentityTransform() );
 		GetOpaqueBatchesFromRenderables( objectRenderables, m_secondaryBatches );
 
 		FinalizeBatches( m_secondaryBatches );
@@ -1168,6 +1170,9 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 	m_frameData.projection = proj;
 	Tr2Renderer::SetProjectionTransform( m_frameData.projection );
 
+	renderContext.m_esm.BeginManagedRendering();
+	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
+	
 	GatherBatches( renderContext );
 
 	UpdatePostProcessPSData();
@@ -1196,9 +1201,6 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 	}
 
 
-	renderContext.m_esm.BeginManagedRendering();
-	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
-	
 	//  the lensflares need a special pre-render update
 	for( auto it = m_lensflares.cbegin(); it != m_lensflares.cend(); ++it )
 	{
@@ -1288,11 +1290,23 @@ void EveSpaceScene::GatherBatches( Tr2RenderContext& renderContext )
 		objectsReceivingShadow.erase(start, end);
 	}
 
+	if( m_impostorManager )
+	{
+		m_impostorManager->BeginUpdate();
+	}
+
 	for( std::vector<IEveSpaceObject2*>::iterator it = objectsNotReceivingShadow.begin(); it != objectsNotReceivingShadow.end(); ++it )
 	{
 		IEveSpaceObject2* obj = *it;
-		obj->GetRenderables( frustum, renderables, Tr2Renderer::GetIdentityTransform() );
+		obj->GetRenderables( frustum, renderables, m_impostorManager, Tr2Renderer::GetIdentityTransform() );
 	}
+
+	if( m_impostorManager )
+	{
+		m_impostorManager->EndUpdate();
+	}
+
+	UpdateImpostors();
 	
 	for( auto it = m_staticParticles.begin(); it != m_staticParticles.end(); ++it )
 	{
@@ -1303,11 +1317,12 @@ void EveSpaceScene::GatherBatches( Tr2RenderContext& renderContext )
 	for( std::vector<ShadowReceiver>::iterator it = objectsReceivingShadow.begin(); it != objectsReceivingShadow.end(); ++it )
 	{
 		IEveSpaceObject2* obj = it->object;
-		obj->GetRenderables( frustum, shadowRenderables, Tr2Renderer::GetIdentityTransform() );
+		obj->GetRenderables( frustum, shadowRenderables, nullptr, Tr2Renderer::GetIdentityTransform() );
 	}
 
 	UpdateQuadRenderer( frustum, objectsReceivingShadow, objectsNotReceivingShadow, renderContext );
-	Tr2QuadRenderer::Instance()->GetBatches( m_primaryBatches[TRIBATCHTYPE_ADDITIVE] );
+	Tr2QuadRenderer::Instance()->GetBatches( TRIBATCHTYPE_OPAQUE, m_primaryBatches[TRIBATCHTYPE_OPAQUE] );
+	Tr2QuadRenderer::Instance()->GetBatches( TRIBATCHTYPE_ADDITIVE, m_primaryBatches[TRIBATCHTYPE_ADDITIVE] );
 
 	GetAllBatchesFromRenderables( renderables, transparentObjects, m_primaryBatches );
 	GetTransparentBatchesFromRenderables( shadowRenderables, transparentObjects, m_primaryBatches );
@@ -1317,6 +1332,114 @@ void EveSpaceScene::GatherBatches( Tr2RenderContext& renderContext )
 
 	UpdateShLighting( objectsReceivingShadow, objectsNotReceivingShadow );
 }
+
+void EveSpaceScene::UpdateImpostors()
+{
+	if( !m_impostorManager || m_impostorManager->GetRenderQueueLength() == 0 )
+	{
+		return;
+	}
+
+	CCP_STATS_ZONE( __FUNCTION__ );
+
+	CTriViewport fakeViewport;
+	fakeViewport.width = 128;
+	fakeViewport.height = 128;
+
+	Tr2Renderer::PushViewTransform();
+	Tr2Renderer::PushProjection();
+	Tr2Renderer::PushViewport();
+
+	ON_BLOCK_EXIT( [&]{ 
+		Tr2Renderer::PopViewport();
+		Tr2Renderer::PopProjection();
+		Tr2Renderer::PopViewTransform();
+	} );
+
+	USE_MAIN_THREAD_RENDER_CONTEXT();
+
+	m_impostorManager->BeginUpdateAtlas( renderContext );
+	ON_BLOCK_EXIT( [&]{ m_impostorManager->EndUpdateAtlas( renderContext ); } );
+
+	Tr2DepthStencilPtr bkDepthMap = m_depthMap;
+	TriTextureRes* bkDepthMapVar;
+	m_depthMapVar.GetValue( bkDepthMapVar );
+	if( bkDepthMapVar )
+	{
+		bkDepthMapVar->GetRawRoot()->Lock();
+	}
+	m_depthMap = m_impostorManager->GetItemDepthStencil();
+
+
+	TriTextureResPtr depthMapTex;
+	depthMapTex.CreateInstance();
+	depthMapTex->SetTextureFromDS( m_impostorManager->GetItemDepthStencil() );
+
+	m_depthMapVar = depthMapTex;
+	ON_BLOCK_EXIT( [&]{ 
+		m_depthMap = bkDepthMap; 
+		m_depthMapVar = bkDepthMapVar;
+		if( bkDepthMapVar )
+		{
+			bkDepthMapVar->GetRawRoot()->Unlock();
+		}
+		UpdateVariableStore();
+	} );
+
+	SetNoShadow();
+	UpdateVariableStore();
+
+	Vector3 eye = Tr2Renderer::GetInverseViewTransform().GetTranslation();
+	Vector3 up( 0, 1, 0 );
+	D3DXVec3TransformNormal( &up, &up, &Tr2Renderer::GetInverseViewTransform() );
+
+	for( size_t i = 0; i < m_impostorManager->GetRenderQueueLength(); ++i )
+	{
+		auto spaceObject = m_impostorManager->BeginImpostorUpdate( i, renderContext );
+		Matrix transform;
+		spaceObject->GetLocalToWorldTransform( transform );
+		Vector3 viewDir = eye - transform.GetTranslation();
+		D3DXVec3Normalize( &viewDir, &viewDir );
+
+		Vector4 sphere( 0.f, 0.f, 0.f, 1.f );
+		spaceObject->GetImpostorBoundingSphere( sphere );
+
+		Matrix view( XMMatrixLookAtRH( transform.GetTranslation() + viewDir * sphere.w * 10, transform.GetTranslation(), up ) );
+		Matrix proj( XMMatrixPerspectiveRH( sphere.w * 2, sphere.w * 2, sphere.w * 9, sphere.w * 11 ) );
+
+		Tr2Renderer::SetViewTransform( view );
+		Tr2Renderer::SetProjectionTransform( proj );
+
+		TriFrustum frustum = m_frameData.frustum;
+		frustum.DeriveFrustum( &Tr2Renderer::GetViewTransform(), &Tr2Renderer::GetViewPosition(), &Tr2Renderer::GetProjectionTransform(), fakeViewport );
+
+		PopulatePerFramePSData( m_perFramePS );
+		PopulatePerFrameVSData( m_perFrameVS );
+		ApplyPerFrameData( renderContext );
+
+		spaceObject->GetImpostorBatches( frustum, m_primaryBatches );
+		FinalizeBatches( m_primaryBatches );
+
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_OPAQUE );
+		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_OPAQUE] );
+
+		renderContext.m_esm.UnsetAllTextures();
+		renderContext.SetReadOnlyDepth( true );
+
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA );
+		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_TRANSPARENT] );
+
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA_ADDITIVE );
+		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_ADDITIVE] );
+
+		renderContext.SetReadOnlyDepth( false );
+
+		ClearBatches( m_primaryBatches );
+
+		m_impostorManager->EndImpostorUpdate( i, renderContext );
+	}
+}
+
 
 // --------------------------------------------------------------------------------------
 // Description:
@@ -1499,7 +1622,7 @@ bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 
 	if( m_warpTunnel )
 	{
-		m_warpTunnel->GetRenderables( frustum, visible, Tr2Renderer::GetIdentityTransform() );	
+		m_warpTunnel->GetRenderables( frustum, visible, nullptr, Tr2Renderer::GetIdentityTransform() );	
 		
 		GetTransparentBatchesFromRenderables( visible, transparentObjects, m_secondaryBatches );
 		PrepareTransparentBatch( transparentObjects, m_secondaryBatches );
@@ -1555,7 +1678,7 @@ void EveSpaceScene::RenderDepthPass( Tr2RenderContext& renderContext )
 		for( auto it = m_frameData.objectsReceivingShadow.begin(); it != m_frameData.objectsReceivingShadow.end(); ++it )
 		{
 			IEveSpaceObject2* obj = it->object;
-			obj->GetRenderables( m_frameData.frustum, visible, Tr2Renderer::GetIdentityTransform() );
+			obj->GetRenderables( m_frameData.frustum, visible, nullptr, Tr2Renderer::GetIdentityTransform() );
 		}
 
 		if( !visible.empty() )
@@ -2414,7 +2537,7 @@ void EveSpaceScene::GetPickingObjectsToRender( std::vector<ITr2Renderable*>& pic
 		// function to decide what objects are pickable in the given frustum.
 		// This is not necessarily what we want, as some objects might be
 		// renderable but not pickable (particle clouds?)
-		(*it)->GetRenderables( pickFrustum, pickableRenderObjects, Tr2Renderer::GetIdentityTransform() );
+		(*it)->GetRenderables( pickFrustum, pickableRenderObjects, nullptr, Tr2Renderer::GetIdentityTransform() );
 	}
 }
 

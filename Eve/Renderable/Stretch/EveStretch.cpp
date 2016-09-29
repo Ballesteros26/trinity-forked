@@ -144,6 +144,11 @@ void EveStretch::RenderDebugInfo( Tr2RenderContext& renderContext )
 
 void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
 {
+	GetRenderables( frustum, renderables, nullptr, parentTransform );
+}
+
+void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
+{
 	m_lodLevel = TR2_LOD_LOW;
 
 	if( !m_display )
@@ -163,7 +168,7 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 			Matrix m;
 			D3DXMatrixRotationX( &m, -XM_PI / 2.0f );
 			D3DXMatrixMultiply( &m, &m, &m_sourceTransform );
-			m_sourceObject->GetRenderables( frustum, renderables, m );
+			m_sourceObject->GetRenderables( frustum, renderables, impostors, m );
 		}
 		else
 		{
@@ -175,7 +180,7 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 			Matrix m;
 			D3DXMatrixTransformation( &m, NULL, NULL, NULL, NULL, &rotation, &m_sourcePosition );
 
-			m_sourceObject->GetRenderables( frustum, renderables, m );
+			m_sourceObject->GetRenderables( frustum, renderables, impostors, m );
 		}
 		// The object's LOD is the highest of it's move, stretch, dest and source object's LODs
 		m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, m_sourceObject->GetLODLevel() );
@@ -192,7 +197,7 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 		Matrix m;
 		D3DXMatrixTransformation( &m, NULL, NULL, &scaling, NULL, &rotation, &m_destinationPosition );
 
-		m_destObject->GetRenderables( frustum, renderables, m );
+		m_destObject->GetRenderables( frustum, renderables, impostors, m );
 		// The object's LOD is a combination of it's move, stretch, dest and source object's LODs
 		m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, m_destObject->GetLODLevel() );
 	}
@@ -224,7 +229,7 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 			D3DXMatrixTransformation( &m, NULL, NULL, &scaling, NULL, &rotation, &m_sourcePosition );
 		}
 
-		m_stretchObject->GetRenderables( frustum, renderables, m );		
+		m_stretchObject->GetRenderables( frustum, renderables, impostors, m );		
 		// The object's LOD is a combination of it's move, stretch, dest and source object's LODs
 		m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, m_stretchObject->GetLODLevel() );
 
@@ -265,7 +270,7 @@ void EveStretch::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 			D3DXVec3Lerp(&movedPostition, &m_sourcePosition, &m_destinationPosition, progress);
 		}
 		D3DXMatrixTransformation( &m, NULL, NULL, NULL, NULL, &rotation, &movedPostition );
-		m_moveObject->GetRenderables( frustum, renderables, m );
+		m_moveObject->GetRenderables( frustum, renderables, impostors, m );
 
 		// The object's LOD is a combination of it's move, stretch, dest and source object's LODs
 		m_lodLevel = EveLODHelper::MergeLOD( m_lodLevel, m_moveObject->GetLODLevel() );

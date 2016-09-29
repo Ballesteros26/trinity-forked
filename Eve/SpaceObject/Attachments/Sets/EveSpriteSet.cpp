@@ -255,7 +255,7 @@ void EveSpriteSet::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
 {
 	if( m_useQuadRenderer )
 	{
-		quadRenderer.RegisterEffect( m_effectHash, sizeof( PoolVertex ), 1, PoolVertex::GetDefinition(), m_effect );
+		quadRenderer.RegisterEffect( m_effectHash, TRIBATCHTYPE_ADDITIVE, sizeof( PoolVertex ), 1, PoolVertex::GetDefinition(), m_effect );
 	}
 }
 

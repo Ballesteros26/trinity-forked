@@ -142,6 +142,7 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	PARENTLOCK( m_lights ),
 	PARENTLOCK( m_externalParameters ),
 	PARENTLOCK( m_customMasks ),
+	m_impostorMode( false ),
 	m_display( true ),
 	m_update( true ),
 	m_enableShadow( true ),
@@ -988,7 +989,7 @@ void EveSpaceObject2::PushRenderables( const TriFrustum& frustum, std::vector<IT
 	}
 }
 
-void EveSpaceObject2::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+void EveSpaceObject2::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
@@ -1001,6 +1002,7 @@ void EveSpaceObject2::GetRenderables( const TriFrustum& frustum, std::vector<ITr
 	}
 	m_lodLevel = TR2_LOD_LOW;
 	m_lodLevelWithChildren = TR2_LOD_LOW;
+	m_impostorMode = false;
 
 	if( m_boundingSphereRadius > 0.0f )
 	{
@@ -1047,9 +1049,14 @@ void EveSpaceObject2::GetRenderables( const TriFrustum& frustum, std::vector<ITr
 		{
 			m_lodLevel = TR2_LOD_MEDIUM;
 		}
+		else if( m_estimatedPixelDiameter > g_eveSpaceSceneLowDetailThreshold * 0.5f )
+		{
+			m_lodLevel = TR2_LOD_LOW;
+		}
 		else
 		{
 			m_lodLevel = TR2_LOD_LOW;
+			m_impostorMode = impostors != nullptr;
 		}
 
 		if( g_lodLevelUltraEnabled && m_estimatedPixelDiameterWithChildren > g_eveSpaceSceneHighDetailThreshold )
@@ -1074,7 +1081,25 @@ void EveSpaceObject2::GetRenderables( const TriFrustum& frustum, std::vector<ITr
 			SelectMeshLevelOfDetail();
 		}
 
-		PushRenderables( frustum, renderables );
+		if( m_impostorMode )
+		{
+			ImpostorHash hash;
+
+			auto& view = Tr2Renderer::GetViewTransform();
+			Vector3 fwd( 0.f, 0.f, 1.f );
+			D3DXVec3TransformNormal( &hash.viewDir, D3DXVec3TransformNormal( &hash.viewDir, &fwd, &m_worldTransform ), &view );
+			D3DXVec3Normalize( &hash.viewDir, &hash.viewDir );
+			Vector3 up( 0.f, 1.f, 0.f );
+			D3DXVec3TransformNormal( &hash.upDir, D3DXVec3TransformNormal( &hash.upDir, &up, &m_worldTransform ), &view );
+			D3DXVec3Normalize( &hash.viewDir, &hash.viewDir );
+
+			m_impostorMode = impostors->Add( this, hash );
+		}
+
+		if( !m_impostorMode )
+		{
+			PushRenderables( frustum, renderables );
+		}
 	}
 }
 
@@ -1130,7 +1155,7 @@ void EveSpaceObject2::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
 // --------------------------------------------------------------------------------
 void EveSpaceObject2::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer )
 {
-	if( !m_isInFrustum || !m_display )
+	if( !m_isInFrustum || !m_display || m_impostorMode )
 	{
 		return;
 	}
@@ -2590,4 +2615,44 @@ void EveSpaceObject2::GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr
 			(*it)->GetPickingBatches( batches, areaIDOffset, perObjectData );
 		}
 	}
+}
+bool EveSpaceObject2::IsImpostor() const
+{
+	return m_impostorMode;
+}
+
+void EveSpaceObject2::GetImpostorBatches( const TriFrustum& frustum, std::map<TriBatchType, ITriRenderBatchAccumulator*>& batches )
+{
+	std::vector<ITr2Renderable*> renderables;
+	PushRenderables( frustum, renderables );
+
+	const TriBatchType allTypes[] = 
+	{
+			TRIBATCHTYPE_OPAQUE,
+			TRIBATCHTYPE_DECAL, 
+			TRIBATCHTYPE_TRANSPARENT,
+			TRIBATCHTYPE_ADDITIVE,
+	};
+
+	for( auto it = renderables.begin(); it != renderables.end(); ++it )
+	{
+		auto renderable = *it;
+		Tr2PerObjectData* objectData = renderable->GetPerObjectData( batches[TRIBATCHTYPE_OPAQUE] );
+		for( unsigned type = 0; type != sizeof( allTypes ) / sizeof( allTypes[0] ); ++type )
+		{
+			renderable->GetBatches( batches[allTypes[type]], allTypes[type], objectData );
+		}
+	}
+}
+
+float EveSpaceObject2::GetRenderPriority( const ImpostorHash& oldHash, const ImpostorHash& newHash ) const
+{
+	float dotView = D3DXVec3Dot( &oldHash.viewDir, &newHash.viewDir );
+	float dotUp = D3DXVec3Dot( &oldHash.upDir, &newHash.upDir );
+	return std::max( 1.f - dotView, 1.f - dotUp );
+}
+
+bool EveSpaceObject2::GetImpostorBoundingSphere( Vector4& sphere ) const
+{
+	return GetBoundingSphere( sphere );
 }

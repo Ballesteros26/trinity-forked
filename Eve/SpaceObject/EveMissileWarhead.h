@@ -36,7 +36,7 @@ public:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IEveSpaceObject2
-	virtual void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
+	virtual void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform );
 	void Update( EveUpdateContext& updateContext );
 
 	/////////////////////////////////////////////////////////////////////////////////////

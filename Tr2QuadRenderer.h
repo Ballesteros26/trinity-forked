@@ -4,6 +4,7 @@
 
 #include "Tr2DynamicRingBuffer.h"
 #include "TbbStub.h"
+#include "ITr2Renderable.h"
 
 BLUE_DECLARE_INTERFACE( ITr2ShaderMaterial );
 
@@ -25,14 +26,14 @@ public:
 
 	typedef uint64_t EffectKey; 
 
-	void RegisterEffect( EffectKey key, uint32_t instanceSize, uint32_t quadCount, const Tr2VertexDefinition& definition, ITr2ShaderMaterial* effect );
+	void RegisterEffect( EffectKey key, TriBatchType batchType, uint32_t instanceSize, uint32_t quadCount, const Tr2VertexDefinition& definition, ITr2ShaderMaterial* effect );
 	void UnregisterEffect( EffectKey key );
 
 	void AddQuads( EffectKey effectKey, const void* sprites, size_t count );
 	void BeginRendering( Tr2RenderContext& renderContext );
 	void DoneRendering( Tr2RenderContext& renderContext );
 
-	void GetBatches( ITriRenderBatchAccumulator* accumulator );
+	void GetBatches( TriBatchType batchType, ITriRenderBatchAccumulator* accumulator );
 
 	void SubmitGeometry( EffectKey effectKey, Tr2RenderContext& renderContext );
 
@@ -55,6 +56,8 @@ private:
 	{
 		// Effect to use
 		ITr2ShaderMaterialPtr effect;
+		// Batch type
+		TriBatchType batchType;
 		// Size of instance vertex in bytes
 		uint32_t instanceSize;
 		// Vertex declaration

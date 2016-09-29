@@ -131,7 +131,7 @@ void EveLineSet::UpdateViewDependentData( const Matrix& parentTransform, bool ch
 {
 }
 
-void EveLineSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& /*parentTransform*/ )
+void EveLineSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& /*parentTransform*/ )
 {
 	if( !m_display )
 	{
@@ -139,6 +139,11 @@ void EveLineSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 	}
 
 	renderables.push_back( this );
+}
+
+void EveLineSet::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+{
+	return GetRenderables( frustum, renderables, nullptr, parentTransform );
 }
 
 bool EveLineSet::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) const

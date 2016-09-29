@@ -637,6 +637,14 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 			":jessica-group: Lighting",
 			Be::READWRITE
 		)
+
+		MAP_ATTRIBUTE
+		( 
+			"impostorManager", 
+			m_impostorManager, 
+			"Impostor manager",
+			Be::READWRITE | Be::PERSIST
+		)
     EXPOSURE_END()
 }
 

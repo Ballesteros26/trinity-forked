@@ -32,7 +32,7 @@ public:
 	void UpdateSyncronous( EveUpdateContext& updateContext ) { Update( updateContext ); }
 	void UpdateAsyncronous( EveUpdateContext& updateContext ) {}
 	void RenderDebugInfo( Tr2RenderContext& renderContext ) {}
-	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform );
+	void GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform );
 	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
 	void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t );
 	void GetModelCenterWorldPosition( Vector3 &position ) const;

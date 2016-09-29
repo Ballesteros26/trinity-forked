@@ -233,9 +233,9 @@ void EveMissile::UpdateSyncronous( EveUpdateContext& updateContext )
 //   renderables - list of renderables we want to add to
 //   parentTransform - can be under some EveTransform
 // --------------------------------------------------------------------------------
-void EveMissile::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+void EveMissile::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
 {
-	EveSpaceObject2::GetRenderables( frustum, renderables, parentTransform );
+	EveSpaceObject2::GetRenderables( frustum, renderables, impostors, parentTransform );
 
 	// keep stats up
 	CCP_STATS_INC( eveMissileObjects );
@@ -249,7 +249,7 @@ void EveMissile::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rend
 		D3DXMatrixMultiply( &subMissileTransform, &warhead->GetCurrentOffsetTransform(), &m_worldTransform );
 
 		// final call
-		warhead->GetRenderables( frustum, renderables, subMissileTransform );
+		warhead->GetRenderables( frustum, renderables, impostors, subMissileTransform );
 	}
 }
 

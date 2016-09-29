@@ -155,7 +155,7 @@ bool EveSpriteLineSet::OnPrepareResources()
 // --------------------------------------------------------------------------------
 void EveSpriteLineSet::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
 {
-	quadRenderer.RegisterEffect( m_effectHash, sizeof( EveSpriteSet::PoolVertex ), 1, EveSpriteSet::PoolVertex::GetDefinition(), m_effect );
+	quadRenderer.RegisterEffect( m_effectHash, TRIBATCHTYPE_ADDITIVE, sizeof( EveSpriteSet::PoolVertex ), 1, EveSpriteSet::PoolVertex::GetDefinition(), m_effect );
 }
 
 // --------------------------------------------------------------------------------

@@ -201,7 +201,7 @@ void EveMobile::UpdateAsyncronous( EveUpdateContext& updateContext )
 // Description:
 //   Override base ::GetRenderables() function, so we can draw the turrets etc.
 // --------------------------------------------------------------------------------
-void EveMobile::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+void EveMobile::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
 {
 	if( !m_display )
 	{
@@ -209,7 +209,7 @@ void EveMobile::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Rende
 	}
 
 	// call base to get spaceobject's renderables
-	EveSpaceObject2::GetRenderables( frustum, renderables, parentTransform );
+	EveSpaceObject2::GetRenderables( frustum, renderables, impostors, parentTransform );
 
 	// collect renderables of the turrets
 	for( EveTurretSetVector::iterator it = m_turretSets.begin(); it != m_turretSets.end(); ++it )

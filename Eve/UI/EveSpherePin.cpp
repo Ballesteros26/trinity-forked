@@ -254,8 +254,13 @@ void EveSpherePin::UpdateViewDependentData( const Matrix& parentTransform, bool 
 	D3DXMatrixMultiply( &m_worldTransform, &localTransform, &parentTransform );
 }
 
-// ------------------------------------------------------------------------------------------------------
 void EveSpherePin::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, const Matrix& parentTransform )
+{
+	GetRenderables( frustum, renderables, nullptr, parentTransform );
+}
+
+// ------------------------------------------------------------------------------------------------------
+void EveSpherePin::GetRenderables( const TriFrustum& frustum, std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors, const Matrix& parentTransform )
 {
 	if( !m_display )
 	{
