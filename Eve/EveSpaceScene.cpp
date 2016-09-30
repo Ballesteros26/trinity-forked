@@ -1362,26 +1362,52 @@ void EveSpaceScene::UpdateImpostors()
 	ON_BLOCK_EXIT( [&]{ m_impostorManager->EndUpdateAtlas( renderContext ); } );
 
 	Tr2DepthStencilPtr bkDepthMap = m_depthMap;
-	TriTextureRes* bkDepthMapVar;
-	m_depthMapVar.GetValue( bkDepthMapVar );
-	if( bkDepthMapVar )
-	{
-		bkDepthMapVar->GetRawRoot()->Lock();
-	}
 	m_depthMap = m_impostorManager->GetItemDepthStencil();
+	ON_BLOCK_EXIT( [&]{ m_depthMap = bkDepthMap; } );
 
-
+	TriTextureRes* bkDepthMapTexVar = nullptr;
+	Tr2DepthStencil* bkDepthMapDsVar = nullptr;
 	TriTextureResPtr depthMapTex;
-	depthMapTex.CreateInstance();
-	depthMapTex->SetTextureFromDS( m_impostorManager->GetItemDepthStencil() );
 
-	m_depthMapVar = depthMapTex;
-	ON_BLOCK_EXIT( [&]{ 
-		m_depthMap = bkDepthMap; 
-		m_depthMapVar = bkDepthMapVar;
-		if( bkDepthMapVar )
+	if( m_depthMapVar.GetType() == TRIVARIABLE_TEXTURE_RES )
+	{
+		m_depthMapVar.GetValue( bkDepthMapTexVar );
+		if( bkDepthMapTexVar )
 		{
-			bkDepthMapVar->GetRawRoot()->Unlock();
+			bkDepthMapTexVar->GetRawRoot()->Lock();
+		}
+
+		depthMapTex.CreateInstance();
+		depthMapTex->SetTextureFromDS( m_impostorManager->GetItemDepthStencil() );
+
+		m_depthMapVar = depthMapTex;
+	}
+	else
+	{
+		m_depthMapVar.GetValue( bkDepthMapDsVar );
+		if( bkDepthMapDsVar )
+		{
+			bkDepthMapDsVar->GetRawRoot()->Lock();
+		}
+
+		m_depthMapVar = m_impostorManager->GetItemDepthStencil();
+	}
+	ON_BLOCK_EXIT( [&]{ 
+		if( m_depthMapVar.GetType() == TRIVARIABLE_TEXTURE_RES )
+		{
+			m_depthMapVar = bkDepthMapTexVar;
+			if( bkDepthMapTexVar )
+			{
+				bkDepthMapTexVar->GetRawRoot()->Unlock();
+			}
+		}
+		else
+		{
+			m_depthMapVar = bkDepthMapDsVar;
+			if( bkDepthMapDsVar )
+			{
+				bkDepthMapDsVar->GetRawRoot()->Unlock();
+			}
 		}
 		UpdateVariableStore();
 	} );
