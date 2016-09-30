@@ -321,8 +321,6 @@ void Tr2ImpostorManager::EndUpdate()
 	Tr2Variable altas( "ImposterAtlasMap", m_rt );
 	Vector4 itemSize( float( m_itemWidth ) / float( m_width ), float( m_itemHeight ) / float( m_height ), 0.f, 0.f );
 	Tr2Variable itemSizeVar( "ImposterItemSize", itemSize );
-
-	CCP_LOG( "Tr2ImpostorManager count = %u", unsigned(m_objects.size() ) );
 } 
 
 // --------------------------------------------------------------------------------------
