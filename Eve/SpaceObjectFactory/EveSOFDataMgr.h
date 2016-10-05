@@ -40,6 +40,38 @@ public:
 		int boneIndex;
 	};
 
+	// pattern data structs
+	struct PatternProjectionData
+	{
+		bool enabled;
+		Vector3 position;
+		Vector3 scaling;
+		Quaternion rotation;
+		bool isMirrored;
+	};
+
+	struct PatternLayerData
+	{
+		// texture name
+		BlueSharedString textureName;
+		// texture resfilepath
+		std::string textureResFilePath;
+		// material source
+		uint8_t materialSourceID;
+		// material targets
+		Vector4 materialTargets;
+		// projection type
+		Tr2RenderContextEnum::TextureAddressMode projectionAddressModeU, projectionAddressModeV;
+	};
+
+	struct PatternData
+	{
+		// pattern data (per hull)
+		std::map<BlueSharedString, std::vector<PatternProjectionData>> projectionData;
+		// pattern data (per layer)
+		std::vector<PatternLayerData> layerData;
+	};
+
 	// hull data structs
 	struct HullBoosterItemData
 	{
@@ -200,6 +232,7 @@ public:
 		std::vector<HullSpotlightSetData> spotlightSets;
 		std::vector<HullPlaneSetData> planeSets;
 		std::vector<HullSpriteLineSetData> spriteLineSets;
+		PatternProjectionData defaultPattern;
 		EveSOFDataHull::ImpactEffectType impactEffectType;
 		std::vector<HullAreas> opaqueAreas;
 		std::vector<HullAreas> decalAreas;
@@ -326,6 +359,9 @@ public:
 	{
 		// boosters
 		RaceBoosterData boosters;
+		// default pattern
+		PatternLayerData defaultPattern;
+		std::string defaultPatternLayer1MaterialName;
 		// hull area parameter
 		std::map<BlueSharedString, FactionAreaData> hullAreaParameters;
 		// impact damage data
@@ -337,38 +373,6 @@ public:
 	{
 		// shader params
 		std::map<BlueSharedString, Vector4> parameters;
-	};
-
-	// pattern data structs
-	struct PatternProjectionData
-	{
-		bool enabled;
-		Vector3 position;
-		Vector3 scaling;
-		Quaternion rotation;
-		bool isMirrored;
-	};
-
-	struct PatternLayerData
-	{
-		// texture name
-		BlueSharedString textureName;
-		// texture resfilepath
-		std::string textureResFilePath;
-		// material source
-		uint8_t materialSourceID;
-		// material targets
-		Vector4 materialTargets;
-		// projection type
-		Tr2RenderContextEnum::TextureAddressMode projectionAddressModeU, projectionAddressModeV;
-	};
-
-	struct PatternData
-	{
-		// pattern data (per hull)
-		std::map<BlueSharedString, std::vector<PatternProjectionData>> projectionData;
-		// pattern data (per layer)
-		std::vector<PatternLayerData> layerData;
 	};
 
 	// generic data structs

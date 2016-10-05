@@ -606,6 +606,14 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		hd.spriteLineSets.push_back( hslsd );
 	}
 
+	// default hull pattern
+	EveSOFDataPatternPerHullPtr defaultPattern = srcData->m_defaultPattern;
+	if( defaultPattern )
+	{
+		// only one layer for the default hull one (yet...)
+		EveSOFUtils::GeneratePatternProjectionData( &hd.defaultPattern, defaultPattern->m_transformLayer1 );
+	}
+
 	// hulldecals
 	hd.hullDecals.clear();
 	for( auto hdit = srcData->m_hullDecals.begin(); hdit != srcData->m_hullDecals.end(); ++hdit )
@@ -987,6 +995,10 @@ void EveSOFDataMgr::GenerateRaceData( RaceData& rd, EveSOFDataRacePtr srcData ) 
 	rd.boosters.lightColor = srcData->m_booster->m_lightColor;
 	rd.boosters.lightWarpColor = srcData->m_booster->m_lightWarpColor;
 	rd.boosters.volumetric = srcData->m_booster->m_volumetric;
+
+	// pattern data
+	EveSOFUtils::GeneratePatternLayerData( &rd.defaultPattern, srcData->m_defaultPattern );
+	rd.defaultPatternLayer1MaterialName = srcData->m_defaultPatternLayer1MaterialName;
 
 	// shader data
 	rd.hullAreaParameters.clear();
