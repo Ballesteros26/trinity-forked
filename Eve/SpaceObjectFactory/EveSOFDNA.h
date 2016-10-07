@@ -12,6 +12,7 @@
 
 // forwards
 BLUE_DECLARE( EveSOFDNA );
+class EveSOFUtilsParameterName;
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -98,8 +99,9 @@ public:
 	const EveSOFDataMgr::FactionChildData* GetFactionChildData( int groupIndex ) const;
 
 	// get pattern data
-	const EveSOFDataMgr::PatternProjectionData* GetPatternProjectionData( const char* hullName, size_t layer ) const;
-	const EveSOFDataMgr::PatternData* GetPatternData() const;
+	size_t GetPatternLayerCount() const;
+	const EveSOFDataMgr::PatternProjectionData* GetPatternProjectionData( size_t layer ) const;
+	const EveSOFDataMgr::PatternLayerData* GetPatternLayerData( size_t layer ) const;
 
 	// get mixed data
 	const char* GetDnaString() const;
@@ -116,6 +118,7 @@ private:
 	bool HasDnaCommand( DnaCommand cmd ) const;
 	// search and area collection to find the data of a specific parameter
 	const Vector4* SearchForParameterData( const std::map<BlueSharedString, EveSOFDataMgr::FactionAreaData>& areas, const BlueSharedString& areaDesignation, const BlueSharedString& parameterName ) const;
+	const Vector4* SearchForParameterData( const EveSOFDataMgr::MaterialData* materialData, const EveSOFUtilsParameterName* parameterName ) const;
 
 	// the dna as a string
 	std::string m_dna;

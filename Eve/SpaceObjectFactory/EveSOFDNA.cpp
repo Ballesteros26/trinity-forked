@@ -194,6 +194,8 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
+	std::vector<std::string> commandArgs;
+
 	// rember dna string
 	m_dna = dnaString;
 
@@ -215,9 +217,8 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 	for( size_t dnaSubpart = 3; dnaSubpart < dnaParts.size(); ++dnaSubpart )
 	{
 		// split into command and args
-		std::vector<std::string> cmdAndArgs;
-		StringSplit( cmdAndArgs, dnaParts[ dnaSubpart ].c_str(), s_dnaSeperatorArg );
-		if( cmdAndArgs.size() != 2 )
+		StringSplit( commandArgs, dnaParts[ dnaSubpart ].c_str(), s_dnaSeperatorArg );
+		if( commandArgs.size() != 2 )
 		{
 			CCP_LOGERR( "Invalid SOF DNA, incorrect command and args: %s", dnaString );
 			return;
@@ -225,10 +226,10 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 
 		// get commands
 		std::vector<std::string> commandList;
-		StringSplit( commandList, cmdAndArgs[1].c_str(), s_dnaSeperatorList );
+		StringSplit( commandList, commandArgs[1].c_str(), s_dnaSeperatorList );
 
 		// put into map, warning: this might overwrite a similar command!
-		m_commands[cmdAndArgs[0]] = commandList;
+		m_commands[commandArgs[0]] = commandList;
 	}
 
 	// the 3 main dna names
@@ -236,7 +237,7 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 	m_factionName = dnaParts[1];
 	m_raceName = dnaParts[2];
 
-	// pointers
+	// make sure we find this hull
 	m_hullData = m_dataMgr->GetHullData( m_hullName.c_str() );
 	if( m_hullData == nullptr )
 	{
@@ -257,8 +258,12 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 		CCP_LOGERR( "Couldn't find the requested race: %s", dnaString );
 		return;
 	}
-	// pattern data (is NOT optional, the default one must exist!)
-	m_patternData = GetPatternData();
+
+	// do we have a pattern DNA commmand?
+	if( GetDnaCommandArgs( CMD_PATTERN, commandArgs ) )
+	{
+		m_patternData = m_dataMgr->GetPatternData( commandArgs[0].c_str() );
+	}
 
 	// generics
 	m_genericData = m_dataMgr->GetGenericData();
@@ -796,6 +801,24 @@ const std::vector<EveSOFDataMgr::HullAreas>* EveSOFDNA::GetHullMeshAreas( TriBat
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Search a material for parameter value
+// --------------------------------------------------------------------------------
+const Vector4* EveSOFDNA::SearchForParameterData( const EveSOFDataMgr::MaterialData* materialData, const EveSOFUtilsParameterName* parameterName ) const
+{
+	if( materialData )
+	{
+		BlueSharedString pn( parameterName->GetShortName() );
+		auto parameterIt = materialData->parameters.find( pn );
+		if( parameterIt != materialData->parameters.end() )
+		{
+			return &parameterIt->second;
+		}
+	}
+	return nullptr;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Search an area collection to find the data of a specific parameter
 // --------------------------------------------------------------------------------
 const Vector4* EveSOFDNA::SearchForParameterData( const std::map<BlueSharedString, EveSOFDataMgr::FactionAreaData>& areas, const BlueSharedString& areaDesignation, const BlueSharedString& parameterName ) const
@@ -840,14 +863,10 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( const BlueSharedString& areaDesi
 			{
 				// get the material from the lib
 				const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( commandArgs[ param.GetMaterialIdx() ].c_str() );
-				if( materialData ) 
+				const Vector4* res = SearchForParameterData( materialData, &param );
+				if( res )
 				{
-					BlueSharedString pn( param.GetShortName() );
-					auto parameterIt = materialData->parameters.find( pn );
-					if( parameterIt != materialData->parameters.end() )
-					{
-						return &parameterIt->second;
-					}
+					return res;
 				}
 			}
 		}
@@ -862,17 +881,26 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( const BlueSharedString& areaDesi
 		{
 			// get the material from the lib
 			const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( commandArgs[1 + param.GetMaterialIdx()].c_str() );
-			if( materialData )
+			const Vector4* res = SearchForParameterData( materialData, &param );
+			if( res )
 			{
-				BlueSharedString pn( param.GetShortName() );
-				auto parameterIt = materialData->parameters.find( pn );
-				if( parameterIt != materialData->parameters.end() )
-				{
-					return &parameterIt->second;
-				}
+				return res;
 			}
 		}
-                          	}
+	}
+
+	// is this a pattern parameter?
+	EveSOFUtilsParameterName param( m_genericData->patternMaterialPrefixes, parameterName.c_str() );
+	if( param.IsValid() )
+	{
+		// get the material from the lib using the racial name
+		const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( m_raceData->defaultPatternLayer1MaterialName.c_str() );
+		const Vector4* res = SearchForParameterData( materialData, &param );
+		if( res )
+		{
+			return res;
+		}
+	}
 
 	// do we have it in the generic data?
 	const Vector4* res = SearchForParameterData( m_genericData->hullAreaParameters, areaDesignation, parameterName );
@@ -996,15 +1024,35 @@ const EveSOFDataMgr::HullBoosterData* EveSOFDNA::GetHullBoosterData() const
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Return the number of layers of this pattern
+// --------------------------------------------------------------------------------
+size_t EveSOFDNA::GetPatternLayerCount() const
+{
+	// do we have a dna command for a pattern?
+	if( m_patternData )
+	{
+		return m_patternData->layerData.size();
+	}
+	// there should be a default pattern!
+	if( m_hullData->defaultPattern.enabled )
+	{
+		return 1;
+	}
+	return 0;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Return pattern data, but needs to exist for provided hull!
 // --------------------------------------------------------------------------------
-const EveSOFDataMgr::PatternProjectionData* EveSOFDNA::GetPatternProjectionData( const char* hullName, size_t layer ) const
+const EveSOFDataMgr::PatternProjectionData* EveSOFDNA::GetPatternProjectionData( size_t layer ) const
 {
 	if( !HasDnaCommand( CMD_PATTERN ) )
 	{
-		return nullptr;
+		// ok no DNA command for a pattern, so we use the default from the hull
+		return &m_hullData->defaultPattern;
 	}
-	auto finder = m_patternData->projectionData.find( BlueSharedString( hullName ) );
+	auto finder = m_patternData->projectionData.find( BlueSharedString( m_hullName ) );
 	if( finder == m_patternData->projectionData.end() )
 	{
 		return nullptr;
@@ -1020,15 +1068,18 @@ const EveSOFDataMgr::PatternProjectionData* EveSOFDNA::GetPatternProjectionData(
 // Description:
 //   Return pattern data
 // --------------------------------------------------------------------------------
-const EveSOFDataMgr::PatternData* EveSOFDNA::GetPatternData() const
+const EveSOFDataMgr::PatternLayerData* EveSOFDNA::GetPatternLayerData( size_t layer ) const
 {
-	// do we have a pattern DNA commmand?
-	std::vector<std::string> commandArgs;
-	if( !GetDnaCommandArgs( CMD_PATTERN, commandArgs ) )
+	if( !HasDnaCommand( CMD_PATTERN ) )
+	{
+		// ok no DNA command for a pattern, so we use the default from the race
+		return &m_raceData->defaultPattern;
+	}
+	if( m_patternData->layerData.size() < layer )
 	{
 		return nullptr;
 	}
-	return m_dataMgr->GetPatternData( commandArgs[0].c_str() );
+	return &m_patternData->layerData[layer];
 }
 
 // --------------------------------------------------------------------------------

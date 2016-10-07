@@ -608,11 +608,8 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 
 	// default hull pattern
 	EveSOFDataPatternPerHullPtr defaultPattern = srcData->m_defaultPattern;
-	if( defaultPattern )
-	{
-		// only one layer for the default hull one (yet...)
-		EveSOFUtils::GeneratePatternProjectionData( &hd.defaultPattern, defaultPattern->m_transformLayer1 );
-	}
+	// only one layer for the default hull one (yet...)
+	EveSOFUtils::GeneratePatternProjectionData( &hd.defaultPattern, defaultPattern ? defaultPattern->m_transformLayer1 : nullptr );
 
 	// hulldecals
 	hd.hullDecals.clear();

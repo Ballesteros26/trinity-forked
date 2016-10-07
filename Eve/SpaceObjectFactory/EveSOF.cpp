@@ -347,7 +347,6 @@ void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodRe
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	const std::vector<EveSOFDataMgr::HullAreas>* hullAreas = dna->GetHullMeshAreas( areaType );
-	const EveSOFDataMgr::PatternData* patternData = dna->GetPatternData();
 	for( auto area = hullAreas->begin(); area != hullAreas->end(); ++area )
 	{
 		// find data on this shader from generics, we need it!
@@ -417,15 +416,17 @@ void EveSOF::FillMeshAreaVector( std::map<std::string, Tr2LodResourcePtr>& lodRe
 				}
 			}
 
-			// pattern textures from optional(!) pattern data
-			if( patternData )
+			// pattern textures
+			size_t patternLayerCount = dna->GetPatternLayerCount();
+			for( size_t i = 0; i < patternLayerCount; ++i )
 			{
-				for( auto ptit = patternData->layerData.begin(); ptit != patternData->layerData.end(); ++ptit )
+				const EveSOFDataMgr::PatternLayerData* patternLayerData = dna->GetPatternLayerData( i );
+				if( patternLayerData )
 				{
-					newShader->AddResourceTexture2D( ptit->textureName, ptit->textureResFilePath.c_str() );
+					newShader->AddResourceTexture2D( patternLayerData->textureName, patternLayerData->textureResFilePath.c_str() );
 
 					// pattern textures almost always require a sampler change: repeat is boring....
-					newShader->AddSamplerOverride( BlueSharedString( std::string( ptit->textureName.c_str() ) + "Sampler" ), ptit->projectionAddressModeU, ptit->projectionAddressModeV );
+					newShader->AddSamplerOverride( BlueSharedString( std::string( patternLayerData->textureName.c_str() ) + "Sampler" ), patternLayerData->projectionAddressModeU, patternLayerData->projectionAddressModeV );
 				}
 			}
 
@@ -1131,21 +1132,22 @@ void EveSOF::SetupInstancedMeshes( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr
 // --------------------------------------------------------------------------------
 void EveSOF::SetupCustomMask( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
 {
-	const EveSOFDataMgr::PatternData* patternData = dna->GetPatternData();
-	if( patternData )
+	size_t layerCount = dna->GetPatternLayerCount();
+	for( size_t i = 0; i < layerCount; ++i )
 	{
-		size_t layerCount = patternData->layerData.size();
-		for( size_t i = 0; i < layerCount; ++i )
+		const EveSOFDataMgr::PatternProjectionData* patternProjectionData = dna->GetPatternProjectionData( i );
+		if( patternProjectionData )
 		{
-			const EveSOFDataMgr::PatternProjectionData* patternProjectionData = dna->GetPatternProjectionData( dna->GetHullName(), i );
-			if( patternProjectionData )
+			if( patternProjectionData->enabled )
 			{
-				const EveSOFDataMgr::PatternLayerData* patternLayerData = &patternData->layerData[ i ];
-
-				EveCustomMaskPtr customMask;
-				customMask.CreateInstance();
-				customMask->Setup( patternProjectionData->position, patternProjectionData->scaling, patternProjectionData->rotation, patternProjectionData->isMirrored, patternLayerData->materialSourceID, patternLayerData->materialTargets );
-				obj->AddCustomMask( customMask );
+				const EveSOFDataMgr::PatternLayerData* patternLayerData = dna->GetPatternLayerData( i );
+				if( patternLayerData )
+				{
+					EveCustomMaskPtr customMask;
+					customMask.CreateInstance();
+					customMask->Setup( patternProjectionData->position, patternProjectionData->scaling, patternProjectionData->rotation, patternProjectionData->isMirrored, patternLayerData->materialSourceID, patternLayerData->materialTargets );
+					obj->AddCustomMask( customMask );
+				}
 			}
 		}
 	}
