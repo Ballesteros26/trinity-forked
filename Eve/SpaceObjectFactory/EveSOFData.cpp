@@ -114,11 +114,17 @@ EveSOFDataGeneric::EveSOFDataGeneric( IRoot* lockobj ) :
 	PARENTLOCK( m_areaShaders ),
 	PARENTLOCK( m_decalShaders ),
 	PARENTLOCK( m_hullAreas ),
-	PARENTLOCK( m_variants )
-{}
+	PARENTLOCK( m_variants ),
+	PARENTLOCK( m_variants2 )
+	{}
 
 
-EveSOFDataFaction::EveSOFDataFaction( IRoot* lockobj ) :
+EveSOFDataGenericVariant::EveSOFDataGenericVariant( IRoot* lockobj ) :
+	m_isTransparent( false )
+	{}
+
+
+	EveSOFDataFaction::EveSOFDataFaction( IRoot* lockobj ) :
 	PARENTLOCK( m_areas ),
 	PARENTLOCK( m_decals ),
 	PARENTLOCK( m_spriteSets ),

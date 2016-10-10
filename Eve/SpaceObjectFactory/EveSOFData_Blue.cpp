@@ -941,6 +941,18 @@ const Be::ClassInfo* EveSOFDataGenericShader::ExposeToBlue()
 }
 
 
+BLUE_DEFINE( EveSOFDataGenericVariant );
+const Be::ClassInfo* EveSOFDataGenericVariant::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( EveSOFDataGenericVariant, "" )
+		MAP_INTERFACE( EveSOFDataGenericVariant )
+
+		MAP_ATTRIBUTE( "name", m_name, "Variant name", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "isTransparent", m_isTransparent, "What area does it go into", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "hullArea", m_hullArea, "The actual hull area data", Be::READWRITE | Be::PERSIST )
+		EXPOSURE_END()
+}
+
 
 BLUE_DEFINE( EveSOFDataGeneric );
 const Be::ClassInfo* EveSOFDataGeneric::ExposeToBlue()
@@ -961,6 +973,7 @@ const Be::ClassInfo* EveSOFDataGeneric::ExposeToBlue()
 		MAP_ATTRIBUTE( "swarm", m_swarm, "Global swarm behavior preset data", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "hullAreas", m_hullAreas, "Global hull area shader data", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "variants", m_variants, "All the hull  variants", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "variants2", m_variants2, "All the hull  variants", Be::READWRITE | Be::PERSIST )
 		EXPOSURE_END()
 }
 

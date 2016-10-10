@@ -1008,6 +1008,7 @@ public:
 TYPEDEF_BLUECLASS( EveSOFDataGenericShader );
 BLUE_DECLARE_VECTOR( EveSOFDataGenericShader );
 
+
 BLUE_CLASS( EveSOFDataGenericSwarm ) :
 	public IRoot
 {
@@ -1020,6 +1021,28 @@ public:
 };
 TYPEDEF_BLUECLASS( EveSOFDataGenericSwarm );
 BLUE_DECLARE_VECTOR( EveSOFDataGenericSwarm );
+
+
+BLUE_CLASS( EveSOFDataGenericVariant ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataGenericVariant( IRoot* lockobj = NULL );
+	~EveSOFDataGenericVariant() {}
+
+	// name id
+	BlueSharedString m_name;
+
+	// tranparent
+	bool m_isTransparent;
+
+	// the area data
+	EveSOFDataHullAreaPtr m_hullArea;
+};
+TYPEDEF_BLUECLASS( EveSOFDataGenericVariant );
+BLUE_DECLARE_VECTOR( EveSOFDataGenericVariant );
+
 
 BLUE_CLASS( EveSOFDataGeneric ) :
 	public IRoot
@@ -1055,6 +1078,7 @@ public:
 
 	// effect data
 	PEveSOFDataHullAreaVector m_variants;
+	PEveSOFDataGenericVariantVector m_variants2;
 };
 TYPEDEF_BLUECLASS( EveSOFDataGeneric );
 
