@@ -85,6 +85,10 @@ ITr2SpriteObject* Tr2Sprite2dPolygon::PickPoint( float x, float y, Tr2Sprite2dSc
 		{
 			return this;
 		}
+		if( renderer->IsInsideTriangle( query, Vector2( p0.x, p0.y ), Vector2( p2.x, p2.y ), Vector2( p1.x, p1.y ) ) )
+		{
+			return this;
+		}
 	}
 	return nullptr;
 }
