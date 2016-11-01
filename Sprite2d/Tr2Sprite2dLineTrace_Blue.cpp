@@ -65,7 +65,7 @@ PyObject* Tr2Sprite2dLineTrace::PyAppendVertices( PyObject* self, PyObject* args
 	Color color;
 	std::string name;
 
-	Matrix transform;
+	Matrix transform( XMMatrixIdentity() );
 	if( Py_None == pyTransform )
 	{
 		transform = XMMatrixIdentity();
@@ -73,7 +73,7 @@ PyObject* Tr2Sprite2dLineTrace::PyAppendVertices( PyObject* self, PyObject* args
 	else if( !PyTuple_Check( pyTransform ) || PyTuple_GET_SIZE( pyTransform ) != 3 || 
 		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 0 ), 3, &transform._11 ) ||
 		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 1 ), 3, &transform._21 ) ||
-		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 2 ), 3, &transform._31 ) )
+		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 2 ), 3, &transform._41 ) )
 	{
 		return PyErr_SetString( PyExc_TypeError, "positionTransform parameter must be a 3x3 matrix or None" ), nullptr;
 	}
@@ -145,7 +145,7 @@ PyObject* Tr2Sprite2dLineTrace::PyAppendVertices( PyObject* self, PyObject* args
 
 		Tr2Sprite2dLineTraceVertexPtr vertex;
 		vertex.CreateInstance();
-		vertex->m_position = XMVector2Transform( position, transform );
+		vertex->m_position = XMVector2TransformCoord( position, transform );
 		vertex->m_color = color;
 		vertex->m_name = name;
 

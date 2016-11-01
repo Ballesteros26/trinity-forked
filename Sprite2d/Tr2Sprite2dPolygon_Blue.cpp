@@ -68,7 +68,7 @@ PyObject* Tr2Sprite2dPolygon::PyAppendVertices( PyObject* self, PyObject* args )
 	Vector2 texcoord0;
 	Vector2 texcoord1;
 
-	Matrix transform;
+	Matrix transform( XMMatrixIdentity() );
 	if( Py_None == pyTransform )
 	{
 		transform = XMMatrixIdentity();
@@ -76,7 +76,7 @@ PyObject* Tr2Sprite2dPolygon::PyAppendVertices( PyObject* self, PyObject* args )
 	else if( !PyTuple_Check( pyTransform ) || PyTuple_GET_SIZE( pyTransform ) != 3 || 
 		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 0 ), 3, &transform._11 ) ||
 		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 1 ), 3, &transform._21 ) ||
-		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 2 ), 3, &transform._31 ) )
+		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 2 ), 3, &transform._41 ) )
 	{
 		return PyErr_SetString( PyExc_TypeError, "positionTransform parameter must be a 3x3 matrix or None" ), nullptr;
 	}
@@ -185,7 +185,7 @@ PyObject* Tr2Sprite2dPolygon::PyAppendVertices( PyObject* self, PyObject* args )
 
 		Tr2Sprite2dVertexPtr vertex;
 		vertex.CreateInstance();
-		vertex->position = XMVector2Transform( position, transform );
+		vertex->position = XMVector2TransformCoord( position, transform );
 		vertex->color = color;
 		vertex->texCoord[0] = texcoord0;
 		vertex->texCoord[1] = texcoord1;
@@ -238,7 +238,7 @@ PyObject* Tr2Sprite2dPolygon::PySetVertices( PyObject* self, PyObject* args )
 	Vector2 texcoord0;
 	Vector2 texcoord1;
 
-	Matrix transform;
+	Matrix transform( XMMatrixIdentity() );
 	if( Py_None == pyTransform || pyTransform == nullptr )
 	{
 		transform = XMMatrixIdentity();
@@ -246,7 +246,7 @@ PyObject* Tr2Sprite2dPolygon::PySetVertices( PyObject* self, PyObject* args )
 	else if( !PyTuple_Check( pyTransform ) || PyTuple_GET_SIZE( pyTransform ) != 3 || 
 		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 0 ), 3, &transform._11 ) ||
 		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 1 ), 3, &transform._21 ) ||
-		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 2 ), 3, &transform._31 ) )
+		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 2 ), 3, &transform._41 ) )
 	{
 		return PyErr_SetString( PyExc_TypeError, "positionTransform parameter must be a 3x3 matrix or None" ), nullptr;
 	}
@@ -318,7 +318,7 @@ PyObject* Tr2Sprite2dPolygon::PySetVertices( PyObject* self, PyObject* args )
 					return PyErr_SetString( PyExc_TypeError, "positions parameter must be a 2-tuple or a sequence of 2-tuples" ), nullptr;
 				}
 			}
-			vertex->position = XMVector2Transform( position, transform );
+			vertex->position = XMVector2TransformCoord( position, transform );
 		}
 		if( pyColors )
 		{
