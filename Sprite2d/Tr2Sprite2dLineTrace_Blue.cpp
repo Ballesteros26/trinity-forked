@@ -160,6 +160,143 @@ PyObject* Tr2Sprite2dLineTrace::PyAppendVertices( PyObject* self, PyObject* args
 	Py_RETURN_NONE;
 }
 
+PyObject* Tr2Sprite2dLineTrace::PySetVertices( PyObject* self, PyObject* args )
+{
+	auto pThis = BluePythonCast<Tr2Sprite2dLineTrace*>( self );
+	PyObject* pyPositions = nullptr;
+	PyObject* pyTransform = nullptr;
+	PyObject* pyColors = nullptr;
+	PyObject* pyNames = nullptr;
+
+	if ( !PyArg_ParseTuple( args, "O|OOO", &pyPositions, &pyTransform, &pyColors, &pyNames ) )
+	{
+		return nullptr;
+	}
+
+	if( Py_None == pyPositions )
+	{
+		pyPositions = nullptr;
+	}
+	if( Py_None == pyColors )
+	{
+		pyColors = nullptr;
+	}
+	if( Py_None == pyNames )
+	{
+		pyNames = nullptr;
+	}
+
+	Vector2 position;
+	Color color;
+	std::string name;
+
+	Matrix transform( XMMatrixIdentity() );
+	if( Py_None == pyTransform || pyTransform == nullptr )
+	{
+		transform = XMMatrixIdentity();
+	}
+	else if( !PyTuple_Check( pyTransform ) || PyTuple_GET_SIZE( pyTransform ) != 3 || 
+		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 0 ), 3, &transform._11 ) ||
+		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 1 ), 3, &transform._21 ) ||
+		!ToFloatTuple( PyTuple_GET_ITEM( pyTransform, 2 ), 3, &transform._41 ) )
+	{
+		return PyErr_SetString( PyExc_TypeError, "positionTransform parameter must be a 3x3 matrix or None" ), nullptr;
+	}
+
+	bool constPosition = true;
+	if( pyPositions )
+	{
+		constPosition = ToFloatTuple( pyPositions, 2, &position.x );
+		if( !constPosition && !PySequence_Check( pyPositions ) )
+		{
+			return PyErr_SetString( PyExc_TypeError, "positions parameter must be a 2-tuple or a sequence of 2-tuples" ), nullptr;
+		}
+	}
+	bool constColor = true;
+	if( pyColors )
+	{
+		constColor = ToFloatTuple( pyColors, 4, &color.r );
+		if( !constColor && !PySequence_Check( pyColors ) )
+		{
+			return PyErr_SetString( PyExc_TypeError, "colors parameter must be a 4-tuple or a sequence of 4-tuples" ), nullptr;
+		}
+	}
+	bool constName = true;
+	if( pyNames )
+	{
+		constName = PyString_Check( pyNames );
+		if( !constName && !PySequence_Check( pyNames ) )
+		{
+			return PyErr_SetString( PyExc_TypeError, "names parameter must be a string or a sequence of strings" ), nullptr;
+		}
+	}
+
+	for( ssize_t index = 0; index < ssize_t( pThis->m_vertices.size() ); ++index )
+	{
+		auto vertex = pThis->m_vertices[index];
+		if( pyPositions )
+		{
+			if( !constPosition )
+			{
+				auto item = PySequence_GetItem( pyPositions, index );
+				if( !item )
+				{
+					PyErr_Clear();
+					break;
+				}
+				bool success = ToFloatTuple( item, 2, &position.x );
+				Py_DECREF( item );
+				if( !success )
+				{
+					return PyErr_SetString( PyExc_TypeError, "positions parameter must be a 2-tuple or a sequence of 2-tuples" ), nullptr;
+				}
+			}
+			vertex->m_position = XMVector2TransformCoord( position, transform );
+		}
+		if( pyColors )
+		{
+			if( !constColor )
+			{
+				auto item = PySequence_GetItem( pyColors, index );
+				if( !item )
+				{
+					PyErr_Clear();
+					break;
+				}
+				bool success = ToFloatTuple( item, 4, &color.r );
+				Py_DECREF( item );
+				if( !success )
+				{
+					return PyErr_SetString( PyExc_TypeError, "colors parameter must be a 4-tuple or a sequence of 4-tuples" ), nullptr;
+				}
+			}
+			vertex->m_color = color;
+		}
+		if( pyNames )
+		{
+			if( !constName )
+			{
+				auto item = PySequence_GetItem( pyNames, index );
+				if( !item )
+				{
+					PyErr_Clear();
+					break;
+				}
+				if( !PyString_Check( item ) )
+				{
+					Py_DECREF( item );
+					return PyErr_SetString( PyExc_TypeError, "texCoords0 parameter must be a 2-tuple or a sequence of 2-tuples" ), nullptr;
+				}
+				name = PyString_AsString( item );
+				Py_DECREF( item );
+			}
+			vertex->m_name = name;
+		}
+	}
+	pThis->SetDirty();
+	Py_RETURN_NONE;
+}
+
 #endif
 
 const Be::ClassInfo* Tr2Sprite2dLineTrace::ExposeToBlue()
@@ -244,7 +381,21 @@ const Be::ClassInfo* Tr2Sprite2dLineTrace::ExposeToBlue()
 			":param colors: either a sequence of 4-tuples with vertex colors or a single 4-tuple color\n"
 			":type colors: sequence[(float, float, float, float)]|(float, float, float, float)\n"
 			":param names: optional sequence of string names\n"
-			":type texCoords0: sequence[str]\n"
+			":type names: sequence[str]\n"
+		)
+		MAP_METHOD
+		(
+			"SetVertices",
+			PySetVertices,
+			"Changes line vertices.\n"
+			":param positions: either None for no change, a sequence of 2-tuples with vertex positions or a single position\n"
+			":type positions: None|sequence[(float, float)]|(float, float)\n"
+			":param positionTransform: optional 3x3 matrix to pre-transform positions or None for identity matrix\n"
+			":type positionTransform: ((float, float, float), (float, float, float), (float, float, float))|None\n"
+			":param colors: either None for no change, a sequence of 4-tuples with vertex colors or a single 4-tuple color\n"
+			":type colors: None|sequence[(float, float, float, float)]|(float, float, float, float)\n"
+			":param names: optional sequence of string names\n"
+			":type names: sequence[str]\n"
 		)
 #endif
 	EXPOSURE_CHAINTO( Tr2TexturedSpriteObject )

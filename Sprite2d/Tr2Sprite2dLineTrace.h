@@ -99,6 +99,7 @@ private:
 private:
 #if BLUE_WITH_PYTHON
 	static PyObject* PyAppendVertices( PyObject* self, PyObject* args );
+	static PyObject* PySetVertices( PyObject* self, PyObject* args );
 #endif
 	std::wstring m_name;
 
