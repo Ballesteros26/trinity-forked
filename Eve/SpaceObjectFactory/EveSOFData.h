@@ -758,6 +758,10 @@ public:
 	int m_materialUsageMtl2;
 	int m_materialUsageMtl3;
 	int m_materialUsageMtl4;
+
+	// default pattern
+	EveSOFDataPatternLayerPtr m_defaultPattern;
+	std::string m_defaultPatternLayer1MaterialName;
 };
 TYPEDEF_BLUECLASS( EveSOFDataFaction );
 BLUE_DECLARE_VECTOR( EveSOFDataFaction );
@@ -855,10 +859,6 @@ public:
 
 	// data
 	EveSOFDataBoosterPtr m_booster;
-
-	// default pattern
-	EveSOFDataPatternLayerPtr m_defaultPattern;
-	std::string m_defaultPatternLayer1MaterialName;
 
 	// hull area data
 	PEveSOFDataFactionHullAreaVector m_hullAreas;

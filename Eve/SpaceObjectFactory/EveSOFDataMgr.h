@@ -296,6 +296,10 @@ public:
 		// material usage ids (for turrets, etc.)
 		int materialUsageList[4];
 
+		// default pattern
+		PatternLayerData defaultPattern;
+		std::string defaultPatternLayer1MaterialName;
+
 		// hull area parameter overloads
 		std::map<BlueSharedString, FactionAreaData> areaParameters;
 		// spritesets
@@ -360,9 +364,6 @@ public:
 	{
 		// boosters
 		RaceBoosterData boosters;
-		// default pattern
-		PatternLayerData defaultPattern;
-		std::string defaultPatternLayer1MaterialName;
 		// hull area parameter
 		std::map<BlueSharedString, FactionAreaData> hullAreaParameters;
 		// impact damage data

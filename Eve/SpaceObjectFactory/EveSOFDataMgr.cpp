@@ -914,6 +914,10 @@ void EveSOFDataMgr::GenerateFactionData( FactionData& fd, EveSOFDataFactionPtr s
 		}
 		fd.areaParameters[hullAreaData->m_name] = ad;
 	}
+
+	// pattern data
+	EveSOFUtils::GeneratePatternLayerData( &fd.defaultPattern, srcData->m_defaultPattern );
+	fd.defaultPatternLayer1MaterialName = srcData->m_defaultPatternLayer1MaterialName;
 }
 
 // --------------------------------------------------------------------------------
@@ -993,10 +997,6 @@ void EveSOFDataMgr::GenerateRaceData( RaceData& rd, EveSOFDataRacePtr srcData ) 
 	rd.boosters.lightColor = srcData->m_booster->m_lightColor;
 	rd.boosters.lightWarpColor = srcData->m_booster->m_lightWarpColor;
 	rd.boosters.volumetric = srcData->m_booster->m_volumetric;
-
-	// pattern data
-	EveSOFUtils::GeneratePatternLayerData( &rd.defaultPattern, srcData->m_defaultPattern );
-	rd.defaultPatternLayer1MaterialName = srcData->m_defaultPatternLayer1MaterialName;
 
 	// shader data
 	rd.hullAreaParameters.clear();

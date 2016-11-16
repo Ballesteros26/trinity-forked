@@ -901,7 +901,7 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( const BlueSharedString& areaDesi
 	if( param.IsValid() )
 	{
 		// get the material from the lib using the racial name
-		const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( m_raceData->defaultPatternLayer1MaterialName.c_str() );
+		const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( m_factionData->defaultPatternLayer1MaterialName.c_str() );
 		const Vector4* res = SearchForParameterData( materialData, &param );
 		if( res )
 		{
@@ -1080,7 +1080,7 @@ const EveSOFDataMgr::PatternLayerData* EveSOFDNA::GetPatternLayerData( size_t la
 	if( !HasDnaCommand( CMD_PATTERN ) )
 	{
 		// ok no DNA command for a pattern, so we use the default from the race
-		return &m_raceData->defaultPattern;
+		return &m_factionData->defaultPattern;
 	}
 	if( m_patternData->layerData.size() < layer )
 	{
