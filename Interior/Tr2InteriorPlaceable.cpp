@@ -762,6 +762,11 @@ void Tr2InteriorPlaceable::CreateMirrors()
 	}
 	m_mirrors.clear();
 
+	if( !m_placeableRes )
+	{
+		return;
+	}
+
 	Vector3 minBounds, maxBounds;
 
 	Tr2ModelPtr model = m_placeableRes->GetVisualModel();
