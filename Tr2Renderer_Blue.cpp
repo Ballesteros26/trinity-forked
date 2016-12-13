@@ -16,7 +16,7 @@ static void SetViewTransform( const Matrix& m )
 }
 MAP_FUNCTION_AND_WRAP( "SetViewTransform", SetViewTransform, 
 				"Sets the view matrix for rendering.\n\n"
-				" matrix:  4-tuple of 4-tuples representing a D3D view matrix" );
+				":param matrix:  4-tuple of 4-tuples representing a D3D view matrix" );
 
 
 static Matrix GetViewTransform()
@@ -34,10 +34,10 @@ static void SetPerspectiveProjection( float fov, float front, float back, float 
 }
 MAP_FUNCTION_AND_WRAP( "SetPerspectiveProjection", SetPerspectiveProjection,
 				"Sets the perspective projection for rendering.\n\n"
-				" fov:   field of view on the y-axis, in radians,\n"
-				" front: z-value of the near view plane,\n"
-				" back:  z-value of the far view plane,\n"
-				" asp:   aspect ratio, defined as view space width divided by height." );
+				":param fov:   field of view on the y-axis, in radians,\n"
+				":param front: z-value of the near view plane,\n"
+				":param back:  z-value of the far view plane,\n"
+				":param asp:   aspect ratio, defined as view space width divided by height." );
 
 static Vector3 GetViewPosition()
 {
@@ -85,12 +85,12 @@ static void SetPerspectiveProjectionOffCenter( float left, float right, float bo
 }
 MAP_FUNCTION_AND_WRAP( "SetPerspectiveProjectionOffCenter", SetPerspectiveProjectionOffCenter,
 			"This method allows an off-center projection to be set for the renderer.\n\n"
-			" left:   minimum x-value of the view volume,\n"
-			" right:  maximum x-value of the view volume,\n"
-			" bottom: minimum y-value of the view volume,\n"
-			" top:    maximum y-value of the view volume,\n"
-			" front:  minimum z-value of the view volume,\n"
-			" back:   maximum z-value of the view volume." );
+			":param left:   minimum x-value of the view volume,\n"
+			":param right:  maximum x-value of the view volume,\n"
+			":param bottom: minimum y-value of the view volume,\n"
+			":param top:    maximum y-value of the view volume,\n"
+			":param front:  minimum z-value of the view volume,\n"
+			":param back:   maximum z-value of the view volume." );
 
 #if BLUE_WITH_PYTHON
 static PyObject* PySetShaderModel( PyObject* self, PyObject* args )
@@ -159,9 +159,11 @@ MAP_FUNCTION( "SetShaderModel", PySetShaderModel,
 			"  SM_3_0_HI\n"
 			"  SM_3_0_DEPTH\n"
 			"  SM_AUTHORING\n"
-			"\n\n"
-			"Exceptions:\n"
 			"May raise a trinity.D3DERR_INVALIDCALL if a device reset is already in progress"
+			"\n\n"
+			":param sm: shader model name\n"
+			":type sm: str\n"
+			":rtype: None"
 			);
 #endif
 
@@ -193,6 +195,7 @@ MAP_FUNCTION_AND_WRAP( "AddMipLevelSkipExclusionDirectory", AddMipLevelSkipExclu
 			"not downsized due to graphics quality.\n"
 			"example: AddMipLevelSkipExclusionDirectory(\"res:/ui/\")\n"
 			"To clear the internal directory-list, use ::ClearMipLevelSkipExclusionDirectories()\n"
+			":param name: directory res path"
 			);
 
 static void AddGlobalSituationFlags( const std::vector<std::string>& flags )
@@ -209,6 +212,7 @@ MAP_FUNCTION_AND_WRAP
 	"AddGlobalSituationFlags", 
 	AddGlobalSituationFlags,
 	"Adds a list of situation strings to the global situation.\n"
+	":param flags: situation strings"
 );
 
 static void RemoveGlobalSituationFlags( const std::vector<std::string>& flags )
@@ -225,6 +229,7 @@ MAP_FUNCTION_AND_WRAP
 	"RemoveGlobalSituationFlags", 
 	RemoveGlobalSituationFlags,
 	"Removes a list of situation strings from the global situation.\n"
+	":param flags: situation strings"
 );
 
 static bool HasGlobalSituationFlag( const char* name )
@@ -238,6 +243,7 @@ MAP_FUNCTION_AND_WRAP
 	"HasGlobalSituationFlag", 
 	HasGlobalSituationFlag,
 	"Checks if a given situation flag is a part of global situation.\n"
+	":param flag: situation flag"
 );
 
 #if BLUE_WITH_PYTHON
@@ -260,6 +266,7 @@ MAP_FUNCTION
 	"RebindAllShaderMaterials",
 	PyRebindAllShaderMaterials,
 	"Rebuilds all shader materials\n"
+	":rtype: None"
 );
 #endif
 

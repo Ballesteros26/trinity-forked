@@ -241,7 +241,13 @@ static PyObject* PyBreakInDebugger( PyObject* module, PyObject* args )
 
 	Py_RETURN_NONE;
 }
-MAP_FUNCTION( "BreakInDebugger", PyBreakInDebugger, "BreakInDebugger( [contextString] )\nBreaks in the debugger, if one is attached, allowing you to look at the program state at a point determined from Python." );
+MAP_FUNCTION( 
+	"BreakInDebugger", 
+	PyBreakInDebugger, 
+	"BreakInDebugger( [contextString] )\nBreaks in the debugger, if one is attached, allowing you to look at the program state at a point determined from Python.\n"
+	":param contextString: string that is dumped into the debugger output\n"
+	":param contextString: str\n"
+	":rtype: None" );
 #endif
 
 ITr2DebugRendererPtr g_debugRenderer;
@@ -251,7 +257,7 @@ static void SetDebugRenderer( ITr2DebugRenderer* renderer )
 	g_debugRenderer = renderer;
 }
 
-MAP_FUNCTION_AND_WRAP( "SetDebugRenderer", SetDebugRenderer, "Sets the debug renderer for Trinity" );
+MAP_FUNCTION_AND_WRAP( "SetDebugRenderer", SetDebugRenderer, "Sets the debug renderer for Trinity\n:param renderer: new debug renderer" );
 
 static ITr2DebugRenderer* GetDebugRenderer()
 {
@@ -288,7 +294,7 @@ static const char* PyDXGetErrorString( int hr )
 #endif
 }
 
-MAP_FUNCTION_AND_WRAP( "DXGetErrorString", PyDXGetErrorString, "Convert an D3D hr code to string" );
+MAP_FUNCTION_AND_WRAP( "DXGetErrorString", PyDXGetErrorString, "Convert an D3D hr code to string\n:param hr: DX HRESULT" );
 
 static const char* PyDXGetErrorDescription( int hr )
 {
@@ -299,7 +305,7 @@ static const char* PyDXGetErrorDescription( int hr )
 #endif
 }
 
-MAP_FUNCTION_AND_WRAP( "DXGetErrorDescription", PyDXGetErrorDescription, "Convert an D3D hr code to an error description" );
+MAP_FUNCTION_AND_WRAP( "DXGetErrorDescription", PyDXGetErrorDescription, "Convert an D3D hr code to an error description\n:param hr: DX HRESULT" );
 
 static const char* GetGrannyProductVersion()
 {

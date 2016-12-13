@@ -678,7 +678,10 @@ MAP_FUNCTION(
 	"SetEveSpaceObjectResourceUnloadingEnabled",
 	PySetEveSpaceObjectResourceUnloadingEnabled,
 	"If set, Eve space objects unload rendering resources if objects are not visible\n"
-	"for extended periods. This can reduce memory use, potentially at the cost of framefrate."
+	"for extended periods. This can reduce memory use, potentially at the cost of framefrate.\n"
+	":param enabled: enable/disable unloading\n"
+	":type eanbled: bool\n"
+	":rtype: None"
 );
 #endif
 
@@ -835,15 +838,23 @@ MAP_FUNCTION
 	PyPickParticle, 
 	"Pick a particle from Tr2RuntimeInstanceData store using the current view and projection matrices\n"
 	"assuming instances are spheres with a constant radius.\n" 
-	"Arguments:\n"
-	"data - Tr2RuntimeInstanceData object\n"
-	"x - screen x mouse coordinate (in pixels)\n"
-	"y - screen y mouse coordinate (in pixels)\n"
-	"world - world transform\n"
-	"view - view transform (TriView)\n"
-	"proj - projection transform (TriProjection)\n"
-	"viewport - current viewport (TriViewport)\n"
-	"radius - instance radius"
+	":param data: Tr2RuntimeInstanceData object\n"
+	":type data: Tr2RuntimeInstanceData\n"
+	":param x: screen x mouse coordinate (in pixels)\n"
+	":type x: float\n"
+	":param y: screen y mouse coordinate (in pixels)\n"
+	":type y: float\n"
+	":param world: world transform\n"
+	":type world: tuple[tuple[float]]\n"
+	":param view: view transform (TriView)\n"
+	":type view: tuple[tuple[float]]\n"
+	":param proj: projection transform (TriProjection)\n"
+	":type proj: tuple[tuple[float]]\n"
+	":param viewport - current viewport (TriViewport)\n"
+	":type viewport: TriViewport\n"
+	":param radius: instance radius\n"
+	":type radius: float\n"
+	":rtype: int"
 );
 #endif
 

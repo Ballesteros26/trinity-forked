@@ -273,6 +273,14 @@ static PyObject* PySaveMeshDataToGrannyFile( PyObject* self, PyObject* args )
 
 MAP_FUNCTION( "SaveMeshDataToGrannyFile",
               PySaveMeshDataToGrannyFile,
-              "Saves mesh data to a Granny file.");
+              "Saves mesh data to a Granny file.\n"
+			  ":param mesh: mesh\n"
+			  ":type mesh: Tr2Mesh\n"
+			  ":param resPath: res path\n"
+			  ":type resPath: str\n"
+			  ":param rawPath: raw path\n"
+			  ":type rawPath: str\n"
+			  ":rtype: bool"
+			  );
 
 #endif

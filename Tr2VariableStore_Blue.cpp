@@ -228,7 +228,7 @@ static PyObject* PyGetVariableStore( PyObject* self, PyObject* args )
 	return ret; 
 }
 
-MAP_FUNCTION( "GetVariableStore", PyGetVariableStore, "Gets the global variable store" );
+MAP_FUNCTION( "GetVariableStore", PyGetVariableStore, "Gets the global variable store\n:type: Tr2VariableStore" );
 #endif
 
 const Be::ClassInfo* Tr2VariableStore::ExposeToBlue()

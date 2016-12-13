@@ -70,8 +70,7 @@ MAP_FUNCTION_AND_WRAP(
 	"StartStreamingBitmap", 
 	StartStreamingBitmap, 
 	"Starts streaming large bitmap to disk.\n"
-	"Arguments:\n"
-	"path - path to TGA file to write\n"
-	"width - image width\n"
-	"height - image height\n"
-	"format - image pixel format (trinity.PIXEL_FORMAT)" );
+	":param path: path to TGA file to write\n"
+	":param width: image width\n"
+	":param height: image height\n"
+	":param format: image pixel format (trinity.PIXEL_FORMAT)" );

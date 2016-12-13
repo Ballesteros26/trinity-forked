@@ -457,7 +457,12 @@ void InitializeApex( IPhysXSdk* p )
 
 }
 
-MAP_FUNCTION_AND_WRAP( "InitializeApex", InitializeApex, "Initialize the Apex SDK (for cloth simulation)");
+MAP_FUNCTION_AND_WRAP( 
+	"InitializeApex", 
+	InitializeApex, 
+	"Initialize the Apex SDK (for cloth simulation)\n"
+	":param physX: PhysX implementation"
+	);
 
 void ShutdownApex()
 {
@@ -752,7 +757,12 @@ void LaunchApexParamEditor( IPhysXSdk* )
 
 }
 
-MAP_FUNCTION_AND_WRAP( "LaunchApexParamEditor", LaunchApexParamEditor, "Launch the APEX parameter editor");
+MAP_FUNCTION_AND_WRAP( 
+	"LaunchApexParamEditor", 
+	LaunchApexParamEditor, 
+	"Launch the APEX parameter editor\n"
+	":param physX: PhysX implementation"
+	);
 
 
 

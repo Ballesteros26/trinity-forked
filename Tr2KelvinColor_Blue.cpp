@@ -207,20 +207,34 @@ static PyObject* PyGetKelvinTintBuffer( PyObject* self, PyObject* args )
 
 MAP_FUNCTION( "TriColorFromKelvin", PyTriColorFromKelvin,
 			 "Converts a Kelvin color temperature to an RGBA color.\n\n"
-			 " temperature:		Kelvin color temperature,\n"
-			 " tint:			a tint value (not used),\n"
-			 " whiteBalance:	white balance standard illuminant" );
+			 ":param temperature:		Kelvin color temperature,\n"
+			 ":type temperature: float\n"
+			 ":param tint:			a tint value (not used),\n"
+			 ":type tint: float\n"
+			 ":param whiteBalance:	white balance standard illuminant" 
+			 ":type whiteBalance: int\n"
+			 ":rtype: (float, float, float, float)"
+			 );
 
 MAP_FUNCTION( "GetKelvinTemperatureBuffer", PyGetKelvinTemperatureBuffer,
 			 "Generates a buffer of Kelvin temperatures.\n\n"
-			 " width:			width of the buffer in pixels,\n"
-			 " height:			height of the buffer in pixels,\n"
-			 " whiteBalance:	white balance standard illuminant");
+			 ":param width:			width of the buffer in pixels,\n"
+			 ":type width: int\n"
+			 ":param height:			height of the buffer in pixels,\n"
+			 ":type height: int\n"
+			 ":param whiteBalance:	white balance standard illuminant\n"
+			 ":type whiteBalance: int\n"
+			 ":rtype: bytearray"
+			 );
 
 MAP_FUNCTION( "GetKelvinTintBuffer", PyGetKelvinTintBuffer,
 			 "Generates a buffer of Kelvin tint values.\n\n"
-			 " width:		width of the buffer in pixels,\n"
-			 " height:		height of the buffer in pixels,\n" );
+			 ":param  width:		width of the buffer in pixels,\n"
+			 ":type width: int\n"
+			 ":param  height:		height of the buffer in pixels,\n" 
+			 ":type height: int\n"
+			 ":rtype: bytearray"
+			 );
 
 #endif
 

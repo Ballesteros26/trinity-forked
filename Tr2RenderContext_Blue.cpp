@@ -425,6 +425,8 @@ MAP_FUNCTION(
 	"GetLiveALResources", 
 	PyGetLiveResources, 
 	"Returns a per-AL-type dictionary of lists of live AL objects. The function\n"
-	"is expensive and is not supposed to be used every frame." );
+	"is expensive and is not supposed to be used every frame.\n"
+	":rtype: dict[int, list[dict[str, int]]]"
+	);
 
 #endif

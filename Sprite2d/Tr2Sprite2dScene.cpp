@@ -2572,6 +2572,11 @@ static PyObject* PyGetCursorPos( PyObject* module, PyObject* args )
 
 }
 
-MAP_FUNCTION( "GetCursorPos", PyGetCursorPos, "Gets current cursor position as a 2-tuple" );
+MAP_FUNCTION( 
+	"GetCursorPos", 
+	PyGetCursorPos, 
+	"Gets current cursor position as a 2-tuple\n"
+	":rtype: (int, int)"
+	);
 
 #endif

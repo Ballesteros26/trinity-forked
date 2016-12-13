@@ -1018,6 +1018,13 @@ static PyObject* PyParseLabelText( PyObject* self, PyObject* args )
     return listOfLines;
 }
 
-MAP_FUNCTION( "ParseLabelText", PyParseLabelText, "This is used by the UI's Label to parse our custom HTML-ish language very quickly.  It is almost surely not useful for any other purpose." );
+MAP_FUNCTION( 
+	"ParseLabelText", 
+	PyParseLabelText, 
+	"This is used by the UI's Label to parse our custom HTML-ish language very quickly.  It is almost surely not useful for any other purpose.\n"
+	":param text: input text\n"
+	":type text: unicode\n"
+	":rtype: list"
+	);
 
 #endif

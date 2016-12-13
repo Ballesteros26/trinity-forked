@@ -209,5 +209,5 @@ const Be::ClassInfo* Tr2VideoAdapters::ExposeToBlue()
 #ifdef _WIN32
 MAP_FUNCTION_AND_WRAP( "GetD3DCreatedHeapCount", GetD3DCreatedHeapCount, "" );
 
-MAP_FUNCTION_AND_WRAP( "GetD3DCreatedHeap", GetD3DCreatedHeap, "" );
+MAP_FUNCTION_AND_WRAP( "GetD3DCreatedHeap", GetD3DCreatedHeap, "Returns D3D heap handle\n:param indx: heap index" );
 #endif

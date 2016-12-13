@@ -473,34 +473,9 @@ void Tr2Renderer::GetBackBufferDimensions( unsigned int& w, unsigned int& h )
     h = unsigned( gTriDev->mHeight );
 }
 
-#if BLUE_WITH_PYTHON
-static PyObject* PyReloadShaders( PyObject* self, PyObject* args ) 
-{
-	ReloadShaders();
-	Py_RETURN_NONE;
-}
+MAP_FUNCTION_AND_WRAP( "ReloadShaders", ReloadShaders, "Forces Trinity to reload all shaders.");
 
-MAP_FUNCTION( "ReloadShaders", PyReloadShaders, "Forces Trinity to reload all shaders.");
-
-static PyObject* PySetRightHanded( PyObject* self, PyObject* args )
-{
-	bool b = false;
-	if( !PyArg_ParseTuple( args, "b", &b ) )
-	{
-		return NULL;
-	}
-
-	if( b != s_isRightHanded )
-	{
-		s_isRightHanded = b;
-		Tr2Renderer::ReinitializeRegisteredEffects();
-	}
-	Py_RETURN_NONE;
-}
-
-MAP_FUNCTION( "SetRightHanded", PySetRightHanded, "Set Trinity rendering to use a right-handed coordinate system.");
-
-static PyObject* PyIsRightHanded( PyObject* self, PyObject* args )
+static bool IsRightHanded()
 {
 	if( s_isRightHanded )
 	{
@@ -512,8 +487,7 @@ static PyObject* PyIsRightHanded( PyObject* self, PyObject* args )
 	}
 }
 
-MAP_FUNCTION( "IsRightHanded", PyIsRightHanded, "Returns true if Trinity rendering uses a right-handed coordinate system.");
-#endif
+MAP_FUNCTION_AND_WRAP( "IsRightHanded", IsRightHanded, "Returns true if Trinity rendering uses a right-handed coordinate system.");
 
 void Tr2Renderer::AdjustProjection( const Vector2& scaling, const Vector2& translation )
 {
