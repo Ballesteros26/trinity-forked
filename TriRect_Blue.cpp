@@ -56,7 +56,11 @@ const Be::ClassInfo* TriRect::ExposeToBlue()
 			"__init__", 
 			SetDimentions, 
 			4,
-			"Constructor arguments" 
+			"Constructor arguments\n" 
+			":param left: \n"
+			":param top: \n"
+			":param right: \n"
+			":param bottom: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               SetRect
@@ -65,7 +69,10 @@ const Be::ClassInfo* TriRect::ExposeToBlue()
 			"SetRect", 
 			PySetRect,
 			4,
-			"" 
+			":param left: \n"
+			":param top: \n"
+			":param right: \n"
+			":param bottom: \n"
 		)
 
 	EXPOSURE_END()

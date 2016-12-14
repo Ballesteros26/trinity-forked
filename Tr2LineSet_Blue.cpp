@@ -14,11 +14,18 @@ const Be::ClassInfo* Tr2LineSet::ExposeToBlue()
 
 		MAP_METHOD_AND_WRAP( "AddPickingTriangle", AddPickingTriangle, 
 			"(pos1, pos2, pos3)\n"
-			"Add a triangle to serve as a picking area for the lineset" 
+			"Add a triangle to serve as a picking area for the lineset\n" 
+			":param pos1: \n"
+			":param pos2: \n"
+			":param pos3: \n"
 		)
 		MAP_METHOD_AND_WRAP( "AddLine", AddLine, 
 			"( startPosition, startColor, endPosition, endColor )\n"
-			"Adds a line to the line set, but does not submit it." 
+			"Adds a line to the line set, but does not submit it.\n" 
+			":param startPosition: line start position\n"
+			":param startColor: line color at startPosition\n"
+			":param endPosition: line end position\n"
+			":param endColor: line color at endPosition\n"
 		)
 		MAP_METHOD_AND_WRAP( "ClearLines", ClearLines, 
 			"Clears all lines. Requires a call to SubmitChanges to complete." 

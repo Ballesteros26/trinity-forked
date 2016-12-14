@@ -21,6 +21,11 @@ const Be::ClassInfo* Tr2MaterialParameterStore::ExposeToBlue()
 		MAP_ATTRIBUTE( "parent", m_parentStore, "The materialStore we derive from", Be::READ ) 
 		MAP_ATTRIBUTE( "parameters", m_parameters, "The shader parameters of this instance", Be::READWRITE | Be::PERSIST )
 
-		MAP_METHOD_AND_WRAP( "FindParameter", FindParameter, "Finds the parameter in this or the parent's store.  Returns None if not found" )
+		MAP_METHOD_AND_WRAP( 
+			"FindParameter", 
+			FindParameter, 
+			"Finds the parameter in this or the parent's store.  Returns None if not found\n" 
+			":param name: parameter name"
+		)
 	EXPOSURE_END()
 }

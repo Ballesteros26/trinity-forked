@@ -42,9 +42,8 @@ const Be::ClassInfo* Tr2ImageRes::ExposeToBlue()
 			"IsPixelOpaque",
 			IsPixelOpaque,
 			"Returns true if the alpha value for the given pixel is > 0.5."
-			"\n\nArguments:"
-			"\n x - x-coordinate of pixel"
-			"\n y - y-coordinate of pixel"
+			"\n:param x: x-coordinate of pixel"
+			"\n:param y: y-coordinate of pixel"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -52,9 +51,8 @@ const Be::ClassInfo* Tr2ImageRes::ExposeToBlue()
 			"GetPixelColor",
 			GetPixelColor,
 			"Returns the color value of the given pixel."
-			"\n\nArguments:"
-			"\n x - x-coordinate of pixel"
-			"\n y - y-coordinate of pixel"
+			"\n:param x: x-coordinate of pixel"
+			"\n:param y: y-coordinate of pixel"
 		)
     EXPOSURE_CHAINTO( BlueAsyncRes )
 }

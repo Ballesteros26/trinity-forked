@@ -22,9 +22,9 @@ const Be::ClassInfo* Tr2TextureAtlasMan::ExposeToBlue()
 			AddAtlasWrap,
 			"Add a texture atlas with the given format and dimensions.\n\n"
 			"Arguments:\n"
-			"- fmt    The texture format\n"
-			"- width  The width of the texture atlas\n"
-			"- height The height of the texture atlas"
+			":param fmt: The texture format (trinity.PIXEL_FORMAT)\n"
+			":param width: The width of the texture atlas\n"
+			":param height: The height of the texture atlas"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -32,8 +32,7 @@ const Be::ClassInfo* Tr2TextureAtlasMan::ExposeToBlue()
 			"RemoveAtlas",
 			RemoveAtlasWrap,
 			"Removes a texture atlas with the given format.\n\n"
-			"Arguments:\n"
-			" - fmt  The texture format"
+			":param fmt: The texture format"
 		)
 
     EXPOSURE_END()

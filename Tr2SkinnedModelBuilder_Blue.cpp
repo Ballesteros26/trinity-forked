@@ -152,12 +152,42 @@ const Be::ClassInfo* Tr2SkinnedModelBuilderSource::ExposeToBlue()
 		MAP_ATTRIBUTE( "lowerRightTexCoord", m_lowerRightTexCoord, "", Be::READWRITE )
 		MAP_ATTRIBUTE( "enableCutMask", m_enableCutMask, "", Be::READWRITE )
 
-		MAP_METHOD( "SetExcludeMeshes", PySetExcludeMeshes, "Gets a list of parameters" )
-		MAP_METHOD( "GetExcludeMeshes", PyGetExcludeMeshes, "Sets a list of parameters" )
-		MAP_METHOD( "SetOverrideMaterial0Meshes", PySetOverrideMaterial0Meshes, "Gets a list of parameters" )
-		MAP_METHOD( "GetOverrideMaterial0Meshes", PyGetOverrideMaterial0Meshes, "Sets a list of parameters" )
-		MAP_METHOD( "SetOverrideMaterial1Meshes", PySetOverrideMaterial1Meshes, "Gets a list of parameters" )
-		MAP_METHOD( "GetOverrideMaterial1Meshes", PyGetOverrideMaterial1Meshes, "Sets a list of parameters" )
+		MAP_METHOD( 
+			"SetExcludeMeshes", 
+			PySetExcludeMeshes, 
+			":param names: list of mesh names\n"
+			":type names: list[str]\n"
+			":rtype: None"
+		)
+		MAP_METHOD( 
+			"GetExcludeMeshes", 
+			PyGetExcludeMeshes, 
+			":rtype: list[str]"
+		)
+		MAP_METHOD( 
+			"SetOverrideMaterial0Meshes", 
+			PySetOverrideMaterial0Meshes, 
+			":param names: list of mesh names\n"
+			":type names: list[str]\n"
+			":rtype: None"
+		)
+		MAP_METHOD( 
+			"GetOverrideMaterial0Meshes", 
+			PyGetOverrideMaterial0Meshes, 
+			":rtype: list[str]"
+		)
+		MAP_METHOD( 
+			"SetOverrideMaterial1Meshes", 
+			PySetOverrideMaterial1Meshes, 
+			":param names: list of mesh names\n"
+			":type names: list[str]\n"
+			":rtype: None"
+		)
+		MAP_METHOD( 
+			"GetOverrideMaterial1Meshes", 
+			PyGetOverrideMaterial1Meshes, 
+			":rtype: list[str]"
+		)
 
 		MAP_ATTRIBUTE( "visualModelMeshName", m_visualModelMeshName, "", Be::READWRITE )
 		MAP_ATTRIBUTE( "visualModelMeshGrannyPath", m_visualModelMeshGrannyPath, "", Be::READWRITE )
@@ -195,7 +225,12 @@ const Be::ClassInfo* Tr2SkinnedModelBuilder::ExposeToBlue()
 
 		MAP_METHOD_AND_WRAP( "Build", Build, "Builds the final avatar. Assumes resources have finished loading." )
 #if BLUE_WITH_PYTHON
-		MAP_METHOD_AND_WRAP( "BuildAsync", BuildAsync, "Builds the final avatar on a background thread. Assumes resources have finished loading." )
+		MAP_METHOD_AND_WRAP( 
+			"BuildAsync", 
+			BuildAsync, 
+			"Builds the final avatar on a background thread. Assumes resources have finished loading.\n" 
+			":param cb: callback function"
+		)
 #endif
 		MAP_METHOD_AND_WRAP( "PrepareForBuild", PrepareForBuild, "Loads the modules and initiates loading of resources used by them." )
 		MAP_METHOD_AND_WRAP( "GetSkinnedModel", GetSkinnedModel, "Returns the resulting skinned model from Build." )
@@ -203,8 +238,7 @@ const Be::ClassInfo* Tr2SkinnedModelBuilder::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( "SetAdjustPathMethod", SetAdjustPathMethod, 
 			"Sets the method to invoke to convert a raw .gr2 path to one adjusted for lod."
 			"\n"
-			"\nArguments:"
-			"\nAdjustPathMethod - a method which has the following signature:"
+			"\n:param adjustPathMethod: a method which has the following signature:"
 			"\n           Arguments:"
 			"\n           path - string, the original path to the gr2"
 			"\n           Returns:"
@@ -219,11 +253,15 @@ const Be::ClassInfo* Tr2SkinnedModelBuilder::ExposeToBlue()
 			"\n\t batchType - batch type of the area"
 			"\n\t areaIndex - index of the area within the specific batch type"
 			"\n\t permuteIndex - permuteIndex of low level shader of the source item, if any"
+			"\n:rtype: list"
 			)
 
 		MAP_METHOD( "SetExtraArrayOf", PySetExtraArrayOf, 
 			"Sets a list of strings, each string will trigger the creation of"
 			"\na TriFloatArrayParameter with that name."
+			"\n:param names: list of parameter names"
+			"\n:type names: list[str]"
+			"\n:rtype: None"
 			)
 
     EXPOSURE_END()

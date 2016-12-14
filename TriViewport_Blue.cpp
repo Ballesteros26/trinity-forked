@@ -57,7 +57,13 @@ const Be::ClassInfo* TriViewport::ExposeToBlue()
 			"__init__", 
 			py__init__, 
 			6,
-			"Optional arguments are (int,int,int,int,float,float)"
+			"Optional arguments are (int,int,int,int,float,float)\n"
+			":param x: \n"
+			":param y: \n"
+			":param width: \n"
+			":param height: \n"
+			":param zn: \n"
+			":param zf: \n"
 			)
 
 		MAP_METHOD_AND_WRAP( 

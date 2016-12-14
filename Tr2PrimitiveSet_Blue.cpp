@@ -55,7 +55,8 @@ const Be::ClassInfo* Tr2PrimitiveSet::ExposeToBlue()
 		)
 #endif
 		MAP_METHOD_AND_WRAP( "SetCurrentColor", SetCurrentColor, 
-			"( color )\nSets the color of the primitive" 
+			"( color )\nSets the color of the primitive\n" 
+			":param color: primitive color"
 		)
 	EXPOSURE_END()
 }

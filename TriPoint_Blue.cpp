@@ -38,7 +38,9 @@ const Be::ClassInfo* TriPoint::ExposeToBlue()
             "__init__",
             SetXY,
 			2,
-			"Constructor arguments"
+			"Constructor arguments\n"
+			":param x: \n"
+			":param y: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               SetPoint
@@ -47,7 +49,8 @@ const Be::ClassInfo* TriPoint::ExposeToBlue()
             "SetPoint",
             PySetPoint,
 			2,
-			""
+			":param x: \n"
+			":param y: \n"
 		)
 
 	EXPOSURE_END()

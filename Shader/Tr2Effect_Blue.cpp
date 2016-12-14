@@ -182,10 +182,22 @@ const Be::ClassInfo* Tr2Effect::ExposeToBlue()
 			Be::READWRITE | Be::PERSIST
 		)
 
-		MAP_METHOD( "GetParameterAnnotations", PyGetParameterAnnotations, "Gets the annotations on a parameter" )
+		MAP_METHOD( 
+			"GetParameterAnnotations", 
+			PyGetParameterAnnotations, 
+			"Gets the annotations on a parameter\n"
+			":param parameter: either parameter name or an effect parameter object\n"
+			":type parameter: str | ITriEffectParameter\n"
+			":rtype: dict"
+		)
 		MAP_METHOD_AND_WRAP( "PopulateParameters", PopulateParameters, "Populates the parameter list with the appropriate parameters" )
 		MAP_METHOD_AND_WRAP( "PruneParameters", PruneParameters, "Removes parameters from the parameter list that are not used by the effect" )
-		MAP_METHOD_AND_WRAP( "IsParameterUsedByTechnique", IsParameterUsedByTechnique, "Returns True if the parameter name is used by the current technique" )
+		MAP_METHOD_AND_WRAP( 
+			"IsParameterUsedByTechnique", 
+			IsParameterUsedByTechnique, 
+			"Returns True if the parameter name is used by the current technique\n"
+			":param name: parameter name"
+		)
 		MAP_METHOD_AND_WRAP( "RebuildCachedData", RebuildCachedDataInternal, "Call this after adding/removing parameters/resources" )
 
 		MAP_METHOD_AND_WRAP( "StartUpdate"	, StartUpdate,	"Temporarily block list notifications from causing a data rebuild" )

@@ -242,53 +242,57 @@ const Be::ClassInfo* Tr2VariableStore::ExposeToBlue()
 			PyRegisterVariable, 
 			"Registers a new variable in this store." 
 			"\n"
-			"\nArguments:"
-			"\nname - Name of the variable"
+			"\n:param name: Name of the variable"
+			"\n:type name: str"
 			"\nvalue - Value for the new variable" )
 		MAP_METHOD( 
 			"FindVariable", 
 			PyFindVariable, 
 			"Returns a variable in the local store or its parents. Throws an exception if the variable is not found." 
 			"\n"
-			"\nArguments:"
-			"\nname - Name of the variable" )
+			"\n:param name: Name of the variable" 
+			"\n:type name: str"
+		)
 		MAP_METHOD( 
 			"FindLocalVariable", 
 			PyFindLocalVariable, 
 			"Returns a variable in the local store. Throws an exception if the variable is not found." 
 			"\n"
-			"\nArguments:"
-			"\nname - Name of the variable" )
+			"\n:param name: Name of the variable" 
+			"\n:type name: str"
+		)
 		MAP_METHOD( 
 			"GetVariable", 
 			PyGetVariable, 
 			"Returns a variable in the local store or its parents. If the variable is not found the function creates"
 			" a new variable in this store." 
 			"\n"
-			"\nArguments:"
-			"\nname - Name of the variable" )
+			"\n:param name: Name of the variable" 
+			"\n:type name: str"
+		)
 		MAP_METHOD( 
 			"GetLocalVariable", 
 			PyGetLocalVariable, 
 			"Returns a variable in the local store. If the variable is not found the function creates"
 			" a new variable in this store." 
 			"\n"
-			"\nArguments:"
-			"\nname - Name of the variable" )
+			"\n:param name: Name of the variable" 
+			"\n:type name: str"
+		)
 		MAP_METHOD_AND_WRAP( 
 			"UnregisterVariable", 
 			UnregisterVariable, 
 			"Unregisters an existing variable. Looks for the variable in this store and its parents." 
 			"\n"
-			"\nArguments:"
-			"\nname - Name of the variable" )
+			"\n:param name: Name of the variable" 
+		)
 		MAP_METHOD_AND_WRAP( 
 			"UnregisterLocalVariable", 
 			UnregisterLocalVariable, 
 			"Unregisters an existing variable. Looks for the variable only in this store." 
 			"\n"
-			"\nArguments:"
-			"\nname - Name of the variable" )
+			"\n:param name: Name of the variable" 
+		)
 		MAP_METHOD_AND_WRAP( 
 			"GetLocalNames", 
 			GetLocalNames, 

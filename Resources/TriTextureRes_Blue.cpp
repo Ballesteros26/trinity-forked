@@ -268,9 +268,10 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			"Asynchronously save the contents of this TriTextureRes.\n"
 			"Use WaitForSave if you want to wait -- or use the synchronous\n"
 			"version Save()\n"
-			"Arguments:\n"
-			"path -- absolute system file path and name with extension.\n"
-			"        The format will be decided from the extension (dds, jpg, ...)"
+			":para path: absolute system file path and name with extension.\n"
+			"        The format will be decided from the extension (dds, jpg, ...)\n"
+			":type path: basestring\n"
+			":rtype: bool"
 		)
 
 		MAP_METHOD
@@ -278,9 +279,10 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			"Save", 
 			PySave,
 			"Save the contents of this TriTextureRes.\n"
-			"Arguments:\n"
-			"path -- absolute system file path and name with extension.\n"
-			"        The format will be decided from the extension (dds, jpg, ...)"
+			":param path: absolute system file path and name with extension.\n"
+			"        The format will be decided from the extension (dds, jpg, ...)\n"
+			":type path: basestring\n"
+			":rtype: bool"
 		)
 
 		MAP_METHOD_AND_WRAP( "PrepareResources", PrepareResources,	"Initiates load of resources from disk. Returns immediately.")
@@ -315,8 +317,7 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			SetTextureFromRT,
 			"Set a texture from a renderTarget. User needs to keep the RT alive.\n"
 			"The TriTextureRes will now represent a live view on the RT to be textured from.\n"
-			"\nArguments:"
-			"\nTr2RenderTarget"
+			"\n:param rt: render target"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -325,8 +326,7 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			CreateAndCopyFromRenderTargetPython,
 			"Create a new TriTextureRes with the dimensions and pixelFormat from the specified\n"
 			"renderTarget.  A copy of the contents is made.\n"
-			"\nArguments:"
-			"\nTr2RenderTarget"
+			"\n:param rt: render target"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -336,10 +336,9 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			"Create a new TriTextureRes with given width and height, and \n"
 			"with pixelFormat from the specified renderTarget\n"
 			"A (cropped) copy of the contents is made.\n"
-			"\nArguments:"
-			"\nTr2RenderTarget"
-			"\nwidth"
-			"\nheight"
+			"\n:param rt: render target"
+			"\n:param width: destination width"
+			"\n:param height: destination height"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -347,8 +346,7 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			"SetFromDepthStencil",
 			SetTextureFromDS,
 			"Set a texture from a depthStencil. User needs to keep the DS alive."
-			"\nArguments:"
-			"\nTr2DepthStencil"
+			"\n:param ds: depth stencil object"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -357,8 +355,7 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			CreateFromHostBitmap,
 			"Creates a new TriTextureRes width the dimensionts and pixelFormat from specified\n"
 			"host bitmap and copies the contents of the host bitmap into the texture.\n"
-			"Arguments:\n"
-			"hostBitmap - valid Tr2HostBitmap"
+			":param hostBitmap: valid Tr2HostBitmap"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -366,8 +363,7 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			"CreateFromTexture",
 			CreateFromTexture,
 			"Creates a new TriTextureRes with a copy of provided TriTextureRes argument.\n"
-			"Arguments:\n"
-			"texture - valid TriTextureRes"
+			":param texture: valid TriTextureRes"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -376,18 +372,28 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 			HasALObject,
 			"Returns True iff TriTextureRes contains a reference to passed AL object ID.\n"
 			"Used for debugging along with trinity.GetLiveALResources.\n"
-			"Arguments:\n"
-			"type - AL object type (trinity.AL_OBJECT_TYPE)\n"
-			"object - AL object ID"
+			":param alType: AL object type (trinity.AL_OBJECT_TYPE)\n"
+			":param alObject: AL object ID"
 		)
 
 		MAP_METHOD
 		(
 			"__init__", 
 			PyInit, 
-			"\nOptional Arguments:"
-			"\nrenderTarget - a Tr2RenderTarget that this TriTextureRes will wrap"
-			"\nOR\ndepthStencil - a Tr2DepthStencil that this TriTextureRes will wrap"
+			"Constructs a new texture. There are three possible overrides:\n"
+			"(1) TriTextureRes() - constructs an empty texture\n"
+			"(2) TriTextureRes(other) - wraps existing render target or depth stencil\n"
+			"(3) TriTextureRes(width, height, mipCount, format [, usage]) - creates a new unfilled texture\n"
+			":param otherOrWidth: render target / depth stencil for the (2) override or width for (3) override\n"
+			":type otherOrWidth: Optional[Tr2RenderTarget | Tr2DepthStencil | int]\n"
+			":param height: texture height\n"
+			":type height: Optional[int]\n"
+			":param mipCount: number of mip levels\n"
+			":type mipCount: Optional[int]\n"
+			":param format: pixel format (trinity.PIXEL_FORMAT)\n"
+			":type format: Optional[int]\n"
+			":param usage: texture usage (trinity.BUFFER_USAGE_FLAGS)\n"
+			":type usage: Optional[int]\n"
 		)
 
 #if PY_VERSION_HEX >= 0x02070000
@@ -395,9 +401,14 @@ const Be::ClassInfo* TriTextureRes::ExposeToBlue()
 		(
 			"UpdateSubresource",
 			PyUpdateSubresource,
-			"Arguments:\n"
-			"  (left, top, right, bottom)\n"
-			"  buffer (as a capsule)\n"
+			"Uploads data to the texture\n"
+			":param rect: destination rectangle (left, top, right, bottom)\n"
+			":type rect: (int, int, int, int)\n"
+			":param data: data as a buffer\n"
+			":type data: buffer\n"
+			":param pitch: size of a single row in the data buffer in bytes\n"
+			":type pitch: int\n"
+			":rtype: None"
 		)
 #endif
 	EXPOSURE_CHAINTO( BlueAsyncRes )

@@ -58,7 +58,11 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 			"__init__",
 			Py__init__, 
 			4,
-			"Constructor arguments" 
+			"Constructor arguments\n" 
+			":param r: red\n"
+			":param g: green\n"
+			":param b: blue\n"
+			":param a: alpha\n"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -68,7 +72,11 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 			"SetRGB",
 			PySetRGB, 
 			4,
-			"Sets the RGB values of the color" 
+			"Sets the RGB values of the color\n" 
+			":param r: red\n"
+			":param g: green\n"
+			":param b: blue\n"
+			":param a: alpha\n"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -79,8 +87,12 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 			PySetHSV, 
 			4,
 			"Sets the HSV values of the color \r\n"
-			"h = [0,360], s = [0,1], v = [0,1]"
-			"if s == 0, then h = -1 (undefined)"
+			"h = [0,360], s = [0,1], v = [0,1]\n"
+			"if s == 0, then h = -1 (undefined)\n"
+			":param hue: \n"
+			":param saturation: \n"
+			":param value: \n"
+			":param alpha: \n"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -90,7 +102,9 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 			"SetVector",
 			PySetVector, 
 			1,
-			"Finds the color of the vector and uses that." 
+			"Finds the color of the vector and uses that.\n" 
+			":param vec: vector\n"
+			":param alpha: alpha"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -110,7 +124,8 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 		( 
 			"FromInt",
 			PyFromInt, 
-			"Changes thie color to the one reprecented by the integer" 
+			"Changes thie color to the one reprecented by the integer\n" 
+			":param color: "
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -128,7 +143,8 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 		( 
 			"Add",
 			PyAdd, 
-			"Adds a color to this color." 
+			"BROKEN! Adds a color to this color.\n" 
+			":rtype: None"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               AdjustContrast
@@ -136,7 +152,8 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 		( 
 			"AdjustContrast",
 			AdjustContrast, 
-			"Adjusts the contrast value of a color." 
+			"Adjusts the contrast value of a color.\n" 
+			":param contrast: \n"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -145,7 +162,8 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 		( 
 			"AdjustSaturation",
 			AdjustSaturation, 
-			"Adjusts the saturation value of a color." 
+			"Adjusts the saturation value of a color.\n" 
+			":param saturation: \n"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -154,7 +172,8 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 		( 
 			"Lerp",
 			PyLerp, 
-			"Uses linear interpolation to modify this color value" 
+			"BROKEN! Uses linear interpolation to modify this color value\n" 
+			":rtype: None"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -163,7 +182,8 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 		( 
 			"Modulate",
 			PyModulate, 
-			"Blends a color with this color." 
+			"BROKEN! Blends a color with this color.\n" 
+			":rtype: None"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -181,7 +201,8 @@ const Be::ClassInfo* TriColor::ExposeToBlue()
 		( 
 			"Scale",
 			Scale, 
-			"Scales the value of the color." 
+			"Scales the value of the color.\n" 
+			":param s: scale"
 		)
 	EXPOSURE_END()
 

@@ -100,7 +100,12 @@ const Be::ClassInfo* Tr2ShaderMaterial::ExposeToBlue()
 			"Call this after adding/removing parameters/resources"
 		)
 
-		MAP_METHOD_AND_WRAP( "BindLowLevelShader", PyBindLowLevelShader, "Directly binds shader with the give situation" )
+		MAP_METHOD_AND_WRAP( 
+			"BindLowLevelShader", 
+			PyBindLowLevelShader, 
+			"Directly binds shader with the give situation\n" 
+			":param situation: list of permutation names"
+		)
 
 	
 	EXPOSURE_END()

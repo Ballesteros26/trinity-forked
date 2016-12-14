@@ -93,7 +93,8 @@ const Be::ClassInfo* Tr2HighLevelShader::ExposeToBlue()
 	(
 		"PermuteIndexToString", 
 		PermuteIndexToString, 
-		"Returns define string for a given permute index"
+		"Returns define string for a given permute index\n"
+		":param idx: permute index"
 	);
 
 	MAP_METHOD_AND_WRAP

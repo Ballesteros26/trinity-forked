@@ -89,7 +89,8 @@ const Be::ClassInfo* App::ExposeToBlue()
 		(
 			"Destroy",
 			PyDestroy,	
-			"Destroyes the Application, hopefully" 
+			"Destroyes the Application, hopefully\n" 
+			":rtype: None"
 		)
 		
 		MAP_METHOD_AND_WRAP
@@ -104,14 +105,19 @@ const Be::ClassInfo* App::ExposeToBlue()
 		(
 			"MoveWindow",
 			MoveWindow,	
-			"See Win32 MoveWindow" 
+			"See Win32 MoveWindow\n" 
+			":param x: window horizontal position\n"
+			":param y: window vertical position\n"
+			":param width: window width\n"
+			":param height: window height\n"
 		)
 		
 		MAP_METHOD_AND_WRAP
 		(
 			"Minimize",
 			Minimize,	
-			"blah" 
+			"minimizes the window\n" 
+			":param minimize: minimize or restore the window"
 		)
 		
 #if BLUE_WITH_PYTHON
@@ -120,7 +126,8 @@ const Be::ClassInfo* App::ExposeToBlue()
 			"GetClientRect",
 			GetClientRect,	
 			1,
-			"blah" 
+			"returns a rectange of the client portion of the window\n" 
+			":param x: strangely unused parameter"
 		)
 		
 		MAP_METHOD_AND_WRAP
@@ -135,14 +142,16 @@ const Be::ClassInfo* App::ExposeToBlue()
 		(
 			"GetHwnd",
 			PyGetHwnd, 
-			"Get the wrapped window handle of this thing" 
+			"Get the wrapped window handle of this thing\n" 
+			":rtype: capsule"
 		)
 		
 		MAP_METHOD_AS_METHOD
 		(
 			"GetHwndAsLong",
 			PyGetHwndAsLong, 
-			"Get the window handle of the application as a long" 
+			"Get the window handle of the application as a long\n" 
+			":rtype: long"
 		)
 
 
@@ -150,28 +159,49 @@ const Be::ClassInfo* App::ExposeToBlue()
 		(
 			"AdjustWindowForChange",
 			PyAdjustWindowForChange, 
-			"Call before applying a device change" 
+			"Call before applying a device change\n" 
+			":param windowed: windowed or fullscreen\n"
+			":type windowed: Optional[bool]\n"
+			":param fixed: fixed window\n"
+			":type fixed: Optional[bool]\n"
+			":rtype: None"
 		)
 		
 		MAP_METHOD_AND_WRAP
 		(
 			"CreateDevice",
 			CreateDevice,
-			"Create the graphics device"
+			"Create the graphics device\n"
+			":param adapter: video adapter index\n"
+			":param presentParameters: presentation parameters"
 		)
 		
 		MAP_METHOD_AS_METHOD
 		(
 			"ChangeDevice",
 			PyChangeDevice, 
-			"Modify or set the device" 
+			"Modify or set the device\n" 
+			":param adapter: video adapter index or None for default adapter\n"
+			":type adapter: None|int\n"
+			":param behaviorFlags: unused\n"
+			":type behaviorFlags: int\n"
+			":param adapterType: unsused\n"
+			":type adapterType: int\n"
+			":param presentation: presentation parameters\n"
+			":type presentation: dict\n"
+			":rtype: None"
 		)
 		
 		MAP_METHOD_AS_METHOD
 		(
 			"SetWindowPos",
 			PySetWindowPos, 
-			"Set the window position" 
+			"Set the window position\n" 
+			":param left: horizontal window position\n"
+			":type left: Optional[int]\n"
+			":param top: vertical window position\n"
+			":type top: Optional[int]\n"
+			":rtype: None"
 		)
 		
 		MAP_METHOD_AND_WRAP
@@ -193,20 +223,22 @@ const Be::ClassInfo* App::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( "GetVirtualScreenWidth", GetVirtualScreenWidth, "Returns the virtual screen width which is the total desktop width." )
 		MAP_METHOD_AND_WRAP( "GetVirtualScreenHeight", GetVirtualScreenHeight, "Returns the virtual screen height which is the total desktop height." )
 
-		MAP_METHOD_AND_WRAP( "Key", IsKeyPressed, "" )
-		MAP_METHOD_AND_WRAP( "GetKeyState", GetKeyState, "" )
-		MAP_METHOD_AND_WRAP( "SetKey", SetKey, "" )
+		MAP_METHOD_AND_WRAP( "Key", IsKeyPressed, ":param key: key code" )
+		MAP_METHOD_AND_WRAP( "GetKeyState", GetKeyState, ":param key: key code" )
+		MAP_METHOD_AND_WRAP( 
+			"SetKey", 
+			SetKey, 
+			":param key: key code\n" 
+			":param pressed: is the key pressed"
+		)
 		
 		MAP_METHOD_AND_WRAP
 		(
 			"GetKeyNameText",
 			GetKeyNameText,
 			"Calls the Win32 function GetKeyNameText\n"
-			"\n"
-			"Arguments:\n"
-			"  vk - virtual key code\n"
-			"Returns:\n"
-			"  Name of the key corresponding to vk"
+			":param vk: virtual key code\n"
+			":returns: Name of the key corresponding to vk"
 		)
 		
 		MAP_METHOD_AND_WRAP
@@ -217,8 +249,10 @@ const Be::ClassInfo* App::ExposeToBlue()
 			"(set by the SetCursorPos function or the mouse) lies outside the rectangle, the system\n"
 			"automatically adjusts the position to keep the cursor inside the rectangular area.\n"
 			"\n"
-			"Arguments:\n"
-			"  left, top, bottom, right"
+			":param left: \n"
+			":param top: \n"
+			":param right: \n"
+			":param bottom: \n"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -232,7 +266,9 @@ const Be::ClassInfo* App::ExposeToBlue()
 		(
 			"SetCursorPos",
 			SetCursorPos,
-			"Set cursor position"
+			"Set cursor position\n"
+			":param x: horizontal cursor coordinate\n"
+			":param y: vertical cursor coordinate\n"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -247,7 +283,8 @@ const Be::ClassInfo* App::ExposeToBlue()
 		(
 			"SetIcon",
 			SetIcon,
-			"Sets application icon from the given .bmp file"
+			"Sets application icon from the given .bmp file\n"
+			":param filename: path to application icon file"
 		)
 	EXPOSURE_END()
 

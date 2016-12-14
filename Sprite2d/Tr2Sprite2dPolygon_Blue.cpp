@@ -465,6 +465,7 @@ const Be::ClassInfo* Tr2Sprite2dPolygon::ExposeToBlue()
 			":type texCoords0: sequence[(float, float)]|(float, float)\n"
 			":param texCoords1: optional sequence of 2-tuples with the second texture coordinates or a single 2-tuple\n"
 			":type texCoords1: sequence[(float, float)]|(float, float)\n"
+			":rtype: None"
 		)
 		MAP_METHOD
 		(
@@ -481,6 +482,7 @@ const Be::ClassInfo* Tr2Sprite2dPolygon::ExposeToBlue()
 			":type texCoords0: None|sequence[(float, float)]|(float, float)\n"
 			":param texCoords1: optional sequence of 2-tuples with the second texture coordinates or a single 2-tuple\n"
 			":type texCoords1: None|sequence[(float, float)]|(float, float)\n"
+			":rtype: None"
 		)
 		MAP_METHOD
 		(
@@ -489,6 +491,7 @@ const Be::ClassInfo* Tr2Sprite2dPolygon::ExposeToBlue()
 			"Adds triangle indices to the polygon.\n"
 			":param triangles: a sequence of 3-tuples with triangle indices\n"
 			":type positions: sequence[(int, int, int)]\n"
+			":rtype: None"
 		)
 #endif
 
@@ -511,8 +514,19 @@ const Be::ClassInfo* Tr2Sprite2dVertex::ExposeToBlue()
 
 		MAP_PROPERTY( "color", GetColor, SetColor, "vertex colour" )
 
-		MAP_METHOD_AND_WRAP( "GetTexCoord", GetTexCoord, "returns indexed texture coordinate" )
-		MAP_METHOD_AND_WRAP( "SetTexCoord", SetTexCoord, "sets indexed texture coordinate" )
+		MAP_METHOD_AND_WRAP( 
+			"GetTexCoord", 
+			GetTexCoord, 
+			"returns indexed texture coordinate\n"
+			":param idx: texture coordinates index"
+			)
+		MAP_METHOD_AND_WRAP( 
+			"SetTexCoord", 
+			SetTexCoord, 
+			"sets indexed texture coordinate\n" 
+			":param idx: texture coordinates index"
+			":param uv: texture coordinates"
+		)
 
 	EXPOSURE_END()
 }

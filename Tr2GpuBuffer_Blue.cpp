@@ -49,11 +49,10 @@ const Be::ClassInfo* Tr2GpuBuffer::ExposeToBlue()
 			"__init__",
 			__init__,
 			3,
-			"Arguments (optional):\n"
-			"count - number of elements in the buffer\n"
-			"format - buffer pixel format (trinity.PIXEL_FORMAT.foo)\n"
-			"cpuWritable - if CPU should have write access to the buffer\n"
-			"drawIndirect - if the buffer is used as parameters source for indirect draw calls" )
+			":param count: number of elements in the buffer\n"
+			":param format: buffer pixel format (trinity.PIXEL_FORMAT.foo)\n"
+			":param cpuWritable: if CPU should have write access to the buffer\n"
+			":param drawIndirect: if the buffer is used as parameters source for indirect draw calls" )
 		MAP_ATTRIBUTE( 
 			"count", 
 			m_count, 

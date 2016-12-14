@@ -128,10 +128,34 @@ const Be::ClassInfo* Tr2Mesh::ExposeToBlue()
 			Be::READ
 		)
 
-		MAP_METHOD_AND_WRAP( "SetGeometryRes", PySetGeometryRes, "Set the geometry resource used by this mesh - bypassing the regular method of setting a resource name. This is used for geometry resources that require special handling, such as pre-baked blendshapes." )
-		MAP_METHOD( "BindLowLevelShaders", PyBindLowLevelShaders, "Bind a new low level shader to all areas based on the current situation" )
+		MAP_METHOD_AND_WRAP( 
+			"SetGeometryRes", 
+			PySetGeometryRes, 
+			"Set the geometry resource used by this mesh - bypassing the regular method of setting a resource name.\n"
+			"This is used for geometry resources that require special handling, such as pre-baked blendshapes.\n"
+			":param geometry: new geometry resource"
+		)
+		MAP_METHOD( 
+			"BindLowLevelShaders", 
+			PyBindLowLevelShaders, 
+			"Bind a new low level shader to all areas based on the current situation\n" 
+			":param situation: list of permutation names\n"
+			":type situation: list[str]\n"
+			":param override: override default situation\n"
+			":type override: Optional[bool]\n"
+			":param store: variable store\n"
+			":type store: Optional[Tr2VariableStore]\n"
+			":rtype: None"
+		)
 
-        MAP_METHOD( "GetAreas", PyGetAreas, "" );
+        MAP_METHOD( 
+			"GetAreas", 
+			PyGetAreas, 
+			"Returns mesh area list\n" 
+			":param areaType: area type\n"
+			":type areaType: int\n"
+			":rtype: None | List"
+		);
 		MAP_METHOD_AND_WRAP( "GetAreasCount", GetAreasCount, "" );
 
     EXPOSURE_CHAINTO( Tr2MeshBase )

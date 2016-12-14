@@ -97,7 +97,8 @@ const Be::ClassInfo* Tr2LodResource::ExposeToBlue()
 		(
 			"SelectLod",
 			SelectLod,
-			"Select the level of detail for this resource"
+			"Select the level of detail for this resource\n"
+			":param lod: new LOD level"
 		)
 
 		MAP_PROPERTY_READONLY

@@ -108,7 +108,8 @@ const Be::ClassInfo* Tr2AtlasTexture::ExposeToBlue()
 			"LockBuffer",
 			PyLockBuffer,
 			"Locks the surface behind the atlas texture.\n"
-			"Returns a tuple with (address, width, height, pitch)"
+			"Returns a tuple with (address, width, height, pitch)\n"
+			":rtype: (buffer, int, int, int)"
 		)
 		
 		MAP_METHOD
@@ -116,7 +117,8 @@ const Be::ClassInfo* Tr2AtlasTexture::ExposeToBlue()
 			"LockBufferAndMargin",
 			PyLockBufferAndMargin,
 			"Locks the surface behind the atlas texture, including margin.\n"
-			"Returns a tuple with (address, width, height, pitch, margin)"
+			"Returns a tuple with (address, width, height, pitch, margin)\n"
+			":rtype: (buffer, int, int, int, int)"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -130,7 +132,8 @@ const Be::ClassInfo* Tr2AtlasTexture::ExposeToBlue()
 		(
 			"GetTextureAtlas",
 			PyGetTextureAtlas,
-			"Returns a handle to the texture atlas that this atlas texture is a part of."
+			"Returns a handle to the texture atlas that this atlas texture is a part of.\n"
+			":rtype: TriTextureRes"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -138,8 +141,7 @@ const Be::ClassInfo* Tr2AtlasTexture::ExposeToBlue()
 			"CopyFromHostBitmap",
 			CopyFromHostBitmap,
 			"Copies the contents of the host bitmap into the atlas texture.\n"
-			"Arguments:\n"
-			"hostBitmap - Tr2HostBitmap of exactly the same pixelformat as the atlas texture.\n"
+			":param hostBitmap: Tr2HostBitmap of exactly the same pixelformat as the atlas texture.\n"
 			"             The size needs to be either an exact match, in which case the texture is updated;\n"
 			"             _or_ it can be 2xmargin pixels wider and taller, in which case the margin in the\n"
 			"			 parent texture atlas is also overwritten."

@@ -50,33 +50,47 @@ const Be::ClassInfo* TriVector::ExposeToBlue()
 			"__init__",
 			SetXYZ, 
 			3,
-			"Constructor arguments" )
+			"Constructor arguments\n"
+			":param x: \n"
+			":param y: \n"
+			":param z: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP( 
 			"SetXYZ",
 			SetXYZ, 
-			"sets the vector" )			
+			"sets the vector\n" 
+			":param x: \n"
+			":param y: \n"
+			":param z: \n"
+		)			
 			
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP( 
 			"Add",
 			PyAdd,
-			"Accepts one argument, a vector, which is added to this vector" )
+			"Accepts one argument, a vector, which is added to this vector\n"
+			":param other: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP( 
 			"Cross",
 			PyCross, 
 			"Accepts one argument, a vector. The result is a Cross product of this vector"
-			"and argument 1" )
+			"and argument 1\n" 
+			":param other: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP( 
 			"Dot",
 			PyDot, 
 			"Accepts one argument, a vector. The result is a Dot product of this vector"
-			"and argument 1" )
+			"and argument 1\n" 
+			":param other: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP( 
@@ -94,19 +108,23 @@ const Be::ClassInfo* TriVector::ExposeToBlue()
 		MAP_METHOD_AND_WRAP(
 			"Lerp",
 			PyLerp, 
-			"" )
+			":param other: \n"
+			":param t: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP(
 			"Maximize",
 			PyMaximize, 
-			"" )
+			":param other: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP(
 			"Minimize",
 			PyMinimize, 
-			"" )
+			":param other: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP( 
@@ -118,55 +136,75 @@ const Be::ClassInfo* TriVector::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( 
 			"Project",
 			PyProject, 
-			"" )
+			":param viewport: \n"
+			":param projection: \n"
+			":param view: \n"
+			":param world: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP(
 			"Scale",
 			Scale, 
-			"Scales the vector by a factor" )
+			"Scales the vector by a factor\n"
+			":param scale: \n"
+			)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP(
 			"Subtract",
 			PySubtract, 
-			"" )
+			":param other: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP(
 			"TransformCoord",
 			PyTransformCoord, 
-			"" )
+			":param matrix: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP(	
 			"TransformNormal",
 			PyTransformNormal, 
-			"" )
+			":param matrix: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP(
 			"Unproject",
 			PyUnproject, 
-			"" )
+			":param viewport: \n"
+			":param projection: \n"
+			":param view: \n"
+			":param world: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP( 
 			"SetCrossProduct",
 			PySetCrossProduct, 
-			"Sets this vector to a crossproduct of two vectors" )
+			"Sets this vector to a crossproduct of two vectors\n"
+			":param v1: \n"
+			":param v2: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP( 
 			"DotProduct",
 			PyDotProduct, 
-			"Get the dotproduct of two vectors" )
+			"Get the dotproduct of two vectors\n" 
+			":param other: \n"
+		)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP( 
 			"TransformQuaternion",
 			PyTransformQuaternion, 
-			"Transforms this vector by the quaternion" )
+			"Transforms this vector by the quaternion\n" 
+			":param rotation: \n"
+		)
 
 	EXPOSURE_END()
 

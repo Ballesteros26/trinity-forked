@@ -46,7 +46,11 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"AffineTransformation",
 			PyAffineTransformation, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param scaling: \n"
+			":param rotationCenter: \n"
+			":param rotation: \n"
+			":param translation: \n"
 		)
 #endif
 		////////////////////////////////////////////////////////////////////////////
@@ -87,7 +91,10 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"LookAtRH",
 			PyLookAtRH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param eye: \n"
+			":param at: \n"
+			":param up: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               LookAtLH
@@ -95,14 +102,18 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"LookAtLH",
 			PyLookAtLH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param eye: \n"
+			":param at: \n"
+			":param up: \n"
 		)////////////////////////////////////////////////////////////////////////////
 		//               Multiply
 		MAP_METHOD_AND_WRAP
 		( 
 			"Multiply",
 			PyMultiply, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param other: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               OrthoRH
@@ -110,7 +121,11 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"OrthoRH",
 			OrthoRH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param width: \n"
+			":param height: \n"
+			":param zn: \n"
+			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               OrthoLH
@@ -118,7 +133,11 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"OrthoLH",
 			OrthoLH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param width: \n"
+			":param height: \n"
+			":param zn: \n"
+			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               OrthoOffCenterRH
@@ -126,7 +145,13 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"OrthoOffCenterRH",
 			OrthoOffCenterRH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param l: \n"
+			":param r: \n"
+			":param t: \n"
+			":param b: \n"
+			":param zn: \n"
+			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               OrthoOffCenterLH
@@ -134,7 +159,13 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"OrthoOffCenterLH",
 			OrthoOffCenterLH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param l: \n"
+			":param r: \n"
+			":param t: \n"
+			":param b: \n"
+			":param zn: \n"
+			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               PerspectiveRH
@@ -142,7 +173,11 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"PerspectiveRH",
 			PerspectiveRH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param width: \n"
+			":param height: \n"
+			":param zn: \n"
+			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               PerspectiveFovLH
@@ -150,7 +185,11 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"PerspectiveFovLH",
 			PerspectiveFovLH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param fov: \n"
+			":param aspect: \n"
+			":param zn: \n"
+			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               PerspectiveFovRH
@@ -158,7 +197,11 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"PerspectiveFovRH",
 			PerspectiveFovRH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param fov: \n"
+			":param aspect: \n"
+			":param zn: \n"
+			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               PerspectiveLH
@@ -166,7 +209,11 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"PerspectiveLH",
 			PerspectiveLH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param width: \n"
+			":param height: \n"
+			":param zn: \n"
+			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               PerspectiveOffCenterRH
@@ -174,7 +221,13 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"PerspectiveOffCenterRH",
 			PerspectiveOffCenterRH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param l: \n"
+			":param r: \n"
+			":param t: \n"
+			":param b: \n"
+			":param zn: \n"
+			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               PerspectiveOffCenterLH
@@ -182,7 +235,13 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"PerspectiveOffCenterLH",
 			PerspectiveOffCenterLH, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param l: \n"
+			":param r: \n"
+			":param t: \n"
+			":param b: \n"
+			":param zn: \n"
+			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               RotationAxis
@@ -190,14 +249,17 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"RotationAxis",
 			PyRotationAxis, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param axis: \n"
+			":param angle: \n"
 		)////////////////////////////////////////////////////////////////////////////
 		//               RotationQuaternion
 		MAP_METHOD_AND_WRAP
 		( 
 			"RotationQuaternion",
 			PyRotationQuaternion, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param quaternion: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               RotationX
@@ -205,7 +267,8 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"RotationX",
 			RotationX, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param angle: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               RotationY
@@ -213,7 +276,8 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"RotationY",
 			RotationY, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param angle: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               RotationYawPitchRoll
@@ -221,7 +285,10 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"RotationYawPitchRoll",
 			RotationYawPitchRoll, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param yaw: \n"
+			":param pitch: \n"
+			":param roll: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               RotationZ
@@ -229,7 +296,8 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"RotationZ",
 			RotationZ, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param angle: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               Scaling
@@ -237,7 +305,10 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"Scaling",
 			Scaling, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param sx: \n"
+			":param sy: \n"
+			":param sz: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               Transformation
@@ -245,7 +316,13 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"Transformation",
 			PyTransformation, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param scalingCenter: \n"
+			":param scalingRotation: \n"
+			":param scaling: \n"
+			":param rotationCenter: \n"
+			":param rotation: \n"
+			":param translation: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               Translation
@@ -253,7 +330,10 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 		( 
 			"Translation",
 			Translation, 
-			"See D3DX documentation" 
+			"See D3DX documentation\n" 
+			":param x: \n"
+			":param y: \n"
+			":param z: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               Transpose

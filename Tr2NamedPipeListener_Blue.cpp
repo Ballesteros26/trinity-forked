@@ -52,17 +52,23 @@ const Be::ClassInfo* Tr2NamedPipeListener::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( "Listen", Listen, 
 		"Listen for data on a target named pipe"
 		"\n"
-		"\nArguments:"
-		"\nname - The name of the pipe");
+		"\n:param name: The name of the pipe");
 	MAP_METHOD_AND_WRAP( "Clear", Clear, 
 		"Clear the internal data of listener");
 
 	MAP_METHOD_AND_WRAP( "SetCallback", SetCallback, 
-		"( callable )\n"
-		"Add a python callback for when the pipe has been read." );
-	MAP_METHOD( "ApplyAsGeometry", PyApplyAsGeometry, 
+		"Add a python callback for when the pipe has been read.\n"
+		":param cb: callback function"
+		);
+	MAP_METHOD( 
+		"ApplyAsGeometry", 
+		PyApplyAsGeometry, 
 		"( trigeores )\n"
-		"Apply the inner buffer to a gr2 resource." );
+		"Apply the inner buffer to a gr2 resource.\n"
+		":param trigeores: geometry resource\n"
+		":type trigeores: None | TriGeometryRes\n"
+		":rtype: None"
+	);
     EXPOSURE_END()
 }
 

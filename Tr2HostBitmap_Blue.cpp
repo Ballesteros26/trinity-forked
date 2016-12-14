@@ -490,33 +490,30 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 		(
 			"Create",
 			Create,
-			"Arguments:\n"
-			"width\n"
-			"height\n"
-			"mipCount\n"
-			"trinity.PIXEL_FORMAT"
+			":param width: bitmap width\n"
+			":param height: bitmap height\n"
+			":param mipCount: number of mip levels\n"
+			":param format: pixel format (trinity.PIXEL_FORMAT)"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"CreateCube",
 			CreateCube,
-			"Arguments:\n"
-			"width\n"
-			"mipCount\n"
-			"trinity.PIXEL_FORMAT"
+			":param width: bitmap width\n"
+			":param mipCount: number of mip levels\n"
+			":param format: pixel format (trinity.PIXEL_FORMAT)"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"CreateVolume",
 			CreateVolume,
-			"Arguments:\n"
-			"width\n"
-			"height\n"
-			"depth\n"
-			"mipCount\n"
-			"trinity.PIXEL_FORMAT"
+			":param width: bitmap width\n"
+			":param height: bitmap height\n"
+			":param depth: bitmap depth\n"
+			":param mipCount: number of mip levels\n"
+			":param format: pixel format (trinity.PIXEL_FORMAT)"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -524,8 +521,7 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"CopyFromRenderTarget",
 			CopyFromRenderTargetPython,
 			"Copy a non-MSAA renderTarget back to the CPU host.\n"
-			"Arguments:\n"
-			"source - Tr2RenderTarget of the same pixelFormat, and correct width/height\n"
+			":param source: Tr2RenderTarget of the same pixelFormat, and correct width/height\n"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -533,14 +529,13 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"CopyFromRenderTargetRegion",
 			CopyFromRenderTargetRegionPython,
 			"Copy a non-MSAA renderTarget back to the CPU host.\n"
-			"Arguments:\n"
-			"source - Tr2RenderTarget of the same pixelFormat, and correct width/height\n"
-			"left - Source rectangle left offset in pixels\n"
-			"top - Source rectangle top offset in pixels\n"
-			"right - Source rectangle right offset in pixels\n"
-			"bottom - Source rectangle bottom offset in pixels\n"
-			"x - X offset in the bitmap in pixels\n"
-			"y - Y offset in the bitmap in pixels"
+			":param source: Tr2RenderTarget of the same pixelFormat, and correct width/height\n"
+			":param left: Source rectangle left offset in pixels\n"
+			":param top: Source rectangle top offset in pixels\n"
+			":param right: Source rectangle right offset in pixels\n"
+			":param bottom: Source rectangle bottom offset in pixels\n"
+			":param x: X offset in the bitmap in pixels\n"
+			":param y: Y offset in the bitmap in pixels"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -548,9 +543,8 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"CopyFaceFromRenderTarget",
 			CopyFaceFromRenderTargetPython,
 			"Copy a non-MSAA renderTarget back to the CPU host.\n"
-			"Arguments:\n"
-			"face - cube map face\n"
-			"source - Tr2RenderTarget of the same pixelFormat, and correct width/height\n"
+			":param face: cube map face\n"
+			":param source: Tr2RenderTarget of the same pixelFormat, and correct width/height\n"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -558,15 +552,17 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"CopyFromTextureRes",
 			CopyFromTextureResPython,
 			"Copy a TriTextureRes back to the CPU host.\n"
-			"Arguments:\n"
-			"source - TriTextureRes of the same pixelFormat, and correct width/height\n"
+			":param source: TriTextureRes of the same pixelFormat, and correct width/height\n"
 		)
 		
 		MAP_METHOD_AS_METHOD
 		(
 			"LoadFromPngInMemory",
 			PyLoadFromPngInMemory, 
-			"Loads a png from a memory buffer"
+			"Loads a png from a memory buffer\n"
+			":param data: data buffer\n"
+			":type data: buffer\n"
+			":rtype: None"
 		)
 
 
@@ -574,14 +570,18 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 		(
 			"GetRawData",
 			PyGetRawData, 
-			"Returns a tuple with (raw data pointer, width, height, pitch in bytes)"
+			"Returns a tuple with (raw data pointer, width, height, pitch in bytes)\n"
+			":rtype: bool | (buffer, int, int, int)"
 		)
 
 		MAP_METHOD
 		(
 			"GetMipRawData",
 			PyGetMipRawData, 
-			"Returns a tuple with (raw data pointer, width, height, pitch in bytes) of the specified mip level"
+			"Returns a tuple with (raw data pointer, width, height, pitch in bytes) of the specified mip level\n"
+			":param level: mip level\n"
+			":type level: int\n"
+			":rtype: bool | (buffer, int, int, int)"
 		)
 
 		MAP_METHOD
@@ -589,9 +589,11 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"SetMipRawData",
 			PySetMipRawData, 
 			"Copies raw mip data to the bitmap\n"
-			"Arguments:\n"
-			"mip - mip level index\n"
-			"buffer - single-segment buffer"
+			":param mip: mip level index\n"
+			":type mip: int\n"
+			":param data: single-segment buffer\n"
+			":type data: buffer\n"
+			":rtype: None"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -600,8 +602,7 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			PopulateMargin,
 			"Assume that the bitmap has a margin-wide border around it, and clamp the border contents of\n"
 			"(margin,margin)...(width-margin,height-margin) into this border.\n"
-			"Arguments:\n"
-			"margin - unsigned, must be less than min(width/2, height/2)"
+			":param margin: unsigned, must be less than min(width/2, height/2)"
 		)
 
 		MAP_ATTRIBUTE( "name",					m_name,		"", Be::READWRITE | Be::PERSIST );
@@ -617,8 +618,18 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 		MAP_METHOD( 
 			"__init__", 
 			PyInit, 
-			"Provide no arguments, and call Create later, or provide\n" 
-			"width, height, mipCount (>= 1), trinity.PIXEL_FORMAT."
+			"Has three possible overloads:\n"
+			"(1) Tr2HostBitmap() - creates an empty bitmap, call Create later\n"
+			"(2) Tr2HostBitmap(source) - creates a bitmap and copies data from source (RT, texture)\n"
+			"(3) Tr2HostBitmap(width, height, mipCount, format) - creates a new 2D bitmap\n"
+			":param sourceOrWidth: source for (2) overload or width for (3) overload\n"
+			":type sourceOrWidth: Optional[Tr2RenderTarget | TriTextureRes | Tr2AtlasTexture | int]\n"
+			":param height: bitmap height\n"
+			":type height: Optional[int]\n"
+			":param mipCount: number of mip levels\n"
+			":type mipCount: Optional[int]\n"
+			":param format: pixel format (trinity.PIXEL_FORMAT)\n"
+			":type format: Optional[int]\n"
 			)
 
 		MAP_METHOD
@@ -626,8 +637,9 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"Save",
 			PySave,
 			"Save to a file\n"
-			"Arguments:\n"
-			"output - unicode string, full path (not a res path)"
+			":param path: full path (not a res path)\n"
+			":type path: basestring\n"
+			":rtype: bool"
 		)
 
 		MAP_METHOD
@@ -635,8 +647,9 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"SaveAsync",
 			PySaveAsync,
 			"Asynchronous save to a file\n"
-			"Arguments:\n"
-			"output - unicode string, full path (not a res path)"
+			":param path: full path (not a res path)\n"
+			":type path: basestring\n"
+			":rtype: bool"
 		)
 
 		MAP_METHOD_AS_METHOD
@@ -644,8 +657,7 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"CreateFromFile",
 			PyCreateFromFile,
 			"Create a hostbitmap with the contents of this image file.\n"
-			"Arguments:\n"
-			"file - string, full path or res path of an image supported by Trinity (not D3DX)"
+			":param path: full path or res path of an image supported by Trinity (not D3DX)"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -653,10 +665,9 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"Compress",
 			Compress,
 			"Compress the contents of the hostbitmap into a TriTextureRes.\n"
-			"Arguments:\n"
-			"compressionFormat - see SquishLib\n"
-			"compressionQuality - see SquishLib\n"
-			"output - an empty TriTextureRes"
+			":param compressionFormat: see SquishLib\n"
+			":param compressionQuality: see SquishLib\n"
+			":param output: an empty TriTextureRes"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -671,11 +682,10 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"Crop",
 			Crop,
 			"Crop a single miplevel 2D bitmap in uncompressed format to a specified rectangle.\n"
-			"Arguments:\n"
-			"left - left coordinate of crop rectangle\n"
-			"top - top coordinate of crop rectangle\n"
-			"right - right coordinate of crop rectangle\n"
-			"bottom - bottom coordinate of crop rectangle"
+			":param left: left coordinate of crop rectangle\n"
+			":param top: top coordinate of crop rectangle\n"
+			":param right: right coordinate of crop rectangle\n"
+			":param bottom: bottom coordinate of crop rectangle"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -711,8 +721,7 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 			"Changes pixel format of a valid bitmap. Both the old and the new format must be\n"
 			"uncompressed and BPP of the new format must be the same as for the old one.\n"
 			"The function simply changes the format and doesn't do any image conversion.\n"
-			"Asguments:\n"
-			"format - new pixel format (trinity.PIXEL_FORMAT)" );
+			":param format: new pixel format (trinity.PIXEL_FORMAT)" );
 
 	EXPOSURE_END()
 }

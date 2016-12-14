@@ -19,7 +19,8 @@ const Be::ClassInfo* Tr2ShaderBuffer::ExposeToBlue()
 		MAP_METHOD_AND_WRAP(
 			"SetData",
 			SetDataFromScript,
-			""
+			":param data: data string\n"
+			":param size: size of the data"
 		)
 
     EXPOSURE_END()

@@ -103,32 +103,28 @@ const Be::ClassInfo* Tr2VideoAdapters::ExposeToBlue()
 			GetAdapterInfo, 
 			"Returns video adapter information (as a Tr2VideoAdapter)."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index" )
+			"\n:param idx: Video adapter index" )
 		MAP_METHOD_AND_WRAP( 
 			"GetCurrentDisplayMode", 
 			GetCurrentDisplayMode, 
 			"Returns current display mode information (as a Tr2DisplayMode) for video adapter."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index" )
+			"\n:param idx: Video adapter index" )
 		MAP_METHOD_AND_WRAP( 
 			"GetDisplayModeCount", 
 			GetDisplayModeCount, 
 			"Returns number of supported display modes for video adapter and given back buffer format."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index"
-			"\nformat - Back buffer format (member of trinity.PIXEL_FORMAT)" )
+			"\n:param idx: Video adapter index"
+			"\n:param format: Back buffer format (member of trinity.PIXEL_FORMAT)" )
 		MAP_METHOD_AND_WRAP( 
 			"GetDisplayMode", 
 			GetDisplayMode, 
 			"Returns display mode information for video adapter and given back buffer format."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index"
-			"\nformat - Back buffer format (member of trinity.PIXEL_FORMAT)"
-			"\nmodeIndex - Display mode index" )
+			"\n:param idx: Video adapter index"
+			"\n:param format: Back buffer format (member of trinity.PIXEL_FORMAT)"
+			"\n:param modeIndex: Display mode index" )
 		MAP_METHOD_AND_WRAP( 
 			"GetRenderTargetMsaaSupport", 
 			GetRenderTargetMsaaSupport, 
@@ -136,11 +132,10 @@ const Be::ClassInfo* Tr2VideoAdapters::ExposeToBlue()
 			"\ngiven render target format and number of MSAA samples (0 means MSAA is"
 			"\nnot supported for given combination)."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index"
-			"\nformat - Render target format (member of trinity.PIXEL_FORMAT)"
-			"\nwindowed - Boolean: if the device is running in windowed or fullscreen mode"
-			"\nmsaaType - Number of MSAA samples" )
+			"\n:param idx: Video adapter index"
+			"\n:param format: Render target format (member of trinity.PIXEL_FORMAT)"
+			"\n:param windowed: Boolean: if the device is running in windowed or fullscreen mode"
+			"\n:param msaaType: Number of MSAA samples" )
 		MAP_METHOD_AND_WRAP( 
 			"GetDepthStencilMsaaSupport", 
 			GetDepthStencilMsaaSupport, 
@@ -148,56 +143,51 @@ const Be::ClassInfo* Tr2VideoAdapters::ExposeToBlue()
 			"\ngiven depth stencil format and number of MSAA samples (0 means MSAA is"
 			"\nnot supported for given combination)."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index"
-			"\nformat - Depth stencil format (member of trinity.DEPTH_STENCIL_FORMAT)"
-			"\nwindowed - Boolean: if the device is running in windowed or fullscreen mode"
-			"\nmsaaType - Number of MSAA samples" )
+			"\n:param idx: Video adapter index"
+			"\n:param format: Depth stencil format (member of trinity.DEPTH_STENCIL_FORMAT)"
+			"\n:param windowed: Boolean: if the device is running in windowed or fullscreen mode"
+			"\n:param msaaType: Number of MSAA samples" )
 
 		MAP_METHOD_AND_WRAP( 
 			"GetShaderVersion", 
 			GetShaderVersion, 
 			"Returns maximum shader version supported by video adapter."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index" )
+			"\n:param idx: Video adapter index")
+
 		MAP_METHOD_AND_WRAP( 
 			"SupportsBackBufferFormat", 
 			SupportsBackBufferFormat, 
 			"Returns if the video adapter supports given back buffer format when running"
 			"\nin fullscreen or windowed mode."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index"
-			"\nbackBufferFormat - Back buffer format (member of trinity.PIXEL_FORMAT)"
-			"\nwindowed - Boolean: if the device is running in windowed or fullscreen mode" )
+			"\n:param idx: Video adapter index"
+			"\n:param backBufferFormat: Back buffer format (member of trinity.PIXEL_FORMAT)"
+			"\n:param windowed: Boolean: if the device is running in windowed or fullscreen mode" )
 		MAP_METHOD_AND_WRAP( 
 			"SupportsRenderTargetFormat", 
 			SupportsRenderTargetFormat, 
 			"Returns if the video adapter supports given render target format when running"
 			"\nwith the given back buffer format."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index"
-			"\nbackBufferFormat - Back buffer format (member of trinity.PIXEL_FORMAT)"
-			"\nformat - Render target format (member of trinity.PIXEL_FORMAT)" )
+			"\n:param idx: Video adapter index"
+			"\n:param backBufferFormat: Back buffer format (member of trinity.PIXEL_FORMAT)"
+			"\n:param format: Render target format (member of trinity.PIXEL_FORMAT)" )
 		MAP_METHOD_AND_WRAP( 
 			"SupportsDepthStencilFormat", 
 			SupportsDepthStencilFormat, 
 			"Returns if the video adapter supports given depth stencil format when running"
 			"\nwith the given back buffer format."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index"
-			"\nbackBufferFormat - Back buffer format (member of trinity.PIXEL_FORMAT)"
-			"\nformat - Depth stencil format (member of trinity.DEPTH_STENCIL_FORMAT)" )
+			"\n:param idx: Video adapter index"
+			"\n:param backBufferFormat: Back buffer format (member of trinity.PIXEL_FORMAT)"
+			"\n:param format: Depth stencil format (member of trinity.DEPTH_STENCIL_FORMAT)" )
 		MAP_METHOD_AND_WRAP( 
 			"GetMaxTextureSize", 
 			GetMaxTextureSize, 
 			"Returns maximum texture size (width or height) supported by video adapter."
 			"\n"
-			"\nArguments:"
-			"\nindex - Video adapter index" )
+			"\n:param idx: Video adapter index" )
 		MAP_METHOD_AND_WRAP( 
 			"Refresh", 
 			RefreshData, 

@@ -23,8 +23,9 @@ const Be::ClassInfo* Tr2GpuBufferAlias::ExposeToBlue()
 			py__init__,
 			3,
 			"Arguments (optional):\n"
-			"source - source GPU buffer\n"
-			"format - buffer pixel format (trinity.PIXEL_FORMAT.foo)\n" )
+			":param source: source GPU buffer\n"
+			":param idx: buffer index in the source\n"
+			":param format: buffer pixel format (trinity.PIXEL_FORMAT.foo)\n" )
 		MAP_ATTRIBUTE( 
 			"source", 
 			m_source, 

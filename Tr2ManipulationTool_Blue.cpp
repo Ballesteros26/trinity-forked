@@ -12,6 +12,7 @@ const Be::ClassInfo* Tr2ManipulationTool::ExposeToBlue()
 			"( transform )\n"
 			"Initilize the tool to the defaults and apply the base transform to work with.\n"
 			"Also the starting mouse position which is needed for the trackball rotation.\n"
+			":param transform: transform matrix"
 		)
 		MAP_ATTRIBUTE( "captured", m_captured, 
 			"Is the tool captured. Being used", 
@@ -37,15 +38,24 @@ const Be::ClassInfo* Tr2ManipulationTool::ExposeToBlue()
 #endif
 		MAP_METHOD_AND_WRAP( "SelectAxis", SelectAxis, 
 			"( name )\n"
-			"Set a particular primitive or axis as selected" 
+			"Set a particular primitive or axis as selected\n" 
+			":param name: axis name"
 		)
 		MAP_METHOD_AND_WRAP( "Move", PyMove, 
 			"( x, y, dx, dy, viewport, viewmatrix, projectionmatrix )\n"
-			"Move the manipulator based on mouse and mouse delta values and matrices" 
+			"Move the manipulator based on mouse and mouse delta values and matrices\n" 
+			":param x: \n"
+			":param y: \n"
+			":param dx: \n"
+			":param dy: \n"
+			":param viewport: \n"
+			":param view: \n"
+			":param projection: \n"
 		)
 		MAP_METHOD_AND_WRAP( "SetMoveCallback", SetMoveCallback, 
 			"( callable )\n"
-			"Add a python callable that accepts two arguments." 
+			"Add a python callable that accepts two arguments.\n" 
+			":param cb: callback function"
 		)
     EXPOSURE_END()
 }

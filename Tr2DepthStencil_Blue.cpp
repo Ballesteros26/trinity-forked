@@ -33,25 +33,23 @@ const Be::ClassInfo* Tr2DepthStencil::ExposeToBlue()
 		(
 			"Create",
 			Create,
-			"Arguments:\n"
-			"width\n"
-			"height\n"
-			"trinity.DEPTH_STENCIL_FORMAT\n"
-			"msaaType\n"
-			"msaaQuality"
+			":param width: buffer width\n"
+			":param height: buffer height\n"
+			":param format: buffer format (trinity.DEPTH_STENCIL_FORMAT)\n"
+			":param msaaType: sample count\n"
+			":param msaaQuality: MSAA quality"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"CreateEx",
 			CreateEx,
-			"Arguments:\n"
-			"width\n"
-			"height\n"
-			"trinity.DEPTH_STENCIL_FORMAT\n"
-			"msaaType\n"
-			"msaaQuality\n"
-			"trinity.EX_FLAG"
+			":param width: buffer width\n"
+			":param height: buffer height\n"
+			":param format: buffer format (trinity.DEPTH_STENCIL_FORMAT)\n"
+			":param msaaType: sample count\n"
+			":param msaaQuality: MSAA quality"
+			":param flags: trinity.EX_FLAG"
 		)
 
 		MAP_ATTRIBUTE( "name",					m_name,							"", Be::READWRITE | Be::PERSIST );
@@ -71,7 +69,12 @@ const Be::ClassInfo* Tr2DepthStencil::ExposeToBlue()
 			py__init__, 
 			5,
 			"Provide no arguments, and call Create later, or provide\n" 
-			"width, height, trinity.DEPTH_STENCIL_FORMAT, msaaType=0, msaaQuality=0."
+			":param width: buffer width\n"
+			":param height: buffer height\n"
+			":param format: buffer format (trinity.DEPTH_STENCIL_FORMAT)\n"
+			":param msaaType: sample count\n"
+			":param msaaQuality: MSAA quality"
+			":param flags: trinity.EX_FLAG"
 			);
 
 		MAP_METHOD_AND_WRAP( 
@@ -86,9 +89,8 @@ const Be::ClassInfo* Tr2DepthStencil::ExposeToBlue()
 			HasALObject,
 			"Returns True iff Tr2DepthStencil contains a reference to passed AL object ID.\n"
 			"Used for debugging along with trinity.GetLiveALResources.\n"
-			"Arguments:\n"
-			"type - AL object type (trinity.AL_OBJECT_TYPE)\n"
-			"object - AL object ID"
+			":param alType: AL object type (trinity.AL_OBJECT_TYPE)\n"
+			":param alObject: AL object ID"
 		)
 
 	EXPOSURE_END()

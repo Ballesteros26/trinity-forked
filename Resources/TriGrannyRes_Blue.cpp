@@ -69,10 +69,10 @@ const Be::ClassInfo* TriGrannyRes::ExposeToBlue()
 			"BakeBlendshape", 
 			BakeBlendshapeFromScript,
 			"x.BakeBlendshape( mesh, weights, geom )\n"
-			"  'mesh' is either the name or the index of the mesh.\n"
-			"  'weights' is a list with weights as floating point numbers.\n"
-			"  'geom' is a TriGeometryRes object that receives the resulting vertex buffer. Note that it should have been created with a call to x.CreateGeometryRes().\n"
-			"Bake a blendshape with the given weights, using the resulting vertex buffer to replace the vertex buffer of the given TriGeometryRes."
+			"Bake a blendshape with the given weights, using the resulting vertex buffer to replace the vertex buffer of the given TriGeometryRes.\n"
+			":param mesh: index of the mesh.\n"
+			":param weights: a list with weights as floating point numbers.\n"
+			":param geom: a TriGeometryRes object that receives the resulting vertex buffer. Note that it should have been created with a call to x.CreateGeometryRes().\n"
 		)
 		MAP_PROPERTY_READONLY
 		(
@@ -83,8 +83,8 @@ const Be::ClassInfo* TriGrannyRes::ExposeToBlue()
 		( 
 			"GetModelName", GetModelName, 
 			"s = x.GetModelName( ix )\n"
-			"  'ix' is the index of the model\n"
 			"Gets the name of the model with index 'ix'\n"
+			":param ix: index of the model\n"
 		)
 		MAP_PROPERTY_READONLY
 		(
@@ -99,27 +99,27 @@ const Be::ClassInfo* TriGrannyRes::ExposeToBlue()
 		MAP_METHOD_AND_WRAP
 		( 
 			"GetMeshAreaCount", GetMeshAreaCount, 
-			"Gets the count of areas within a specified meshID in this Granny file."
+			"Gets the count of areas within a specified meshID in this Granny file.\n"
+			":param meshIdx: mesh index"
 		)
 		MAP_METHOD_AND_WRAP
 		( 
 			"GetMeshName", GetMeshName, 
-			"Gets the name of the mesh with the given index."
+			"Gets the name of the mesh with the given index.\n"
+			":param meshIdx: mesh index"
 		)
 		MAP_METHOD_AND_WRAP
 		( 
 			"GetMeshMorphCount", GetMeshMorphCount, 
-			"n = x.GetMeshMorphCount( mesh )\n"
-			"  'mesh' is either the name or the index of the mesh.\n"
-			"Gets the count of morph targets available for the given mesh."
+			"Gets the count of morph targets available for the given mesh.\n"
+			":param meshIdx: mesh index"
 		)
 		MAP_METHOD_AND_WRAP
 		( 
 			"GetMeshMorphName", GetMeshMorphName, 
-			"s = x.GetMeshMorphName( mesh, ix )\n"
-			"  'mesh' is either the name or the index of the mesh.\n"
-			"  'ix' is the index of the morph target.\n"
-			"Gets the name of given morph target index for the given mesh."
+			"Gets the name of given morph target index for the given mesh.\n"
+			":param meshIdx: mesh index\n"
+			":param morphIdx: morph index"
 		)
 		MAP_METHOD_AND_WRAP
 		( 
@@ -127,7 +127,8 @@ const Be::ClassInfo* TriGrannyRes::ExposeToBlue()
 			GetAllMeshMorphNamesNoDigits,
 			"Returns a list containing the names of all the morph targets,\n"
 			"all converted to lowercase and stripped of any digits.  Specialized\n"
-			"method to get answers in a format that python wants in a single call."
+			"method to get answers in a format that python wants in a single call.\n"
+			":param meshIdx: mesh index\n"
 		)
 		MAP_PROPERTY_READONLY
 		(
@@ -137,24 +138,21 @@ const Be::ClassInfo* TriGrannyRes::ExposeToBlue()
 		MAP_METHOD_AND_WRAP
 		( 
 			"GetAnimationName", GetAnimationName, 
-			"s = x.GetAnimationName( ix )\n"
-			"  'ix' is the index of the animation\n"
 			"Gets the name of the animation with index 'ix'\n"
+			":param ix: index of the animation\n"
 		)
 		MAP_METHOD_AND_WRAP
 		( 
 			"GetAnimationDuration", GetAnimationDuration, 
-			"d = x.GetAnimationName( ix )\n"
-			"  'ix' is the index of the animation\n"
 			"Gets the duration of the animation with index 'ix'\n"
+			":param ix: index of the animation\n"
 		)
 		MAP_METHOD_AND_WRAP( 
 			"GetMeshSurfaceArea", 
 			GetMeshSurfaceArea,
 			"Gets the surface area for a particular meshID"
 			"\n"
-			"\nArguments:"
-			"\nmeshID - the mesh to calculate the surface area for"
+			"\n:param meshID: the mesh to calculate the surface area for"
 		)
 		MAP_METHOD_AND_WRAP
 		( 
@@ -167,7 +165,9 @@ const Be::ClassInfo* TriGrannyRes::ExposeToBlue()
 		(
 			"GetMaterialDictionaryForArea", 
 			GetMaterialDictionaryForArea,
-			"Gets material data for the given area"
+			"Gets material data for the given area\n"
+			":param meshIdx: mesh index\n"
+			":param areaIdx: area index\n"
 		)
 		MAP_METHOD_AND_WRAP
 		(
@@ -180,28 +180,53 @@ const Be::ClassInfo* TriGrannyRes::ExposeToBlue()
 		(
 			"SaveToGr2", SaveToGr2, 
 			"Save the granny data to a file"
-			"\n"
-			"\nArguments:"
-			"\nfilename - the output file to write to"
+			"\n:param filename: the output file to write to"
 		)
 		MAP_METHOD_AND_WRAP( "GetTrackGroupCount", GetTrackGroupCount, "Get the number of track groups" )
-		MAP_METHOD_AND_WRAP( "GetTrackGroupName", GetTrackGroupName, "( index )\nGet the name of the track group at index" )
-		MAP_METHOD_AND_WRAP( "GetTransformTrackCount", GetTransformTrackCount, "( index )\nGet the number of transform tracks under a track group" )
-		MAP_METHOD_AND_WRAP( "GetTransformTrackName", GetTransformTrackName, "( groupIdx, trackIdx )\nGet the name of the transform track" )
-		MAP_METHOD_AND_WRAP( "GetVectorTrackCount", GetVectorTrackCount, "( index )\nGet the number of transform tracks under a track group" )
-		MAP_METHOD_AND_WRAP( "GetVectorTrackName", GetVectorTrackName, "( groupIdx, trackIdx )\nGet the name of the transform track" )
+		MAP_METHOD_AND_WRAP( 
+			"GetTrackGroupName", 
+			GetTrackGroupName, 
+			"Get the name of the track group at index\n" 
+			":param groupIdx: track group index"
+		)
+		MAP_METHOD_AND_WRAP( 
+			"GetTransformTrackCount", 
+			GetTransformTrackCount, 
+			"Get the number of transform tracks under a track group\n"
+			":param groupIdx: track group index"
+		)
+		MAP_METHOD_AND_WRAP( 
+			"GetTransformTrackName", 
+			GetTransformTrackName, 
+			"Get the name of the transform track\n"
+			":param groupIdx: track group index\n"
+			":param trackIdx: track index\n"
+		)
+		MAP_METHOD_AND_WRAP( 
+			"GetVectorTrackCount", 
+			GetVectorTrackCount, 
+			"Get the number of transform tracks under a track group\n" 
+			":param groupIdx: track group index\n"
+		)
+		MAP_METHOD_AND_WRAP( 
+			"GetVectorTrackName", 
+			GetVectorTrackName, 
+			"Get the name of the transform track\n" 
+			":param groupIdx: track group index\n"
+			":param trackIdx: track index\n"
+		)
 		MAP_METHOD_AND_WRAP( 
 			"GetEventTrackCount", 
 			GetEventTrackCount, 
 			"Get the number of event (text) tracks under a track group\n"
-			"Arguments:\n"
-			"index - track group index" )
+			":param groupIdx: track group index\n"
+		)
 		MAP_METHOD_AND_WRAP( 
 			"GetEventTrackName", 
 			GetEventTrackName, 
 			"Get the name of the event (text) track\n"
-			"Arguments:\n"
-			"groupIdx - track group index\n"
-			"trackIdx - tack index" )
+			":param groupIdx: track group index\n"
+			":param trackIdx: track index\n"
+		)
     EXPOSURE_CHAINTO( BlueAsyncRes )
 }

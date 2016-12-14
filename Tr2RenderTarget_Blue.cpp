@@ -32,37 +32,38 @@ const Be::ClassInfo* Tr2RenderTarget::ExposeToBlue()
 		(
 			"Create",
 			Create,
-			"Arguments:\n"
-			"width\n"
-			"height\n"
-			"mipLevelCount (0 = full pyramid)\n"
-			"trinity.PIXEL_FORMAT"
+			"Creates a new render target\n"
+			":param width: render target width\n"
+			":param height: render target height\n"
+			":param mipCount: number of mip levels (0 = full pyramid)\n"
+			":param format: pixel format (trinity.PIXEL_FORMAT)"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"CreateMsaa",
 			CreateMsaa,
-			"Arguments:\n"
-			"width\n"
-			"height\n"
-			"trinity.PIXEL_FORMAT\n"
-			"msaaType\n"
-			"msaaQuality"
+			"Creates a new MSAA render target\n"
+			":param width: render target width\n"
+			":param height: render target height\n"
+			":param mipCount: number of mip levels (0 = full pyramid)\n"
+			":param format: pixel format (trinity.PIXEL_FORMAT)"
+			":param msaaType: number of samples\n"
+			":param msaaQuality: MSAA quality"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"CreateEx",
 			CreateEx,
-			"Arguments:\n"
-			"width\n"
-			"height\n"
-			"mipLevelCount\n"
-			"trinity.PIXEL_FORMAT\n"
-			"msaaType\n"
-			"msaaQuality\n"
-			"trinity.EX_FLAG"
+			"Creates a new render target\n"
+			":param width: render target width\n"
+			":param height: render target height\n"
+			":param mipCount: number of mip levels (0 = full pyramid)\n"
+			":param format: pixel format (trinity.PIXEL_FORMAT)"
+			":param msaaType: number of samples\n"
+			":param msaaQuality: MSAA quality"
+			":param flags: trinity.EX_FLAG"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -78,8 +79,7 @@ const Be::ClassInfo* Tr2RenderTarget::ExposeToBlue()
 			Resolve,
 			"Resolve a renderTarget (typically MSAA ) into another RT (typically non-MSAA).\n"
 			"May also work for just copying non-MSAA to non-MSAA, I'm not sure :P\n"
-			"Arguments:\n"
-			"destination - Tr2RenderTarget"
+			":param destination: Tr2RenderTarget"
 		)
 
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST );
@@ -100,7 +100,13 @@ const Be::ClassInfo* Tr2RenderTarget::ExposeToBlue()
 			py__init__, 
 			6,
 			"Provide no arguments, and call Create/CreateMsaa later, or provide\n" 
-			"width, height, mipCount, trinity.PIXEL_FORMAT, msaaType=0, msaaQuality=0."
+			"width, height, mipCount, trinity.PIXEL_FORMAT, msaaType=0, msaaQuality=0.\n"
+			":param width: render target width\n"
+			":param height: render target height\n"
+			":param mipCount: number of mip levels (0 = full pyramid)\n"
+			":param format: pixel format (trinity.PIXEL_FORMAT)"
+			":param msaaType: number of samples\n"
+			":param msaaQuality: MSAA quality"
 			)
 
 		MAP_METHOD_AND_WRAP
@@ -122,9 +128,8 @@ const Be::ClassInfo* Tr2RenderTarget::ExposeToBlue()
 			HasALObject,
 			"Returns True iff Tr2RenderTarget contains a reference to passed AL object ID.\n"
 			"Used for debugging along with trinity.GetLiveALResources.\n"
-			"Arguments:\n"
-			"type - AL object type (trinity.AL_OBJECT_TYPE)\n"
-			"object - AL object ID"
+			":param alType: AL object type (trinity.AL_OBJECT_TYPE)\n"
+			":param alObject: AL object ID"
 		)
 
 	EXPOSURE_END()

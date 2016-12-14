@@ -318,12 +318,12 @@ const Be::ClassInfo* Tr2Sprite2dScene::ExposeToBlue()
 			PickObject,
 			1,
 			"Returns the sprite object at the given coordinates (or None)\n\n"
-			"Arguments:\n"
-			" x    - x-coordinate in screen space\n"
-			" y    - y-coordinate in screen space\n"
-			" proj - Projection transform\n"
-			" view - View transform\n"
-			" vp   - Viewport\n"
+			":param x: x-coordinate in screen space\n"
+			":param y: y-coordinate in screen space\n"
+			":param proj: Projection transform\n"
+			":param view: View transform\n"
+			":param vp: Viewport\n"
+			":param pickFilter: object types to pick (unused)\n"
 		)
 
     EXPOSURE_END()

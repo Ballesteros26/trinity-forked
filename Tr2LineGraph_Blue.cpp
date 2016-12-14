@@ -25,8 +25,18 @@ const Be::ClassInfo* Tr2LineGraph::ExposeToBlue()
 			Be::READWRITE | Be::PERSIST
 		)
 
-		MAP_METHOD_AND_WRAP( "AddMarker", AddMarker, "Adds a marker to the graph" );
-		MAP_METHOD_AND_WRAP( "SetSize", SetSize, "Sets the size of the buffer of statistics" )
+		MAP_METHOD_AND_WRAP( 
+			"AddMarker", 
+			AddMarker, 
+			"Adds a marker to the graph\n"
+			":param name: marker name" 
+		);
+		MAP_METHOD_AND_WRAP( 
+			"SetSize", 
+			SetSize, 
+			"Sets the size of the buffer of statistics\n" 
+			":param size: buffer size"
+		)
 		MAP_METHOD_AND_WRAP( "GetStatsHistory", GetStatsHistory, "Gets a list of the statistics in the buffer" )
 
     EXPOSURE_END()

@@ -20,20 +20,18 @@ const Be::ClassInfo* Tr2StreamingBitmapSaver::ExposeToBlue()
 			"StartBatch", 
 			StartBatch, 
 			"Starts a batch of image data advancing Y offset in the resulting image\n"
-			"Arguments:\n"
-			"height - number of rows in the batch" );
+			":param height: number of rows in the batch" );
 		MAP_METHOD_AND_WRAP( 
 			"CopyFromRenderTargetRegion", 
 			CopyFromRenderTargetRegion, 
 			"Copies data from a readable render target into the bitmap\n"
-			"Arguments:\n"
-			"source - Tr2RenderTarget of the same pixelFormat, and correct width/height\n"
-			"left - Source rectangle left offset in pixels\n"
-			"top - Source rectangle top offset in pixels\n"
-			"right - Source rectangle right offset in pixels\n"
-			"bottom - Source rectangle bottom offset in pixels\n"
-			"x - X offset in the bitmap in pixels\n"
-			"y - Y offset in the bitmap in pixels" );
+			":param source: Tr2RenderTarget of the same pixelFormat, and correct width/height\n"
+			":param left: Source rectangle left offset in pixels\n"
+			":param top: Source rectangle top offset in pixels\n"
+			":param right: Source rectangle right offset in pixels\n"
+			":param bottom: Source rectangle bottom offset in pixels\n"
+			":param x: X offset in the bitmap in pixels\n"
+			":param y: Y offset in the bitmap in pixels" );
 		MAP_METHOD_AND_WRAP( 
 			"FlushBatch", 
 			FlushBatch, 

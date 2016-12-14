@@ -19,18 +19,19 @@ const Be::ClassInfo* Tr2MouseCursor::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( 
 			"__init__", 
 			py__init__, 
-			"Provide no arguments, and call Create later, or provide\n" 
-			"width, height, mipCount (>= 1), trinity.PIXEL_FORMAT."
+			"Creates a cursor from bitmap\n"
+			":param bitmap: bitmap containing cursor image\n"
+			":param hotspotX: horizontal offset to cursor hotspot\n"
+			":param hotspotY: vertical offset to cursor hotspot\n"
 			)
 
 		MAP_METHOD_AND_WRAP( 
 			"Create", 
 			Create, 
 			"Creates a new mouse cursor image\n" 
-			"Arguments:\n"
-			"bitmap - Tr2HostBitmap containing cursor image\n"
-			"hotspotX - X position of cursor hot spot\n"
-			"hotspotY - Y position of cursor hot spot"
+			":param bitmap: bitmap containing cursor image\n"
+			":param hotspotX: horizontal offset to cursor hotspot\n"
+			":param hotspotY: vertical offset to cursor hotspot\n"
 			)
 
 		MAP_METHOD_AND_WRAP( 

@@ -84,12 +84,12 @@ const Be::ClassInfo* Tr2PrimitiveScene::ExposeToBlue()
 			"Given mouse position and a view setup, returns the object that the mouse is over, as well as the mesh and area indices"
 			"\nreturns <Object> or None if nothing pickable was hit by the ray"
 			"\n"
-			"\nArguments:"
-			"\nx - integer x coordinate of the mouse over the viewport"
-			"\ny - integer y coordinate of the mouse over the viewport"
-			"\nprojection - The TriProjection to use to pick into the scene"
-			"\nview - The TriView to use to pick into the scene"
-			"\nviewport - The TriViewport of the viewport to use to pick into the scene"
+			"\n:param x: integer x coordinate of the mouse over the viewport"
+			"\n:param y: integer y coordinate of the mouse over the viewport"
+			"\n:param projection: The TriProjection to use to pick into the scene"
+			"\n:param view: The TriView to use to pick into the scene"
+			"\n:param viewport: The TriViewport of the viewport to use to pick into the scene"
+			"\n:param pickFlags: unused\n"
 		)
 
 		MAP_METHOD( 
@@ -98,12 +98,17 @@ const Be::ClassInfo* Tr2PrimitiveScene::ExposeToBlue()
 			"Given mouse position and a view setup, returns the object that the mouse is over, as well as the mesh and area indices"
 			"\n returns (<Object>,(x,y,z)) or None if nothing pickable was hit by the ray"
 			"\n"
-			"\nArguments:"
-			"\nx - integer x coordinate of the mouse over the viewport"
-			"\ny - integer y coordinate of the mouse over the viewport"
-			"\nprojection - The TriProjection to use to pick into the scene"
-			"\nview - The TriView to use to pick into the scene"
-			"\nviewport - The TriViewport of the viewport to use to pick into the scene"
+			"\n:param x: integer x coordinate of the mouse over the viewport"
+			"\n:type x: int"
+			"\n:param y: integer y coordinate of the mouse over the viewport"
+			"\n:type y: int"
+			"\n:param projection: The TriProjection to use to pick into the scene"
+			"\n:type projection: TriProjection"
+			"\n:param view: The TriView to use to pick into the scene"
+			"\n:type view: TriView"
+			"\n:param viewport: The TriViewport of the viewport to use to pick into the scene"
+			"\n:type viewport: TriViewport"
+			"\n:rtype: None | (blue.IRoot, (float, float, float))"
 		)
 
     EXPOSURE_END()

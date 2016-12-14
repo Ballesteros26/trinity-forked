@@ -109,7 +109,8 @@ const Be::ClassInfo* Tr2TextureAtlas::ExposeToBlue()
 			"PullInOutsiders",
 			PullInOutsiders,
 			"Moves any textures that were registered with the atlas and left outside\n"
-			"into the atlas, as much as free space allows"
+			"into the atlas, as much as free space allows\n"
+			":param optimizeInsertion: \n"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -139,9 +140,9 @@ const Be::ClassInfo* Tr2TextureAtlas::ExposeToBlue()
 			CreateTexture,
 			1,
 			"Creates a texture of the given dimensions in the atlas.\n\n"
-			"Arguments:\n"
-			"- width  - Width of the texture\n"
-			"- height - Height of the texture\n"
+			":param width: Width of the texture\n"
+			":param height: Height of the texture\n"
+			":param textureType: Texture type"
 		)
 
 #if BLUE_WITH_PYTHON
@@ -160,9 +161,8 @@ const Be::ClassInfo* Tr2TextureAtlas::ExposeToBlue()
 			HasALObject,
 			"Returns True iff Tr2TextureAtlas contains a reference to passed AL object ID.\n"
 			"Used for debugging along with trinity.GetLiveALResources.\n"
-			"Arguments:\n"
-			"type - AL object type (trinity.AL_OBJECT_TYPE)\n"
-			"object - AL object ID"
+			":param alType: AL object type (trinity.AL_OBJECT_TYPE)\n"
+			":param alObject: AL object ID"
 		)
 	EXPOSURE_END()
 }

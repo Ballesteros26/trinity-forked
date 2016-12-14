@@ -122,12 +122,17 @@ const Be::ClassInfo* TriSettings::ExposeToBlue()
 		MAP_METHOD( 
 			"GetValue", 
 			PyGetValue, 
-			"Returns a copy of the value assigned to the string key passed in" 
+			"Returns a copy of the value assigned to the string key passed in\n" 
+			":param name: setting name\n"
+			":type name: str\n"
 			)
 		MAP_METHOD( 
 			"SetValue", 
 			PySetValue, 
-			"Sets the string key to the value passed in" 
+			"Sets the string key to the value passed in\n" 
+			":param name: setting name\n"
+			":type name: str\n"
+			":param value: setting value\n"
 			)
 		MAP_METHOD(
 			"__repr__",

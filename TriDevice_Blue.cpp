@@ -165,47 +165,60 @@ const Be::ClassInfo* TriDevice::ExposeToBlue()
 			"CreateWindowedDevice",
 			PyCreateWindowedDevice, 
 			"Create a simple windowed device.\n" 
-			"Parameters:\n"
-			"  hwnd -- A window handle\n"
-			"  width, height -- [0,widht]x[0,height] is the area within the window\n"
+			":param hwnd: A window handle\n"
+			":type hwnd: int\n"
+			":param width: window area width\n"
+			":type width: Optional[int]\n"
+			":param height: [0,widht]x[0,height] is the area within the window\n"
 			"       that the device will render to. If omitted or either set to 0 the\n"
 			"       device will render to the entire window area.\n"
-			"( hwnd, width = 0, height = 0 )"
+			":type height: Optional[int]\n"
+			":param presentInterval: presentation interval"
+			":type presentInterval: Optional[int]\n"
+			":rtype: None"
 		)
 		MAP_METHOD_AS_METHOD
 		( 
 			"CreateFullScreenDevice",
 			PyCreateFullScreenDevice, 
 			"Create a simple full screen device.\n" 
-			"Parameters:\n"
-			"  hwnd -- A window handle\n"
-			"  width, height -- [0,widht]x[0,height] is the area within the window\n"
+			":param hwnd: A window handle\n"
+			":type hwnd: int\n"
+			":param width: window area width\n"
+			":type width: Optional[int]\n"
+			":param height: [0,widht]x[0,height] is the area within the window\n"
 			"       that the device will render to. If omitted or either set to 0 the\n"
 			"       device will render to the entire window area.\n"
-			"( hwnd, width = 0, height = 0 )"
+			":type height: Optional[int]\n"
+			":param presentInterval: presentation interval"
+			":type presentInterval: Optional[int]\n"
+			":rtype: None"
 		)
 		MAP_METHOD_AS_METHOD
 		( 
 			"CreateWindowlessDevice",
 			PyCreateWindowlessDevice, 
-			"Create a simple device with no swap chain." 
+			"Create a simple device with no swap chain.\n" 
+			":rtype: None"
 		)
 		MAP_METHOD_AS_METHOD
 		(
 			"ChangeBackBufferSize",
 			PyChangeBackBufferSize,
 			"Changes the drawable area.\n"
-			"Parameters:\n"
-			" width, height -- The width and height (in pixels) of the back buffers(s)\n"
-			"      for the device.\n"
-			"( width, height )"
+			":param width: back buffer width\n"
+			":type width: int\n"
+			":param heigh: back buffer height\n"
+			":type heigh: int\n"
+			":rtype: None"
 		)
 #if BLUE_WITH_PYTHON
 		MAP_METHOD_AND_WRAP
 		( 
 			"DisableResourceLoad",
 			DisableResourceLoad, 
-			"Disable reloading of all external resources." 
+			"Disable reloading of all external resources.\n" 
+			":param disable: disable or enable loading"
 		)
 		MAP_METHOD_AND_WRAP
 		( 
@@ -224,7 +237,8 @@ const Be::ClassInfo* TriDevice::ExposeToBlue()
 		(
 			"GetPresentParameters",
 			PyGetPresentParameters,
-			"retrieves a dict with the current presentation parameters"
+			"retrieves a dict with the current presentation parameters\n"
+			":rtype: dict"
 		)
 		MAP_METHOD_AS_METHOD
 		(
@@ -236,7 +250,9 @@ const Be::ClassInfo* TriDevice::ExposeToBlue()
 			"\nNOTE: Only implement the methods you need. Neither of these methods are"
 			"\nrequired. Normally only OnCreate is needed. Also note that there is"
 			"\nno unregister call because the object will automatically unregister"
-			"\nitself when it is destroyed in Python."
+			"\nitself when it is destroyed in Python.\n"
+			":param resource: resource object\n"
+			":rtype: None"
 		)
 		MAP_METHOD_AS_METHOD
 		(
@@ -244,13 +260,25 @@ const Be::ClassInfo* TriDevice::ExposeToBlue()
 			PyResetDeviceResources,
 			"Requests that all device resources be reloaded immediately. Used for chaging HDR settings etc."
 			"\nMay raise a trinity.D3DERR_INVALIDCALL if a device reset is already in progress"
+			"\n:rtype: None"
 		)
 		MAP_METHOD_AS_METHOD
 		(
 			"GetPickRayFromViewport",
 			PyGetPickRayFromViewport,
 			"Get a ray for picking in world coordinates from screen space, using the given viewport\n"
-			"and view/projection transforms."
+			"and view/projection transforms.\n"
+			":param x: mouse X position\n"
+			":type x: int\n"
+			":param y: mouse Y position\n"
+			":type y: int\n"
+			":param viewport: viewport\n"
+			":type viewport: TriViewport\n"
+			":param view: view transform\n"
+			":type view: tuple[tuple[float]]\n"
+			":param proj: projection transform\n"
+			":type proj: tuple[tuple[float]]\n"
+			":rtype: ((float, float, float), (float, float, float))"
 		)
 #endif
 
@@ -258,7 +286,8 @@ const Be::ClassInfo* TriDevice::ExposeToBlue()
 		(
 			"ShowDeviceCursor",
 			DoShowCursor,
-			"( show ): Show the window cursor."
+			"( show ): Show the window cursor.\n"
+			":param show: show/hide cursor"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -296,7 +325,8 @@ const Be::ClassInfo* TriDevice::ExposeToBlue()
 		(
 			"SetRenderJobs",
 			SetRenderJobs,
-			"Set the Tr2RenderJobs objects on the device -- debug helper until we sort this out."
+			"Set the Tr2RenderJobs objects on the device -- debug helper until we sort this out.\n"
+			":param renderJobs: render jobs object"
 		)
 			
     EXPOSURE_END()

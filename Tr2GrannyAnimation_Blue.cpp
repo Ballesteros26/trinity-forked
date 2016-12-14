@@ -45,7 +45,8 @@ const Be::ClassInfo* Tr2GrannyAnimation::ExposeToBlue()
 		(
 			"PlayAnimation",
 			PlayAnimationOnce,
-			"PlayAnimation( animName )\n\nPlays the given animation, replacing whatever animation was playing before."
+			"PlayAnimation( animName )\n\nPlays the given animation, replacing whatever animation was playing before.\n"
+			":param animName: animation name"
 		)
 		MAP_METHOD_AND_WRAP
 		(
@@ -53,27 +54,30 @@ const Be::ClassInfo* Tr2GrannyAnimation::ExposeToBlue()
 			PlayAnimationEx,
 			"PlayAnimationEx( animName, loopCount, delay, speed )\n\n"
 			"Plays the given animation, replacing whatever animation was playing before.\n"
-			"loopCount can be 0 to loop forever.\n"
-			"delay is time (in seconds) from now before animation should start playing.\n"
-			"speed can be used speed up or slow down playback - use negative values to play backwards.\n"
+			":param animName: animation name\n"
+			":param loopCount: can be 0 to loop forever.\n"
+			":param delay: time (in seconds) from now before animation should start playing.\n"
+			":param speed: can be used speed up or slow down playback - use negative values to play backwards.\n"
 		)
 		MAP_METHOD_AND_WRAP
 		(
 			"ChainAnimation",
 			ChainAnimation,
-			"ChainAnimation( animName )\n\nPlays the given animation, starting when currently playing animation finishes."
-			"If it is looping then it is replaced at the end of the current loop."
+			"ChainAnimation( animName )\n\nPlays the given animation, starting when currently playing animation finishes.\n"
+			"If it is looping then it is replaced at the end of the current loop.\n"
+			":param animName: animation name\n"
 		)
 		MAP_METHOD_AND_WRAP
 		(
 			"ChainAnimationEx",
 			ChainAnimationEx,
 			"ChainAnimationEx( animName, loopCount, delay, speed )\n\n"
-			"Plays the given animation, starting when currently playing animation finishes."
-			"If it is looping then it is replaced at the end of the current loop."
-			"loopCount can be 0 to loop forever.\n"
-			"delay is time (in seconds) from now before animation should start playing.\n"
-			"speed can be used speed up or slow down playback - use negative values to play backwards.\n"
+			"Plays the given animation, starting when currently playing animation finishes.\n"
+			"If it is looping then it is replaced at the end of the current loop.\n"
+			":param animName: animation name\n"
+			":param loopCount: can be 0 to loop forever.\n"
+			":param delay: time (in seconds) from now before animation should start playing.\n"
+			":param speed: can be used speed up or slow down playback - use negative values to play backwards.\n"
 		)
 		MAP_METHOD_AND_WRAP
 		(
@@ -96,6 +100,13 @@ const Be::ClassInfo* Tr2GrannyAnimation::ExposeToBlue()
 			PlayLayerAnimationByName,
 			"PlayLayerAnimation( layerName, animationName, replace, loops, delay, speed, clearWhenFinished )\n\n"
 			"Plays the given animation on the layer specified.\n"
+			":param layerName: layer name\n"
+			":param animName: animation name\n"
+			":param replace: \n"
+			":param loops: can be 0 to loop forever.\n"
+			":param delay: time (in seconds) from now before animation should start playing.\n"
+			":param speed: can be used speed up or slow down playback - use negative values to play backwards.\n"
+			":param clearWhenFinished: \n"
 		)
 		MAP_METHOD_AND_WRAP
 		(
@@ -103,6 +114,7 @@ const Be::ClassInfo* Tr2GrannyAnimation::ExposeToBlue()
 			AddAnimationLayer,
 			"AddAnimationLayer( layerName )\n\n"
 			"Creates a new animation layer for this granny animation.\n"
+			":param layerName: layer name\n"
 		)
 		MAP_METHOD_AND_WRAP
 		(
@@ -110,6 +122,8 @@ const Be::ClassInfo* Tr2GrannyAnimation::ExposeToBlue()
 			AddAnimationLayerBone,
 			"AddAnimationLayerBone( layerName, boneName )\n\n"
 			"Add the specified bone to this animation layer.\n"
+			":param layerName: layer name\n"
+			":param boneName: bone name\n"
 		)
 		MAP_METHOD_AND_WRAP
 		(
@@ -117,6 +131,8 @@ const Be::ClassInfo* Tr2GrannyAnimation::ExposeToBlue()
 			RemoveAnimationLayerBone,
 			"RemoveAnimationLayerBone( layerName, boneName )\n\n"
 			"Remove the specified bone to from the animation layer.\n"
+			":param layerName: layer name\n"
+			":param boneName: bone name\n"
 		)
 
 		MAP_ATTRIBUTE( "boneOffset", m_boneOffset, "Per-bone post animation offsets.", Be::READWRITE )
@@ -137,8 +153,7 @@ const Be::ClassInfo* Tr2GrannyAnimation::ExposeToBlue()
 			"Returns a tuple (geometry, remapping) where geometry is the newly created TriGeometryRes and remapping\n"
 			"is a dict (TriGeometryRes, meshIndex) -> areaStartIndex that maps input geometry res objects and their\n"
 			"mesh indices to the area index in the resulting static mesh.\n"
-			"Arguments:\n"
-			"geometries - list of TriGeometryRes objects to merge"
+			":param geometries: list of TriGeometryRes objects to merge"
 		)
 	EXPOSURE_END()
 }

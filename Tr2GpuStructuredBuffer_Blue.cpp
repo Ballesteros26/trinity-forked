@@ -16,10 +16,9 @@ const Be::ClassInfo* Tr2GpuStructuredBuffer::ExposeToBlue()
 			"__init__",
 			py__init__,
 			3,
-			"Arguments (optional):\n"
-			"count - number of elements in the buffer\n"
-			"stride - size of buffer element in bytes\n"
-			"cpuWritable - if CPU should have write access to the buffer\n" )
+			":param count: number of elements in the buffer\n"
+			":param stride: size of buffer element in bytes\n"
+			":param cpuWritable: if CPU should have write access to the buffer\n" )
 		MAP_ATTRIBUTE( 
 			"count", 
 			m_count, 

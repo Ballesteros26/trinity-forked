@@ -48,7 +48,8 @@ const Be::ClassInfo* Tr2MeshLod::ExposeToBlue()
 		(
 			"SelectLod",
 			SelectLod,
-			"Selects the level of detail on all resources associated with this mesh"
+			"Selects the level of detail on all resources associated with this mesh\n"
+			":param level: LOD level"
 		)
 
 	EXPOSURE_CHAINTO( Tr2MeshBase )

@@ -94,7 +94,8 @@ const Be::ClassInfo* Tr2LowLevelShader::ExposeToBlue()
 		PyGetDefines,
 		"Returns a string holding all the defines used in this\n"
 		"shader, and their values. Ie a debug friendly version\n"
-		"of permuteIndex"
+		"of permuteIndex\n"
+		":rtype: None | str"
 	)
 
 

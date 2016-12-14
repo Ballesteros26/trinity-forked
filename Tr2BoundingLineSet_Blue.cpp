@@ -17,7 +17,9 @@ const Be::ClassInfo* Tr2BoundingLineSet::ExposeToBlue()
 		)
 		MAP_METHOD_AND_WRAP( "UpdateBounds", UpdateBounds, 
 			"( min, max )\n"
-			"Update the bounding volume" 
+			"Update the bounding volume\n" 
+			":param boundsMin: min values for bounding box\n"
+			":param boundsMax: max values for bounding box\n"
 		)
     EXPOSURE_CHAINTO( Tr2LineSet )
 }

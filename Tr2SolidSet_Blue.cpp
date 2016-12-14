@@ -12,7 +12,13 @@ const Be::ClassInfo* Tr2SolidSet::ExposeToBlue()
 
 		MAP_METHOD_AND_WRAP( "AddTriangle", AddTriangle, 
 			"( pos1, color1, pos2, color2, pos3, color3 )\n"
-			"Adds a triangle to the triangle set, but does not submit it." 
+			"Adds a triangle to the triangle set, but does not submit it.\n" 
+			":param pos1: \n"
+			":param color1: \n"
+			":param pos2: \n"
+			":param color2: \n"
+			":param pos3: \n"
+			":param color3: \n"
 		)
 		MAP_METHOD_AND_WRAP( "ClearTriangles", ClearTriangles, 
 			"Clears all triangles. Requires a call to SubmitChanges to complete." 

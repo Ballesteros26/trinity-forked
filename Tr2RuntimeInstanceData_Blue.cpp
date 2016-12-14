@@ -435,9 +435,10 @@ const Be::ClassInfo* Tr2RuntimeInstanceData::ExposeToBlue()
 			"SetElementLayout",
 			PySetElementLayout,
 			"Assign instance element data layout. Invalidates data for the object.\n"
-			"Arguments:\n"
-			"layout - list of 3-tuples (usage - trinity.PARTICLE_ELEMENT_TYPE, usageIndex, elementCount)\n"
-			"         describing each data element"
+			":param layout: list of 3-tuples (usage - trinity.PARTICLE_ELEMENT_TYPE, usageIndex, elementCount)\n"
+			"         describing each data element\n"
+			":type layout: list[(int, int, int)]\n"
+			":rtype: None"
 		)
 
 		MAP_METHOD
@@ -445,9 +446,10 @@ const Be::ClassInfo* Tr2RuntimeInstanceData::ExposeToBlue()
 			"SetData",
 			PySetData,
 			"Assign instance data.\n"
-			"Arguments:\n"
-			"data - list of tuples; each list element describes one instance; each tuple element describes\n"
-			"       one element according to SetElementLayout and is either a float an n-tuple of floats"
+			":param data: list of tuples; each list element describes one instance; each tuple element describes\n"
+			"       one element according to SetElementLayout and is either a float an n-tuple of floats\n"
+			":type data: list\n"
+			":rtype: None"
 		)
 
 		MAP_METHOD
@@ -455,8 +457,9 @@ const Be::ClassInfo* Tr2RuntimeInstanceData::ExposeToBlue()
 			"GetItem",
 			PyGetItem,
 			"Returns instance data for given instance index.\n"
-			"Arguments:\n"
-			"index - instance index"
+			":param idx: instance index\n"
+			":type idx: int\n"
+			":rtype: tuple"
 		)
 
 		MAP_METHOD
@@ -464,10 +467,11 @@ const Be::ClassInfo* Tr2RuntimeInstanceData::ExposeToBlue()
 			"SetItem",
 			PySetItem,
 			"Set instance data for given instance index.\n"
-			"Arguments:\n"
-			"index - instance index"
-			"data - a tuple that describes one instance; each tuple element describes\n"
-			"       one element according to SetElementLayout and is either a float an n-tuple of floats"
+			":param idx: instance index\n"
+			":type idx: int\n"
+			":param data: a tuple that describes one instance; each tuple element describes\n"
+			"       one element according to SetElementLayout and is either a float an n-tuple of floats\n"
+			":rtype: None"
 		)
 
 		MAP_METHOD
@@ -475,9 +479,11 @@ const Be::ClassInfo* Tr2RuntimeInstanceData::ExposeToBlue()
 			"GetItemElement",
 			PyGetItemElement,
 			"Returns one element of instance data for given instance index.\n"
-			"Arguments:\n"
-			"index - instance index\n"
-			"elementIndex - data element index"
+			":param idx: instance index\n"
+			":type idx: int\n"
+			":param elementIndex: data element index\n"
+			":type elementIndex: int\n"
+			":rtype: float | tuple"
 		)
 
 		MAP_METHOD
@@ -485,10 +491,13 @@ const Be::ClassInfo* Tr2RuntimeInstanceData::ExposeToBlue()
 			"SetItemElement",
 			PySetItemElement,
 			"Set one element of instance data for given instance index.\n"
-			"Arguments:\n"
-			"index - instance index\n"
-			"elementIndex - data element index\n"
-			"data - a tuple or float that describes one element of instance data"
+			":param idx: instance index\n"
+			":type idx: int\n"
+			":param elementIndex: data element index\n"
+			":type elementIndex: int\n"
+			":param data: a tuple or float that describes one element of instance data\n"
+			":type data: float | tuple\n"
+			":rtype: None"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -516,7 +525,8 @@ const Be::ClassInfo* Tr2RuntimeInstanceData::ExposeToBlue()
 		(
 			"SaveToGranny",
 			SaveToGranny,
-			"Saves vertex data to a granny file"
+			"Saves vertex data to a granny file\n"
+			":param path: path to the granny file"
 		)
 
 		MAP_ATTRIBUTE

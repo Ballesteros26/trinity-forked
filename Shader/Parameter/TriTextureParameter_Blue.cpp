@@ -48,7 +48,12 @@ const Be::ClassInfo* TriTextureParameter::ExposeToBlue()
 		MAP_ATTRIBUTE("usedByCurrentTechnique", m_isUsedByEffect, "na", Be::READ)
 		MAP_ATTRIBUTE("usedByCurrentEffect", m_isUsedByEffect, "na", Be::READ)
 
-		MAP_METHOD_AND_WRAP( "SetResource", SetResource, "Takes a TriTextureRes and sets it directly, without using a resourcePath.")
+		MAP_METHOD_AND_WRAP( 
+			"SetResource", 
+			SetResource, 
+			"Takes a TriTextureRes and sets it directly, without using a resourcePath.\n"
+			":param resource: new texture resource"
+			)
 		MAP_METHOD_AND_WRAP( "GetResourcePath", GetResourcePath, "Returns the respath to the currently used texture. Might be LOD dependent." )
 
 	EXPOSURE_END( )

@@ -16,7 +16,12 @@ const Be::ClassInfo* Tr2SwapChain::ExposeToBlue()
 		MAP_PROPERTY_READONLY( "width", GetWidth, "Width of the backBuffer" )
 		MAP_PROPERTY_READONLY( "height", GetHeight, "Height of the backBuffer" )
 
-		MAP_METHOD_AND_WRAP( "CreateForWindow", CreateForWindow, "Creates a swap chain and associates with the given window" )
+		MAP_METHOD_AND_WRAP( 
+			"CreateForWindow", 
+			CreateForWindow, 
+			"Creates a swap chain and associates with the given window\n"
+			":param hwnd: window handle"
+		)
 
     EXPOSURE_END()
 }

@@ -382,6 +382,7 @@ const Be::ClassInfo* Tr2Sprite2dLineTrace::ExposeToBlue()
 			":type colors: sequence[(float, float, float, float)]|(float, float, float, float)\n"
 			":param names: optional sequence of string names\n"
 			":type names: sequence[str]\n"
+			":rtype: None"
 		)
 		MAP_METHOD
 		(
@@ -396,6 +397,7 @@ const Be::ClassInfo* Tr2Sprite2dLineTrace::ExposeToBlue()
 			":type colors: None|sequence[(float, float, float, float)]|(float, float, float, float)\n"
 			":param names: optional sequence of string names\n"
 			":type names: sequence[str]\n"
+			":rtype: None"
 		)
 #endif
 	EXPOSURE_CHAINTO( Tr2TexturedSpriteObject )

@@ -54,7 +54,9 @@ const Be::ClassInfo* Tr2Sprite2dTransform::ExposeToBlue()
 		(
 			"TransformPoint",
 			TransformPoint,
-			"Get transformed result of point x, y"
+			"Get transformed result of point x, y\n"
+			":param x: horizontal coordinate\n"
+			":param y: vertical coordinate\n"
 		)
 
 	EXPOSURE_CHAINTO( Tr2Sprite2dContainerBase )

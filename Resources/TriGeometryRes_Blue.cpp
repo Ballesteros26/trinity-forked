@@ -106,9 +106,7 @@ const Be::ClassInfo* TriGeometryRes::ExposeToBlue()
 			"GetMeshSurfaceArea", 
 			GetMeshSurfaceArea,
 			"Gets the surface area for a particular meshID"
-			"\n"
-			"\nArguments:"
-			"\nmeshID - the mesh to calculate the surface area for")
+			"\n:param meshID: the mesh to calculate the surface area for")
 		
 		MAP_METHOD_AND_WRAP
 		(
@@ -121,7 +119,8 @@ const Be::ClassInfo* TriGeometryRes::ExposeToBlue()
 		(
 			"GetModelName", 
 			GetModelName, 
-			"Gets the name of the indexed model"
+			"Gets the name of the indexed model\n"
+			":param idx: model index"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -135,47 +134,56 @@ const Be::ClassInfo* TriGeometryRes::ExposeToBlue()
 		(
 			"GetMeshName", 
 			GetMeshName, 
-			"Gets the name of the indexed mesh"
+			"Gets the name of the indexed mesh\n"
+			":param idx: mesh index"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"GetMeshAreaCount",
 			GetMeshAreaCount, 
-			"Gets the count of areas within the indexed mesh"
+			"Gets the count of areas within the indexed mesh\n"
+			":param idx: mesh index"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"GetMeshAreaName", 
 			GetMeshAreaName, 
-			"Gets the name of the indexed area within the indexed mesh"
+			"Gets the name of the indexed area within the indexed mesh\n"
+			":param meshIdx: mesh index\n"
+			":param areaIdx: area index\n"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"GetAreaBoundingBox", 
 			GetAreaBoundingBoxFromScript, 
-			"( nMeshIdx, nAreaIdx )->( min, max )\nGet the bounding box of the specified area within the mesh"
+			"Get the bounding box of the specified area within the mesh\n"
+			":param meshIdx: mesh index\n"
+			":param areaIdx: area index\n"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"GetBoundingBox", 
 			GetBoundingBoxFromScript, 
-			"( nMeshIdx )->( min, max )\nGet the bounding box of the specified mesh"
+			"Get the bounding box of the specified mesh\n"
+			":param meshIdx: mesh index\n"
 		)
 		MAP_METHOD_AND_WRAP(
 			"GetBoundingSphere", 
 			GetBoundingSphereFromScript,
-			"( nMeshIdx )->( center, radius )\nGet the bounding sphere of the specified area"
+			"Get the bounding sphere of the specified area\n"
+			":param meshIdx: mesh index\n"
 		)
 		MAP_METHOD_AND_WRAP
 		(
 			"CalculateBoundingBoxFromTransform", 
 			CalculateBoundingBoxFromTransform, 
-			"( meshIdx, transform )->( min, max )\n"
-			"Get the mesh's bounding box with all points transformed using transform."
+			"Get the mesh's bounding box with all points transformed using transform.\n"
+			":param meshIdx: mesh index\n"
+			":param transform: transform matrix\n"
 		)
 		MAP_METHOD_AND_WRAP
 		(
@@ -198,35 +206,38 @@ const Be::ClassInfo* TriGeometryRes::ExposeToBlue()
 			"Perform ray - area geometry intersection test"
 			"\nReturns (position, uv) tuple with intersection position and texture UV coordinates "
 			"or None if no intersection is found"
-			"\n"
-			"\nArguments:"
-			"\norigin - Ray origin (3-tuple)"
-			"\ndirection - Ray direction (3-tuple)"
-			"\nmeshIndex - Mesh index"
-			"\nareaIndex - Area index"
-			"\nresultFlags - (optional) Result flags (member of TriGeometryCollisionResultFlags), closest collision by default"
-			"\ncullingFlags - (optional) Culling flags (member of TriGeometryCollisionCullingFlags), no culling by default"
+			"\n:param origin: Ray origin (3-tuple)"
+			"\n:param direction: Ray direction (3-tuple)"
+			"\n:param meshIndex: Mesh index"
+			"\n:param reaIndex: Area index"
+			"\n:param resultFlags: Result flags (member of TriGeometryCollisionResultFlags), closest collision by default"
+			"\n:param cullingFlags: Culling flags (member of TriGeometryCollisionCullingFlags), no culling by default"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"GetIntersectionPointAndNormal", 
 			GetIntersectionPointAndNormalFromScript,
-			"( pos, dir ) ->( near, far )\nGet the near intersection points and the normal between a ray and the geometry."
+			"( pos, dir ) ->( near, far )\nGet the near intersection points and the normal between a ray and the geometry.\n"
+			":param pos: ray origin\n"
+			":param direction: ray direction\n"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"GetIntersectionPointNormalBone", 
 			GetIntersectionPointNormalBoneFromScript,
-			"( pos, dir ) ->( near, far )\nGet the near intersection points and the normal between a ray and the geometry."
+			"( pos, dir ) ->( near, far )\nGet the near intersection points and the normal between a ray and the geometry.\n"
+			":param pos: ray origin\n"
+			":param direction: ray direction\n"
 		)
 
 		MAP_METHOD_AND_WRAP
 		(
 			"GetClosestVertex", 
 			GetClosestVertex,
-			"( pos ) ->( dist, pos )\nGet the closest vertex of this model to the given point."
+			"( pos ) ->( dist, pos )\nGet the closest vertex of this model to the given point.\n"
+			":param pos: position"
 		)
 
 		MAP_METHOD_AND_WRAP
@@ -234,8 +245,7 @@ const Be::ClassInfo* TriGeometryRes::ExposeToBlue()
 			"GetMeshVertexElements",
 			GetMeshVertexElements,
 			"Returns a list of (usage, usage index) tuples for vertex layout of the specified mesh.\n"
-			"Arguments:\n"
-			"index - mesh index"
+			":param idx: mesh index"
 		)
     EXPOSURE_CHAINTO( BlueAsyncRes )
 }

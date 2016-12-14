@@ -58,13 +58,23 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 			"__init__",
 			Py__init__, 
 			4,
-			"Constructor arguments" )
+			"Constructor arguments\n"
+			":param x: \n"
+			":param y: \n"
+			":param z: \n"
+			":param w: \n"
+			)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP( 
 			"SetXYZW",
 			SetXYZW, 
-			"sets the quaternion")
+			"sets the quaternion\n"
+			":param x: \n"
+			":param y: \n"
+			":param z: \n"
+			":param w: \n"
+			)
 
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP( 
@@ -77,7 +87,9 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 			"Dot",
 			PyDot, 
 			"Accepts one argument, a quaternion. The result is a Dot product of this quaternion"
-			"and argument 1" )
+			"and argument 1\n"
+			":param other: \n"
+			)
 
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP( 
@@ -125,7 +137,9 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( 
 			"Multiply",
 			PyMultiply, 
-			"Multiplies a quaternion with this quaternion" )
+			"Multiplies a quaternion with this quaternion\n"
+			":param other: \n"
+			)
 			
 		////////////////////////////////////////////////////////////////////////////			
 		MAP_METHOD_AND_WRAP( 
@@ -137,31 +151,42 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		MAP_METHOD_AND_WRAP( 
 			"RotationAxis",
 			PyRotationAxis, 
-			"Set the rotation of the quaternion" )
+			"Set the rotation of the quaternion\n"
+			":param axis: \n"
+			":param angle: \n"
+			)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP( 
 			"RotationMatrix",
 			PyRotationMatrix, 
-			"Set the rotation of the quaternion" )
+			"Set the rotation of the quaternion\n" 
+			":param matrix: \n"
+			)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP( 
 			"YawPitchRoll",
 			PyYawPitchRoll, 
-			"Set the rotation of the quaternion" )
+			"Set the rotation of the quaternion\n"
+			":param yaw: \n"
+			":param pitch: \n"
+			":param roll: \n"
+			)
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AND_WRAP( 
 			"Slerp",
 			PySlerp, 
-			"" )
+			":param other: \n"
+			":param t: \n"
+			)
 			
 		////////////////////////////////////////////////////////////////////////////
 		MAP_METHOD_AS_METHOD( 
 			"ToAxisAngle",
 			PyToAxisAngle, 
-			"" )
+			":rtype: (TriVector, float)" )
 
 
 		////////////////////////////////////////////////////////////////////////////
@@ -179,7 +204,9 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"SetRotationAxis",
 			PySetRotationAxis, 
-			"Set the rotation of the quaternion" 
+			"Set the rotation of the quaternion\n" 
+			":param axis: \n"
+			":param angle: \n"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -188,7 +215,8 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"GetRotationAxis",
 			PyGetRotationAxis, 
-			"Get the rotation of the quaternion" 
+			"Get the rotation of the quaternion\n" 
+			":rtype: (TriVector, float)"
 		)			
 
 		////////////////////////////////////////////////////////////////////////////
@@ -197,7 +225,10 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"SetYawPitchRoll",
 			SetYawPitchRoll, 
-			"Set the yaw pitch roll of the quaternion" 
+			"Set the yaw pitch roll of the quaternion\n" 
+			":param yaw: \n"
+			":param pitch: \n"
+			":param roll: \n"
 		)			
 
 		////////////////////////////////////////////////////////////////////////////
@@ -206,7 +237,8 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"GetYawPitchRoll",
 			PyGetYawPitchRoll, 
-			"Get the yaw pitch roll of the quaternion" 
+			"Get the yaw pitch roll of the quaternion\n" 
+			":rtype: (float, float, float)"
 		)			
 
 		////////////////////////////////////////////////////////////////////////////
@@ -215,7 +247,10 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"IncreaseYawPitchRoll",
 			IncreaseYawPitchRoll, 
-			"Increases the rotation of the quaternion" 
+			"Increases the rotation of the quaternion\n" 
+			":param yaw: \n"
+			":param pitch: \n"
+			":param roll: \n"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -225,7 +260,10 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 			"IncreaseLocalYawPitchRoll",
 			IncreaseLocalYawPitchRoll, 
 			"Increases the rotation of the quaternion," 
-			"relative to the current rotation" 
+			"relative to the current rotation\n" 
+			":param yaw: \n"
+			":param pitch: \n"
+			":param roll: \n"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -234,7 +272,9 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"SetRotationArc",
 			PySetRotationArc, 
-			"Set the rotation of the quaternion from one vector to another" 
+			"Set the rotation of the quaternion from one vector to another\n" 
+			":param v1: \n"
+			":param v2: \n"
 		)			
 
 		////////////////////////////////////////////////////////////////////////////
@@ -243,7 +283,8 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"MultiplyQuaternion",
 			PyMultiplyQuaternion, 
-			"Multiplies a quaternion with this quaternion" 
+			"Multiplies a quaternion with this quaternion\n" 
+			":param other: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               SetSLERP
@@ -251,7 +292,10 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"SetSLERP",
 			PySetSLERP, 
-			"Sets this quaternion to the spherical linear interpolation between the first one and the second. The t determines how far to interpolate." 
+			"Sets this quaternion to the spherical linear interpolation between the first one and the second. The t determines how far to interpolate.\n" 
+			":param q1: \n"
+			":param q2: \n"
+			":param t: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               Scale
@@ -259,7 +303,8 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"Scale",
 			PyScale, 
-			"Scales the quaternion" 
+			"Scales the quaternion\n" 
+			":param scale: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               SetExp
@@ -267,7 +312,8 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"SetExp",
 			PySetExp, 
-			"Sets this quaternion as the exponential of 'in'" 
+			"Sets this quaternion as the exponential of 'in'\n" 
+			":param other: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               SetLn
@@ -275,7 +321,8 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"SetLn",
 			PySetLn, 
-			"Sets this quaternion as the logarithm of 'in'" 
+			"Sets this quaternion as the logarithm of 'in'\n" 
+			":param other: \n"
 		)
 
 		////////////////////////////////////////////////////////////////////////////
@@ -284,7 +331,8 @@ const Be::ClassInfo* TriQuaternion::ExposeToBlue()
 		( 
 			"Pow",
 			PyPow, 
-			"Sets this quaternion as this**pow" 
+			"Sets this quaternion as this**pow\n" 
+			":param other: \n"
 		)
 
 	EXPOSURE_END()

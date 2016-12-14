@@ -167,14 +167,15 @@ const Be::ClassInfo* Tr2SkinnedObject::ExposeToBlue()
 					"to fit the current viewing frustum as tightly as possible with visibly clipping\n"
 					"The frustum is derived from Tr2Renderer GetViewTransform and so on.\n"
 					"The function supports explicitMaxBounds\n"
-					"Input arguments:\n"
-					"   localToWorld - geo2.Matrix transform that takes this skinned object from local to world coordinates\n"
-					"Output arguments:\n"
+					":param localToWorld: geo2.Matrix transform that takes this skinned object from local to world coordinates\n"
+					":type localToWorld: tuple[tuple[float]]\n"
+					":returns:\n"
 					"   x, y, z      - normalized vectors defining the OBB's orientation\n"
 					"   center       - the center, in world coordinates, of the OBB\n"
 					"   sizes        - half the size of the OBB along every axis x, y or z.\n"
 					"                  Ie you get to a corner point with center + sizes[0] * x.\n"
 					"                  Full width/height/depth is sizes*2."
+					":rtype: tuple[tuple[float]]"
 					)
 
 		MAP_METHOD_AND_WRAP( "ResetAnimationBindings",           
@@ -184,9 +185,19 @@ const Be::ClassInfo* Tr2SkinnedObject::ExposeToBlue()
 
 		MAP_METHOD_AND_WRAP( "PrintAllBones"   , PrintAllBones   , "send a list of all bones in the current animation skeleton and render rig to LOGRELEASE" )
 
-		MAP_METHOD_AND_WRAP( "GetBoneIndex"    , GetBoneIndex    , "returns the joint index in the anim rig of this bone" )
+		MAP_METHOD_AND_WRAP( 
+			"GetBoneIndex"    , 
+			GetBoneIndex    , 
+			"returns the joint index in the anim rig of this bone\n" 
+			":paran name: bone name"
+		)
 		MAP_METHOD_AND_WRAP( "GetSkeletonTag"  , GetSkeletonTag  , "returns a counter that goes up every time the skeleton rig got invalidated" )
-		MAP_METHOD_AND_WRAP( "GetBonePosition" , GetBonePosition , "returns the position of this bone in world space" )
+		MAP_METHOD_AND_WRAP( 
+			"GetBonePosition" , 
+			GetBonePosition , 
+			"returns the position of this bone in world space\n"
+			":param idx: bone index"
+		)
 
 		MAP_ATTRIBUTE( "updatePeriod", m_updatePeriod, "How much time should elapse before the animation is updated?", Be::READWRITE )
 
