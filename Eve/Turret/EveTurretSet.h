@@ -138,6 +138,8 @@ private:
 public:
 	// set local position
 	void SetLocalTransform( unsigned int turretIndex, const Matrix* localMatrix );
+	void UpdateTurretTransforms(const Matrix* parentWorldMatrix);
+
 	// timing and worldspace positioning
 	void UpdateSyncronous( float deltaT, Be::Time time, const Matrix* parentMatrix );
 	void UpdateAsyncronous( EveUpdateContext& updateContext, const ParentData* parentData );

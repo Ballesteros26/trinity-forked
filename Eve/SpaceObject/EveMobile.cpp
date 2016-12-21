@@ -125,6 +125,7 @@ void EveMobile::UpdateSyncronous( EveUpdateContext& updateContext )
 					if( localMatrix )
 					{
 						(*it)->SetLocalTransform( turretIdx, localMatrix );
+						(*it)->UpdateTurretTransforms( GetTurretTransform() );
 					}
 				}
 			}
