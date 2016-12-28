@@ -138,6 +138,9 @@
     <ClInclude Include="Tr2CurveLineSet.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tr2DebugRenderer.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="Tr2DepthStencil.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -1543,6 +1546,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2CurveLineSet_Blue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tr2DebugRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tr2DebugRenderer_Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2DepthStencil.cpp">

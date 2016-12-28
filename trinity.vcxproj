@@ -2819,6 +2819,7 @@
     <ClInclude Include="Tr2ConstGeometry.h"/>
     <ClInclude Include="Tr2CpuSkinnedModel.h"/>
     <ClInclude Include="Tr2CurveLineSet.h"/>
+    <ClInclude Include="Tr2DebugRenderer.h"/>
     <ClInclude Include="Tr2DepthStencil.h"/>
     <ClInclude Include="Tr2DeviceResource.h"/>
     <ClInclude Include="Tr2DxtCompressor.h"/>
@@ -3292,6 +3293,8 @@
     <ClCompile Include="Tr2CpuSkinnedModel_Blue.cpp"/>
     <ClCompile Include="Tr2CurveLineSet.cpp"/>
     <ClCompile Include="Tr2CurveLineSet_Blue.cpp"/>
+    <ClCompile Include="Tr2DebugRenderer.cpp"/>
+    <ClCompile Include="Tr2DebugRenderer_Blue.cpp"/>
     <ClCompile Include="Tr2DepthStencil.cpp"/>
     <ClCompile Include="Tr2DepthStencil_Blue.cpp"/>
     <ClCompile Include="Tr2DeviceResource.cpp"/>
