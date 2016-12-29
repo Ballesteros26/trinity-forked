@@ -604,7 +604,7 @@ void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
 			{
 				auto& locator = ( *( *it )->GetLocators() )[i];
 				renderer.DrawSphereArrow( 
-					Tr2DebugObjectReference( *it, i ), 
+					Tr2DebugObjectReference( *it, uint32_t( i ) ), 
 					Vector3( XMVector3TransformCoord( locator.position, m_worldTransform ) ), 
 					Vector3( XMVector3TransformNormal( Vector3( 0, 1, 0 ), Matrix( XMMatrixRotationQuaternion( locator.direction ) ) * m_worldTransform ) ), 
 					m_boundingSphereRadius / 50.f,
