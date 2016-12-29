@@ -18,7 +18,7 @@ public:
 	Tr2PointLight( IRoot* lockobj = nullptr );
 	void AddLight( Tr2LightManager& lightManager, CXMMATRIX transform, float scale );
 	void GetLight( Vector3& position, float& radius, Color& color );
-private:
+
 	Vector3 m_position;
 	float m_radius;
 	Color m_color;

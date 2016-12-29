@@ -34,7 +34,7 @@ public:
 	void Set( const char* name, const Locator* locators, size_t count );
 	bool HasName( const char* name ) const;
 	const LocatorStructureList* GetLocators() const;
-	
+	const char* GetName() const;
 private:
 	// name to identify set
 	BlueSharedString m_name;

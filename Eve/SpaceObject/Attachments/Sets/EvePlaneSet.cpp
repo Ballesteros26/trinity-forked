@@ -11,6 +11,7 @@
 #include "EvePlaneSetItem.h"
 #include "Utilities/BoundingSphere.h"
 #include "Tr2PickingHelperBatch.h"
+#include "Tr2DebugRenderer.h"
 
 static const char* PLANESET_PICK_EFFECT_PATH = "res:/Graphics/Effect/Managed/Space/SpaceObject/FX/PlanePicking.fx";
 
@@ -304,4 +305,26 @@ void EvePlaneSet::GetPickingBatches( ITriRenderBatchAccumulator* batches, uint16
 EvePlaneSetItemVector* EvePlaneSet::GetPlanes()
 {
 	return &m_planes;
+}
+
+void EvePlaneSet::RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer )
+{
+	for( auto it = m_planes.begin(); it != m_planes.end(); ++it )
+	{
+		Matrix t( XMMatrixTransformation( Vector3( 0, 0, 0 ), Quaternion( 0, 0, 0, 1 ), ( *it )->m_scaling, Vector3( 0, 0, 0 ), ( *it )->m_rotation, ( *it )->m_position ) );
+		renderer.DrawBox( 
+			*it, 
+			t * worldTransform, 
+			Vector3( -0.5f, -0.5f, -0.005f ), 
+			Vector3( 0.5f, 0.5f, 0.005f ), 
+			Tr2DebugRenderer::Wireframe, 
+			Tr2DebugColor( Color( 0.0f, 0.7f, 0.9f, 0.5f ), Color( 0.0f, 0.7f, 0.9f, 0.1f ) ) );
+		renderer.DrawBox( 
+			*it, 
+			t * worldTransform, 
+			Vector3( -0.5f, -0.5f, -0.005f ), 
+			Vector3( 0.5f, 0.5f, 0.005f ), 
+			Tr2DebugRenderer::Solid, 
+			0 );
+	}
 }

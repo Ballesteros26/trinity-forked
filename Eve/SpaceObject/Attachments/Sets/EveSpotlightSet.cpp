@@ -12,6 +12,7 @@
 #include "Utilities/MatrixUtils.h"
 #include "Tr2QuadRenderer.h"
 #include "Tr2PickingHelperBatch.h"
+#include "Tr2DebugRenderer.h"
 
 using namespace Tr2RenderContextEnum;
 
@@ -650,4 +651,30 @@ void EveSpotlightSet::GetPickingBatches( ITriRenderBatchAccumulator* batches, ui
 		}
 		++areaIDOffset;
 	}
+}
+
+void EveSpotlightSet::RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer )
+{
+	for( auto it = m_spotlightItems.begin(); it != m_spotlightItems.end(); ++it )
+	{
+		auto& transform = ( *it )->m_transform;
+
+		renderer.DrawCone( 
+			*it, 
+			Matrix( XMMatrixRotationX( -XM_PI / 2 ) ) * Matrix( XMMatrixTranslation( 0, 0, 0.5f ) ) * transform * worldTransform, 
+			0.5f, 
+			1.f, 
+			10, 
+			Tr2DebugRenderer::Wireframe, 
+			Tr2DebugColor( 0xffaaff00, 0x22aaff00 ) );
+
+		renderer.DrawCone( 
+			*it, 
+			Matrix( XMMatrixRotationX( -XM_PI / 2 ) ) * Matrix( XMMatrixTranslation( 0, 0, 0.5f ) ) * transform * worldTransform, 
+			0.5f, 
+			1.f, 
+			10, 
+			Tr2DebugRenderer::Solid, 
+			0 );
+	} 
 }

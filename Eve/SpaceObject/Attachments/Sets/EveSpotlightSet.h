@@ -20,6 +20,7 @@ BLUE_DECLARE( Tr2PerObjectData );
 BLUE_DECLARE( EveSpotlightSet );
 BLUE_DECLARE_VECTOR( EveSpotlightSet );
 BLUE_DECLARE( Tr2Effect );
+BLUE_DECLARE( Tr2DebugRenderer );
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -78,7 +79,7 @@ public:
 
 	void GetPickingBatches( ITriRenderBatchAccumulator* batches, uint16_t& areaIDOffset, const Tr2PerObjectData* perObjectData );
 
-
+	void RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer );
 private:
 	bool OnPrepareResources();
 	bool m_display;	

@@ -62,3 +62,8 @@ const LocatorStructureList* EveLocatorSets::GetLocators() const
 {
 	return &m_locators;
 }
+
+const char* EveLocatorSets::GetName() const
+{
+	return m_name.c_str();
+}

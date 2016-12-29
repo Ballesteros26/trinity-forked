@@ -12,6 +12,7 @@
 BLUE_DECLARE( EveSpriteSet );
 BLUE_DECLARE_VECTOR( EveSpriteSet );
 BLUE_DECLARE( Tr2Effect );
+BLUE_DECLARE( Tr2DebugRenderer );
 
 class ITriRenderBatchAccumulator;
 class Tr2PerObjectData;
@@ -76,6 +77,8 @@ public:
 
 	Tr2EffectPtr GetEffect();
 	void SetEffect( Tr2EffectPtr effect );
+
+	void RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer );
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize

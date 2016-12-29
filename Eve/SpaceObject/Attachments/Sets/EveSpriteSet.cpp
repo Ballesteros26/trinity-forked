@@ -5,6 +5,7 @@
 #include "Utilities/MatrixUtils.h"
 #include "Tr2QuadRenderer.h"
 #include "Tr2PickingHelperBatch.h"
+#include "Tr2DebugRenderer.h"
 
 CCP_STATS_DECLARED_ELSEWHERE( primitiveCount );
 
@@ -449,5 +450,20 @@ void EveSpriteSet::GetPickingBatches( ITriRenderBatchAccumulator* batches, uint1
 			break;
 		}
 		++areaIDOffset;
+	}
+}
+
+void EveSpriteSet::RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer )
+{
+	for( auto it = m_sprites.begin(); it != m_sprites.end(); ++it )
+	{
+		renderer.DrawSphere( 
+			*it, 
+			worldTransform, 
+			( *it )->m_position, 
+			( *it )->m_maxScale, 
+			6, 
+			Tr2DebugRenderer::Lit, 
+			Tr2DebugColor( Color( 0.0f, 0.7f, 0.9f, 0.5f ), Color( 0.0f, 0.7f, 0.9f, 0.1f ) ) );
 	}
 }

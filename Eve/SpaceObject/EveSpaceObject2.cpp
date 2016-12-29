@@ -431,6 +431,17 @@ void EveSpaceObject2::GetDebugOptions( Tr2DebugRendererOptions& options )
 	options.insert( "Children" );
 	options.insert( "Decals" );
 	options.insert( "Damage Locators" );
+	options.insert( "Sprite Sets" );
+	options.insert( "Spotlight Sets" );
+	options.insert( "Plane Sets" );
+	options.insert( "Lights" );
+	options.insert( "Locators" );
+	for( auto it = m_locatorSets.begin(); it != m_locatorSets.end(); ++it )
+	{
+		std::string name = "Locators ";
+		name += ( *it )->GetName();
+		options.insert( name.c_str() );
+	}
 }
 
 void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
@@ -528,6 +539,79 @@ void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
 			Vector3 dir;
 			GetDamageLocatorDirection( &dir, i, true );
 			renderer.DrawSphereArrow( Tr2DebugObjectReference( &m_persistedDamageLocators, i ), pos, dir, m_boundingSphereRadius / 50.f, 8, Tr2DebugRenderer::Lit, 0xffff0088 );
+		}
+	}
+
+	if( renderer.HasOption( this, "Sprite Sets" ) )
+	{
+		for( auto it = m_spriteSets.begin(); it != m_spriteSets.end(); ++it )
+		{
+			( *it )->RenderDebugInfo( m_worldTransform, renderer );
+		}
+	}
+
+	if( renderer.HasOption( this, "Spotlight Sets" ) )
+	{
+		for( auto it = m_spotlightSets.begin(); it != m_spotlightSets.end(); ++it )
+		{
+			( *it )->RenderDebugInfo( m_worldTransform, renderer );
+		}
+	}
+
+	if( renderer.HasOption( this, "Plane Sets" ) )
+	{
+		for( auto it = m_planeSets.begin(); it != m_planeSets.end(); ++it )
+		{
+			( *it )->RenderDebugInfo( m_worldTransform, renderer );
+		}
+	}
+
+	if( renderer.HasOption( this, "Lights" ) )
+	{
+		for( auto it = m_lights.begin(); it != m_lights.end(); ++it )
+		{
+			renderer.DrawSphere( *it, m_worldTransform, ( *it )->m_position, ( *it )->m_radius, 10, Tr2DebugRenderer::Solid, Tr2DebugColor( 0x66ffffff, 0x22ffffff ) );
+		}
+	}
+
+	if( renderer.HasOption( this, "Locators" ) )
+	{
+		const char* prefix = "locator_";
+		size_t prefixLength = strlen( prefix );
+
+		for( auto it = m_locators.begin(); it != m_locators.end(); ++it )
+		{
+			XMVECTOR scale, rotation, translation;
+			XMMatrixDecompose( &scale, &rotation, &translation, ( *it )->GetTransform() );
+			Matrix transform( XMMatrixAffineTransformation( XMVectorReplicate( m_boundingSphereRadius / 50.f ), Vector3( 0, 0, 0 ), rotation, translation ) );
+			renderer.DrawAxis( *it, transform * m_worldTransform, Tr2DebugRenderer::Lit );
+			auto name = ( *it )->GetName();
+			if( strncmp( name, prefix, prefixLength ) == 0 )
+			{
+				name += prefixLength;
+			}
+			renderer.DrawText( TRI_DBG_FONT_SMALL, Vector3( XMVector3TransformCoord( ( *it )->GetTransform().GetTranslation(), m_worldTransform ) ), 0x88ffffff, name );
+		}
+	}
+
+	for( auto it = m_locatorSets.begin(); it != m_locatorSets.end(); ++it )
+	{
+		std::string name = "Locators ";
+		name += ( *it )->GetName();
+		if( renderer.HasOption( this, name.c_str() ) )
+		{
+			for( size_t i = 0; i < ( *it )->GetLocators()->size(); ++i )
+			{
+				auto& locator = ( *( *it )->GetLocators() )[i];
+				renderer.DrawSphereArrow( 
+					Tr2DebugObjectReference( *it, i ), 
+					Vector3( XMVector3TransformCoord( locator.position, m_worldTransform ) ), 
+					Vector3( XMVector3TransformNormal( Vector3( 0, 1, 0 ), Matrix( XMMatrixRotationQuaternion( locator.direction ) ) * m_worldTransform ) ), 
+					m_boundingSphereRadius / 50.f,
+					8,
+					Tr2DebugRenderer::Lit,
+					0x990088ff );
+			}
 		}
 	}
 }

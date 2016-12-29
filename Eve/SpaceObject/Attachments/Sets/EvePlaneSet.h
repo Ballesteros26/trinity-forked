@@ -16,6 +16,7 @@
 BLUE_DECLARE( EvePlaneSet );
 BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE( TriFrustum );
+BLUE_DECLARE( Tr2DebugRenderer );
 struct ViewDistanceInfo;
 
 class Tr2PerObjectData;
@@ -76,6 +77,8 @@ public:
 	void GetPickingBatches( ITriRenderBatchAccumulator* batches, uint16_t& areaIDOffset, const Tr2PerObjectData* perObjectData );
 
 	EvePlaneSetItemVector* GetPlanes();
+
+	void RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer );
 private:
 	// toggle visibility
 	bool m_display;
