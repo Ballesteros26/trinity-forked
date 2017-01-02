@@ -2281,7 +2281,7 @@ void Tr2InteriorScene::RemoveDynamic( ITr2InteriorDynamic* dynamic )
 	ssize_t pos = m_dynamics.FindKey( dynamic );
 	if( pos == -1 )
 	{
-		CCP_LOGERR("Tr2InteriorScene::RemoveDynamic() - interiorDynamic not found in the scene!" );
+		CCP_LOG( "Tr2InteriorScene::RemoveDynamic() - interiorDynamic not found in the scene!" );
 		return;
 	}
 
