@@ -202,6 +202,7 @@ void EveSpotlightSet::GetBatches( ITriRenderBatchAccumulator* accumulator, const
 // --------------------------------------------------------------------------------
 bool EveSpotlightSet::Initialize()
 {
+	UseQuadRenderer( true, false );
 	PrepareResources();
 	return true;
 }
