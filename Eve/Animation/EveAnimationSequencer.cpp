@@ -129,6 +129,12 @@ void EveAnimationStateMachine::GoToState( EveSpaceObject2* owner, const std::str
 
 void EveAnimationStateMachine::ForceState( EveSpaceObject2* owner, const std::string& name )
 {
+	EveAnimationStatePtr state = GetAnimationState( name, m_states );
+	if( !state )
+	{
+		return;
+	}
+
 	// Stop the current state if there is any
 	if( m_currentState )
 	{
