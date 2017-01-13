@@ -188,6 +188,7 @@ public:
 	// EveShip2 overrides
 	void UpdateSyncronous( EveUpdateContext& updateContext );
 	void UpdateAsyncronous( EveUpdateContext& updateContext );
+	void UpdateTurretsAsyncronous( EveUpdateContext& updateContext );
 	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const;
 	void PushRenderables( std::vector<ITr2Renderable*>& renderables );
 	void RebuildCachedData( BlueAsyncRes* p );
@@ -221,7 +222,7 @@ protected:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// EveShip2 override
 	Matrix GetObserverTransform() const;
-	const Matrix* GetTurretTransform() const;
+	const Matrix* GetTurretTransform( unsigned int turretSetIndex ) const;
 	
 	void UpdateBoosters( EveUpdateContext& updateContext ) {}
 	void UpdateWorldTransform( Be::Time time );

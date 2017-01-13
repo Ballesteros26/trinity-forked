@@ -17,6 +17,7 @@
 #include "Eve/SpaceObject/Attachments/EveBoosterSet2.h"
 #include "Eve/SpaceObject/Attachments/Sets/EveSpriteSet.h"
 #include "Eve/SpaceObject/Attachments/Sets/EveSpotlightSet.h"
+#include "Eve/Turret/EveTurretSet.h"
 
 EveSwarmRenderable::EveSwarmRenderable( IRoot* lockobj )
 {
@@ -196,17 +197,13 @@ Matrix EveSwarm::GetObserverTransform() const
 // Description:
 //   Return a transform used for turret locators
 // --------------------------------------------------------------------------------
-const Matrix* EveSwarm::GetTurretTransform() const
+const Matrix* EveSwarm::GetTurretTransform( unsigned int swarmID ) const
 {
-	if( m_count < 1 || m_renderables.size() < 1 )
+	if( swarmID >= m_renderables.size() )
 	{
 		return &m_worldTransform;
 	}
-	if( (unsigned)m_firingIndex >= m_renderables.size() )
-	{
-		return m_renderables[0]->GetWorldTransform();
-	}
-	return m_renderables[m_firingIndex]->GetWorldTransform();
+	return m_renderables[swarmID]->GetWorldTransform();
 }
 
 // --------------------------------------------------------------------------------
@@ -269,14 +266,26 @@ void EveSwarm::UpdateOrientation( SwarmVehicle* vehicle, float timeDiff )
 	D3DXQuaternionSlerp( &vehicle->rotation, &vehicle->rotation, &rotation, timeDiff * m_behavior.m_agility );
 }
 
+
+void EveSwarm::UpdateTurretsAsyncronous( EveUpdateContext& updateContext )
+{
+	for( EveTurretSetVector::iterator it = m_turretSets.begin(); it != m_turretSets.end(); ++it )
+	{
+		EveTurretSet::ParentData pd;
+		pd.transform = *GetTurretTransform( (*it)->GetSwarmID() );
+		pd.shipData = m_spaceObjectShipData;
+		pd.clipData = m_psData.clipData;
+		pd.clipDataEx = m_psData.miscData;
+		(*it)->UpdateAsyncronous( updateContext, &pd );
+	}
+}
+
 // --------------------------------------------------------------------------------
 // Description:
 //   From EveShip2
 // --------------------------------------------------------------------------------
 void EveSwarm::UpdateAsyncronous( EveUpdateContext& context )
 {
-	EveShip2::UpdateAsyncronous( context );
-
 	if( !m_swarmingEnabled || m_count == 0 )
 	{
 		m_squadBoundsMax = Vector3( 0, 0, 0 );
@@ -318,6 +327,8 @@ void EveSwarm::UpdateAsyncronous( EveUpdateContext& context )
 		float deltaT = context.GetDeltaT();
 		m_boosters->UpdateTrails( deltaT, time );
 	}
+
+	EveShip2::UpdateAsyncronous( context );
 }
 
 

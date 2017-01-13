@@ -173,6 +173,7 @@ public:
 	// get locator names
 	const char* GetLocatorName() const;
 	const int GetSlotNumber() const;
+	const unsigned int GetSwarmID() const { return m_swarmID; }
 
 	// get worldmatrix of the currently firing bone
 	Matrix GetFiringBoneWorldTransform( unsigned int muzzle ) const;
@@ -275,6 +276,9 @@ private:
 	// locator on the parent ship
 	std::string m_locatorName;
 	int m_slotNumber;
+
+	// used by fighters
+	unsigned int m_swarmID;
 
 	// parent ship data
 	ParentData m_parentData;

@@ -65,6 +65,8 @@ public:
 	void RebuildTurretPositions();
 	// checks and counts the number of locators and/or granny-bones used to position turrets
 	unsigned int GetTurretLocatorCount();
+	// Asynch update for turret sets
+	virtual void UpdateTurretsAsyncronous( EveUpdateContext& updateContext );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// activation
@@ -83,8 +85,11 @@ protected:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// activation
 	float m_activationStrenght;
-
-	virtual const Matrix* GetTurretTransform() const;
+	
+	/////////////////////////////////////////////////////////////////////////////////////
+	// turrets
+	PEveTurretSetVector m_turretSets;
+	virtual const Matrix* GetTurretTransform( unsigned int turretSetIndex ) const;
 private:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// activation
@@ -99,7 +104,6 @@ private:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// turrets
-	PEveTurretSetVector m_turretSets;
 	// ship-internal data on turret locators
 	struct TurretSetLocatorInfo
 	{

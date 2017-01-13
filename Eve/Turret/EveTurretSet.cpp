@@ -101,6 +101,7 @@ EveTurretSet::EveTurretSet( IRoot* lockobj ) :
 	m_impactSize( 0.f ),
 	m_firingEffectMuzzlePosSet( false ),
 	m_slotNumber( -1 ),
+	m_swarmID( 0 ),
 	m_parentShLighting( nullptr ),
 	m_possibleTurretDisplayAmount( 0 )
 {

@@ -88,7 +88,7 @@ void EveMobile::OnListModified( long event, ssize_t key, ssize_t key2, IRoot* va
 // Description:
 //   Return a transform used for turret locators
 // --------------------------------------------------------------------------------
-const Matrix* EveMobile::GetTurretTransform() const
+const Matrix* EveMobile::GetTurretTransform( unsigned int turretSetIndex ) const
 {
 	return &m_worldTransform;
 }
@@ -125,16 +125,16 @@ void EveMobile::UpdateSyncronous( EveUpdateContext& updateContext )
 					if( localMatrix )
 					{
 						(*it)->SetLocalTransform( turretIdx, localMatrix );
-						(*it)->UpdateTurretTransforms( GetTurretTransform() );
+						(*it)->UpdateTurretTransforms( GetTurretTransform( (*it)->GetSwarmID() ) );
 					}
 				}
 			}
 		}
+		// call standard update function
+		(*it)->UpdateSyncronous( deltaT, time, GetTurretTransform( (*it)->GetSwarmID() ) );
+
 		// next!
 		++locatorInfoIdx;
-
-		// call standard update function
-		(*it)->UpdateSyncronous( deltaT, time, GetTurretTransform() );
 	}
 }
 
@@ -176,18 +176,11 @@ void EveMobile::PrepareShaderData( EveUpdateContext& updateContext )
 	m_psData.miscData.x = TriFloatSign( disolveRadius );
 }
 
-// --------------------------------------------------------------------------------
-// Description:
-//   Override base ::UpdateAsyncronous() function, so we can update the turrets and 
-//   their positions (if they are attached to animated bones!)
-// --------------------------------------------------------------------------------
-void EveMobile::UpdateAsyncronous( EveUpdateContext& updateContext )
+void EveMobile::UpdateTurretsAsyncronous( EveUpdateContext& updateContext )
 {
-	EveSpaceObject2::UpdateAsyncronous( updateContext );
-
 	// now prep to get the renderables
 	EveTurretSet::ParentData pd;
-	pd.transform = *GetTurretTransform();
+	pd.transform = *GetTurretTransform( 0 );
 	pd.shipData = m_spaceObjectShipData;
 	pd.clipData = m_psData.clipData;
 	pd.clipDataEx = m_psData.miscData;
@@ -196,6 +189,16 @@ void EveMobile::UpdateAsyncronous( EveUpdateContext& updateContext )
 	{
 		(*it)->UpdateAsyncronous( updateContext, &pd );
 	}
+}
+// --------------------------------------------------------------------------------
+// Description:
+//   Override base ::UpdateAsyncronous() function, so we can update the turrets and 
+//   their positions (if they are attached to animated bones!)
+// --------------------------------------------------------------------------------
+void EveMobile::UpdateAsyncronous( EveUpdateContext& updateContext )
+{
+	EveSpaceObject2::UpdateAsyncronous( updateContext );
+	UpdateTurretsAsyncronous( updateContext );
 }
 
 void EveMobile::UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform )
