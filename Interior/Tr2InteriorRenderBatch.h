@@ -23,6 +23,7 @@
 class Tr2InteriorClippingBatch : public TriClippingBatch
 {
 public:
+	// cppcheck-suppress uninitMemberVar
 	Tr2InteriorClippingBatch()
 	{
 	}
