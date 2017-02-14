@@ -148,3 +148,53 @@ Tr2RenderContextEnum::TextureAddressMode EveSOFUtils::GetTextureAddressMode( Eve
 		return Tr2RenderContextEnum::TA_WRAP;
 	}
 }
+
+// --------------------------------------------------------------------------------
+const Vector4* EveSOFUtils::SearchForParameterData( const EveSOFDataMgr* dataMgr, const char* materialName, const EveSOFUtilsParameterName* parameterName )
+{
+	const EveSOFDataMgr::MaterialData* materialData = dataMgr->GetMaterialData( materialName );
+	if( materialData )
+	{
+		BlueSharedString pn( parameterName->GetShortName() );
+		auto parameterIt = materialData->parameters.find( pn );
+		if( parameterIt != materialData->parameters.end() )
+		{
+			return &parameterIt->second;
+		}
+	}
+	return nullptr;
+}
+
+// --------------------------------------------------------------------------------
+const Vector4* EveSOFUtils::SearchForParameterData( const EveSOFDataMgr* dataMgr, const EveSOFDataMgr::AreaMaterialData* areaMaterialData, EveSOFDataArea::AreaType areaType, const EveSOFUtilsParameterName* parameterName )
+{
+	// what kind of parameter is it?
+	if( parameterName->IsMaterialIdxValid() )
+	{
+		auto k = std::make_pair( areaType, parameterName->GetMaterialIdx() );
+		auto finder = areaMaterialData->materialNames.find( k );
+		if( finder != areaMaterialData->materialNames.end() )
+		{
+			return SearchForParameterData( dataMgr, finder->second.c_str(), parameterName );
+		}
+	}
+	else
+	{
+		auto k = std::make_pair( areaType, parameterName->GetFullName() );
+		auto finder = areaMaterialData->generalParameters.find( k );
+		if( finder != areaMaterialData->generalParameters.end() )
+		{
+			return &finder->second;
+		}
+	}
+
+	// if we can't find it, always try the PRIMARY
+	if( areaType != EveSOFDataArea::TYPE_PRIMARY )
+	{
+		return SearchForParameterData( dataMgr, areaMaterialData, EveSOFDataArea::TYPE_PRIMARY, parameterName );
+	}
+
+	return nullptr;
+}
+
+

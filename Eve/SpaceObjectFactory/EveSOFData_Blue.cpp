@@ -12,10 +12,10 @@ const Be::ClassInfo* EveSOFDataAreaMaterial::ExposeToBlue()
 	EXPOSURE_BEGIN( EveSOFDataAreaMaterial, "" )
 		MAP_INTERFACE( EveSOFDataAreaMaterial )
 
-		MAP_ATTRIBUTE( "material1", m_material1, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "material2", m_material2, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "material3", m_material3, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "material4", m_material4, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "material1", m_material[MATERIAL1], "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "material2", m_material[MATERIAL2], "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "material3", m_material[MATERIAL3], "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "material4", m_material[MATERIAL4], "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "generalGlowColor", m_generalGlowColor, "", Be::READWRITE | Be::PERSIST )
 		EXPOSURE_END()
 }
@@ -675,6 +675,7 @@ const Be::ClassInfo* EveSOFDataFaction::ExposeToBlue()
 		MAP_ATTRIBUTE( "materialUsageMtl4", m_materialUsageMtl4, "Material usage of Mtl4\n:jessica-group: MaterialUsage", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "defaultPattern", m_defaultPattern, "The default pattern data for this faction\n:jessica-group: DefaultPattern", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "defaultPatternLayer1MaterialName", m_defaultPatternLayer1MaterialName, "The default pattern material name for this faction and layer 1\n:jessica-group: DefaultPattern", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "useNewAreaTypes", m_useNewAreaTypes, "Enable new material lib system", Be::READWRITE | Be::PERSIST )
 		EXPOSURE_END()
 }
 

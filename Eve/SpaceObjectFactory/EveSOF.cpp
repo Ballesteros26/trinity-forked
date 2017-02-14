@@ -1588,22 +1588,9 @@ void EveSOF::SetupTurretMaterialFromFaction( EveTurretSet* turretSet, const char
 	const EveSOFDataMgr::GenericData* genericData = m_dataMgr.GetGenericData();
 	// get faction data
 	const EveSOFDataMgr::FactionData* factionData = m_dataMgr.GetFactionData( factionName );
-	// only interested in hull area for turrets
-	const EveSOFDataMgr::FactionAreaData* areaData = nullptr;
-	if( factionData )
-	{
-		auto turretAreaFinder = factionData->areaParameters.find( BlueSharedString( "hull" ) );
-		if( turretAreaFinder != factionData->areaParameters.end() )
-		{
-			areaData = &turretAreaFinder->second;
-		}
-	}
-	// if we haven't found anything that's an error
-	if( !areaData )
-	{
-		CCP_LOGERR( "EveSOF: SetupTurretMaterialFromFaction failed, couldn't find hull area on %s!", factionName );
-		return;
-	}
+	// get area data
+	const EveSOFDataMgr::AreaMaterialData* areaMaterialData = &factionData->areaMaterials;
+
 	// start modifying the parameters of the turret's shader
 	Tr2Effect* shader = turretSet->GetShader();
 	if( shader )
@@ -1614,15 +1601,17 @@ void EveSOF::SetupTurretMaterialFromFaction( EveTurretSet* turretSet, const char
 			shader->StartUpdate();
 			for( auto it = shader->m_constParameters.begin(); it != shader->m_constParameters.end(); ++it )
 			{
+				// build the parameter
 				EveSOFUtilsParameterName param( genericData->materialPrefixes, it->name.c_str() );
 				if( param.IsMaterialIdxValid() )
 				{
 					param.ChangeMaterialIdx( genericData, factionData->materialUsageList[param.GetMaterialIdx()] );
 				}
-				auto paramFinder = areaData->parameters.find( BlueSharedString( param.GetFullName() ) );
-				if( paramFinder != areaData->parameters.end() )
+				// find data
+				const Vector4* res = EveSOFUtils::SearchForParameterData( &m_dataMgr, areaMaterialData, EveSOFDataArea::TYPE_PRIMARY, &param );
+				if( res )
 				{
-					it->value = paramFinder->second;
+					it->value = *res;
 				}
 			}
 			shader->EndUpdate();
@@ -1632,18 +1621,20 @@ void EveSOF::SetupTurretMaterialFromFaction( EveTurretSet* turretSet, const char
 			// then non-const parameters
 			for( auto it = shader->m_parameters.begin(); it != shader->m_parameters.end(); ++it )
 			{
-				EveSOFUtilsParameterName param( genericData->materialPrefixes, (*it)->GetParameterName() );
+				// build the parameter
+				EveSOFUtilsParameterName param( genericData->materialPrefixes, ( *it )->GetParameterName() );
 				if( param.IsMaterialIdxValid() )
 				{
-					param.ChangeMaterialIdx( genericData, factionData->materialUsageList[ param.GetMaterialIdx() ] );
+					param.ChangeMaterialIdx( genericData, factionData->materialUsageList[param.GetMaterialIdx()] );
 				}
-				auto paramFinder = areaData->parameters.find( BlueSharedString( param.GetFullName() ) );
-				if( paramFinder != areaData->parameters.end() )
+				// find data
+				const Vector4* res = EveSOFUtils::SearchForParameterData( &m_dataMgr, areaMaterialData, EveSOFDataArea::TYPE_PRIMARY, &param );
+				if( res )
 				{
 					Tr2Vector4ParameterPtr p;
-					if( (*it)->QueryInterface( BlueInterfaceIID<Tr2Vector4Parameter>(), (void**)&p, BEQI_SILENT ) )
+					if( ( *it )->QueryInterface( BlueInterfaceIID<Tr2Vector4Parameter>(), (void**)&p, BEQI_SILENT ) )
 					{
-						p->SetValue( paramFinder->second );
+						p->SetValue( *res );
 					}
 				}
 			}

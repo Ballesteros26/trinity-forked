@@ -42,8 +42,8 @@ public:
 
 	struct AreaMaterialData
 	{
-		BlueSharedString material[4];
-		std::map<std::string, Vector4> generalParameters;
+		std::map<std::pair<uint32_t, uint32_t>, BlueSharedString> materialNames;
+		std::map<std::pair<uint32_t, std::string>, Vector4> generalParameters;
 	};
 
 	// pattern data structs
@@ -297,6 +297,9 @@ public:
 
 	struct FactionData
 	{
+		// temp
+		bool useNewAreaTypes;
+
 		// texture insert
 		std::string resPathInsert;
 
@@ -309,7 +312,7 @@ public:
 
 		// hull area parameter overloads
 		std::map<BlueSharedString, FactionAreaData> areaParameters;
-//		AreaMaterialData m_areaMaterials[EveSOFDataArea::TYPE_MAX];
+		AreaMaterialData areaMaterials;
 		// spritesets
 		std::map<int, FactionSpriteSetColorData> spriteSetsColor;
 		// spotlight sets
@@ -373,7 +376,7 @@ public:
 		// boosters
 		RaceBoosterData boosters;
 		// hull area materials
-		AreaMaterialData areaMaterials[EveSOFDataArea::TYPE_MAX];
+		AreaMaterialData areaMaterials;
 		// impact damage data
 		RaceDamageData damage;
 	};

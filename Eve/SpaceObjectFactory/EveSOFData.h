@@ -88,11 +88,18 @@ public:
 	EveSOFDataAreaMaterial( IRoot* lockobj = NULL );
 	~EveSOFDataAreaMaterial() {}
 
+	// materials
+	enum MaterialType
+	{
+		MATERIAL1 = 0,
+		MATERIAL2,
+		MATERIAL3,
+		MATERIAL4,
+		MATERIAL_MAX,
+	};
+
 	// data
-	std::string m_material1;
-	std::string m_material2;
-	std::string m_material3;
-	std::string m_material4;
+	std::string m_material[MATERIAL_MAX];
 	Color m_generalGlowColor;
 };
 TYPEDEF_BLUECLASS( EveSOFDataAreaMaterial );
@@ -808,6 +815,7 @@ public:
 	int m_materialUsageMtl4;
 
 	// material lib names
+	bool m_useNewAreaTypes;
 	EveSOFDataAreaPtr m_areaTypes;
 
 	// default pattern

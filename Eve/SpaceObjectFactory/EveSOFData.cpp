@@ -141,7 +141,8 @@ EveSOFDataFaction::EveSOFDataFaction( IRoot* lockobj ) :
 	m_materialUsageMtl1( 0 ),
 	m_materialUsageMtl2( 1 ),
 	m_materialUsageMtl3( 2 ),
-	m_materialUsageMtl4( 3 )
+	m_materialUsageMtl4( 3 ),
+	m_useNewAreaTypes( false )
 {
 }
 

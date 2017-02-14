@@ -818,43 +818,6 @@ const std::vector<EveSOFDataMgr::HullAreas>* EveSOFDNA::GetHullMeshAreas( TriBat
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Search a material for parameter value
-// --------------------------------------------------------------------------------
-const Vector4* EveSOFDNA::SearchForParameterData( const char* materialName, const EveSOFUtilsParameterName* parameterName ) const
-{
-	const EveSOFDataMgr::MaterialData* materialData = m_dataMgr->GetMaterialData( materialName );
-	if( materialData )
-	{
-		BlueSharedString pn( parameterName->GetShortName() );
-		auto parameterIt = materialData->parameters.find( pn );
-		if( parameterIt != materialData->parameters.end() )
-		{
-			return &parameterIt->second;
-		}
-	}
-	return nullptr;
-}
-
-// --------------------------------------------------------------------------------
-const Vector4* EveSOFDNA::SearchForParameterData( const EveSOFDataMgr::AreaMaterialData* areaMaterialData, const EveSOFUtilsParameterName* parameterName ) const
-{
-	if( parameterName->IsMaterialIdxValid() )
-	{
-		return SearchForParameterData( areaMaterialData->material[parameterName->GetMaterialIdx()].c_str(), parameterName );
-	}
-	else
-	{
-		auto parameterIt = areaMaterialData->generalParameters.find( parameterName->GetFullName() );
-		if( parameterIt != areaMaterialData->generalParameters.end() )
-		{
-			return &parameterIt->second;
-		}
-	}
-	return nullptr;
-}
-
-// --------------------------------------------------------------------------------
-// Description:
 //   Search an area collection to find the data of a specific parameter
 // --------------------------------------------------------------------------------
 const Vector4* EveSOFDNA::SearchForParameterData( const std::map<BlueSharedString, EveSOFDataMgr::FactionAreaData>& areas, EveSOFDataArea::AreaType areaType, const BlueSharedString& parameterName ) const
@@ -925,7 +888,7 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( EveSOFDataArea::AreaType areaTyp
 			if( !( blockededMaterials & ( 1 << param.GetMaterialIdx() ) ) )
 			{
 				// get the material from the lib
-				const Vector4* res = SearchForParameterData( commandArgs[param.GetMaterialIdx()].c_str(), &param );
+				const Vector4* res = EveSOFUtils::SearchForParameterData( m_dataMgr, commandArgs[param.GetMaterialIdx()].c_str(), &param );
 				if( res )
 				{
 					return res;
@@ -942,7 +905,7 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( EveSOFDataArea::AreaType areaTyp
 		if( param.IsMaterialIdxValid() && ( 1 + param.GetMaterialIdx() < (int32_t)commandArgs.size() ) )
 		{
 			// get the material from the lib
-			const Vector4* res = SearchForParameterData( commandArgs[1 + param.GetMaterialIdx()].c_str(), &param );
+			const Vector4* res = EveSOFUtils::SearchForParameterData( m_dataMgr, commandArgs[1 + param.GetMaterialIdx()].c_str(), &param );
 			if( res )
 			{
 				return res;
@@ -956,7 +919,7 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( EveSOFDataArea::AreaType areaTyp
 		if( param.IsMaterialIdxValid() )
 		{
 			// get the material from the lib using the racial name
-			const Vector4* res = SearchForParameterData( m_factionData->defaultPatternLayer1MaterialName.c_str(), &param );
+			const Vector4* res = EveSOFUtils::SearchForParameterData( m_dataMgr, m_factionData->defaultPatternLayer1MaterialName.c_str(), &param );
 			if( res )
 			{
 				return res;
@@ -968,14 +931,14 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( EveSOFDataArea::AreaType areaTyp
 	if( areaType == EveSOFDataArea::TYPE_WRECK )
 	{
 		EveSOFUtilsParameterName param( m_genericData->materialPrefixes, parameterName.c_str() );
-		return SearchForParameterData( &m_genericData->genericWreckMaterialData, &param );
+		return EveSOFUtils::SearchForParameterData( m_dataMgr, &m_genericData->genericWreckMaterialData, areaType, &param );
 	}
 
 	// do we have it in the race data?
 	if( areaType == EveSOFDataArea::TYPE_PRIMARY || areaType == EveSOFDataArea::TYPE_REACTOR )
 	{
 		EveSOFUtilsParameterName param( m_genericData->materialPrefixes, parameterName.c_str() );
-		const Vector4* res = SearchForParameterData( &m_raceData->areaMaterials[areaType], &param );
+		const Vector4* res = EveSOFUtils::SearchForParameterData( m_dataMgr, &m_raceData->areaMaterials, areaType, &param );
 		if( res )
 		{
 			return res;
@@ -983,10 +946,24 @@ const Vector4* EveSOFDNA::GetMeshAreaParameter( EveSOFDataArea::AreaType areaTyp
 	}
 
 	// do we have it in the faction data?
-	const Vector4* res = SearchForParameterData( m_factionData->areaParameters, areaType, parameterName );
-	if( res )
 	{
-		return res;
+		if( m_factionData->useNewAreaTypes )
+		{
+			EveSOFUtilsParameterName param( m_genericData->materialPrefixes, parameterName.c_str() );
+			const Vector4* res = EveSOFUtils::SearchForParameterData( m_dataMgr, &m_factionData->areaMaterials, areaType, &param );
+			if( res )
+			{
+				return res;
+			}
+		}
+		else
+		{
+			const Vector4* res = SearchForParameterData( m_factionData->areaParameters, areaType, parameterName );
+			if( res )
+			{
+				return res;
+			}
+		}
 	}
 
 	// do we have it in the hull data

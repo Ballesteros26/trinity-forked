@@ -119,8 +119,6 @@ private:
 	bool HasDnaCommand( DnaCommand cmd ) const;
 	// search and area collection to find the data of a specific parameter
 	const Vector4* SearchForParameterData( const std::map<BlueSharedString, EveSOFDataMgr::FactionAreaData>& areas, EveSOFDataArea::AreaType areaType, const BlueSharedString& parameterName ) const;
-	const Vector4* SearchForParameterData( const char* materialName, const EveSOFUtilsParameterName* parameterName ) const;
-	const Vector4* SearchForParameterData( const EveSOFDataMgr::AreaMaterialData* areaMaterialData, const EveSOFUtilsParameterName* parameterName ) const;
 
 	// the dna as a string
 	std::string m_dna;
