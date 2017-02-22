@@ -339,16 +339,9 @@ BlueAsyncRes::LoadingResult TriTextureRes::DoLoad()
 	m_loadedBitmap.reset( CCP_NEW( "TriTextureRes::m_loadedBitmap" ) ImageIO::HostBitmap );
 	CCP_ASSERT( m_loadedBitmap != nullptr );
 
-	ImageIO::Result result;
-	if( Tr2ImageIOHelpers::IsCairoScriptPath( GetFilePath().c_str() ) )
-	{
-		result = Tr2ImageIOHelpers::RasterizeCairoScript( m_dataStream, m_queryArguments, *m_loadedBitmap );
-	}
-	else
-	{
-		ImageIO::LoadParameters params( m_path.c_str(), ComputeMipSkipCount(), m_mipLevelMaxCount );
-		result = ImageIO::ReadImage( *m_dataStream, params, *m_loadedBitmap, &m_metadata );
-	}
+	ImageIO::LoadParameters params( m_path.c_str(), ComputeMipSkipCount(), m_mipLevelMaxCount );
+	ImageIO::Result result = ImageIO::ReadImage( *m_dataStream, params, *m_loadedBitmap, &m_metadata );
+
 	if( !result )
 	{
 		CCP_LOGERR( "Tr2ImageHandler failed to load texture '%S': %s", GetPath(), result.GetErrorMessage().c_str() );
