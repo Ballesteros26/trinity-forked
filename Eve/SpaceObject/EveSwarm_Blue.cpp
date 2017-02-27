@@ -11,6 +11,7 @@ BLUE_DEFINE( EveSwarmRenderable );
 const Be::ClassInfo* EveSwarmRenderable::ExposeToBlue()
 {
     EXPOSURE_BEGIN( EveSwarmRenderable, "" )
+		MAP_INTERFACE( ITr2Pickable )
     EXPOSURE_END()
 }
 

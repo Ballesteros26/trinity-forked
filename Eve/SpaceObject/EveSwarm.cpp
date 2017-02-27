@@ -9,6 +9,8 @@
 #include "Tr2MeshArea.h"
 #include "Tr2MeshBase.h"
 #include "Tr2MeshLod.h"
+#include "TriFrustumOrtho.h"
+#include "Shader/Tr2Effect.h"
 
 #include "include/TriMath.h"
 #include "Utilities/BoundingBox.h"
@@ -27,6 +29,9 @@ EveSwarmRenderable::EveSwarmRenderable( IRoot* lockobj )
 
 EveSwarmRenderable::~EveSwarmRenderable()
 {
+	m_owner = nullptr;
+	m_shadowEffect = nullptr;
+	m_mesh = nullptr;
 }
 
 void EveSwarmRenderable::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData )
@@ -50,9 +55,41 @@ void EveSwarmRenderable::GetBatches( ITriRenderBatchAccumulator* batches, TriBat
 
 void EveSwarmRenderable::GetShadowBatches( ITriRenderBatchAccumulator* batches, const Tr2PerObjectData* perObjectData )
 {
-	if( m_mesh )
+	if( !m_shadowEffect )
 	{
-		m_mesh->GetBatches( batches, m_mesh->GetAreas( TRIBATCHTYPE_OPAQUE ), perObjectData );
+		return;
+	}
+
+	if( !m_mesh || !m_mesh->GetDisplay() )
+	{
+		return;
+	}
+
+	Tr2MeshAreaVector* areas = m_mesh->GetAreas( TRIBATCHTYPE_OPAQUE );
+
+	TriGeometryRes* geomRes = m_mesh->GetGeometryResource();
+	int meshIx = m_mesh->GetMeshIndex();
+
+	for( Tr2MeshAreaVector::iterator it = areas->begin(); it != areas->end(); ++it )
+	{
+		Tr2MeshArea* area = *it;
+		ITr2ShaderMaterial* material = area->GetMaterialInterface();
+
+		if( !area->GetDisplay() || !material )
+		{
+			continue;
+		}
+		TriGeometryBatch* batch = batches->Allocate<TriGeometryBatch>();
+		// Note that this can fail if the accumulator can't add more batches!
+		if( batch )
+		{
+			batch->SetShaderMaterial( m_shadowEffect );
+			batch->SetPerObjectData( perObjectData );
+			batch->SetGeometryResource( geomRes );
+			batch->SetMeshParameters( meshIx, area->GetIndex(), area->GetCount() );
+
+			batches->Commit( batch );
+		}
 	}
 }
 
@@ -111,9 +148,11 @@ bool EveSwarmRenderable::HasTransparentBatches()
 	return false;
 }
 
-void EveSwarmRenderable::SetMesh( Tr2MeshBase* mesh )
+void EveSwarmRenderable::InitializeRenderable( EveSwarm* owner, Tr2MeshBase* mesh, Tr2Effect* shadowEffect )
 {
 	m_mesh = mesh;
+	m_owner = owner;
+	m_shadowEffect = shadowEffect;
 }
 
 void EveSwarmRenderable::SetWorldTransform( const Matrix& transform )
@@ -146,6 +185,33 @@ void EveSwarmRenderable::SetShaderData( const EveSpaceObjectVSData& vsData, cons
 	m_psData.shipData.w = psData.shipData.w;
 }
 
+// --------------------------------------------------------------------------
+IRoot* EveSwarmRenderable::GetID( uint16_t )
+{
+	if( !m_owner )
+	{
+		return nullptr;
+	}
+	return m_owner->GetRawRoot();
+}
+
+// --------------------------------------------------------------------------
+void EveSwarmRenderable::GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr2PickTypes pickTypes, const Tr2PerObjectData* perObjectData )
+{
+	if( ( pickTypes & PICK_TYPE_PICKING ) != 0 )
+	{
+		GetBatches( batches, TRIBATCHTYPE_PICKING, perObjectData );
+	}
+	if( ( pickTypes & PICK_TYPE_OPAQUE ) != 0 )
+	{
+		GetBatches( batches, TRIBATCHTYPE_OPAQUE, perObjectData );
+	}
+	if( ( pickTypes & PICK_TYPE_TRANSPARENT ) != 0 )
+	{
+		GetBatches( batches, TRIBATCHTYPE_TRANSPARENT, perObjectData );
+		GetBatches( batches, TRIBATCHTYPE_ADDITIVE, perObjectData );
+	}
+}
 
 
 
@@ -215,7 +281,7 @@ void EveSwarm::RebuildCachedData( BlueAsyncRes* p )
 	EveShip2::RebuildCachedData( p );
 	for( auto it = m_renderables.begin(); it != m_renderables.end(); ++it )
 	{
-		(*it)->SetMesh( m_meshLod );
+		(*it)->InitializeRenderable( this, m_meshLod, m_shadowEffect );
 	}
 }
 
@@ -596,6 +662,31 @@ void EveSwarm::PushRenderables( std::vector<ITr2Renderable*>& renderables )
 	// decals? children? boosters?
 }
 
+
+// --------------------------------------------------------------------------------
+bool EveSwarm::GetRenderablesCastingShadow( bool isSelf, const TriFrustumOrtho& frustum, std::vector<ITr2Renderable*>& renderables )
+{
+	if( !m_display )
+	{
+		return false;
+	}
+
+	Vector4 bs;
+	BoundingSphereFromBox( bs, m_squadBoundsMin, m_squadBoundsMax );
+	if( bs.w > 0.0f  )
+	{
+		if( frustum.IsSphereVisibleAndInsideNearPlane( &bs ) )
+		{
+			for( auto it = m_renderables.begin(); it != m_renderables.end(); ++it )
+			{
+				renderables.push_back( *it );
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
 // --------------------------------------------------------------------------------
 // Description:
 //    GetBoundingSphere. See EveSpaceObject2
@@ -652,6 +743,9 @@ bool EveSwarm::GetLocalBoundingBox( Vector3 &min, Vector3 &max )
 {
 	if( m_mesh && m_mesh->GetBoundingBox( min, max ) )
 	{
+		Vector4 bs;
+		BoundingSphereFromBox( bs, min, max );
+		BoundingBoxUpdate( min, max, bs );
 		min += m_squadBoundsMin;
 		max += m_squadBoundsMax;
 	}
@@ -660,10 +754,18 @@ bool EveSwarm::GetLocalBoundingBox( Vector3 &min, Vector3 &max )
 		min = m_squadBoundsMin;
 		max = m_squadBoundsMax;
 	}
-	m_localAabbMin = min - m_worldPosition;
-	m_localAabbMax = max - m_worldPosition;
-	min = m_localAabbMin;
-	max = m_localAabbMax;
+	if( m_swarmingEnabled )
+	{
+		m_localAabbMin = min - m_worldPosition;
+		m_localAabbMax = max - m_worldPosition;
+		min = m_localAabbMin;
+		max = m_localAabbMax;
+	}
+	else
+	{
+		m_localAabbMin = min;
+		m_localAabbMax = max;
+	}
 	return true;
 }
 
@@ -703,8 +805,8 @@ void EveSwarm::AddSwarmer()
 {
 	EveSwarmRenderablePtr renderable;
 	renderable.CreateInstance();
-	renderable->SetMesh( m_mesh );
-	m_renderables.Append( renderable->GetRootObject() );
+	renderable->InitializeRenderable( this, m_meshLod, m_shadowEffect );
+	m_renderables.Append( renderable->GetRawRoot() );
 	SwarmVehicle v;
 	v.position = m_worldPosition;
 	m_vehicles.push_back( v );
@@ -734,6 +836,7 @@ Vector3 EveSwarm::RemoveSwarmer()
 	SwarmVehicle v = m_vehicles[m_targetIndex];
 	m_vehicles[m_targetIndex] = m_vehicles.back();
 	m_vehicles.pop_back();
+        m_renderables[m_targetIndex]->InitializeRenderable( nullptr, nullptr, nullptr );
 	m_renderables.Remove( m_targetIndex );
 	if( m_debugShowForces )
 	{

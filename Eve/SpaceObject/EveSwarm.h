@@ -14,8 +14,12 @@
 #include "Eve/SpaceObject/EveShip2.h"
 
 
+BLUE_DECLARE( EveSwarm );
+
+
 BLUE_CLASS( EveSwarmRenderable ) :
-	public ITr2Renderable
+	public ITr2Renderable,
+	public ITr2Pickable
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -41,14 +45,21 @@ public:
 	
 	/////////////////////////////////////////////////////////////////////////////////////
 	// EveSwarmRenderable
-	void SetMesh( Tr2MeshBase* mesh );
+	void InitializeRenderable( EveSwarm* owner, Tr2MeshBase* mesh, Tr2Effect* shadowEffect );
 	void SetWorldTransform( const Matrix& transform );
 	const Matrix* GetWorldTransform() const { return &m_worldTransform; }
 	void SetBoosterIntensity( float intensity );
 	void SetShaderData( const EveSpaceObjectVSData& vsData, const EveSpaceObjectPSData& psData );
+	
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2Pickable
+	IRoot* GetID( uint16_t );
+	void GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr2PickTypes pickTypes, const Tr2PerObjectData* perObjectData );
 
 private:
 	Tr2MeshBasePtr m_mesh;
+	Tr2EffectPtr m_shadowEffect;
+	BlueWeakRef<EveSwarm> m_owner;
 	Matrix m_worldTransform;
 	
 	Tr2PersistentPerObjectData<EveSwarmRenderable> m_perObjectDataVs;
@@ -211,6 +222,10 @@ public:
 	// ITr2DebugRenderable
     virtual void GetDebugOptions( Tr2DebugRendererOptions& options );
     virtual void RenderDebugInfo( Tr2DebugRenderer& renderer );
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	// IEveShadowCaster - overriding EveSpaceObject2 implementations
+	bool GetRenderablesCastingShadow( bool isSelf, const TriFrustumOrtho& frustum, std::vector<ITr2Renderable*>& renderables );
 
 protected:
 	/////////////////////////////////////////////////////////////////////////////////////
