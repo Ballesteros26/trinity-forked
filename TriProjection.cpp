@@ -2,7 +2,16 @@
 #include "TriProjection.h"
 #include "Tr2Renderer.h"
 
-TriProjection::TriProjection( IRoot* lockobj ) :m_projectionType( 0 )
+TriProjection::TriProjection( IRoot* lockobj ) 
+	:m_projectionType( 0 ),
+	m_fov( 0 ),
+	m_aspect( 0 ),
+	m_zn( 0 ),
+	m_zf( 0 ),
+	m_left( 0 ),
+	m_top( 0 ),
+	m_right( 0 ),
+	m_bottom( 0 )
 {
 }
 

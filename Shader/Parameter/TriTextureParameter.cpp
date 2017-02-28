@@ -210,7 +210,7 @@ bool TriTextureParameter::AssignTo( ICopierCustomAssignment* other,
 	if( m_resourcePath.empty() && m_resource )
 	{
 		// texture that was dynamically assigned
-		TriTextureParameter* dest = (TriTextureParameter*)other;
+		TriTextureParameter* dest = static_cast<TriTextureParameter*>( other );
 		dest->SetResource( m_resource );
 	}
 	return true;

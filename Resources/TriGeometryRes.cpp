@@ -193,7 +193,9 @@ TriGeometryRes::TriGeometryRes(IRoot* lockobj) :
 	m_isDynamicGeometry( false ),
 	m_inMemoryInfo( NULL ),
 	m_immutable( false ),
-	m_computeAccess( false )
+	m_computeAccess( false ),
+	m_data( nullptr ),
+	m_dataSize( 0 )
 {
 }
 

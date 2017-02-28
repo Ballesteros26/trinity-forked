@@ -14,6 +14,7 @@
 //   typed parameter description classes.
 // --------------------------------------------------------------------------------------
 Tr2ShaderParameterDescription::Tr2ShaderParameterDescription( IRoot* lock )
+	:m_permuteTagHash( 0 )
 {
 }
 

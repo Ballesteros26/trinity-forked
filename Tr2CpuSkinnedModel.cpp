@@ -44,7 +44,7 @@ void Tr2CpuSkinnedModel::deform( const float* deformMatrices, unsigned int numOf
 	// deform each mesh of this model
 	for( unsigned int m = 0; m < GetNumOfMeshes(); ++m )
 	{
-		Tr2DynamicMeshPtr mesh = dynamic_cast<Tr2DynamicMesh*>( (Tr2Mesh*)GetMesh( m ) );
+		Tr2DynamicMeshPtr mesh = dynamic_cast<Tr2DynamicMesh*>( static_cast<Tr2Mesh*>( GetMesh( m ) ) );
 		if( mesh )
 		{
 			TriGeometryRes* geomRes = mesh->GetGeometryResource();

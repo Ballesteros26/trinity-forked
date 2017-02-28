@@ -2,10 +2,10 @@
 #include "Tr2BoundingLineSet.h"
 
 Tr2BoundingLineSet::Tr2BoundingLineSet( IRoot* lockobj ):
-	Tr2LineSet( lockobj )
+	Tr2LineSet( lockobj ),
+	m_minBounds( 0.0f, 0.0f, 0.0f ),
+	m_maxBounds( 0.0f, 0.0f, 0.0f )
 {
-	m_minBounds = Vector3( 0.0f, 0.0f, 0.0f );
-	m_maxBounds = Vector3( 0.0f, 0.0f, 0.0f );
 }
 
 /////////////////////////////////////////////////////////////////////////////

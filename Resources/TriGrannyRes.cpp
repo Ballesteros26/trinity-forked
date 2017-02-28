@@ -29,7 +29,8 @@ TriGrannyRes::TriGrannyRes( IRoot* lockobj ) :
 	m_data( NULL ),
 	m_dataSize( 0 ),
 	m_grannyArena( NULL ),
-	m_memoryUsage( 0 )
+	m_memoryUsage( 0 ),
+	m_allMaterialStringsDictionary( nullptr )
 {
 }
 

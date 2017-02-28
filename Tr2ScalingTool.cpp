@@ -6,28 +6,12 @@
 #include "Tr2Renderer.h"
 
 Tr2ScalingTool::Tr2ScalingTool( IRoot* lockobj )
+	:m_initialLength( 1.0f ),
+	m_previousLength( 1.0f ),
+	m_scale( 1.0f, 1.0f, 1.0f ),
+	m_negateScale( false ),
+	m_initialScale( 1.0f, 1.0f, 1.0f )
 {
-	// Lets cache the primitive sets so that we don't
-	// always have to search the vector for them
-	m_xBox = NULL;
-	m_yBox = NULL;
-	m_zBox = NULL;
-	m_wBox = NULL;
-	m_xLine = NULL;
-	m_yLine = NULL;
-	m_zLine = NULL;
-
-	m_initialLength = 1.0f;
-	m_previousLength = 1.0f;
-
-	m_scale.x = 1.0f;
-	m_scale.y = 1.0f;
-	m_scale.z = 1.0f;
-	
-	m_negateScale = false;
-
-	m_initialScale = m_scale;
-
 	GenLineSets();
 	SelectAxis("w");
 
@@ -73,8 +57,8 @@ void Tr2ScalingTool::Move( int mouseX, int mouseY, int mouseXDelta, int mouseYDe
 
 	// Get the location of the tool on screen
 	PointToScreenCoordinates(pos, screenPos, viewport, viewMatrix, projectionMatrix );
-	int curMouseX = (int)screenPos.x;
-	int curMouseY = (int)screenPos.y;
+	int curMouseX = int( screenPos.x );
+	int curMouseY = int( screenPos.y );
 	// Get the pick ray from the tools screen location
 	ScreenCoordinatesToRay(curMouseX, curMouseY, ray, startPos, viewport, viewMatrix, projectionMatrix );
 
@@ -309,7 +293,7 @@ void Tr2ScalingTool::Update()
 			vecA.y = m_worldTransform._42;
 			vecA.z = m_worldTransform._43;
 
-			vecB = ((Tr2SolidSet*)m_xBox)->GetCenterOfMass();
+			vecB = m_xBox->GetCenterOfMass();
 
 			D3DXVec3Subtract( &vecC, &vecA, &vecB );
 			float delta = D3DXVec3Length( &m_movement );
@@ -436,12 +420,12 @@ void Tr2ScalingTool::Update()
 
 void Tr2ScalingTool::UpdateLines()
 {
-	Vector3 wCenter = ((Tr2SolidSet*)m_wBox)->GetCenterOfMass();
+	Vector3 wCenter = m_wBox->GetCenterOfMass();
 	// x
 	m_xLine->ClearLines();
 	m_xLine->AddLine(	wCenter, 
 		v4LightGray,  
-		((Tr2SolidSet*)m_xBox)->GetCenterOfMass(), 
+		m_xBox->GetCenterOfMass(), 
 		v4LightGray );
 	m_xLine->SubmitChanges();
 
@@ -449,7 +433,7 @@ void Tr2ScalingTool::UpdateLines()
 	m_yLine->ClearLines();
 	m_yLine->AddLine(	wCenter, 
 		v4LightGray,  
-		((Tr2SolidSet*)m_yBox)->GetCenterOfMass(), 
+		m_yBox->GetCenterOfMass(), 
 		v4LightGray );
 	m_yLine->SubmitChanges();
 
@@ -457,7 +441,7 @@ void Tr2ScalingTool::UpdateLines()
 	m_zLine->ClearLines();
 	m_zLine->AddLine(	wCenter, 
 		v4LightGray,  
-		((Tr2SolidSet*)m_zBox)->GetCenterOfMass(), 
+		m_zBox->GetCenterOfMass(), 
 		v4LightGray );
 	m_zLine->SubmitChanges();
 }
@@ -498,7 +482,7 @@ void Tr2ScalingTool::Init( Matrix& initialTransform )
 	vecA.x = m_worldTransform._41; 
 	vecA.y = m_worldTransform._42;
 	vecA.z = m_worldTransform._43;
-	vecB = ((Tr2SolidSet*)m_xBox)->GetCenterOfMass();
+	vecB = m_xBox->GetCenterOfMass();
 
 	m_initialLength = -1;
 	m_scale = scaling;

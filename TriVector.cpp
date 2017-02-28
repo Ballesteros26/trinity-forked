@@ -105,7 +105,7 @@ bool TriVector::BinaryOp(
 
 	// This cast is safe, because 'other' is ALWAYS of
 	// the same type as 'this'
-	TriVector* vec2 = (TriVector*)(ITriVector*)other;
+	TriVector* vec2 = static_cast<TriVector*>( static_cast<ITriVector*>( other ) );
 
 
 	// Due to the dubious type coercion where a float value

@@ -13,6 +13,7 @@
 //   Initialize data members
 // --------------------------------------------------------------------------------
 EveSOFDataMgr::EveSOFDataMgr( IRoot* lockobj )
+	:m_genericData()
 {
 }
 

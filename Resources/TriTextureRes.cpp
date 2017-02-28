@@ -58,7 +58,9 @@ TriTextureRes::TriTextureRes():
 	m_cutoutWidth( 1.0f ),
 	m_cutoutHeight( 1.0f ),
 	m_mipLevelMaxCount( std::numeric_limits<uint32_t>::max() ),
-	m_isTextureResizable( true )
+	m_isTextureResizable( true ),
+	m_data( nullptr ),
+	m_dataSize( 0 )
 {}
 
 TriTextureRes::~TriTextureRes()

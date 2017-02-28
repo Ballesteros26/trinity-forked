@@ -50,7 +50,9 @@ EveSOFDNA::EveSOFDNA( IRoot* lockobj ) :
 	m_hullData( nullptr ),
 	m_factionData( nullptr ),
 	m_raceData( nullptr ),
-	m_patternData( nullptr )
+	m_patternData( nullptr ),
+	m_genericData( nullptr ),
+	m_customHullData()
 {
 }
 

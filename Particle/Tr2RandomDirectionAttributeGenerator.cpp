@@ -15,7 +15,8 @@
 // --------------------------------------------------------------------------------------
 Tr2RandomDirectionAttributeGenerator::Tr2RandomDirectionAttributeGenerator()
 	:m_name( Tr2ParticleElementDeclarationName::CUSTOM ),
-	m_valid( false )
+	m_valid( false ),
+	m_element()
 {
 }
 

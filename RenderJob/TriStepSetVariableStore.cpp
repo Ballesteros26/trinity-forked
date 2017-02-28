@@ -34,7 +34,7 @@ TriStepResult TriStepSetVariableStore::Execute( Be::Time realTime, Be::Time simT
 		GlobalStore().RegisterVariable( m_variableName.c_str(), *reinterpret_cast<int*>( m_data ) );
 		break;
 	case TRIVARIABLE_FLOAT:
-		GlobalStore().RegisterVariable( m_variableName.c_str(), *reinterpret_cast<float*>( m_data ) );
+		GlobalStore().RegisterVariable( m_variableName.c_str(), *reinterpret_cast<float*>( static_cast<void*>( m_data ) ) );
 		break;
 	case TRIVARIABLE_FLOAT2:
 		GlobalStore().RegisterVariable( m_variableName.c_str(), *reinterpret_cast<Vector2*>( m_data ) );

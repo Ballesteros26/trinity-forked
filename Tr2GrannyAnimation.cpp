@@ -26,7 +26,8 @@ Tr2GrannyAnimation::Tr2GrannyAnimation( IRoot* lockobj ) :
 	m_baseLayer( 1.f ),
 	m_modelIndex( 0 ),
 	m_meshBindingIndex( -1 ),
-	m_animationEnabled( true )
+	m_animationEnabled( true ),
+	m_boneBoundsInitialized( false )
 {
 }
 

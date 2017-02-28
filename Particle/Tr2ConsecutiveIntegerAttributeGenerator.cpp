@@ -16,7 +16,8 @@ Tr2ConsecutiveIntegerAttributeGenerator::Tr2ConsecutiveIntegerAttributeGenerator
 	:m_name( Tr2ParticleElementDeclarationName::CUSTOM ),
 	m_minRange( 0.0f, 0.0f, 0.0f, 0.0f ),
 	m_maxRange( 0.0f, 0.0f, 0.0f, 0.0f ),
-	m_valid( false )
+	m_valid( false ),
+	m_element()
 {
 	for( int i = 0; i < 4; ++i )
 	{

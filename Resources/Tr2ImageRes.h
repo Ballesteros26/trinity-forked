@@ -45,8 +45,6 @@ protected:
 	bool DoPrepare();
 
 private:
-	uint32_t m_dataSize;
-
 	ImageIO::HostBitmap m_bitmap;
 };
 

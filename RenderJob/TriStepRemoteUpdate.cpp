@@ -17,7 +17,8 @@ TriStepRemoteUpdate::TriStepRemoteUpdate( IRoot* lockobj ):
 	m_sharedMemoryHandle( NULL ),
 	m_needsHndl( NULL ),
 	m_readingHndl( NULL ),
-	m_writingHndl( NULL )
+	m_writingHndl( NULL ),
+	m_id( -1 )
 {
 
 

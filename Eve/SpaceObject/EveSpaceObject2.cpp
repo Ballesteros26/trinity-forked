@@ -166,11 +166,10 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_spaceObjectShipData( 1.f, 1.f, EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT, 1.f ),
 	m_dirtLevel( EVE_SPACEOBJECT_DIRT_LEVEL_DEFAULT ),
 	m_dynamicBoundingSphereEnabled( false ),
-	m_lastDamageLocatorHit( -1 )
+	m_lastDamageLocatorHit( -1 ),
+	m_worldTransform( XMMatrixIdentity() ),
+	m_invWorldTransform( XMMatrixIdentity() )
 {
-	m_worldTransform = XMMatrixIdentity();
-	m_invWorldTransform = XMMatrixIdentity();
-
 	m_positionDelta.CreateInstance();
 
 	m_animationUpdater.CreateInstance();

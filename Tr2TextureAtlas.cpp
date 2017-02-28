@@ -29,7 +29,9 @@ Tr2TextureAtlas::Tr2TextureAtlas( IRoot* lockobj ) :
 	m_optimizationWarranted( false ),
 	m_areasFreedSinceLastCollapse( 0 ),
 	m_hasMipMaps( false ),
-	m_isRenderTarget( false )
+	m_isRenderTarget( false ),
+	m_freeTexels( 0 ),
+	m_mipLevels( 0 )
 {
 }
 

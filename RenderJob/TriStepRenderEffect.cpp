@@ -8,9 +8,9 @@
 CCP_STATS_DECLARE( rsRenderEffectCount, "Trinity/RenderStep/RenderEffectCount", true, CST_COUNTER_LOW, "Calls to TriStepRenderEffect::Execute per frame" );
 
 TriStepRenderEffect::TriStepRenderEffect( IRoot* lockobj )
+	:m_tlTexCoord( 0.0f, 0.0f ),
+	m_brTexCoord( 1.0f, 1.0f )
 {
-	m_tlTexCoord = Vector2( 0.0f, 0.0f );
-	m_brTexCoord = Vector2( 1.0f, 1.0f );
 }
 
 TriStepRenderEffect::~TriStepRenderEffect(void)

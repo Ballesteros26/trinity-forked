@@ -8,11 +8,12 @@
 
 using namespace Tr2RenderContextEnum;
 
-TriStepRenderTexture::TriStepRenderTexture( IRoot* lockobj ) : m_textureSize(0,0)
-, m_failClearColor( 0 )
+TriStepRenderTexture::TriStepRenderTexture( IRoot* lockobj ) : 
+	m_textureSize( 0, 0 ),
+	m_failClearColor( 0 ),
+	m_tlTexCoord( 0.0f, 0.0f ),
+	m_brTexCoord( 1.0f, 1.0f )
 {
-	m_tlTexCoord = Vector2( 0.0f, 0.0f );
-	m_brTexCoord = Vector2( 1.0f, 1.0f );
 }
 
 TriStepRenderTexture::~TriStepRenderTexture(void)

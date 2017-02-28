@@ -10,7 +10,7 @@
 
 void ThreadFunction(void* plistener)
 {
-	Tr2NamedPipeListener* trilistener = (Tr2NamedPipeListener*)plistener;
+	Tr2NamedPipeListener* trilistener = static_cast<Tr2NamedPipeListener*>( plistener );
 
 	BOOL  bResult = ConnectNamedPipe( trilistener->m_pipeHandle, 0 );
 	DWORD dwError = GetLastError();

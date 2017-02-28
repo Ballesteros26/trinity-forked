@@ -32,6 +32,8 @@ Tr2MeshArea& Tr2MeshArea::operator=( const Tr2MeshArea& other )
 	m_material = other.m_material;
 	m_jointCount = 0;
 	m_jointMappingAnimRig = NULL;
+	m_display = other.m_display;
+	m_useSHLighting = other.m_useSHLighting;
 
 	return *this;
 }

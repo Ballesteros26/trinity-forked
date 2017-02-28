@@ -16,7 +16,8 @@ Tr2ElementBlendConstraint::Tr2ElementBlendConstraint( IRoot* lockobj )
 	:m_isValid( false ),
 	m_name( Tr2ParticleElementDeclarationName::CUSTOM ),
 	m_value( 0.f, 0.f, 0.f, 0.f ),
-	m_originalFactor( 1.f )
+	m_originalFactor( 1.f ),
+	m_element()
 {
 }
 

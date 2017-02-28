@@ -31,9 +31,9 @@ public:
 	virtual bool Initialize();
 	virtual bool OnModified( Be::Var* value );
 	
-	void SetName( const std::string name );
+	void SetName( const std::string& name );
 	void SetDestinationObject( IRoot* destination );
-	void SetDestinationAttribute( const std::string attributeName );
+	void SetDestinationAttribute( const std::string& attributeName );
 
 	BlueStdResult SetValue( BlueScriptValue value );
 	BlueStdResult GetValue( BlueScriptValue& value );

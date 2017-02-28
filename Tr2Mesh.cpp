@@ -17,7 +17,8 @@ Tr2Mesh::Tr2Mesh( IRoot* lockobj ) :
 	m_isLoading( false ),
 	m_resourceLoadCbId( 0 ),
 	m_resourcePrepCbId( 0 ),
-	m_selectedLod( TR2_LOD_UNSPECIFIED )
+	m_selectedLod( TR2_LOD_UNSPECIFIED ),
+	m_pendingDefaultOverride( false )
 {
 	m_isBindPending = false;
 }
@@ -56,14 +57,14 @@ bool Tr2Mesh::Initialize()
 
 void Tr2Mesh::StaticResourceLoadFinished( void* pContext )
 {
-	Tr2Mesh* pThis = ( Tr2Mesh* )pContext;
+	Tr2Mesh* pThis = static_cast<Tr2Mesh*>( pContext );
 	BeResMan->AddToQueue( BRMQ_MAIN, StaticResourcePrepFinished, pContext, 0, &pThis->m_resourcePrepCbId );
 	pThis->m_resourceLoadCbId = 0;
 }
 
 void Tr2Mesh::StaticResourcePrepFinished( void* pContext )
 {
-	Tr2Mesh* pThis = ( Tr2Mesh* )pContext;
+	Tr2Mesh* pThis = static_cast<Tr2Mesh*>( pContext );
 	pThis->m_resourcePrepCbId = 0;
 	pThis->m_isLoading = false;
 

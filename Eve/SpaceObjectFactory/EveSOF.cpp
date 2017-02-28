@@ -1117,7 +1117,7 @@ void EveSOF::SetupInstancedMeshes( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr
 		}
 		EveChildMeshPtr childMesh;
 		childMesh.CreateInstance();
-		childMesh->SetMesh( (Tr2MeshBase*)mesh );
+		childMesh->SetMesh( mesh );
 		childMesh->Setup( nullptr, nullptr, nullptr, him->lowestLodVisible );
 		newObj->AddToEffectChildrenList( (IEveSpaceObjectChild*)childMesh );
 	}

@@ -14,7 +14,8 @@ static std::string appendIdToString( const char* str, int id )
 TriStepRemoteSync::TriStepRemoteSync( IRoot* lockobj ):
 	m_begin(NULL),
 	m_end(NULL),
-	m_init(NULL)
+	m_init(NULL),
+	m_id( -1 )
 {
 	
 }

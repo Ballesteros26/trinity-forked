@@ -61,44 +61,44 @@ bool CheckEffect( Tr2Effect* effect )
 #if GPU_PARTICLES_METHOD == GPU_PARTICLES_BUFFER_METHOD
 
 Tr2GpuParticleSystem::EmitterParamsGpu::EmitterParamsGpu( const EmitterParams& params )
+	:minLifeTime( params.minLifeTime ),
+	maxLifeTime( params.maxLifeTime ),
+	sizeVariance( params.sizeVariance ),
+	textureIndex( float( params.textureIndex ) + std::max( 0.001f, std::min( 0.99f, 1.f - params.colorMidpoint - std::floor( params.colorMidpoint ) ) ) ),
+	sizes( params.sizes ),
+	drag( params.drag ),
+	turbulenceAmplitude( params.turbulenceAmplitude ),
+	turbulenceFrequency( float( params.turbulenceFrequency ) / MAX_TURBULENCE_LENGTH ),
+	gravity( params.gravity ),
+	attractorPosition( params.attractorPosition ),
+	attractorStrength( params.attractorStrength ),
+	velocityStretchRotation( params.velocityStretchRotation )
 {
-	minLifeTime = params.minLifeTime;
-	maxLifeTime = params.maxLifeTime;
-	sizeVariance = params.sizeVariance;
-	textureIndex = float( params.textureIndex ) + std::max( 0.001f, std::min( 0.99f, 1.f - params.colorMidpoint - std::floor( params.colorMidpoint ) ) );
 	colors[0] = params.colors[0];
 	colors[1] = params.colors[1];
 	colors[2] = params.colors[2];
 	colors[3] = params.colors[3];
-	sizes = params.sizes;
-	drag = params.drag;
-	turbulenceAmplitude = params.turbulenceAmplitude;
-	turbulenceFrequency = float( params.turbulenceFrequency ) / MAX_TURBULENCE_LENGTH;
-	gravity = params.gravity;
-	attractorPosition = params.attractorPosition;
-	attractorStrength = params.attractorStrength;
-	velocityStretchRotation = params.velocityStretchRotation;
 }
 
 #else
 
 Tr2GpuParticleSystem::EmitterParamsGpu::EmitterParamsGpu( const EmitterParams& params )
+	:minLifeTime( params.minLifeTime ),
+	maxLifeTime( params.maxLifeTime ),
+	sizes( params.sizes, params.sizeVariance ),
+	textureIndex( float( params.textureIndex ) + std::max( 0.001f, std::min( 0.99f, 1.f - params.colorMidpoint - std::floor( params.colorMidpoint ) ) ) ),
+	drag( params.drag ),
+	turbulenceAmplitude( params.turbulenceAmplitude ),
+	turbulenceFrequency( float( params.turbulenceFrequency ) / MAX_TURBULENCE_LENGTH ),
+	gravity( params.gravity ),
+	attractorPosition( params.attractorPosition ),
+	attractorStrength( params.attractorStrength ),
+	velocityStretchRotation( params.velocityStretchRotation )
 {
-	minLifeTime = params.minLifeTime;
-	maxLifeTime = params.maxLifeTime;
 	colors[0] = params.colors[0];
 	colors[1] = params.colors[1];
 	colors[2] = params.colors[2];
 	colors[3] = params.colors[3];
-	sizes = Vector4( params.sizes, params.sizeVariance );
-	textureIndex = float( params.textureIndex ) + std::max( 0.001f, std::min( 0.99f, 1.f - params.colorMidpoint - std::floor( params.colorMidpoint ) ) );
-	drag = params.drag;
-	turbulenceAmplitude = params.turbulenceAmplitude;
-	turbulenceFrequency = float( params.turbulenceFrequency ) / MAX_TURBULENCE_LENGTH;
-	gravity = params.gravity;
-	attractorPosition = params.attractorPosition;
-	attractorStrength = params.attractorStrength;
-	velocityStretchRotation = params.velocityStretchRotation;
 }
 
 #endif
