@@ -194,6 +194,7 @@ ALResult Tr2LightManager::UpdateLightBuffer( Tr2RenderContext& renderContext )
 			box.bottom = 1;
 			box.back = 1;
 			renderContext.m_context->CopySubresourceRegion( m_lightBuffer->GetGpuBuffer( 0 )->m_buffer, 0, 0, 0, 0, stagingBuffer, 0, &box );
+			CCP_STATS_ADD( lightsGathered, m_lightData.GetCount() );
 			return S_OK;
 		}
 	}
@@ -232,6 +233,7 @@ ALResult Tr2LightManager::UpdateLightBuffer( Tr2RenderContext& renderContext )
 			box.bottom = 1;
 			box.back = 1;
 			renderContext.m_context->CopySubresourceRegion( m_lightBuffer->GetGpuBuffer( 0 )->m_buffer, 0, 0, 0, 0, stagingBuffer, 0, &box );
+			CCP_STATS_ADD( lightsGathered, m_lightData.GetCount() );
 			return S_OK;
 		}
 	}
