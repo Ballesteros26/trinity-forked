@@ -45,7 +45,7 @@ Be::VarChooser Tr2LodChooser[] =
 };
 
 BLUE_REGISTER_ENUM_EX( 
-	"Tr2LodResource", 
+	"Tr2LodResourceType", 
 	Tr2Lod, 
 	Tr2LodChooser, 
 	ENUM_REG_ENUM_OBJECT_ON_MODULE );
