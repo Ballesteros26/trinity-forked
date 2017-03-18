@@ -8,7 +8,7 @@
 #include "Curves/Tr2ScalarCurve.h"
 
 
-static const float MAX_DISTANCE = 1e6;
+static const float MAX_DISTANCE = 1e10;
 
 EveDistanceField::EveDistanceField( IRoot* lockobj ) :
 	PARENTLOCK( m_objects ),
@@ -120,8 +120,12 @@ void EveDistanceField::Update( const EveUpdateContext& updateContext )
 	}
 	else
 	{	
+		Vector3 originShift = updateContext.GetOriginShift();
+		m_middle += originShift;
 		D3DXVec3Subtract( &posObj, &m_middle, &posRef );
 		distanceNow = min( distanceNow, D3DXVec3Length( &posObj ) );	
+		distanceNow = sqrt( distanceNow );
+
 	}
 
 	float frac = ( ( distanceNow > m_distance ) ? m_timeAdjustmentSecondsOut : m_timeAdjustmentSecondsIn );
