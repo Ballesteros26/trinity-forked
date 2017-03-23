@@ -34,6 +34,7 @@ public:
 	{
 		CMD_INVALID = 0,
 		CMD_MATERIAL,
+		CMD_MESH,
 		CMD_RESPATHINSERT,
 		CMD_VARIANT,
 		CMD_CLASS,
@@ -74,11 +75,11 @@ public:
 	bool DynamicBoundingSphereEnabled() const;
 	const EveSOFDataMgr::HullBoosterData* GetHullBoosterData( size_t n = 0 ) const;
 	const Vector3* GetHullAudioPosition( size_t n = 0 ) const;
-	const char* GetHullGeometryResPath() const;
+	std::string GetHullGeometryResPath() const;
 	const char* GetModelRotationCurvePath() const;
 	const char* GetModelTranslationCurvePath() const;
 	EveSOFDataHull::ImpactEffectType GetImpactEffectType() const;
-	const std::vector<EveSOFDataMgr::HullAreas>* GetHullMeshAreas( TriBatchType type, size_t n = 0 ) const;
+	const std::vector<EveSOFDataMgr::HullAreas>* GetHullMeshAreas( TriBatchType type, size_t n ) const;
 	const std::vector<EveSOFDataMgr::HullChild>& GetHullChildren( size_t n = 0 ) const;
 	const std::vector<EveSOFDataMgr::HullInstancedMesh>& GetHullInstancedMeshes( size_t n = 0 ) const;
 	const std::vector<EveSOFDataMgr::HullAnimation>& GetHullAnimations( size_t n = 0 ) const;

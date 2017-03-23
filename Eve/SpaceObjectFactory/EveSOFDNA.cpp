@@ -25,6 +25,7 @@ static char s_dnaSeperatorList = ';';
 static std::string s_dnaCommands[] = {
 	"invalid",				// CMD_INVALID
 	"material",				// CMD_MATERIAL
+	"mesh",					// CMD_MESH
 	"respathinsert",		// CMD_RESPATHINSERT
 	"variant",				// CMD_VARIANT
 	"class",				// CMD_CLASS
@@ -130,6 +131,13 @@ bool EveSOFDNA::ValidateContent()
 				{
 					return false;
 				}
+			}
+			break;
+		case CMD_MESH:
+			// has one argument
+			if( cit->second.size() != 1 )
+			{
+				return false;
 			}
 			break;
 		case CMD_RESPATHINSERT:
@@ -715,9 +723,15 @@ void EveSOFDNA::ModifyTextureResPath( std::string& resPath, const char* resName 
 // Description:
 //   Return the redfile path to the model's geometry (gr2)
 // --------------------------------------------------------------------------------
-const char* EveSOFDNA::GetHullGeometryResPath() const
+std::string EveSOFDNA::GetHullGeometryResPath() const
 {
-	return m_hullDatas[0]->geometryResFilePath.c_str();
+	std::vector<std::string> commandArgs;
+	if( GetDnaCommandArgs( CMD_MESH, commandArgs ) && !commandArgs.empty() )
+	{
+		// need to put the res: hard-coded
+		return "res:" + commandArgs[0];
+	}
+	return m_hullDatas[0]->geometryResFilePath;
 }
 
 // --------------------------------------------------------------------------------
