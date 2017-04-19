@@ -1032,6 +1032,10 @@ void Tr2GpuParticleSystem::SubmitGeometry( Tr2RenderContext& renderContext )
 void Tr2GpuParticleSystem::Emit( const Emitter& emitter, uintptr_t id, uintptr_t hash, const EmitterParams& params )
 {
 	EmitRequest request;
+	if( !m_enableEmit )
+	{
+		return;
+	}
 #if GPU_PARTICLES_METHOD == GPU_PARTICLES_BUFFER_METHOD
 	request.emitter = emitter;
 	request.emitter.count = std::min( request.emitter.count, m_maxParticles );
