@@ -1346,6 +1346,8 @@ void EveSOFDataMgr::GenerateGenericData( GenericData& gd, EveSOFDataGenericPtr s
 			gsd.parameters.push_back( BlueSharedString( paramData->m_str ) );
 		}
 
+		gsd.doGenerateDepthArea = false;
+
 		gd.decalShaderData[ shaderData->m_shader ] = gsd;
 	}
 
