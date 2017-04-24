@@ -255,7 +255,6 @@ public:
 		std::vector<HullAreas> transparentAreas;
 		std::vector<HullAreas> additiveAreas;
 		std::vector<HullAreas> distortionAreas;
-		std::vector<HullAreas> depthAreas;
 		std::vector<HullDecalData> hullDecals;
 		HullBoosterData boosters;
 		std::vector<LocatorData> locatorTurrets;

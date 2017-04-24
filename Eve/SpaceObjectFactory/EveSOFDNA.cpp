@@ -857,8 +857,6 @@ const std::vector<EveSOFDataMgr::HullAreas>* EveSOFDNA::GetHullMeshAreas( TriBat
 		return &m_hullDatas[n]->transparentAreas;
 	case TRIBATCHTYPE_ADDITIVE:
 		return &m_hullDatas[n]->additiveAreas;
-	case TRIBATCHTYPE_DEPTH:
-		return &m_hullDatas[n]->depthAreas;
 	case TRIBATCHTYPE_DISTORTION:
 		return &m_hullDatas[n]->distortionAreas;
 	default:

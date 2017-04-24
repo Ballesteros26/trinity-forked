@@ -677,12 +677,6 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		EveSOFDataHullAreaPtr areaData = (*mait);
 		hd.distortionAreas.push_back( LoadHullAreaData( areaData ) );
 	}
-	hd.depthAreas.clear();
-	for( auto mait = srcData->m_depthAreas.begin(); mait != srcData->m_depthAreas.end(); ++mait )
-	{
-		EveSOFDataHullAreaPtr areaData = (*mait);
-		hd.depthAreas.push_back( LoadHullAreaData( areaData ) );
-	}
 
 	// turret locators
 	hd.locatorTurrets.clear();
