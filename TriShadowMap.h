@@ -117,6 +117,8 @@ private:
 	Tr2RenderTargetAL			m_filterBlurRT;
 	Tr2EffectPtr				m_filterBlurEffect;
 
+	bool m_backupReadOnlyDepth;
+
 	typedef std::vector<Vector3> VectorArray;
 };
 TYPEDEF_BLUECLASS( TriShadowMap );

@@ -22,7 +22,8 @@ TriShadowMap::TriShadowMap( IRoot* lockobj ) :
 	m_lightDistance( 10000.0f ),
 	m_debugFreezeObb( false ),
 	m_shadowMapHandle( NULL ),
-	m_shadowSizeHandle( NULL )
+	m_shadowSizeHandle( NULL ),
+	m_backupReadOnlyDepth( false )
 {
 	// create some empty debug drawers
 	m_lineSet.CreateInstance();
@@ -330,12 +331,17 @@ bool TriShadowMap::BeginShadowRendering( Vector3& lightViewPosition, Matrix& lig
 
 	D3DXMatrixMultiply( &lightViewProj, &lightView, &proj );
 
+	m_backupReadOnlyDepth = renderContext.GetReadOnlyDepth();
+	renderContext.SetReadOnlyDepth( false );
+
 	return true;
 }
 
 void TriShadowMap::EndShadowRendering()
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
+
+	renderContext.SetReadOnlyDepth( m_backupReadOnlyDepth );
 
 	if( m_filterVsm && m_filterBlurRT.IsValid() && m_invInputSizeHandle )
 	{
