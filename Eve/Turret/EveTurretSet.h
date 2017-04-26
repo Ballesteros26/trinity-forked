@@ -241,10 +241,10 @@ private:
 	// determine LOD and check for change
 	bool UpdateLOD();
 	// set transform for tracking
-	void ModifySystemBoneTransform( SystemBones bone, const Vector3* target, granny_transform* transform ) const;
+	void ModifySystemBoneTransform( SystemBones bone, const Vector3* target, granny_transform* transform, const Matrix* localTransform ) const;
 
 	// Calculates the pitch for a bone based on the parameters
-	void CalcTransformForPitchBone( const Vector3* target, granny_transform* transform, float minPitch, unsigned int boneIndex ) const;
+	void CalcTransformForPitchBone( const Vector3* target, granny_transform* transform, float minPitch, float maxPitch, unsigned int boneIndex, const Matrix* localTransform  ) const;
 	
 	// Returns the correct pitch factor for a specific bone index
 	float GetBonePitchFactor(unsigned int boneIndex) const;
@@ -268,6 +268,7 @@ private:
 	bool m_display;
 	bool m_displayEffects;
 	bool m_isOnline;
+	bool m_updatePitchPose;
 	// how many turrets can actually be displayed, due to bone count
 	unsigned int m_possibleTurretDisplayAmount;
 	// how many turrets visible in this frame?
@@ -370,6 +371,7 @@ private:
 	float m_sysBonePitchOffset;
 	float m_sysBonePitchFactor;
 	float m_sysBonePitchMin;
+	float m_sysBonePitchMax;
 	float m_sysBonePitch01Offset;
 	float m_sysBonePitch01Factor;
 	float m_sysBonePitch02Offset;

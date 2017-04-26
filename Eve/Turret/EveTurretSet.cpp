@@ -67,6 +67,7 @@ EveTurretSet::EveTurretSet( IRoot* lockobj ) :
 	m_display( true ),
 	m_displayEffects( true ),
 	m_isOnline( true ),
+	m_updatePitchPose( false ),
 	m_visibleCount( 0 ),
 	m_estimatedPixelDiameter( -1.f ),
 	m_lodLevel( LOD_INVALID ),
@@ -89,6 +90,7 @@ EveTurretSet::EveTurretSet( IRoot* lockobj ) :
 	m_sysBonePitchOffset( 0.f ),
 	m_sysBonePitchFactor( 1.f ),
 	m_sysBonePitchMin( 0.f ),
+	m_sysBonePitchMax( 90.f  ),
 	m_sysBonePitch01Offset( 0.f ),
 	m_sysBonePitch01Factor( 1.f ),
 	m_sysBonePitch02Offset( 0.f ),
@@ -741,11 +743,22 @@ void EveTurretSet::UpdateAsyncronous( EveUpdateContext& updateContext, const Par
 					{
 						if( m_systemBoneID[bone] != INVALID_BONE_INDEX )
 						{
+							Matrix* localTransformPtr = nullptr;
+							Matrix localTransform;
+							// Currently only do this for the main pitch bones. May want to extend this for others
+							// if we find a case that uses them.
+							if( bone >= SYSBONE_PITCH && bone <= SYSBONE_PITCH2 && m_updatePitchPose )
+							{
+								GrannyBuildWorldPose( it->grnSkeleton, 0, it->grnSkeleton->BoneCount, it->grnLocalPose, &Tr2Renderer::GetIdentityTransform().m[0][0], it->grnWorldPose );
+								granny_real32* boneWorldTransform = GrannyGetWorldPose4x4( it->grnWorldPose, m_systemBoneID[bone] );
+								D3DXMatrixMultiply( &localTransform, reinterpret_cast<const Matrix*>( boneWorldTransform ), &Tr2Renderer::GetIdentityTransform() );
+								localTransformPtr = &localTransform;
+							}
 							// modify this bone's transform data
 							granny_transform* boneTransform = GrannyGetLocalPoseTransform( it->grnLocalPose, m_systemBoneID[bone] );
 							if( boneTransform )
 							{
-								ModifySystemBoneTransform( (SystemBones)bone, &targetPosOS, boneTransform );
+								ModifySystemBoneTransform( (SystemBones)bone, &targetPosOS, boneTransform, localTransformPtr );
 							}
 						}
 					}
@@ -942,7 +955,7 @@ Matrix EveTurretSet::GetTurretBoneTransform( uint32_t closestTurret, uint32_t bo
 //   target - position of target in "turret"-space
 //   transform - the granny bone transform that needs to get modified
 // --------------------------------------------------------------------------------
-void EveTurretSet::ModifySystemBoneTransform( SystemBones bone, const Vector3* target, granny_transform* transform ) const
+void EveTurretSet::ModifySystemBoneTransform( SystemBones bone, const Vector3* target, granny_transform* transform, const Matrix* localTransform ) const
 {
 	switch( bone )
 	{
@@ -987,7 +1000,7 @@ void EveTurretSet::ModifySystemBoneTransform( SystemBones bone, const Vector3* t
 	case SYSBONE_PITCH2:
 		if( transform )
 		{
-			CalcTransformForPitchBone( target, transform, XMConvertToRadians( m_sysBonePitchMin ), bone );
+			CalcTransformForPitchBone( target, transform, XMConvertToRadians( m_sysBonePitchMin ), XMConvertToRadians( m_sysBonePitchMax ), bone, localTransform );
 		}
 		break;
 	case SYSBONE_SCALED_HEIGHT:
@@ -1012,7 +1025,7 @@ void EveTurretSet::ModifySystemBoneTransform( SystemBones bone, const Vector3* t
 	case SYSBONE_SCALED_PITCH06:
 		if( transform )
 		{
-			CalcTransformForPitchBone( target, transform, 0.f, bone );
+			CalcTransformForPitchBone( target, transform, 0.f, XMConvertToRadians( m_sysBonePitchMax ), bone, nullptr );
 		}
 		break;
 	default:
@@ -2248,14 +2261,36 @@ ITriTargetablePtr EveTurretSet::GetTargetObject()
 // Description:
 //   Calculates the transform for a pitch bone 
 // --------------------------------------------------------------------------------
-void EveTurretSet::CalcTransformForPitchBone( const Vector3* target, granny_transform* transform, float minPitch, unsigned int boneIndex ) const
+void EveTurretSet::CalcTransformForPitchBone( const Vector3* target, granny_transform* transform, float minPitch, float maxPitch, unsigned int boneIndex, const Matrix* localTransform ) const
 {
 	float pitchOffset = GetBonePitchOffset(boneIndex);
 	float pitchFactor = GetBonePitchFactor(boneIndex);
 	// pitch of barrel 90 degrees
+	Vector3 bone_position( 0.f, 0.f, 0.f );
+	
+	if( localTransform )
+	{
+		bone_position = localTransform->GetTranslation();
+	}
+
+	Vector3 relTarget = *target - bone_position;
 	Vector3 dirNrm;
-	D3DXVec3Normalize( &dirNrm, target );
-	float alpha = Clamp( asinf( dirNrm.y ), minPitch, XM_PI / 2.f );
+	D3DXVec3Normalize( &dirNrm, &relTarget );
+	float radians = asinf( dirNrm.y );
+
+	if( localTransform )
+	{
+		Vector3 bone_direction = bone_position;
+		D3DXVec3Normalize( &bone_direction, &bone_direction );
+		float d = D3DXVec3Dot( &bone_direction, target );
+		if( d < D3DXVec3Length( &bone_position ) )
+		{
+			// Assuming up is enough for now to avoid cross products
+			radians = TriFloatSign( relTarget.y ) * XM_PI - radians;
+		}
+	}
+
+	float alpha = Clamp( radians, minPitch, maxPitch );
 	// modify!
 	alpha = pitchFactor * alpha + XMConvertToRadians( pitchOffset );
 	// never forget do apply influence!
