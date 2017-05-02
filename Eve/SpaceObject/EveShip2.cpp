@@ -360,7 +360,7 @@ bool EveShip2::ExecuteAnimationStateCommand( const EveAnimationCommand& cmd, con
 
 	default:
 		// not handled here, so pass it up the chain
-		return EveSpaceObject2::ExecuteAnimationStateCommand( cmd, parameters );
+		return EveMobile::ExecuteAnimationStateCommand( cmd, parameters );
 	}
 
 	return false;
