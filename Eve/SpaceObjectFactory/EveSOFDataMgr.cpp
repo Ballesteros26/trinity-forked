@@ -973,45 +973,48 @@ bool EveSOFDataMgr::LoadRaceData( EveSOFDataPtr srcData )
 void EveSOFDataMgr::GenerateRaceData( RaceData& rd, EveSOFDataRacePtr srcData ) const
 {
 	// booster data
-	rd.boosters.scale = srcData->m_booster->m_scale;
-	rd.boosters.glowScale = srcData->m_booster->m_glowScale;
-	rd.boosters.glowColor = srcData->m_booster->m_glowColor;
-	rd.boosters.haloColor = srcData->m_booster->m_haloColor;
-	rd.boosters.haloScaleX = srcData->m_booster->m_haloScaleX;
-	rd.boosters.haloScaleY = srcData->m_booster->m_haloScaleY;
-	rd.boosters.symHaloScale = srcData->m_booster->m_symHaloScale;
-	rd.boosters.trailColor = srcData->m_booster->m_trailColor;
-	rd.boosters.warpGlowColor = srcData->m_booster->m_warpGlowColor;
-	rd.boosters.warpHaloColor = srcData->m_booster->m_warpHaloColor;
-	rd.boosters.trailSize = srcData->m_booster->m_trailSize;
-
-	auto copyShape = [=]( RaceBoosterDataShape& dest, EveSOFDataBoosterShape* src )
+	if( srcData->m_booster )
 	{
-		dest.noiseFunction = src->m_noiseFunction;
-		dest.noiseSpeed = src->m_noiseSpeed;
-		dest.noiseAmplitureStart = src->m_noiseAmplitureStart;
-		dest.noiseAmplitureEnd = src->m_noiseAmplitureEnd;
-		dest.noiseFrequency = src->m_noiseFrequency;
-		dest.color = src->m_color;
-	};
+		rd.boosters.scale = srcData->m_booster->m_scale;
+		rd.boosters.glowScale = srcData->m_booster->m_glowScale;
+		rd.boosters.glowColor = srcData->m_booster->m_glowColor;
+		rd.boosters.haloColor = srcData->m_booster->m_haloColor;
+		rd.boosters.haloScaleX = srcData->m_booster->m_haloScaleX;
+		rd.boosters.haloScaleY = srcData->m_booster->m_haloScaleY;
+		rd.boosters.symHaloScale = srcData->m_booster->m_symHaloScale;
+		rd.boosters.trailColor = srcData->m_booster->m_trailColor;
+		rd.boosters.warpGlowColor = srcData->m_booster->m_warpGlowColor;
+		rd.boosters.warpHaloColor = srcData->m_booster->m_warpHaloColor;
+		rd.boosters.trailSize = srcData->m_booster->m_trailSize;
 
-	copyShape( rd.boosters.shape0, srcData->m_booster->m_shape0 );
-	copyShape( rd.boosters.shape1, srcData->m_booster->m_shape1 );
-	copyShape( rd.boosters.warpShape0, srcData->m_booster->m_warpShape0 );
-	copyShape( rd.boosters.warpShape1, srcData->m_booster->m_warpShape1 );
+		auto copyShape = [=]( RaceBoosterDataShape& dest, EveSOFDataBoosterShape* src )
+		{
+			dest.noiseFunction = src->m_noiseFunction;
+			dest.noiseSpeed = src->m_noiseSpeed;
+			dest.noiseAmplitureStart = src->m_noiseAmplitureStart;
+			dest.noiseAmplitureEnd = src->m_noiseAmplitureEnd;
+			dest.noiseFrequency = src->m_noiseFrequency;
+			dest.color = src->m_color;
+		};
 
-	rd.boosters.shapeAtlasResPath = srcData->m_booster->m_shapeAtlasResPath;
-	rd.boosters.gradient0ResPath = srcData->m_booster->m_gradient0ResPath;
-	rd.boosters.gradient1ResPath = srcData->m_booster->m_gradient1ResPath;
-	rd.boosters.shapeAtlasHeight = srcData->m_booster->m_shapeAtlasHeight;
-	rd.boosters.shapeAtlasCount = srcData->m_booster->m_shapeAtlasCount;
-	rd.boosters.lightOffset = srcData->m_booster->m_lightOffset;
-	rd.boosters.lightRadius = srcData->m_booster->m_lightRadius;
-	rd.boosters.lightWarpRadius = srcData->m_booster->m_lightWarpRadius;
-	rd.boosters.lightFlickerAmplitude = srcData->m_booster->m_lightFlickerAmplitude;
-	rd.boosters.lightFlickerFrequency = srcData->m_booster->m_lightFlickerFrequency;
-	rd.boosters.lightColor = srcData->m_booster->m_lightColor;
-	rd.boosters.lightWarpColor = srcData->m_booster->m_lightWarpColor;
+		copyShape( rd.boosters.shape0, srcData->m_booster->m_shape0 );
+		copyShape( rd.boosters.shape1, srcData->m_booster->m_shape1 );
+		copyShape( rd.boosters.warpShape0, srcData->m_booster->m_warpShape0 );
+		copyShape( rd.boosters.warpShape1, srcData->m_booster->m_warpShape1 );
+
+		rd.boosters.shapeAtlasResPath = srcData->m_booster->m_shapeAtlasResPath;
+		rd.boosters.gradient0ResPath = srcData->m_booster->m_gradient0ResPath;
+		rd.boosters.gradient1ResPath = srcData->m_booster->m_gradient1ResPath;
+		rd.boosters.shapeAtlasHeight = srcData->m_booster->m_shapeAtlasHeight;
+		rd.boosters.shapeAtlasCount = srcData->m_booster->m_shapeAtlasCount;
+		rd.boosters.lightOffset = srcData->m_booster->m_lightOffset;
+		rd.boosters.lightRadius = srcData->m_booster->m_lightRadius;
+		rd.boosters.lightWarpRadius = srcData->m_booster->m_lightWarpRadius;
+		rd.boosters.lightFlickerAmplitude = srcData->m_booster->m_lightFlickerAmplitude;
+		rd.boosters.lightFlickerFrequency = srcData->m_booster->m_lightFlickerFrequency;
+		rd.boosters.lightColor = srcData->m_booster->m_lightColor;
+		rd.boosters.lightWarpColor = srcData->m_booster->m_lightWarpColor;
+	}
 
 	// shader data
 	rd.areaMaterials.generalParameters.clear();
