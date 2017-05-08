@@ -50,7 +50,6 @@ BaseConfigurations:
     - ../../../../../../sdk/Granny/2.11.3.1/granny_2.11.3.1.yaml
     - ../../../../../../sdk/nvidia/nvapi/R331/nvapi_R331.yaml
     - ../../../../../../sdk/nvidia/CUDA/3.0/CUDA_3.0.yaml
-    - ../../../../../../sdk/nvidia/optix/2.6.0/optix_2.6.0.yaml
     - ../../../../../../sdk/ATI/CrossFire Detect/CrossFire.yaml
     - ../../../../../../sdk/zlib/1.2.3/zlib_1.2.3.yaml
     - ../../../../../../sdk/PhysX/v2.8.4.telemetry/PhysX_2.8.4.telemetry.yaml
