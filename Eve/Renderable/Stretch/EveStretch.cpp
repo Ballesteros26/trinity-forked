@@ -4,6 +4,7 @@
 #include "Eve/EveUpdateContext.h"
 #include "Include/TriMath.h"
 #include "Utilities/BoundingSphere.h"
+#include "Eve/Turret/EveTurretSet.h"
 
 static const Vector3 Y_AXIS(0.0f, 1.0f, 0.0f);
 
@@ -55,7 +56,12 @@ void EveStretch::UpdateSyncronous( EveUpdateContext& updateContext )
 	{
 		m_dest->Update( &m_destinationPosition, time );
 	}
-
+	
+	if( m_sourceTurretSet )
+	{
+		Matrix effectTransform = m_sourceTurretSet->GetEffectBoneWorldTransform();
+		SetFiringTransform( effectTransform, m_destinationPosition );
+	}
 }
 
 void EveStretch::UpdateAsyncronous( EveUpdateContext& updateContext )

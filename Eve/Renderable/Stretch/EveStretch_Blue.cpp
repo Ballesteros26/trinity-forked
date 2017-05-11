@@ -68,6 +68,13 @@ const Be::ClassInfo* EveStretch::ExposeToBlue()
 		)
 		MAP_ATTRIBUTE
 		( 
+			"sourceTurretSet",        
+			m_sourceTurretSet,
+			"Provides effect bone source transform. Overrules 'source' attribute", 
+			Be::READWRITE | Be::PERSIST
+		)
+		MAP_ATTRIBUTE
+		( 
 			"destObject",        
 			m_destObject,
 			"Object to be rendered at the destination", 
