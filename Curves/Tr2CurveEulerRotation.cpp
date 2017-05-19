@@ -1,0 +1,39 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   May 2017
+//    Copyright: CCP 2017
+//
+
+#include "StdAfx.h"
+#include "Tr2CurveEulerRotation.h"
+#include "Tr2CurveScalar.h"
+
+
+Tr2CurveEulerRotation::Tr2CurveEulerRotation( IRoot* lockobj )
+	:PARENTLOCK( m_yaw ),
+	PARENTLOCK( m_pitch ),
+	PARENTLOCK( m_roll ),
+	m_currentValue( 0, 0, 0, 1 )
+{
+}
+
+void Tr2CurveEulerRotation::UpdateValue( double time )
+{
+	float yaw = m_yaw.Update( time );
+	float pitch = m_pitch.Update( time );
+	float roll = m_roll.Update( time );
+	m_currentValue = Quaternion( XMQuaternionRotationRollPitchYaw( pitch, yaw, roll ) );
+}
+
+float Tr2CurveEulerRotation::Length()
+{
+	return std::max( std::max( m_yaw.Length(), m_pitch.Length() ), m_roll.Length() );
+}
+
+Quaternion Tr2CurveEulerRotation::GetValue( double time ) const
+{
+	float yaw = m_yaw.GetValue( time );
+	float pitch = m_pitch.GetValue( time );
+	float roll = m_roll.GetValue( time );
+	return Quaternion( XMQuaternionRotationRollPitchYaw( pitch, yaw, roll ) );
+}
