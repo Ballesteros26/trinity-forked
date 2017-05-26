@@ -2118,10 +2118,10 @@ ITriVectorFunctionPtr EveSpaceObject2::GetPositionFunction()
 //   Set the boundingsphere inforamtion from the outside directly, instead of
 //   calculating it in runtime
 // --------------------------------------------------------------------------------
-void EveSpaceObject2::SetBoundingSphereInformation( const Vector4* centerAndRadius )
+void EveSpaceObject2::SetBoundingSphereInformation( const Vector4& centerAndRadius )
 {
-	m_boundingSphereCenter = *reinterpret_cast<const Vector3*>( centerAndRadius );
-	m_boundingSphereRadius = centerAndRadius->w;
+	m_boundingSphereCenter = BoundingSphereGetCenter( centerAndRadius );
+	m_boundingSphereRadius = centerAndRadius.w;
 }
 
 // --------------------------------------------------------------------------------

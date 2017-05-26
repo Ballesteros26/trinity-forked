@@ -68,7 +68,7 @@ public:
 	// get hull data
 	size_t GetMultiHullCount() const;
 	EveSOFDataHull::BuildClass GetBuildClass() const;
-	const Vector4* GetHullBoundingSphere( size_t n = 0 ) const;
+	Vector4 GetHullBoundingSphere() const;
 	const Vector3* GetHullShapeEllipsoidCenter( size_t n = 0 ) const;
 	const Vector3* GetHullShapeEllipsoidRadius( size_t n = 0 ) const;
 	bool IsHullAnimated() const;

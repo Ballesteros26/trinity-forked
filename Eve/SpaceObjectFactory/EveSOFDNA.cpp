@@ -5,6 +5,7 @@
 //
 #include "StdAfx.h"
 #include "Utilities/StringUtils.h"
+#include "Utilities/BoundingSphere.h"
 #include "EveSOFDNA.h"
 #include "EveSOFUtils.h"
 #include "Eve/SpaceObject/EveSpaceObject2.h"
@@ -820,11 +821,30 @@ EveSOFDataHull::BuildClass EveSOFDNA::GetBuildClass() const
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Return a pointer to the bounding sphere info of this hull
+//   Return the bounding sphere info of this hull
 // --------------------------------------------------------------------------------
-const Vector4* EveSOFDNA::GetHullBoundingSphere( size_t n ) const
+Vector4 EveSOFDNA::GetHullBoundingSphere() const
 {
-	return &m_hullDatas[n]->boundingSphere;
+	Vector4 boundingSphere;
+	BoundingSphereInitialize( boundingSphere );
+
+	// cycle over all hulls in the multi-hull list
+	Vector3 hullOffset( 0.f, 0.f, 0.f );
+	for( size_t hullIdx = 0; hullIdx < GetMultiHullCount(); ++hullIdx )
+	{
+		Vector4 s( m_hullDatas[hullIdx]->boundingSphere );
+		BoundingSphereTranslate( hullOffset, s );
+		BoundingSphereUpdate( s, boundingSphere );
+
+		// next hull needs offset update from hull's locator
+		const Vector3* nextSubsystemOffset = GetHullNextSubsystemOffset( hullIdx );
+		if( nextSubsystemOffset )
+		{
+			hullOffset += *nextSubsystemOffset;
+		}
+	}
+
+	return boundingSphere;
 }
 
 // --------------------------------------------------------------------------------

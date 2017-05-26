@@ -74,6 +74,12 @@ void BoundingSphereTransform( const Matrix& tf, Vector4& sphere )
 	sphere.w *= scale;
 }
 
+void BoundingSphereTranslate( const Vector3& offset, Vector4& sphere )
+{
+	Vector3 center( sphere.x, sphere.y, sphere.z );
+	sphere = Vector4( center + offset, sphere.w );
+}
+
 bool IntersectSphereAxisAlignedBox( const Vector4& sphere, const Vector3& minBounds, const Vector3& maxBounds )
 {
 	XMVECTOR SphereCenter = XMVectorSet( sphere.x, sphere.y, sphere.z, 0.0f );

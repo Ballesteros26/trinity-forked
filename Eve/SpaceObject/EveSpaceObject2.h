@@ -291,7 +291,7 @@ public:
 	bool IsAnimated() const; 
 
 	// bounding sphere
-	void SetBoundingSphereInformation( const Vector4* centerAndRadius );
+	void SetBoundingSphereInformation( const Vector4& centerAndRadius );
 	Be::Result<std::string> GetLocalBoundingBoxFromScript( std::pair<Vector3, Vector3>& result );
 	void GetShapeEllipsoid( Vector3& center, Vector3& radius );
 	void SetShapeEllipsoid( const Vector3* center, const Vector3* radius );
