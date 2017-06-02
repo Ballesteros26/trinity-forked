@@ -12,7 +12,7 @@
 #include "Particle/Tr2ParticleElementDeclaration.h"
 
 BLUE_DECLARE_INTERFACE( IEveBallpark );
-BLUE_DECLARE( Tr2ScalarCurve );
+BLUE_DECLARE_INTERFACE( ITriScalarFunction );
 BLUE_DECLARE( EveUpdateContext );
 BLUE_DECLARE( TriView );
 
@@ -68,9 +68,9 @@ private:
 	float m_maxStretch;
 
 	// Scalar function that's driven by the eye's distance from lookat point
-	Tr2ScalarCurvePtr m_distanceFunction;
+	ITriScalarFunctionPtr m_distanceFunction;
 	// Scalar function that's driven by speed
-	Tr2ScalarCurvePtr m_speedFunction;
+	ITriScalarFunctionPtr m_speedFunction;
 
 	// Amount that particles move is scaled by this value
 	float m_movementScale;
