@@ -11,7 +11,7 @@ BLUE_DEFINE( Tr2CurveRandomAxisRotation );
 
 const Be::ClassInfo* Tr2CurveRandomAxisRotation::ExposeToBlue()
 {
-	EXPOSURE_BEGIN( Tr2CurveRandomAxisRotation, ":jessica-icon: tree/tricolor.png" )
+	EXPOSURE_BEGIN( Tr2CurveRandomAxisRotation, ":jessica-icon: tree/trirotationcurve.png" )
 		MAP_INTERFACE( Tr2CurveRandomAxisRotation )
 		MAP_INTERFACE( ITriFunction )
 		MAP_INTERFACE( ITriQuaternionFunction )

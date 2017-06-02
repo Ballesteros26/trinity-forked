@@ -8,7 +8,7 @@
 
 BLUE_DECLARE_IVECTOR( ITriScalarFunction );
 
-BLUE_CLASS( Tr2CurveVector3Expression ) : public ITriFunction, public IInitialize
+BLUE_CLASS( Tr2CurveVector3Expression ) : public ITriColorFunction, public IInitialize
 {
 public:
 	Tr2CurveVector3Expression( IRoot* lockobj = nullptr );
@@ -36,6 +36,11 @@ public:
 	float GetRandomConstant() const;
 	float GetInputValue( int index ) const;
 	float GetInputValue( int index, float time ) const;
+
+	virtual Color* Update( Color* in, Be::Time time );
+	virtual Color* Update( Color* in, double time );
+	virtual Color* GetValueAt( Color* in, Be::Time time );
+	virtual Color* GetValueAt( Color* in, double time );
 private:
 	std::string m_name;
 	std::string m_expressions[3];

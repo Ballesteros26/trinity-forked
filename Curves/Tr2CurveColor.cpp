@@ -54,3 +54,31 @@ Color Tr2CurveColor::GetValue( double time ) const
 	}
 	return color;
 }
+
+// --------------------------------------------------------------------------------
+Color* Tr2CurveColor::Update( Color* in, Be::Time time )
+{
+	*in = m_currentValue = GetValue( TimeAsDouble( time ) );
+	return in;
+}
+
+// --------------------------------------------------------------------------------
+Color* Tr2CurveColor::Update( Color* in, double time )
+{
+	*in = m_currentValue = GetValue( time );
+	return in;
+}
+
+// --------------------------------------------------------------------------------
+Color* Tr2CurveColor::GetValueAt( Color* in, Be::Time time )
+{
+	*in = GetValue( TimeAsDouble( time ) );
+	return in;
+}
+
+// --------------------------------------------------------------------------------
+Color* Tr2CurveColor::GetValueAt( Color* in, double time )
+{
+	*in = GetValue( time );
+	return in;
+}

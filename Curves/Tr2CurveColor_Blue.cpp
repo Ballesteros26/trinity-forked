@@ -13,6 +13,7 @@ const Be::ClassInfo* Tr2CurveColor::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( Tr2CurveColor, ":jessica-icon: tree/tricolor.png" )
 		MAP_INTERFACE( Tr2CurveColor )
+		MAP_INTERFACE( ITriColorFunction )
 		MAP_INTERFACE( ITriFunction )
 		MAP_INTERFACE( ITriCurveLength )
 

@@ -244,3 +244,48 @@ float Tr2CurveVector3Expression::GetInputValue( int index, float time ) const
 	}
 	return const_cast<ITriScalarFunction*>( m_inputs[index] )->GetValueAt( time );
 }
+
+
+// --------------------------------------------------------------------------------
+Color* Tr2CurveVector3Expression::Update( Color* in, Be::Time time )
+{
+	m_currentValue = GetValue( TimeAsDouble( time ) );
+	in->r = m_currentValue.x;
+	in->g = m_currentValue.y;
+	in->b = m_currentValue.z;
+	in->a = 0;
+	return in;
+}
+
+// --------------------------------------------------------------------------------
+Color* Tr2CurveVector3Expression::Update( Color* in, double time )
+{
+	m_currentValue = GetValue( time );
+	in->r = m_currentValue.x;
+	in->g = m_currentValue.y;
+	in->b = m_currentValue.z;
+	in->a = 0;
+	return in;
+}
+
+// --------------------------------------------------------------------------------
+Color* Tr2CurveVector3Expression::GetValueAt( Color* in, Be::Time time )
+{
+	auto value = GetValue( TimeAsDouble( time ) );
+	in->r = value.x;
+	in->g = value.y;
+	in->b = value.z;
+	in->a = 0;
+	return in;
+}
+
+// --------------------------------------------------------------------------------
+Color* Tr2CurveVector3Expression::GetValueAt( Color* in, double time )
+{
+	auto value = GetValue( time );
+	in->r = value.x;
+	in->g = value.y;
+	in->b = value.z;
+	in->a = 0;
+	return in;
+}

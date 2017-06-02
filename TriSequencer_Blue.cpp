@@ -230,7 +230,7 @@ const Be::ClassInfo* TriQuaternionSequencer::ExposeToBlue()
 
 const Be::ClassInfo* TriColorSequencer::ExposeToBlue()
 {
-    EXPOSURE_BEGIN(TriColorSequencer, "Add or Multiply Color Curves\n:jessica-deprecated:")
+    EXPOSURE_BEGIN(TriColorSequencer, "Add or Multiply Color Curves")
         MAP_INTERFACE(ITriFunction)
         MAP_INTERFACE(ITriColorFunction)
         MAP_INTERFACE(ITriCurveLength)

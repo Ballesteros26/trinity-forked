@@ -13,7 +13,7 @@
 
 BLUE_CLASS( Tr2CurveColor ) :
 	public ITriCurveLength,
-	public ITriFunction
+	public ITriColorFunction
 {
 public:
 	Tr2CurveColor( IRoot* lockobj = nullptr );
@@ -21,6 +21,11 @@ public:
 	EXPOSE_TO_BLUE();
 
 	virtual void UpdateValue( double time );
+
+	virtual Color* Update( Color* in, Be::Time time );
+	virtual Color* Update( Color* in, double time );
+	virtual Color* GetValueAt( Color* in, Be::Time time );
+	virtual Color* GetValueAt( Color* in, double time );
 
 	virtual float Length();
 
