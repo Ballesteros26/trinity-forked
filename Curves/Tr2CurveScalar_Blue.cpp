@@ -55,9 +55,6 @@ Be::VarChooser Tr2CurveTangentTypeChooser[] =
 	{ 0 }
 };
 
-namespace
-{
-
 Be::VarChooser Tr2CurveExtrapolationChooser[] =
 {
 	{
@@ -82,8 +79,6 @@ Be::VarChooser Tr2CurveExtrapolationChooser[] =
 	},
 	{ 0 }
 };
-
-}
 
 
 BLUE_REGISTER_ENUM_EX( "Tr2CurveExtrapolation", Tr2CurveExtrapolation::Type, Tr2CurveExtrapolationChooser, ENUM_REG_ENUM_OBJECT_ON_MODULE );
