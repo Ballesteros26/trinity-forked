@@ -28,6 +28,7 @@ public:
 
 	void RandomizeStart( float range );
 	void ScaleTime( float scale );
+	void ResetStart();
 private:
 	double GetLocalTime( double time ) const;
 	double GetLocalTime( Be::Time time ) const;

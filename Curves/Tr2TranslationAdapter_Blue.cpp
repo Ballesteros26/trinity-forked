@@ -45,6 +45,11 @@ const Be::ClassInfo* Tr2TranslationAdapter::ExposeToBlue()
 			ScaleTime,
 			"Scales curve time\n"
 			":param scale: new time scaling factor" )
-	
+
+		MAP_METHOD_AND_WRAP(
+			"ResetStart",
+			ResetStart,
+			"Reset start time" )
+
 	EXPOSURE_END()
 }

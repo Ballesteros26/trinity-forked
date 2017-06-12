@@ -152,3 +152,9 @@ double Tr2RotationAdapter::GetLocalTime( Be::Time time ) const
 {
 	return TimeAsDouble( time - m_start + m_offset ) / m_timeScale;
 }
+
+// --------------------------------------------------------------------------------
+void Tr2RotationAdapter::ResetStart()
+{
+	m_start = 0;
+}
