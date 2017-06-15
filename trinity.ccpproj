@@ -54,7 +54,7 @@ BaseConfigurations:
     - ../../../../../../sdk/zlib/1.2.3/zlib_1.2.3.yaml
     - ../../../../../../sdk/PhysX/v2.8.4.telemetry/PhysX_2.8.4.telemetry.yaml
     - ../../../../../../sdk/PhysX/APEX/1.1.telemetry/APEX_1.1.telemetry.yaml
-    - ../../../../../../sdk/tbb/tbb40_233oss/tbb40_233oss.yaml
+    - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../manifests/manifests.props
 
     ClCompile:
@@ -425,7 +425,7 @@ Configurations:
     Imports:
     - ../blue/uses_blue_27.yaml
     - ../../../../../../sdk/python/Python_2.7.yaml
-    - ../../../../../../sdk/tbb/tbb40_233oss/tbb40_233oss.yaml
+    - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../../../../../../sdk/Granny/2.9.24.0/granny_2.9.24.0.yaml
     General:
       TargetName: _trinity_gles2_internal
@@ -444,7 +444,7 @@ Configurations:
     - GLES2
     Imports:
     - ../blue/uses_blue.yaml
-    - ../../../../../../sdk/tbb/tbb40_233oss/tbb40_233oss.yaml
+    - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../../../../../../sdk/Granny/2.9.24.0/granny_2.9.24.0.yaml
     General:
       TargetName: _trinity_gles2_internal
@@ -474,7 +474,7 @@ Configurations:
     - GL4
     Imports:
     - ../blue/uses_blue.yaml
-    - ../../../../../../sdk/tbb/tbb40_233oss/tbb40_233oss.yaml
+    - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../../../../../../sdk/Granny/2.9.24.0/granny_2.9.24.0.yaml
     General:
       TargetName: _trinity_gl4_internal
