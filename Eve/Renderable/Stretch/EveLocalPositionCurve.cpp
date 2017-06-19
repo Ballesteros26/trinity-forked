@@ -229,19 +229,14 @@ Vector3* EveLocalPositionCurve::GetDamageLocatorImpact( Vector3* in, Be::Time t 
 }
 
 // --------------------------------------------------------------------------------
-Vector3* EveLocalPositionCurve::GetTurretEffectPosition( Vector3* in, Be::Time t)
+Vector3* EveLocalPositionCurve::GetTurretEffectPosition( Vector3* in, Be::Time t )
 {
 	if( !m_turretSet )
 	{
 		return in;
 	}
-	Vector3 pos;
 	Matrix muzzleTransform = m_turretSet->GetEffectBoneWorldTransform();
-	pos = *(Vector3*)(&muzzleTransform._41);
-	
-	in->x = pos.x;
-	in->y = pos.y;
-	in->z = pos.z;
+	*in = muzzleTransform.GetTranslation();
 	return in;
 }
 
