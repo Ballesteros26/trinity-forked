@@ -1014,22 +1014,10 @@
     <ClInclude Include="Include\TriVector.h">
       <Filter>Source Files\Include</Filter>
     </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorBoxLight.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorCell.h">
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorConstantBufferFormats.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorCylinderLight.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorFlare.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorFlareData.h">
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorLightGeometryRenderBatch.h">
@@ -1041,12 +1029,6 @@
     <ClInclude Include="Interior\Tr2InteriorLightSource.h">
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorMirror.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorParticleObject.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorPlaceable.h">
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
@@ -1054,9 +1036,6 @@
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorScene.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorSHLightingSolver.h">
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorStatic.h">
@@ -2916,34 +2895,10 @@
     <ClCompile Include="Font\Tr2Sbit_Blue.cpp">
       <Filter>Source Files\Font</Filter>
     </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorBoxLight.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorBoxLight_Blue.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorCell.cpp">
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorCell_Blue.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorCylinderLight.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorCylinderLight_Blue.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorFlare.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorFlareData.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorFlareData_Blue.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorFlare_Blue.cpp">
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorLightSet.cpp">
@@ -2953,15 +2908,6 @@
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorLightSource_Blue.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorMirror.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorParticleObject.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorParticleObject_Blue.cpp">
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorPlaceable.cpp">
@@ -2977,9 +2923,6 @@
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorScene_Blue.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorSHLightingSolver.cpp">
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorStatic.cpp">
