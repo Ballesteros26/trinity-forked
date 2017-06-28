@@ -2991,15 +2991,12 @@
     <ClInclude Include="Include\TriMatrix.h"/>
     <ClInclude Include="Include\TriQuaternion.h"/>
     <ClInclude Include="Include\TriVector.h"/>
-    <ClInclude Include="Interior\Tr2InteriorCell.h"/>
     <ClInclude Include="Interior\Tr2InteriorConstantBufferFormats.h"/>
-    <ClInclude Include="Interior\Tr2InteriorLightGeometryRenderBatch.h"/>
     <ClInclude Include="Interior\Tr2InteriorLightSet.h"/>
     <ClInclude Include="Interior\Tr2InteriorLightSource.h"/>
     <ClInclude Include="Interior\Tr2InteriorPlaceable.h"/>
     <ClInclude Include="Interior\Tr2InteriorRenderBatch.h"/>
     <ClInclude Include="Interior\Tr2InteriorScene.h"/>
-    <ClInclude Include="Interior\Tr2InteriorStatic.h"/>
     <ClInclude Include="Interior\Tr2InteriorVisualization.h"/>
     <ClInclude Include="Interior\Tr2IntSkinnedObject.h"/>
     <ClInclude Include="Particle\ITr2GenericEmitter.h"/>
@@ -3622,8 +3619,6 @@
     <ClCompile Include="Font\Tr2FontMeasurer_Blue.cpp"/>
     <ClCompile Include="Font\Tr2SBit.cpp"/>
     <ClCompile Include="Font\Tr2Sbit_Blue.cpp"/>
-    <ClCompile Include="Interior\Tr2InteriorCell.cpp"/>
-    <ClCompile Include="Interior\Tr2InteriorCell_Blue.cpp"/>
     <ClCompile Include="Interior\Tr2InteriorLightSet.cpp"/>
     <ClCompile Include="Interior\Tr2InteriorLightSource.cpp"/>
     <ClCompile Include="Interior\Tr2InteriorLightSource_Blue.cpp"/>
@@ -3632,8 +3627,6 @@
     <ClCompile Include="Interior\Tr2InteriorRenderBatch.cpp"/>
     <ClCompile Include="Interior\Tr2InteriorScene.cpp"/>
     <ClCompile Include="Interior\Tr2InteriorScene_Blue.cpp"/>
-    <ClCompile Include="Interior\Tr2InteriorStatic.cpp"/>
-    <ClCompile Include="Interior\Tr2InteriorStatic_Blue.cpp"/>
     <ClCompile Include="Interior\Tr2IntSkinnedObject.cpp"/>
     <ClCompile Include="Interior\Tr2IntSkinnedObject_Blue.cpp"/>
     <ClCompile Include="Particle\Tr2CapsuleShapeAttributeGenerator.cpp"/>

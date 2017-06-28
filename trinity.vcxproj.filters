@@ -1014,13 +1014,7 @@
     <ClInclude Include="Include\TriVector.h">
       <Filter>Source Files\Include</Filter>
     </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorCell.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorConstantBufferFormats.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorLightGeometryRenderBatch.h">
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorLightSet.h">
@@ -1036,9 +1030,6 @@
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorScene.h">
-      <Filter>Source Files\Interior</Filter>
-    </ClInclude>
-    <ClInclude Include="Interior\Tr2InteriorStatic.h">
       <Filter>Source Files\Interior</Filter>
     </ClInclude>
     <ClInclude Include="Interior\Tr2InteriorVisualization.h">
@@ -2895,12 +2886,6 @@
     <ClCompile Include="Font\Tr2Sbit_Blue.cpp">
       <Filter>Source Files\Font</Filter>
     </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorCell.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorCell_Blue.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorLightSet.cpp">
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
@@ -2923,12 +2908,6 @@
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
     <ClCompile Include="Interior\Tr2InteriorScene_Blue.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorStatic.cpp">
-      <Filter>Source Files\Interior</Filter>
-    </ClCompile>
-    <ClCompile Include="Interior\Tr2InteriorStatic_Blue.cpp">
       <Filter>Source Files\Interior</Filter>
     </ClCompile>
     <ClCompile Include="Interior\Tr2IntSkinnedObject.cpp">
