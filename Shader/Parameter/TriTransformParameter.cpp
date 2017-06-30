@@ -26,32 +26,6 @@ unsigned TriTransformParameter::GetHashValue( unsigned startingHash ) const
 		CcpHashFNV1( &m_transformBase, sizeof( TRITRANSFORMBASE ) + 3 * sizeof( Vector3 ) + sizeof( Quaternion ) + sizeof( Matrix ), startingHash ) );
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Determines whether the determinant of the matrix underlying this transform parameter 
-//   is within epsilon of 0 and can be ignored when building the material situation.
-// Return Value:
-//   true, if the determinant of the matrix is within epsilon of 0
-//   false, otherwise
-// --------------------------------------------------------------------------------------
-bool TriTransformParameter::IsZeroOrNull( void ) const
-{
-	static const float epsilon = 0.0000001f;
-
-	return XMVectorGetX( 
-		XMMatrixDeterminant( 
-			XMMatrixTransformation( 
-				XMVectorSet( 0.0f, 0.0f, 0.0f, 1.0f ),
-				XMVectorSet( 0.0f, 0.0f, 0.0f, 1.0f ),
-				m_scaling,
-				m_rotationCenter,
-				m_rotation,
-				m_translation
-			)
-		)
-	) < epsilon;
-}
-
 void TriTransformParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType, 
 												unsigned char* dest, 
 												size_t size,

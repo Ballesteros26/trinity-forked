@@ -83,19 +83,6 @@ unsigned Tr2GeometryBufferParameter::GetHashValue( unsigned startingHash ) const
 
 // --------------------------------------------------------------------------------------
 // Description:
-//   Implements ITriEffectResourceParameter interface. Checks if parameter is empty, 
-//   needed for "magic" Tr2ShaderMaterial situations.
-// Return Value:
-//   true if parameter contains geometry or UAV buffer
-//   false otherwise
-// --------------------------------------------------------------------------------------
-bool Tr2GeometryBufferParameter::IsZeroOrNull( void ) const
-{
-	return m_gpuBuffer == nullptr;
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
 //   Implements ITriEffectResourceParameter interface. Called when owner effect changes.
 //   Stores owner effect and updates "is used" flag.
 // Arguments:

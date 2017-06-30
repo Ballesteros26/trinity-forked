@@ -127,8 +127,6 @@ public:
 	const Vector3 GetScaling( void ) const;
 	void SetScaling( const Vector3& scaleVec );
 
-	void BindLowLevelShaders();
-
 protected:
 	Tr2PerObjectData* GetPerObjectDataWithLightSet( ITriRenderBatchAccumulator* accumulator,
 		Tr2InteriorLightSet* lightSet, const Matrix& objectToWorldMatrix );

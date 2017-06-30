@@ -27,21 +27,6 @@ unsigned Tr2FloatParameter::GetHashValue( unsigned startingHash ) const
 	return CcpHashFNV1( &name, sizeof( name ), CcpHashFNV1( &m_value, sizeof( m_value ), startingHash ) );
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Determines whether the value of this float parameter is 0 and be ignored when
-//   building the material situation.
-// Return Value:
-//   true, if m_value is within epsilon of 0
-//   false, otherwise
-// --------------------------------------------------------------------------------------
-bool Tr2FloatParameter::IsZeroOrNull( void ) const
-{
-	static const float epsilon = 0.0000001f;
-
-	return fabsf( m_value ) < epsilon;
-}
-
 void Tr2FloatParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType, 
 											unsigned char* destHandle, 
 											size_t size,

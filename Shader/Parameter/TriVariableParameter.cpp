@@ -26,19 +26,6 @@ unsigned TriVariableParameter::GetHashValue( unsigned startingHash ) const
 	return CcpHashFNV1( &name, sizeof( name ), startingHash );
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Determines whether the TriVariable stored in this parameter is NULL and can be 
-//   ignored when building the material situation.
-// Return Value:
-//   true, if the TriVariable is NULL
-//   false, otherwise
-// --------------------------------------------------------------------------------------
-bool TriVariableParameter::IsZeroOrNull( void ) const
-{
-	return m_variable == NULL;
-}
-
 bool TriVariableParameter::OnModified( Be::Var* val )
 {
 	if( IsMatch( val, m_name ) )

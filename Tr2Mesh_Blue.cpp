@@ -8,54 +8,6 @@
 BLUE_DEFINE( Tr2Mesh );
 
 #if BLUE_WITH_PYTHON
-static PyObject* PyBindLowLevelShaders( PyObject* self, PyObject* args )
-{
-	Tr2Mesh* pThis = BluePythonCast<Tr2Mesh*>( self );
-	if( !pThis )
-	{
-		return NULL;
-	}
-	
-	PyObject *pyValueList;
-	PyObject *store = NULL;
-	bool overrideDefaultSituation = false;
-	if( !PyArg_ParseTuple(args, "O|bO", &pyValueList, &overrideDefaultSituation, &store) 
-		|| !PyList_Check(pyValueList) )
-	{
-		PyErr_SetString(PyExc_TypeError, "Argument to PyBindLowLevelShaders must be a list.");
-		return NULL;
-	}
-
-	size_t count = PyList_Size(pyValueList);
-
-	std::vector<unsigned int> engineFlags;
-
-	for(size_t i = 0; i < count; i++)
-	{
-		
-		PyObject* pyValueDef = PyList_GetItem(pyValueList, i);
-		if (PyString_Check(pyValueDef))
-		{
-			char * v = PyString_AsString(pyValueDef);
-			unsigned int h = CcpHashFNV1( v, strlen( v ) );
-			engineFlags.push_back(h);
-		}
-	}
-
-	Tr2VariableStore* variableStore = NULL;
-	if( store )
-	{
-		variableStore = BluePythonCast<Tr2VariableStore*>( store );
-		if( !variableStore )
-		{
-			return NULL;
-		}
-	}
-
-	pThis->BindLowLevelShaders( engineFlags, overrideDefaultSituation, variableStore );
-
-	Py_RETURN_NONE;
-}
 
 static PyObject* PyGetAreas( PyObject* self, PyObject* args )
 {
@@ -135,20 +87,8 @@ const Be::ClassInfo* Tr2Mesh::ExposeToBlue()
 			"This is used for geometry resources that require special handling, such as pre-baked blendshapes.\n"
 			":param geometry: new geometry resource"
 		)
-		MAP_METHOD( 
-			"BindLowLevelShaders", 
-			PyBindLowLevelShaders, 
-			"Bind a new low level shader to all areas based on the current situation\n" 
-			":param situation: list of permutation names\n"
-			":type situation: list[str]\n"
-			":param override: override default situation\n"
-			":type override: Optional[bool]\n"
-			":param store: variable store\n"
-			":type store: Optional[Tr2VariableStore]\n"
-			":rtype: None"
-		)
 
-        MAP_METHOD( 
+		MAP_METHOD( 
 			"GetAreas", 
 			PyGetAreas, 
 			"Returns mesh area list\n" 

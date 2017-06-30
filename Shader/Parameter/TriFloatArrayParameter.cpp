@@ -54,30 +54,6 @@ unsigned TriFloatArrayParameter::GetHashValue( unsigned startingHash ) const
 	return CcpHashFNV1( &name, sizeof( name ), startingHash );
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Determines whether the length of all vector4 parameters in the array is 0 and so the
-//   entire parameter array can be ignored when building the material situation.
-// Return Value:
-//   true, if the length of the every vector4 in the array is within epsilon of 0
-//   false, otherwise
-// --------------------------------------------------------------------------------------
-bool TriFloatArrayParameter::IsZeroOrNull( void ) const
-{
-	static const float epsilon = 0.0000001f;
-
-	for( PTriVector4Vector::const_iterator it = m_value.begin(); it != m_value.end(); ++it )
-	{
-		const Vector4& vec = (*it)->m_data;
-		if( XMVectorGetX( XMVector4Length( vec ) ) > epsilon )
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
 // ------------------------------------------------------------------------------------------------------
 void TriFloatArrayParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType, 
 												unsigned char* destHandle, 

@@ -61,8 +61,6 @@ const Be::ClassInfo* Tr2InteriorPlaceable::ExposeToBlue()
 		MAP_ATTRIBUTE( "variableStore", m_variableStore, "Local variable store for this object", Be::READ )
 		MAP_ATTRIBUTE( "probeOffset", m_probeOffset, "Offset for Enlighten SH probe position (in world space)", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "depthOffset", m_depthOffset, "Depth offset for transparency sorting", Be::READWRITE | Be::PERSIST )
-		
-		MAP_METHOD_AND_WRAP( "BindLowLevelShaders", BindLowLevelShaders, "Binds low level shaders for all meshes of the placeable." );
 
 	EXPOSURE_END()
 }

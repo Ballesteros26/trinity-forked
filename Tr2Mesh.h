@@ -71,17 +71,6 @@ public:
 	// IUnloadable
 	virtual void UnloadWhenUnreferenced();
 	virtual void ReloadWhenReferenced();
-
-	// will take a list of engine flags at some point.
-	void BindLowLevelShaders( const std::vector<unsigned int>& engineFlags, 
-		bool overrideDefaultSituation = false,
-		Tr2VariableStore* variableStore = NULL );
-
-	// Is this Tr2Mesh waiting to bind low-level shaders?
-	bool HasPendingLowLevelShaderBind( void ) const;
-	// Attempt to execute pending low-level shader binding
-	void ExecutePendingLowLevelShaderBind( void );
-
 private:
 	void InitializeGeometryResource();
 
@@ -102,15 +91,6 @@ protected:
 	bool m_isLoading;
 	CcpAtomic<uint32_t> m_resourceLoadCbId;
 	CcpAtomic<uint32_t> m_resourcePrepCbId;
-
-	// used by shader binder
-	void BindAreaShaders( Tr2MeshAreaVector* areas, 
-		const std::vector<unsigned int>& engineFlags, bool overrideDefaultSituation, Tr2VariableStore* variableStore );
-
-	std::vector<unsigned int> m_pendingBindSituationFlags;
-	bool m_isBindPending;
-	bool m_pendingDefaultOverride;
-	Tr2VariableStorePtr m_pendingVariableStore;
 
 	PTr2LodResourceVector m_lodResources;
 	Tr2Lod m_selectedLod;

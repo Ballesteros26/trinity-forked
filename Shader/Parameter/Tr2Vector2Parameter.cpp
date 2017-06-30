@@ -37,21 +37,6 @@ unsigned Tr2Vector2Parameter::GetHashValue( unsigned startingHash ) const
 
 // --------------------------------------------------------------------------------------
 // Description:
-//   Determines whether the length of this vector3 parameter is 0 and be ignored when
-//   building the material situation.
-// Return Value:
-//   true, if the length of the vector2 value is within epsilon of 0
-//   false, otherwise
-// --------------------------------------------------------------------------------------
-bool Tr2Vector2Parameter::IsZeroOrNull( void ) const
-{
-	static const float epsilon = 0.0000001f * 0.0000001f;
-
-	return XMVectorGetX( XMVector2LengthSq( m_value ) ) < epsilon;
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
 //   Copies the vector2 value to the destination buffer.
 // Arguments:
 //   destHandle - Pointer to the destination buffer

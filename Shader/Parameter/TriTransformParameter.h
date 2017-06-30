@@ -30,7 +30,6 @@ public:
 									size_t size,
 									Tr2RenderContext &renderContext ) const;
 	const char* GetParameterName() const { return m_name.c_str(); }
-	virtual bool IsZeroOrNull( void ) const;
 	// The following methods are potentially used by the old scene.  This parameter will
 	// never be used there so I'm simply going to stub them out.
 	void RebuildEffectHandles( ITr2ShaderState* effectRes ) {};

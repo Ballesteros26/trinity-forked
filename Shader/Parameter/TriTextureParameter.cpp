@@ -56,20 +56,6 @@ void TriTextureParameter::SetResourcePath( const char* resourcePath )
 	OnModified( (Be::Var*)&m_resourcePath );
 }
 
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Determines whether the value of this texture parameter is NULL and be ignored when
-//   building the material situation.
-// Return Value:
-//   true, if the texture is NULL
-//   false, otherwise
-// --------------------------------------------------------------------------------------
-bool TriTextureParameter::IsZeroOrNull( void ) const
-{
-	return m_resource == NULL;
-}
-
 void TriTextureParameter::ReloadResources()
 {
 	if ( m_resource )

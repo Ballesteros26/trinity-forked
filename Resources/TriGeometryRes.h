@@ -29,7 +29,6 @@
 #include "include/ITr2GpuBuffer.h"
 
 BLUE_DECLARE( TriGrannyRes );
-BLUE_DECLARE( Tr2ShaderMaterial);
 class Tr2RenderContext;
 
 struct TriGeometryResAreaData

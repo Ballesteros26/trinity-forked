@@ -96,8 +96,6 @@ public:
 	// IBluePlacementObserver
 	virtual void UpdatePlacement( const Vector3& front_, const Vector3& top_, const Vector3& pos_ );
 
-	void BindLowLevelShaders();
-
 protected:
 	void AddReflectionMap( TriTextureRes* texture );
 	void RemoveReflectionMap( TriTextureRes* texture );

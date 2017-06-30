@@ -155,11 +155,6 @@ void Tr2Model::GetBatchesFromMesh( Tr2Mesh* mesh,
 		return;
 	}
 
-	if( mesh->HasPendingLowLevelShaderBind() )
-	{
-		mesh->ExecutePendingLowLevelShaderBind();
-	}
-
 	Tr2MeshAreaVector* areas = mesh->GetAreas( batchType );
 
 	if( !areas )

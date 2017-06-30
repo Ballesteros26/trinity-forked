@@ -409,11 +409,6 @@ const char* EveCloudVolumeTextureParameter::GetParameterName() const
 	return m_name.c_str();
 }
 
-bool EveCloudVolumeTextureParameter::IsZeroOrNull( void ) const
-{
-	return m_volume != nullptr;
-}
-
 void EveCloudVolumeTextureParameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
 {
 	m_isUsedByEffect = false;

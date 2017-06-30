@@ -1025,8 +1025,6 @@ ITriEffectParameter* Tr2Effect::GetParameterByName( const char* name ) const
 //   Assigns a variable store to use when binding shader variables.
 // Arguments:
 //   variableStore - Variable store to use for binding shader variables.
-// See Also:
-//   BindLowLevelShaders
 // --------------------------------------------------------------------------------------
 void Tr2Effect::SetVariableStore( Tr2VariableStore* variableStore )
 {

@@ -32,7 +32,6 @@ public:
 								size_t size,
 								Tr2RenderContext &renderContext ) const;
 	const char* GetParameterName() const;
-	virtual bool IsZeroOrNull( void ) const;
 	void RebuildEffectHandles( ITr2ShaderState* effectRes );
 	unsigned GetHashValue( unsigned startingHash ) const;
 

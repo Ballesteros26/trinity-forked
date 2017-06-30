@@ -25,21 +25,6 @@ unsigned Tr2Matrix4Parameter::GetHashValue( unsigned startingHash ) const
 	return CcpHashFNV1( &name, sizeof( name ), CcpHashFNV1( &m_value, sizeof( m_value ), startingHash ) );
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Determines whether the determinant of this matrix parameter is 0 and be ignored when
-//   building the material situation.
-// Return Value:
-//   true, if the determinant of the matrix value is within epsilon of 0
-//   false, otherwise
-// --------------------------------------------------------------------------------------
-bool Tr2Matrix4Parameter::IsZeroOrNull( void ) const
-{
-	static const float epsilon = 0.0000001f;
-
-	return XMVectorGetX( XMMatrixDeterminant( m_value ) ) < epsilon;
-}
-
 void Tr2Matrix4Parameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType, 
 												unsigned char* destHandle, 
 												size_t size,

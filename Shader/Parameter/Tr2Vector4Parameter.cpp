@@ -24,21 +24,6 @@ unsigned Tr2Vector4Parameter::GetHashValue( unsigned startingHash ) const
 	return CcpHashFNV1( &name, sizeof( name ), CcpHashFNV1( &m_value, sizeof( m_value ), startingHash ) );
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Determines whether the length of this vector4 parameter is 0 and be ignored when
-//   building the material situation.
-// Return Value:
-//   true, if the length of the vector4 value is within epsilon of 0
-//   false, otherwise
-// --------------------------------------------------------------------------------------
-bool Tr2Vector4Parameter::IsZeroOrNull( void ) const
-{
-	static const float epsilon = 0.0000001f * 0.0000001f;
-
-	return XMVectorGetX( XMVector4LengthSq( m_value ) ) < epsilon;
-}
-
 void Tr2Vector4Parameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType, 
 												unsigned char* destHandle, 
 												size_t size,

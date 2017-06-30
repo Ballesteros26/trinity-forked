@@ -11,7 +11,6 @@
 #include "Tr2SkinnedModel.h"
 #include "Tr2PerObjectData.h"
 #include "Shader/Tr2Effect.h"
-#include "Shader/Tr2ShaderMaterial.h"
 #include "Tr2Mesh.h"
 
 BLUE_DECLARE( BlueCallbackMan );
@@ -1368,14 +1367,7 @@ void Tr2SkinnedModelBuilder::CopyAreas( Tr2MeshAreaVector* src, Tr2MeshAreaVecto
 			ITr2ShaderMaterial* srcEffect  = srcArea->GetMaterialInterface();
 			Tr2Effect* destEffect = dynamic_cast<Tr2Effect*>( ( *dst )[0]->GetMaterialInterface() );
 
-			if( Tr2ShaderMaterial * material = dynamic_cast<Tr2ShaderMaterial*>( srcEffect ) )
-			{
-				info.m_permuteIndex = material->GetLowLevelPermuteIndex();
-			}
-			else
-			{
-				info.m_permuteIndex = 0;
-			}
+			info.m_permuteIndex = 0;
 
 			m_collapseInfo.push_back( info );
 

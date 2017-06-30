@@ -2,12 +2,9 @@
 #include "Tr2Mesh.h"
 #include "Shader/Tr2Effect.h"
 #include "Resources/TriGeometryRes.h"
-#include "Shader/Tr2ShaderMaterial.h"
-#include "Tr2LowLevelShader.h"
 #include "Resources/Tr2LodResource.h"
 
 BLUE_DECLARE( Tr2Effect );
-BLUE_DECLARE( Tr2ShaderMaterial );
 
 Tr2Mesh::Tr2Mesh( IRoot* lockobj ) : 
 	PARENTLOCK( m_lodResources ),
@@ -17,10 +14,8 @@ Tr2Mesh::Tr2Mesh( IRoot* lockobj ) :
 	m_isLoading( false ),
 	m_resourceLoadCbId( 0 ),
 	m_resourcePrepCbId( 0 ),
-	m_selectedLod( TR2_LOD_UNSPECIFIED ),
-	m_pendingDefaultOverride( false )
+	m_selectedLod( TR2_LOD_UNSPECIFIED )
 {
-	m_isBindPending = false;
 }
 
 Tr2Mesh::~Tr2Mesh()
@@ -67,15 +62,6 @@ void Tr2Mesh::StaticResourcePrepFinished( void* pContext )
 	Tr2Mesh* pThis = static_cast<Tr2Mesh*>( pContext );
 	pThis->m_resourcePrepCbId = 0;
 	pThis->m_isLoading = false;
-
-	// Kick off a low-level shader bind if one is pending
-	if( pThis->m_isBindPending )
-	{
-		pThis->BindLowLevelShaders( pThis->m_pendingBindSituationFlags, 
-			pThis->m_pendingDefaultOverride, pThis->m_pendingVariableStore );
-	}
-
-
 }
 
 // ---------------------------------------------------------------
@@ -202,100 +188,6 @@ void Tr2Mesh::RebuildCachedData( BlueAsyncRes* p )
 
 void Tr2Mesh::ReleaseCachedData( BlueAsyncRes* p )
 {
-}
-
-// Takes an area vector, and walks it, rebinding all meshes 
-void Tr2Mesh::BindAreaShaders( Tr2MeshAreaVector* areas, 
-							   const std::vector<unsigned int>& engineFlags,
-							   bool overrideDefaultSituation,
-							   Tr2VariableStore* variableStore )
-{
-	// Initialize base situation
-	Tr2ShaderSituation baseSituation( engineFlags );
-
-	typedef Tr2MeshAreaVector::iterator MeshAreaIteratorType;
-	MeshAreaIteratorType endOfAreas = areas->end();
-
-	// Extend the situation with the vertex format
-	if( TriGeometryResMeshData* meshData = m_geometryResource->GetMeshData( m_meshIndex ) )
-	{
-		Tr2VertexDefinition vd;
-		Tr2EffectStateManager::GetVertexDeclarationElements( meshData->m_vertexDeclaration, vd );
-		baseSituation.AddVertexFormat( vd );
-	}
-
-	for( MeshAreaIteratorType areaIt = areas->begin(); areaIt != endOfAreas; ++areaIt )
-	{
-		if( Tr2ShaderMaterial* mat = dynamic_cast<Tr2ShaderMaterial*>( ( *areaIt )->GetMaterialInterface() ) )
-		{
-			Tr2ShaderSituation currentSituation = baseSituation;
-			mat->ApplyMaterialToSituation( currentSituation, overrideDefaultSituation );
-			mat->SetVariableStore( variableStore );
-
-			mat->BindLowLevelShader(currentSituation);
-		}
-		else if( Tr2Effect* fx = dynamic_cast<Tr2Effect*>( ( *areaIt )->GetMaterialInterface() ) )
-		{
-			fx->SetVariableStore( variableStore );
-			fx->RebuildCachedData();
-		}
-	}
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Queries whether this Tr2Mesh is waiting to bind low-level shaders (because the
-//   geometry resource hasn't fully loaded yet).
-// Return Value:
-//   true if the Tr2Mesh has a pending low-level shader bind
-//   false if the Tr2Mesh does not have a pending low-level shader bind
-// See Also:
-//   ExecutePendingLowLevelShaderBind, BindLowLevelShaders
-// --------------------------------------------------------------------------------------
-bool Tr2Mesh::HasPendingLowLevelShaderBind( void ) const
-{
-	return m_isBindPending;
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   If the Tr2Mesh has a pending low-level shader bind, attempt to bind low-level shaders.
-//   Has no effect if the geometry resource is not fully loaded.
-// See Also:
-//   HasPendingLowLevelShaderBind, BindLowLevelShaders
-// --------------------------------------------------------------------------------------
-void Tr2Mesh::ExecutePendingLowLevelShaderBind( void )
-{
-	BindLowLevelShaders( m_pendingBindSituationFlags, m_pendingDefaultOverride );
-}
-
-void Tr2Mesh::BindLowLevelShaders( const std::vector<unsigned int>& engineFlags,
-								   bool overrideDefaultSituation,
-								   Tr2VariableStore* variableStore )
-{
-    // Note: this should be IsGood, not IsPrepared, but for Tr2SkinnedModels, the 
-	// TriGeometryRes's don't return true for IsGood, despite being valid.  Probably has
-	// something to do with mesh setup in Paperdoll.
-	if( m_geometryResource && m_geometryResource->IsGood() && Tr2Renderer::IsResourceCreationAllowed() )
-	{
-		for( unsigned int i = 0; i < TRIBATCHTYPE_COUNT_OF_BATCH_TYPES; ++i )
-		{
-			Tr2MeshAreaVector* areas = GetAreas( (TriBatchType)i );
-			if( areas )
-			{
-				BindAreaShaders( areas, engineFlags, overrideDefaultSituation, variableStore );
-			}
-		}
-		m_isBindPending = false;
-		m_pendingVariableStore = NULL;
-	}
-	else
-	{
-		m_isBindPending = true;
-		m_pendingDefaultOverride = overrideDefaultSituation;
-		m_pendingBindSituationFlags = engineFlags;
-		m_pendingVariableStore = variableStore;
-	}
 }
 
 void Tr2Mesh::PySetGeometryRes( TriGeometryRes* geometryRes )

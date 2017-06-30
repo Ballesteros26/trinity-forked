@@ -36,8 +36,6 @@ BLUE_INTERFACE(ITriEffectParameter) : public ITr2EffectValue
 
 	virtual const char* GetParameterName() const = 0;
 
-	virtual bool IsZeroOrNull( void ) const = 0;
-
 	virtual void RebuildEffectHandles( ITr2ShaderState* effectRes ) = 0;
 
 	// --------------------------------------------------------------------------------------

@@ -300,20 +300,6 @@ bool TriDevice::InitD3DDevice()
 
 	SetDefaultRenderStates();
 
-	// Set "VertexTextures" global shader situation based on vertex texture
-	// support. We assume that vertex textures are supported if any of the
-	// vertex texture filtering caps are on.
-	const char* vertexTexturesSituation = "VertexTextures";
-	const unsigned int h = CcpHashFNV1( vertexTexturesSituation, strlen( vertexTexturesSituation ) );
-	if( DeviceSupportsVertexTexture() )
-	{
-		Tr2Renderer::AddGlobalSituationFlag( h );
-	}
-	else
-	{
-		Tr2Renderer::RemoveGlobalSituationFlag( h );
-	}
-
 	mDeviceLost = false;
 	return true;
 }

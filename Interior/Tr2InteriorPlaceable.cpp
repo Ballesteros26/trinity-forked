@@ -223,30 +223,6 @@ void Tr2InteriorPlaceable::RemoveReflectionMap( TriTextureRes* texture )
 	}
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Binds low-level shaders on all meshes of the placeable. Applies local variable
-//	 store.
-// --------------------------------------------------------------------------------------
-void Tr2InteriorPlaceable::BindLowLevelShaders()
-{
-	std::vector<unsigned int> localFlags;
-	unsigned int h = CcpHashFNV1( "DynamicObject", strlen( "DynamicObject" ) );
-	localFlags.push_back( h );
-	h = CcpHashFNV1( "Interior", strlen( "Interior" ) );
-	localFlags.push_back( h );
-
-	if( m_placeableRes && m_placeableRes->GetVisualModel() )
-	{
-		for( PTr2MeshVector::const_iterator meshIt = m_placeableRes->GetVisualModel()->GetMeshes().begin(); 
-			 meshIt != m_placeableRes->GetVisualModel()->GetMeshes().end(); 
-			 ++meshIt )
-		{
-			( *meshIt )->BindLowLevelShaders( localFlags, false, m_variableStore );
-		}
-	}
-}
-
 void Tr2InteriorPlaceable::SetLOD( const TriFrustum* frustum )
 {
 	// TODO_delder: implement LOD?
@@ -622,7 +598,6 @@ void Tr2InteriorPlaceable::LoadPlaceableRes()
 	p.Attach( BeResMan->LoadObject( m_placeableResPath.c_str() ) );
 
 	m_placeableRes = BlueCastPtr( p );
-	BindLowLevelShaders();
 }
 
 // -------------------------------------------------------------

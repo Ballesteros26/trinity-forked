@@ -36,7 +36,6 @@ class Tr2LineGraph;
 class TriShadowMap;
 class TriPoolAllocator;
 class TriViewport;
-class Tr2ShaderMaterial;
 
 BLUE_DECLARE_INTERFACE( ITr2ShaderMaterial );
 BLUE_DECLARE_INTERFACE( ITr2ShaderState );
@@ -116,22 +115,6 @@ public:
 	static void RegisterEffect( Tr2Effect* f );
 	static void UnregisterEffect( Tr2Effect* f );
 	static void ReinitializeRegisteredEffects();
-
-	// Register a material.  All registered materials are rebound after shader model change.
-	static void RegisterMaterial( Tr2ShaderMaterial* material );
-	// Unregister a material.
-	static void UnregisterMaterial( Tr2ShaderMaterial* material );
-
-	// Gets the global situation
-	static const std::vector<unsigned int>& GetGlobalSituation( void );
-	// Globally add a situation flag to all shader materials
-	static void AddGlobalSituationFlag( unsigned int situationFlag );
-	// Globally remove a situation flag from all shader materials
-	static void RemoveGlobalSituationFlag( unsigned int situationFlag );
-	// Check if a global situation flag is set
-	static bool HasGlobalSituationFlag( unsigned int situationFlag );
-	// Rebind all shader materials
-	static void RebindAllShaderMaterials( void );
 
 	// pointer since this can fail
 	static Tr2IndexBufferAL*  GetQuadListIndexBuffer( unsigned int numOfQuads );

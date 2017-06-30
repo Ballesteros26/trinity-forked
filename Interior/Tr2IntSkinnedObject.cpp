@@ -11,7 +11,6 @@
 #endif
 #include "Resources/TriGeometryRes.h"
 #include "Resources/TriTextureRes.h"
-#include "Shader/Tr2ShaderMaterial.h"
 #include "Shader/Tr2Effect.h"
 #include "Tr2Mesh.h"
 
@@ -145,52 +144,13 @@ void SetVariableStore( ITr2ShaderMaterial* const effect, const std::vector<unsig
 	if( effect )
 	{
 		effect->SetVariableStore( store );
-		if( Tr2ShaderMaterial* material = dynamic_cast<Tr2ShaderMaterial*>( effect ) )
-		{
-			material->BindLowLevelShaderMaterialOnly( localFlags );
-		}
-		else if( Tr2Effect* fx = dynamic_cast<Tr2Effect*>( effect ) )
+		if( Tr2Effect* fx = dynamic_cast<Tr2Effect*>( effect ) )
 		{
 			fx->RebuildCachedData();
 		}
 	}
 }
 
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Binds low-level shaders on all meshes of the skinned object. Applies local variable
-//	 store.
-// --------------------------------------------------------------------------------------
-void Tr2IntSkinnedObject::BindLowLevelShaders()
-{
-	std::vector<unsigned int> localFlags;
-	unsigned int h = CcpHashFNV1( "SkinnedObject", strlen( "SkinnedObject" ) );
-	localFlags.push_back( h );
-	h = CcpHashFNV1( "Interior", strlen( "Interior" ) );
-	localFlags.push_back( h );
-#if APEX_ENABLED
-	for( Tr2ClothingActorVector::iterator it = m_clothMeshes.begin(); it != m_clothMeshes.end(); ++it )
-	{
-		if( Tr2ClothingActor* ca = *it )
-		{
-			SetVariableStore( ca->GetEffect(),						localFlags, m_variableStore );
-			SetVariableStore( ca->GetEffectReversed(),				localFlags, m_variableStore );
-			SetVariableStore( ca->GetDepthEffect(),					localFlags, m_variableStore );
-			SetVariableStore( ca->GetDepthEffectReversed(),			localFlags, m_variableStore );
-			SetVariableStore( ca->GetDepthNormalEffect(),			localFlags, m_variableStore );
-			SetVariableStore( ca->GetDepthNormalEffectReversed(),	localFlags, m_variableStore );
-		}
-	}
-#endif
-	if( m_visualModel )
-	{
-		for( PTr2MeshVector::const_iterator meshIt = m_visualModel->GetMeshes().begin(); meshIt != m_visualModel->GetMeshes().end(); ++meshIt )
-		{
-			( *meshIt )->BindLowLevelShaders( localFlags, false, m_variableStore );
-		}
-	}
 }
 
 bool Tr2IntSkinnedObject::GetWorldBoundingBox( Vector3& min, Vector3& max ) const
@@ -318,11 +278,6 @@ void Tr2IntSkinnedObject::GetBatches( ITriRenderBatchAccumulator* batches,
 		Tr2Mesh* mesh = *meshIt;
 		if( mesh )
 		{
-			if( mesh->HasPendingLowLevelShaderBind() )
-			{
-				mesh->ExecutePendingLowLevelShaderBind();
-			}	
-
 			Tr2MeshAreaVector* areas = mesh->GetAreas( batchType );
 			if( areas )
 			{

@@ -1,7 +1,6 @@
 #include "StdAfx.h"
 #include "Tr2Renderer.h"
 #include "Shader/Tr2Effect.h"
-#include "Shader/Tr2ShaderMaterial.h"
 #include "Tr2Variable.h"
 #include "TriDevice.h"
 #include "TriLineSet.h"
@@ -204,9 +203,6 @@ namespace
 	tbb::task_scheduler_init* s_taskScheduler = NULL;
 #endif
 
-	// Global shader material situation
-	std::vector<unsigned int> s_globalSituation;
-
 	// To deal with the adjusted viewport that D3D9 forces us to create when viewport
 	// extends beyond the screen
 	void AdjustTextureCoordsToViewport( Vector2& topLeft, Vector2& bottomRight )
@@ -236,55 +232,6 @@ namespace
 	{
 		static NeverEndingSingleton<EffectSet> effectSet;
 		return effectSet.GetInstance();
-	}
-
-	typedef std::set<Tr2ShaderMaterial*> MaterialSet;
-	MaterialSet& GetMaterialSet()
-	{
-		static NeverEndingSingleton<MaterialSet> materialSet;
-		return materialSet.GetInstance();
-	}
-
-	unsigned int GetShaderModelSituationHash( TR2SHADERMODEL shaderModel )
-	{
-		static const char* shaderModel1Str = "SM_1_1";
-		static const char* shaderModel2LoStr = "SM_2_0_LO";
-		static const char* shaderModel2HiStr = "SM_2_0_HI";
-		static const char* shaderModel3LoStr = "SM_3_0_LO";
-		static const char* shaderModel3HiStr = "SM_3_0_HI";
-		static const char* shaderModel3DepthStr = "SM_3_0_DEPTH";
-		static const char* shaderModel3AuthStr = "SM_3_0_AUTHORING";
-
-		switch( shaderModel )
-		{
-		case TR2SM_1_1:
-			return CcpHashFNV1( shaderModel1Str, strlen( shaderModel1Str ) );
-			break;
-
-		case TR2SM_2_0_LO:
-			return CcpHashFNV1( shaderModel2LoStr, strlen( shaderModel2LoStr ) );
-			break;
-		case TR2SM_2_0_HI:
-			return CcpHashFNV1( shaderModel2HiStr, strlen( shaderModel2HiStr ) );
-			break;
-
-		case TR2SM_3_0_LO:
-			return CcpHashFNV1( shaderModel3LoStr, strlen( shaderModel3LoStr ) );
-			break;
-		case TR2SM_3_0_HI:
-			return CcpHashFNV1(shaderModel3HiStr, strlen( shaderModel3HiStr ) );
-			break;
-		case TR2SM_3_0_DEPTH:
-			return CcpHashFNV1( shaderModel3DepthStr, strlen( shaderModel3DepthStr ) );
-			break;
-		case TR2SM_AUTHORING:
-			return CcpHashFNV1( shaderModel3AuthStr, strlen( shaderModel3AuthStr ) );
-			break;
-
-		default:
-			// Return the invalid situation code
-			return Tr2ShaderSituation::INVALID_SITUATION;
-		}
 	}
 
 	void ReloadShaders()
@@ -438,10 +385,6 @@ bool Tr2Renderer::Initialize()
 	renderContext.m_esm.Initialize();
 
 	D3DXMatrixIdentity( &s_viewport2projectionAdjustment );
-
-	s_globalSituation.push_back( GetShaderModelSituationHash( s_shaderModel ) );
-	static const char linearStr[] = "LinearColor";
-	s_globalSituation.push_back( CcpHashFNV1( linearStr, strlen(linearStr) ) );
 
 	return true;
 }
@@ -1354,118 +1297,6 @@ void Tr2Renderer::ReinitializeRegisteredEffects()
 	for( EffectSet::iterator it = l.begin(); it != l.end(); ++it )
 	{
 		(*it)->Initialize();
-	}
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Registers a shader material with the Tr2Renderer so it can respond to global 
-//   situation broadcasts, such as a shader model change.
-// Arguments:
-//   material - The material to register.
-// See Also:
-//   UnregisterMaterial
-// --------------------------------------------------------------------------------------
-void Tr2Renderer::RegisterMaterial( Tr2ShaderMaterial* material )
-{
-	GetMaterialSet().insert( material );
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Unregisters a shader material with the Tr2Renderer.
-// Arguments:
-//   material - The material to unregister.
-// See Also:
-//   RegisterMaterial
-// --------------------------------------------------------------------------------------
-void Tr2Renderer::UnregisterMaterial( Tr2ShaderMaterial* material )
-{
-	GetMaterialSet().erase( material );
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Gets the global situation.
-// Return Value:
-//   The vector of global situation flags
-// See Also:
-//   AddGlobalSituationFlag, RemoveGlobalSituationFlag
-// --------------------------------------------------------------------------------------
-const std::vector<unsigned int>& Tr2Renderer::GetGlobalSituation( void )
-{
-	return s_globalSituation;
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Adds a situation flag to the global situation, if it does not already contain the
-//   flag.  This does not, however, automatically trigger a rebind.  A separate call to 
-//   RebindAllShaderMaterials is required to commit the situation change.
-// Arguments:
-//   situationFlag - The flag to add to situation of all registered Tr2ShaderMaterials
-// See Also:
-//   RemoveGlobalSituationFlag, RebindAllShaderMaterials
-// --------------------------------------------------------------------------------------
-void Tr2Renderer::AddGlobalSituationFlag( unsigned int situationFlag )
-{
-	if( std::find( s_globalSituation.begin(), s_globalSituation.end(), situationFlag) ==
-		s_globalSituation.end() )
-	{
-		s_globalSituation.push_back( situationFlag );
-	}
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Removes a situation flag from the global situation.  This does not, however,
-//   automatically trigger a rebind.  A separate call to RebindAllShaderMaterialss is 
-//   required to commit the situation change.
-// Arguments:
-//   situationFlag - The flag to remove from situation of all registered Tr2ShaderMaterials
-// See Also:
-//   AddGlobalSituationFlag, RebindAllShaderMaterials
-// --------------------------------------------------------------------------------------
-void Tr2Renderer::RemoveGlobalSituationFlag( unsigned int situationFlag )
-{
-	std::vector<unsigned int>::iterator newEnd =
-		std::remove_if( s_globalSituation.begin(), s_globalSituation.end(), 
-			std::bind2nd( std::equal_to<unsigned int>(), situationFlag ) );
-	s_globalSituation.erase( newEnd, s_globalSituation.end() );
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Checks if a situation flag is a part of the global situation.
-// Arguments:
-//   situationFlag - The flag to check
-// Return value:
-//   true If the flag is a part of global situation
-//   false Otherwise
-// See Also:
-//   AddGlobalSituationFlag, RebindAllShaderMaterials
-// --------------------------------------------------------------------------------------
-bool Tr2Renderer::HasGlobalSituationFlag( unsigned int situationFlag )
-{
-	return std::find( s_globalSituation.begin(), s_globalSituation.end(), situationFlag ) 
-		!= s_globalSituation.end();
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Broadcasts a situation flag to all registered Tr2Materials.  This does not, however,
-//   automatically trigger a rebind.  A separate call to RebindAllShaderMaterialss is 
-//   required to commit the situation change.
-// See Also:
-//   AddGlobalSituationFlag, RemoveGlobalSituationFlag
-// --------------------------------------------------------------------------------------
-void Tr2Renderer::RebindAllShaderMaterials( void )
-{
-	MaterialSet& materials = GetMaterialSet();
-	for( MaterialSet::iterator it = materials.begin(); it != materials.end(); ++it )
-	{
-		Tr2ShaderMaterial* material = *it;
-		material->RebindLowLevelShader();
 	}
 }
 

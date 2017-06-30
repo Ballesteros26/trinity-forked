@@ -19,7 +19,7 @@ const Be::ClassInfo* TriStepRenderFullScreenShader::ExposeToBlue()
 			py__init__,
 			1,
 			"Create a render step that draws a fullscreen quad using a specified shader\n"
-			":param shader: A Tr2ShaderMaterial (default None)"
+			":param shader: A material (default None)"
 		)
 
 	EXPOSURE_CHAINTO( TriRenderStep )

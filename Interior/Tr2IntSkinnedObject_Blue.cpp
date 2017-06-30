@@ -24,8 +24,6 @@ const Be::ClassInfo* Tr2IntSkinnedObject::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "variableStore", m_variableStore, "Local variable store for this object", Be::READ )
 
-		MAP_METHOD_AND_WRAP( "BindLowLevelShaders", BindLowLevelShaders, "Binds low level shaders for all meshes of the skinned object." );
-
 		MAP_ATTRIBUTE( "depthOffset", m_depthOffset, "Depth offset for transparency sorting", Be::READWRITE | Be::PERSIST )
 	EXPOSURE_CHAINTO( Tr2SkinnedObject )
 }

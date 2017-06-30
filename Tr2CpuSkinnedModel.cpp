@@ -208,11 +208,6 @@ void Tr2CpuSkinnedModel::GetBatches( ITriRenderBatchAccumulator* batches, TriBat
 		Tr2DynamicMesh* mesh = dynamic_cast<Tr2DynamicMesh*>( *meshIt );
 		if( mesh )
 		{
-			if( mesh->HasPendingLowLevelShaderBind() )
-			{
-				mesh->ExecutePendingLowLevelShaderBind();
-			}	
-
 			Tr2MeshAreaVector* areas = mesh->GetAreas( batchType );
 			if( areas )
 			{

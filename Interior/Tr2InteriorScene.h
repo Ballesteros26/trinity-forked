@@ -32,7 +32,6 @@ BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE( Tr2VisibilityResults );
 BLUE_DECLARE( Tr2TextureAtlas );
 BLUE_DECLARE_VECTOR( Tr2TextureAtlas );
-BLUE_DECLARE( Tr2ShaderMaterial );
 BLUE_DECLARE_INTERFACE( ITr2PhysicsUpdater );
 BLUE_DECLARE( TriCurveSet );
 BLUE_DECLARE_VECTOR( TriCurveSet );

@@ -11,7 +11,6 @@
 #include "Apex/Tr2ApexScene.h"
 #endif
 #include "Tr2VisibilityResults.h"
-#include "Shader/Tr2ShaderMaterial.h"
 #include "Tr2LitPerObjectData.h"
 #include "Tr2AtlasTexture.h"
 #include "Tr2PushPopDS.h"

@@ -146,11 +146,6 @@ void Tr2SkinnedModel::GetBatches( ITriRenderBatchAccumulator* batches,
 		Tr2Mesh* mesh = *meshIt;
 		if( mesh )
 		{
-			if( mesh->HasPendingLowLevelShaderBind() )
-			{
-				mesh->ExecutePendingLowLevelShaderBind();
-			}	
-
 			Tr2MeshAreaVector* areas = mesh->GetAreas( batchType );
 			if( areas )
 			{
