@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "Tr2FloatParameter.h"
 #include "TriValueBinding.h"
-#include "ITr2ShaderState.h"
+#include "Shader/Tr2Shader.h"
 
 Tr2FloatParameter::Tr2FloatParameter(IRoot* lockobj):
 	m_value( 1.0f ),
@@ -123,7 +123,7 @@ void Tr2FloatParameter::UnregisterBinding( TriValueBinding* vb )
 	}
 }
 
-void Tr2FloatParameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
+void Tr2FloatParameter::RebuildEffectHandles( Tr2Shader* effectRes )
 {
 	if( !effectRes && m_reroutedValue )
 	{

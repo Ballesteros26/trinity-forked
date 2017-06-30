@@ -9,7 +9,7 @@
 #include "include/ITriEffectParameter.h"
 
 BLUE_DECLARE_INTERFACE( ITr2GpuBuffer );
-BLUE_DECLARE_INTERFACE( ITr2ShaderState );
+BLUE_DECLARE( Tr2Shader );
 
 // --------------------------------------------------------------------------------------
 // Description:
@@ -30,7 +30,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITriEffectParameter
 	const char* GetParameterName() const;
-	void RebuildEffectHandles( ITr2ShaderState* effectRes );
+	void RebuildEffectHandles( Tr2Shader* effectRes );
 	unsigned GetHashValue( unsigned startingHash ) const;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ protected:
 	bool m_isUsedByEffect;
 
 	// Owner effect
-	ITr2ShaderStatePtr m_cachedEffect;
+	Tr2ShaderPtr m_cachedEffect;
 public:
 	EXPOSE_TO_BLUE();
 };

@@ -82,7 +82,7 @@ ITr2ShaderMaterial* TriRenderBatch::GetShaderMaterialInterface() const
 	return m_shaderMaterial;
 }
 
-ITr2ShaderState* TriRenderBatch::GetShaderStateInterface() const
+Tr2Shader* TriRenderBatch::GetShaderStateInterface() const
 {
 	if (m_shaderMaterial)
 	{

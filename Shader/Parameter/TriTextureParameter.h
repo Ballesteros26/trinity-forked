@@ -30,7 +30,7 @@
 #include "include/ITriEffectParameter.h"
 #include "Shader/Tr2EffectDescription.h"
 
-BLUE_DECLARE_INTERFACE( ITr2ShaderState );
+BLUE_DECLARE( Tr2Shader );
 BLUE_DECLARE( TriTextureRes );
 BLUE_DECLARE( TriTextureParameter );
 BLUE_CLASS_ALLOW_DELAYED_DELETE( TriTextureParameter );
@@ -51,7 +51,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITriEffectParameter
 	const char* GetParameterName() const;
-	void RebuildEffectHandles( ITr2ShaderState* effectRes );
+	void RebuildEffectHandles( Tr2Shader* effectRes );
 
 	//////////////////////////////////////////////////////////////////////////
 	// ITriEffectResourceParameter
@@ -93,7 +93,7 @@ public:
 	const wchar_t* GetResourcePath() const;
 	void SetResourcePath( const char* resourcePath );
 private:
-	ITr2ShaderStatePtr m_cachedEffect;
+	Tr2ShaderPtr m_cachedEffect;
 
 	BlueSharedString m_name;
 	std::string m_resourcePath;

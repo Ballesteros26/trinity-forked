@@ -12,6 +12,7 @@
 #include "Tr2Renderer.h"
 #include "Curves/TriCurveSet.h"
 #include "Shader/Tr2Effect.h"
+#include "Shader/Tr2Shader.h"
 #include "Tr2PickingHelperBatch.h"
 
 EveCloudVolumeBall::EveCloudVolumeBall( IRoot* lockobj )
@@ -409,7 +410,7 @@ const char* EveCloudVolumeTextureParameter::GetParameterName() const
 	return m_name.c_str();
 }
 
-void EveCloudVolumeTextureParameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
+void EveCloudVolumeTextureParameter::RebuildEffectHandles( Tr2Shader* effectRes )
 {
 	m_isUsedByEffect = false;
 	if ( m_name.empty() || !effectRes )

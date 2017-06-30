@@ -40,7 +40,7 @@ Tr2EffectRes::~Tr2EffectRes()
 {
 }
 
-ITr2ShaderStatePtr Tr2EffectRes::GetShader( const Tr2ShaderOption* options, size_t count )
+Tr2ShaderPtr Tr2EffectRes::GetShader( const Tr2ShaderOption* options, size_t count )
 {
 	if( !IsGood() )
 	{
@@ -88,7 +88,7 @@ ITr2ShaderStatePtr Tr2EffectRes::GetShader( const Tr2ShaderOption* options, size
 	auto found = m_shaders.find( index );
 	if( found != m_shaders.end() && static_cast<Tr2Shader*>( found->second ) != nullptr)
 	{
-		ITr2ShaderState* ss = found->second;
+		Tr2Shader* ss = found->second;
 		return ss;
 	}
 
@@ -106,8 +106,7 @@ ITr2ShaderStatePtr Tr2EffectRes::GetShader( const Tr2ShaderOption* options, size
 	shader->ProcessEffect();
 
 	m_shaders[index] = shader.p;
-	ITr2ShaderStatePtr ss = shader.p;
-	return ss;
+	return shader;
 }
 
 BlueAsyncRes::LoadingResult Tr2EffectRes::DoLoad()

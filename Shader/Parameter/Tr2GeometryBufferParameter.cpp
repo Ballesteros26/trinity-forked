@@ -7,7 +7,7 @@
 #include "StdAfx.h"
 #include "Tr2GeometryBufferParameter.h"
 #include "include/ITr2GpuBuffer.h"
-#include "ITr2ShaderState.h"
+#include "Shader/Tr2Shader.h"
 
 // --------------------------------------------------------------------------------------
 // Description:
@@ -88,7 +88,7 @@ unsigned Tr2GeometryBufferParameter::GetHashValue( unsigned startingHash ) const
 // Arguments:
 //   effectRes - Owner effect resource
 // --------------------------------------------------------------------------------------
-void Tr2GeometryBufferParameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
+void Tr2GeometryBufferParameter::RebuildEffectHandles( Tr2Shader* effectRes )
 {
 	m_cachedEffect = effectRes;
 

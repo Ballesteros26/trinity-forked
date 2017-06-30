@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "Tr2Vector4Parameter.h"
 #include "TriValueBinding.h"
-#include "ITr2ShaderState.h"
+#include "Shader/Tr2Shader.h"
 
 Tr2Vector4Parameter::Tr2Vector4Parameter(IRoot* lockobj):
 	m_isUsedByEffect( false ),
@@ -328,7 +328,7 @@ void Tr2Vector4Parameter::UnregisterBinding( TriValueBinding* vb )
 	}
 }
 
-void Tr2Vector4Parameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
+void Tr2Vector4Parameter::RebuildEffectHandles( Tr2Shader* effectRes )
 {
 	m_isSrgb = false;
 

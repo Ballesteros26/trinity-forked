@@ -32,7 +32,7 @@ public:
 	const char* GetParameterName() const { return m_name.c_str(); }
 	// The following methods are potentially used by the old scene.  This parameter will
 	// never be used there so I'm simply going to stub them out.
-	void RebuildEffectHandles( ITr2ShaderState* effectRes ) {};
+	void RebuildEffectHandles( Tr2Shader* effectRes ) {};
 	unsigned GetHashValue( unsigned startingHash ) const;
 
 

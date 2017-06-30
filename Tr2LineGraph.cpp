@@ -2,6 +2,7 @@
 #include "Tr2LineGraph.h"
 #include "Tr2Renderer.h"
 #include "Shader/Tr2Effect.h"
+#include "Shader/Tr2Shader.h"
 
 using namespace Tr2RenderContextEnum;
 

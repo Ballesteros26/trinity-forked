@@ -25,7 +25,7 @@ class TriVariable;
 BLUE_DECLARE( TriVariableParameter );
 BLUE_CLASS_ALLOW_DELAYED_DELETE( TriVariableParameter );
 
-BLUE_DECLARE_INTERFACE( ITr2ShaderState );
+BLUE_DECLARE( Tr2Shader );
 
 class TriVariableParameter:
 	public ITriEffectParameter,
@@ -58,7 +58,7 @@ public:
 							size_t size,
 							Tr2RenderContext &renderContext ) const; 
 	const char* GetParameterName() const;
-	void RebuildEffectHandles( ITr2ShaderState* effectRes );
+	void RebuildEffectHandles( Tr2Shader* effectRes );
 	unsigned GetHashValue( unsigned startingHash ) const;
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ public:
 
 private:
 	int GetVariableType() const; 
-	ITr2ShaderStatePtr m_cachedEffect;
+	Tr2ShaderPtr m_cachedEffect;
 };
 
 TYPEDEF_BLUECLASS(TriVariableParameter);

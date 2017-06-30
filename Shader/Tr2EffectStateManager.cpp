@@ -5,7 +5,6 @@
 #include "TriRenderBatch.h"
 #include "Tr2PerObjectData.h"
 #include "Include/ITriConstants.h"
-#include "ITr2ShaderState.h"
 
 using namespace Tr2RenderContextEnum;
 

@@ -2,7 +2,7 @@
 
 #include "Tr2Vector2Parameter.h"
 #include "TriValueBinding.h"
-#include "ITr2ShaderState.h"
+#include "Shader/Tr2Shader.h"
 
 // --------------------------------------------------------------------------------------
 // Description:
@@ -230,7 +230,7 @@ void Tr2Vector2Parameter::UnregisterBinding( TriValueBinding* vb )
 //   effect - The current effect
 //   technique - The current technique
 // --------------------------------------------------------------------------------------
-void Tr2Vector2Parameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
+void Tr2Vector2Parameter::RebuildEffectHandles( Tr2Shader* effectRes )
 {
 	m_isSrgb = false;
 

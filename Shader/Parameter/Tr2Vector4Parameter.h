@@ -41,7 +41,7 @@ public:
 							size_t size,
 							Tr2RenderContext &renderContext ) const;
 	const char* GetParameterName() const;
-	void RebuildEffectHandles( ITr2ShaderState* effectRes );
+	void RebuildEffectHandles( Tr2Shader* effectRes );
 	unsigned GetHashValue( unsigned startingHash ) const;
 
 	/////////////////////////////////////////////////////////////////////////////////////

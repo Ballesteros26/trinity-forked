@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "TriFloatArrayParameter.h"
-#include "ITr2ShaderState.h"
+#include "Shader/Tr2Shader.h"
 
 // ------------------------------------------------------------------------------------------------------
 TriVector4::TriVector4( IRoot* lockobj ) :
@@ -81,7 +81,7 @@ size_t TriFloatArrayParameter::GetValueSize() const
 }
 
 // ------------------------------------------------------------------------------------------------------
-void TriFloatArrayParameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
+void TriFloatArrayParameter::RebuildEffectHandles( Tr2Shader* effectRes )
 {
 	m_cachedEffect = effectRes;
 	if ( m_name.empty() || !effectRes || !effectRes->GetConstant( m_name.c_str() ) )

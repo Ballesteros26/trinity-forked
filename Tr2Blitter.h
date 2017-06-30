@@ -7,7 +7,7 @@
 #include "Tr2Variable.h"
 
 BLUE_DECLARE_INTERFACE( ITr2ShaderMaterial );
-BLUE_DECLARE_INTERFACE( ITr2ShaderState );
+BLUE_DECLARE( Tr2Shader );
 BLUE_DECLARE( Tr2Effect );
 
 class Tr2TextureAL;
@@ -26,7 +26,7 @@ public:
 	};
 
 	// 2d blits unfiltered (point sampling)
-	bool DrawInCameraSpace( ITr2ShaderState* shader, ITr2ShaderMaterial* material );
+	bool DrawInCameraSpace( Tr2Shader* shader, ITr2ShaderMaterial* material );
 
 	bool Draw( Tr2TextureAL& texture, const Vector2& tlTexCoord = Vector2( 0.0f, 0.0f ), const Vector2& brTexCoord = Vector2( 1.0f, 1.0f ), Filtering filter = FILTER_POINT );
     bool Draw( Tr2TextureAL& texture, const Vector2& tlTexCoord, const Vector2& brTexCoord, const Vector2& tlVertexCoord, const Vector2& brVertexCoord );
@@ -49,7 +49,7 @@ private:
 	bool OnPrepareResources();
 	
 private:
-	bool DrawHelper( ITr2ShaderState* shader, ITr2ShaderMaterial* material, 
+	bool DrawHelper( Tr2Shader* shader, ITr2ShaderMaterial* material,
 		//TID3DTextureResource* rawTexture,
 		Tr2TextureAL* halTexture,
 		bool isCameraSpace,

@@ -7,6 +7,7 @@
 #include "StdAfx.h"
 #include "Tr2DebugRenderer.h"
 #include "Shader/Tr2Effect.h"
+#include "Shader/Tr2Shader.h"
 #include "Tr2Renderer.h"
 #include "TriDebugTextRenderer.h"
 

@@ -53,7 +53,7 @@ public:
 	void SetShaderMaterial( ITr2ShaderMaterial* material );
 
     ITr2ShaderMaterial* GetShaderMaterialInterface() const;
-	ITr2ShaderState* GetShaderStateInterface() const;
+	Tr2Shader* GetShaderStateInterface() const;
 
 	// Get the depth of the batch
 	void SetDepth( unsigned int depth ) { m_depth = depth; }

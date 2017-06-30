@@ -38,7 +38,7 @@ class TriPoolAllocator;
 class TriViewport;
 
 BLUE_DECLARE_INTERFACE( ITr2ShaderMaterial );
-BLUE_DECLARE_INTERFACE( ITr2ShaderState );
+BLUE_DECLARE( Tr2Shader );
 
 // See http://core/wiki/Tr2Renderer
 
@@ -228,7 +228,7 @@ public:
 	static void DrawScreenQuad( ITr2ShaderMaterial* effect );
 	static void DrawScreenQuad( Tr2Effect* effect, const Vector2 &topLeft, const Vector2 &bottomRight );
 	static bool DrawCubeTexture( Tr2TextureAL& texture, Tr2RenderContextEnum::CubemapFace face, unsigned int mipLevel = 0 );
-	static void DrawCameraSpaceScreenQuad( ITr2ShaderState* shader, ITr2ShaderMaterial* material );
+	static void DrawCameraSpaceScreenQuad( Tr2Shader* shader, ITr2ShaderMaterial* material );
 	static bool DrawFullScreenWithShader( ITr2ShaderMaterial * material );
 
 	static bool RunComputeShader( ITr2ShaderMaterial* effect, unsigned groupDimX, unsigned groupDimY, unsigned groupDimZ, Tr2RenderContext& renderContext );

@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "TriVariableParameter.h"
 #include "Tr2VariableStore.h"
-#include "ITr2ShaderState.h"
+#include "Shader/Tr2Shader.h"
 
 TriVariableParameter::TriVariableParameter(IRoot* lockobj):
 	m_isUsedByEffect( false ),
@@ -81,7 +81,7 @@ int TriVariableParameter::GetVariableType() const
 	return m_variable ? m_variable->GetType() : TRIVARIABLE_INVALID; 
 }
 
-void TriVariableParameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
+void TriVariableParameter::RebuildEffectHandles( Tr2Shader* effectRes )
 {
 	m_cachedEffect = effectRes;
 

@@ -2,6 +2,7 @@
 #include "Tr2Effect.h"
 #include "TriError.h"
 #include "Include/ITriEffectParameter.h"
+#include "Tr2Shader.h"
 
 BLUE_DEFINE( Tr2Effect );
 

@@ -3,7 +3,7 @@
 
 #include "include/ITriEffectParameter.h"
 
-BLUE_DECLARE_INTERFACE( ITr2ShaderState );
+BLUE_DECLARE( Tr2Shader );
 
 //--------------------------------------------------------------------------------------------------
 // vector4 - is content of the parameter array, TODO: make it more flexible content
@@ -56,7 +56,7 @@ public:
 							size_t size,
 							Tr2RenderContext &renderContext ) const;
 	const char* GetParameterName() const;
-	void RebuildEffectHandles( ITr2ShaderState* effectRes );
+	void RebuildEffectHandles( Tr2Shader* effectRes );
 	unsigned GetHashValue( unsigned startingHash ) const;
 
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ public:
 	// This is just here to prevent us from getting an "on modified" call while blue is still reading the member table
 
 private:
-	ITr2ShaderStatePtr m_cachedEffect;
+	Tr2ShaderPtr m_cachedEffect;
 };
 
 BLUE_CLASS_ALLOW_DELAYED_DELETE( TriFloatArrayParameter );

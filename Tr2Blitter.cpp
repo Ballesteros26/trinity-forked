@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "Tr2Blitter.h"
 #include "Shader/Tr2Effect.h"
+#include "Shader/Tr2Shader.h"
 #include "Tr2TextureReference.h"
 
 #include "TriDevice.h"	//TODO gTriDev/ScreenVertexDecl.
@@ -93,19 +94,19 @@ bool Tr2Blitter::Draw( ITr2ShaderMaterial* effect, Tr2TextureAL& texture,
 // --------------------------------------------------------------------------------------
 bool Tr2Blitter::Draw( ITr2ShaderMaterial* material)
 {
-	ITr2ShaderState * shader = material->GetShaderStateInterface();
+	auto shader = material->GetShaderStateInterface();
 
 	return DrawHelper( shader, material, NULL, false );
 }
 
 bool Tr2Blitter::Draw( ITr2ShaderMaterial* effect, const Vector2& tlTexCoord, const Vector2& brTexCoord )
 {
-	ITr2ShaderState * shader = effect->GetShaderStateInterface();
+	auto shader = effect->GetShaderStateInterface();
 
 	return DrawHelper( shader, effect, NULL, false, tlTexCoord, brTexCoord );
 }
 
-bool Tr2Blitter::DrawInCameraSpace(ITr2ShaderState* shader, ITr2ShaderMaterial* material )
+bool Tr2Blitter::DrawInCameraSpace( Tr2Shader* shader, ITr2ShaderMaterial* material )
 {
 	return DrawHelper( shader, material, NULL, true );
 }
@@ -119,7 +120,7 @@ bool Tr2Blitter::DrawCube( Tr2TextureAL& texture, Tr2RenderContextEnum::CubemapF
 	return DrawHelper( m_blitCubeEffect->GetShaderStateInterface(), m_blitCubeEffect, &texture, false );
 }
 
-bool Tr2Blitter::DrawHelper( ITr2ShaderState* shader, ITr2ShaderMaterial* material, 
+bool Tr2Blitter::DrawHelper( Tr2Shader* shader, ITr2ShaderMaterial* material,
                              Tr2TextureAL* halTexture,
 							 bool isCameraSpace,
 							 const Vector2& tlTexCoord, const Vector2& brTexCoord,

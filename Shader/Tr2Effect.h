@@ -12,7 +12,7 @@ BLUE_DECLARE_INTERFACE( ITriEffectParameter );
 BLUE_DECLARE_IVECTOR( ITriEffectParameter );
 BLUE_DECLARE_INTERFACE( ITriEffectResourceParameter );
 BLUE_DECLARE_IVECTOR( ITriEffectResourceParameter );
-BLUE_DECLARE_INTERFACE( ITr2ShaderState );
+BLUE_DECLARE( Tr2Shader );
 
 BLUE_CLASS_ALLOW_DELAYED_DELETE( Tr2Effect );
 
@@ -106,7 +106,7 @@ public:
 	uint32_t ApplyMaterialDataForPass( unsigned int passIndex, Tr2RenderContext& renderContext );
 	void ApplyShaderInputs( unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, Tr2RenderContext& renderContext );
 	unsigned int GetSortValue() const;
-	ITr2ShaderState* GetShaderStateInterface() const;
+	Tr2Shader* GetShaderStateInterface() const;
 	void SetVariableStore( Tr2VariableStore* variableStore );
 	const Tr2ConstantEffectParameter* GetConstParameters( size_t& count ) const;
 	void UnloadResources();
@@ -173,7 +173,7 @@ public: // TODO: make this private - need to change EveBoosterSet2...
 	PTr2SamplerOverrideStructureList m_samplerOverrides;
 
 private:
-	ITr2ShaderStatePtr m_shader;
+	Tr2ShaderPtr m_shader;
 	PTr2ShaderOptionStructureList m_options;
 
 
@@ -209,13 +209,13 @@ BLUE_DECLARE_VECTOR( Tr2Effect );
 void HashSamplers( Tr2EffectPassParameters::StageInput& stageInput );
 
 void RebuildCachedDataForEffect(	
-						ITr2ShaderState &effectResource, 
+	Tr2Shader &effectResource,
 						ITr2ShaderMaterial &owner,
 						Tr2EffectPassParametersVector& parametersForPasses );
 
 uint32_t ApplyMaterialDataForPass( 
 						Tr2EffectPassParametersVector& vec, 
-						ITr2ShaderState* resource, 
+	Tr2Shader* resource,
 						unsigned passIndex, 
 						Tr2RenderContext& renderContext );
 
@@ -239,7 +239,7 @@ void MapPassParameters(
 						Tr2EffectPassParameters& pp,
 						Tr2RenderContextEnum::ShaderType stage,
 						const Tr2EffectConstantVector& constants, 
-						ITr2ShaderState& resource, 
+	Tr2Shader& resource,
 						const Tr2EffectDescription& desc,
 						ITr2ShaderMaterial& owner,
 						Tr2RenderContext& renderContext );

@@ -5,7 +5,6 @@
 #include "ITr2EffectValue.h"
 #include "Tr2DeviceResource.h"
 #include "ITriReroutable.h"
-#include "ITr2ShaderState.h"
 #include "ITr2ShaderMaterial.h"
 
 class TriVariable;
@@ -130,7 +129,7 @@ public:
 	Tr2EffectRes( IRoot* lockobj = NULL );
 	~Tr2EffectRes();
 
-	ITr2ShaderStatePtr GetShader( const Tr2ShaderOption* options, size_t count );
+	Tr2ShaderPtr GetShader( const Tr2ShaderOption* options, size_t count );
 
 
 	//////////////////////////////////////////////////////////////////////////

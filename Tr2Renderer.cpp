@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "Tr2Renderer.h"
 #include "Shader/Tr2Effect.h"
+#include "Shader/Tr2Shader.h"
 #include "Tr2Variable.h"
 #include "TriDevice.h"
 #include "TriLineSet.h"
@@ -969,7 +970,7 @@ bool Tr2Renderer::RunComputeShader( ITr2ShaderMaterial* effect,
 	{
 		return false;
 	}
-	ITr2ShaderState* shader = effect->GetShaderStateInterface();
+	auto shader = effect->GetShaderStateInterface();
 	if( !shader )
 	{
 		return false;
@@ -1016,7 +1017,7 @@ bool Tr2Renderer::RunComputeShaderIndirect( ITr2ShaderMaterial* effect, Tr2GpuBu
 	{
 		return false;
 	}
-	ITr2ShaderState* shader = effect->GetShaderStateInterface();
+	auto shader = effect->GetShaderStateInterface();
 	if( !shader )
 	{
 		return false;
@@ -1188,7 +1189,7 @@ void Tr2Renderer::DrawScreenQuad( Tr2Effect* effect, const Vector2 &topLeft, con
 	}
 }
 
-void Tr2Renderer::DrawCameraSpaceScreenQuad( ITr2ShaderState* shader, ITr2ShaderMaterial* material )
+void Tr2Renderer::DrawCameraSpaceScreenQuad( Tr2Shader* shader, ITr2ShaderMaterial* material )
 {
 	if( s_blitter )
 	{

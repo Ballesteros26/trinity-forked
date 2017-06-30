@@ -6,7 +6,7 @@
 #include "Shader/Tr2EffectDescription.h"
 
 BLUE_DECLARE_INTERFACE( ITr2ShaderMaterial );
-BLUE_DECLARE_INTERFACE( ITr2ShaderState );
+BLUE_DECLARE( Tr2Shader );
 BLUE_DECLARE_INTERFACE( ITriEffectParameter );
 BLUE_DECLARE_INTERFACE( ITriReroutable );
 
@@ -32,7 +32,7 @@ public:
 	virtual uint32_t ApplyMaterialDataForPass( unsigned int passIndex, Tr2RenderContext& renderContext ) = 0;
 	virtual void ApplyShaderInputs( unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, Tr2RenderContext& renderContext ) = 0;
 	virtual unsigned int GetSortValue() const = 0;
-	virtual ITr2ShaderState* GetShaderStateInterface() const = 0;
+	virtual Tr2Shader* GetShaderStateInterface() const = 0;
 
 	virtual void SetVariableStore( Tr2VariableStore* variableStore ) = 0;
 	virtual Tr2VariableStore& GetVariableStore() = 0;

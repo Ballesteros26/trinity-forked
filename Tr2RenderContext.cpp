@@ -10,7 +10,7 @@
 #include "Tr2RenderTarget.h"
 #include "Tr2PerObjectData.h"
 #include "TriRenderBatch.h"
-#include "ITr2ShaderState.h"
+#include "Shader/Tr2Shader.h"
 
 CCP_STATS_DECLARE( batchCount, "Trinity/batchCount", true, CST_COUNTER_HIGH, "Batches rendered per frame");
 
@@ -143,7 +143,7 @@ void Tr2RenderContextBase::RenderBatchesInOrder( ITriRenderBatchAccumulator* bat
 			continue;
 		}
 
-		ITr2ShaderState * shader = it->GetShaderStateInterface();
+		auto shader = it->GetShaderStateInterface();
 
 		if( shader == 0 )
 		{
@@ -212,7 +212,7 @@ void Tr2RenderContextBase::RenderBatchesSortedByEffect( ITriRenderBatchAccumulat
 			continue;
 		}
 
-		ITr2ShaderState* const currentShader = batch->GetShaderStateInterface();
+		auto currentShader = batch->GetShaderStateInterface();
 
 		if ( currentShader == 0)
 		{
@@ -348,7 +348,7 @@ void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator
 
 	D3DPERF_EVENT( L"Tr2RenderContextBase::RenderBatchesWithOverride" );
 
-	ITr2ShaderState* overrideShader = overrideEffect->GetShaderStateInterface();
+	auto overrideShader = overrideEffect->GetShaderStateInterface();
 	if( !overrideShader )
 	{
 		return;
@@ -370,7 +370,7 @@ void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator
 		}
 
 		ITr2ShaderMaterial* materialForThisBatch = it->GetShaderMaterialInterface();
-		ITr2ShaderState* shaderForThisBatch = it->GetShaderStateInterface();
+		auto shaderForThisBatch = it->GetShaderStateInterface();
 
 		if( !shaderForThisBatch || shaderForThisBatch->GetPassCount() == 0 )
 		{
@@ -460,7 +460,7 @@ void Tr2RenderContextBase::RenderBatchesForPicking( ITr2ShaderMaterial* effect, 
 	CCP_ASSERT( effect );
 
 
-	ITr2ShaderState* shader = effect->GetShaderStateInterface();
+	auto shader = effect->GetShaderStateInterface();
 
 	if( !shader )
 	{
@@ -511,7 +511,7 @@ void Tr2RenderContextBase::RenderBatchesForPicking( ITr2ShaderMaterial* effect, 
 			}
 
 			// Apply vertex shader inputs from the effect associated with the batch
-			ITr2ShaderState* originalShader = p->GetShaderStateInterface();
+			auto originalShader = p->GetShaderStateInterface();
 			ITr2ShaderMaterial * originalMaterial = p->GetShaderMaterialInterface();
 
 			// FIXME, allow for picking
@@ -572,7 +572,7 @@ void Tr2RenderContextBase::RenderBatchesForPickingWithoutOverride( ITriRenderBat
 			continue;
 		}
 
-		ITr2ShaderState* shader = it->GetShaderStateInterface();
+		auto shader = it->GetShaderStateInterface();
 
 		if( !shader )
 		{

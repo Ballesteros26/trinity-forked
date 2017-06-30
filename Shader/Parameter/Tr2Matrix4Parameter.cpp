@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "Tr2Matrix4Parameter.h"
 #include "TriValueBinding.h"
-#include "ITr2ShaderState.h"
+#include "Shader/Tr2Shader.h"
 
 Tr2Matrix4Parameter::Tr2Matrix4Parameter(IRoot* lockobj):
 	m_isUsedByEffect( false ),
@@ -132,7 +132,7 @@ void Tr2Matrix4Parameter::UnregisterBinding( TriValueBinding* vb )
 }
 
 //TODO this seems to be a bit of generic copy paste -- move to helper/base?
-void Tr2Matrix4Parameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
+void Tr2Matrix4Parameter::RebuildEffectHandles( Tr2Shader* effectRes )
 {
 	if( !effectRes && m_reroutedValue )
 	{

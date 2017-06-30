@@ -27,7 +27,7 @@
 
 // Forward declarations
 class TriTextureRes;
-struct ITr2ShaderState;
+BLUE_DECLARE( Tr2Shader );
 
 BLUE_INTERFACE(ITriEffectParameter) : public ITr2EffectValue
 {
@@ -36,7 +36,7 @@ BLUE_INTERFACE(ITriEffectParameter) : public ITr2EffectValue
 
 	virtual const char* GetParameterName() const = 0;
 
-	virtual void RebuildEffectHandles( ITr2ShaderState* effectRes ) = 0;
+	virtual void RebuildEffectHandles( Tr2Shader* effectRes ) = 0;
 
 	// --------------------------------------------------------------------------------------
 	// Description:

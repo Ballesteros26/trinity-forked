@@ -9,6 +9,7 @@
 #include "Tr2PerObjectData.h"
 #include "Tr2VertexDefinitionUtilities.h"
 #include "Shader/Tr2Effect.h"
+#include "Shader/Tr2Shader.h"
 
 Tr2ApexRenderer s_apexRenderer;
 Tr2ApexRenderer& g_apexRenderer = s_apexRenderer;

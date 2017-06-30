@@ -2,6 +2,7 @@
 
 
 #include "Tr2Effect.h"
+#include "Tr2Shader.h"
 #include "Tr2Renderer.h"
 #include "Shader/Parameter/Tr2FloatParameter.h"
 #include "Shader/Parameter/Tr2Vector2Parameter.h"
@@ -25,6 +26,8 @@ using namespace Tr2RenderContextEnum;
 CCP_STATS_DECLARE( effectCBLocks, "Trinity/effectCBLocks", true, CST_COUNTER_LOW, "number of CB locks for effect parameters" );
 CCP_STATS_DECLARE( effectCBSkippedLocks, "Trinity/effectCBSkippedLocks", true, CST_COUNTER_LOW, "number of CB locks for effect parameters skipped due to optimization" );
 CCP_STATS_DECLARE( effectCBSkippedEmptyLocks, "Trinity/effectCBSkippedEmptyLocks", true, CST_COUNTER_LOW, "number of CB locks for effect parameters skipped due to optimization with empty param list" );
+
+bool GetBool( const Tr2Shader* shaderState, const char* paramName, const char* annotationName, bool defaultValue = false );
 
 static BlueStructureDefinition Tr2EffectParameterStructureDef[] =
 { 
@@ -562,7 +565,7 @@ void Tr2Effect::RebuildCachedDataInternal()
 		return;
 	}
 	m_parameterHash = INVALID_PARAMETER_HASH;
-	ITr2ShaderStatePtr bk = m_shader;
+	auto bk = m_shader;
 	m_shader = nullptr;
 
 	if( m_effectResource )
@@ -1133,7 +1136,7 @@ void Tr2Effect::ApplyShaderInputs(	unsigned passIndex,
 	::ApplyShaderInputs( *m_parametersForPasses[ passIndex ], shaderType, samplersChanged, renderContext );
 }
 
-ITr2ShaderState* Tr2Effect::GetShaderStateInterface() const
+Tr2Shader* Tr2Effect::GetShaderStateInterface() const
 {
 	return m_shader;
 }
@@ -1346,7 +1349,7 @@ bool GetBool( const Tr2EffectParameterAnnotationMap* map, const char* annotation
 // Return Value:
 //   the value of this annotation on this parameter, if both can be found and the annotation is of type BOOL.
 // -------------------------------------------------------------------------------------
-bool GetBool( const ITr2ShaderState* shaderState, const char* paramName, const char* annotationName, bool defaultValue )
+bool GetBool( const Tr2Shader* shaderState, const char* paramName, const char* annotationName, bool defaultValue )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
@@ -1355,7 +1358,7 @@ bool GetBool( const ITr2ShaderState* shaderState, const char* paramName, const c
 			: defaultValue;
 }
 
-void RebuildCachedDataForEffect(	ITr2ShaderState &effectResource, 
+void RebuildCachedDataForEffect( Tr2Shader &effectResource,
 									ITr2ShaderMaterial &owner,
 									Tr2EffectPassParametersVector& parametersForPasses )
 {
@@ -1607,7 +1610,7 @@ void ConvertEffectResource(	const Tr2EffectResource& resource,
 // Return value:
 //   A mask containing bits for each stage that has modified sampler state
 // --------------------------------------------------------------------------------------
-uint32_t ApplyMaterialDataForPass( Tr2EffectPassParametersVector& vec, ITr2ShaderState* resource, unsigned passIndex, Tr2RenderContext& renderContext )
+uint32_t ApplyMaterialDataForPass( Tr2EffectPassParametersVector& vec, Tr2Shader* resource, unsigned passIndex, Tr2RenderContext& renderContext )
 {
 	unsigned mask = resource ? resource->GetShaderTypeMask() : 0xffFFffFFu;
 	uint32_t samplersChangedMask = 0;
@@ -1644,7 +1647,7 @@ void MapPassParameters(
 			Tr2EffectPassParameters& pp,
 			Tr2RenderContextEnum::ShaderType stage,
 			const Tr2EffectConstantVector& constants, 
-			ITr2ShaderState& resource,
+	Tr2Shader& resource,
 			const Tr2EffectDescription& desc,
 			ITr2ShaderMaterial& owner,
 			Tr2RenderContext& renderContext )

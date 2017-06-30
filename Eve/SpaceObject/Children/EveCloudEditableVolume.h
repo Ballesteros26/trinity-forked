@@ -152,7 +152,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITriEffectParameter
 	const char* GetParameterName() const;
-	void RebuildEffectHandles( ITr2ShaderState* effectRes );
+	void RebuildEffectHandles( Tr2Shader* effectRes );
 
 	//////////////////////////////////////////////////////////////////////////
 	// ITriEffectResourceParameter

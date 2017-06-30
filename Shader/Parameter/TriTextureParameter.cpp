@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "TriTextureParameter.h"
 #include "Resources/TriTextureRes.h"
-#include "ITr2ShaderState.h"
+#include "Shader/Tr2Shader.h"
 #include "Tr2Renderer.h"
 
 TriTextureParameter::TriTextureParameter(IRoot* lockobj):
@@ -202,7 +202,7 @@ bool TriTextureParameter::AssignTo( ICopierCustomAssignment* other,
 	return true;
 }
 
-void TriTextureParameter::RebuildEffectHandles( ITr2ShaderState* effectRes )
+void TriTextureParameter::RebuildEffectHandles( Tr2Shader* effectRes )
 {
 	m_cachedEffect = effectRes;
 
