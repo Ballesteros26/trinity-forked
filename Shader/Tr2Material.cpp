@@ -16,7 +16,7 @@ CCP_STATS_DECLARE( effectCBLocks, "Trinity/effectCBLocks", true, CST_COUNTER_LOW
 namespace
 {
 
-CcpAtomic<uint32_t> s_materialId = 0;
+CcpAtomic<uint32_t> s_materialId( 0 );
 
 }
 
