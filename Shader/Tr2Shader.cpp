@@ -9,8 +9,7 @@ using namespace Tr2RenderContextEnum;
 //   Constructor.  Initializes members to default values.
 // --------------------------------------------------------------------------------------
 Tr2Shader::Tr2Shader( IRoot* lockobj )
-	:m_shaderTypeMask( 0 ),
-	m_sortValue( 0 )
+	:m_sortValue( 0 )
 {	
 }
 
@@ -28,9 +27,13 @@ Tr2Shader::~Tr2Shader()
 // Return Value:
 //   The number of passes supported by the shader
 // --------------------------------------------------------------------------------------
-unsigned int Tr2Shader::GetPassCount( void ) const
+unsigned int Tr2Shader::GetPassCount() const
 {
-	return static_cast<unsigned int>( m_effect.passes.size() );
+	if( m_effect.techniques.empty() )
+	{
+		return 0;
+	}
+	return static_cast<unsigned int>( m_effect.techniques[0].passes.size() );
 }
 
 // --------------------------------------------------------------------------------------
@@ -43,15 +46,18 @@ unsigned int Tr2Shader::GetPassCount( void ) const
 // --------------------------------------------------------------------------------------
 const Tr2EffectConstant* Tr2Shader::GetConstant( const char* name ) const
 {
-	for( auto pass = m_effect.passes.begin(); pass != m_effect.passes.end(); ++pass )
+	for( auto t = m_effect.techniques.begin(); t != m_effect.techniques.end(); ++t )
 	{
-		for( unsigned i = 0; i < Tr2RenderContextEnum::SHADER_TYPE_COUNT; ++i )
+		for( auto pass = t->passes.begin(); pass != t->passes.end(); ++pass )
 		{
-			for( auto constant = pass->stageInputs[i].constants.begin(); constant != pass->stageInputs[i].constants.end(); ++constant )
+			for( unsigned i = 0; i < Tr2RenderContextEnum::SHADER_TYPE_COUNT; ++i )
 			{
-				if( strcmp( constant->name.c_str(), name ) == 0 )
+				for( auto constant = pass->stageInputs[i].constants.begin(); constant != pass->stageInputs[i].constants.end(); ++constant )
 				{
-					return &*constant;
+					if( strcmp( constant->name.c_str(), name ) == 0 )
+					{
+						return &*constant;
+					}
 				}
 			}
 		}
@@ -83,22 +89,25 @@ unsigned int Tr2Shader::GetSortValue( void ) const
 // --------------------------------------------------------------------------------------
 const Tr2EffectResource* Tr2Shader::GetResource( const char* name ) const
 {
-	for( auto pass = m_effect.passes.begin(); pass != m_effect.passes.end(); ++pass )
+	for( auto t = m_effect.techniques.begin(); t != m_effect.techniques.end(); ++t )
 	{
-		for( unsigned i = 0; i < Tr2RenderContextEnum::SHADER_TYPE_COUNT; ++i )
+		for( auto pass = t->passes.begin(); pass != t->passes.end(); ++pass )
 		{
-			for( auto constant = pass->stageInputs[i].resources.begin(); constant != pass->stageInputs[i].resources.end(); ++constant )
+			for( unsigned i = 0; i < Tr2RenderContextEnum::SHADER_TYPE_COUNT; ++i )
 			{
-				if( strcmp( constant->second.name, name ) == 0 )
+				for( auto constant = pass->stageInputs[i].resources.begin(); constant != pass->stageInputs[i].resources.end(); ++constant )
 				{
-					return &constant->second;
+					if( strcmp( constant->second.name, name ) == 0 )
+					{
+						return &constant->second;
+					}
 				}
-			}
-			for( auto constant = pass->stageInputs[i].uavs.begin(); constant != pass->stageInputs[i].uavs.end(); ++constant )
-			{
-				if( strcmp( constant->second.name, name ) == 0 )
+				for( auto constant = pass->stageInputs[i].uavs.begin(); constant != pass->stageInputs[i].uavs.end(); ++constant )
 				{
-					return &constant->second;
+					if( strcmp( constant->second.name, name ) == 0 )
+					{
+						return &constant->second;
+					}
 				}
 			}
 		}
@@ -134,15 +143,15 @@ const Tr2EffectDescription& Tr2Shader::GetEffectDescription() const
 // Arguments:
 //   passIndex - The index of the pass for which to apply state.
 // --------------------------------------------------------------------------------------
-void Tr2Shader::ApplyAllStateForPass( 
-										uint32_t passIndex,
-										Tr2RenderContext &renderContext ) const
+void Tr2Shader::ApplyAllStateForPass( uint32_t passIndex, Tr2RenderContext &renderContext ) const
 {
-	const Tr2Pass& pass = m_effect.passes[passIndex];
+	auto& technique = m_effect.techniques[0];
+
+	const Tr2Pass& pass = technique.passes[passIndex];
 
 	for( unsigned i = SHADER_TYPE_FIRST; i != SHADER_TYPE_COUNT; ++i )
 	{
-		if( m_shaderTypeMask & ( 1 << i ) )
+		if( technique.shaderTypeMask & ( 1 << i ) )
 		{
 			renderContext.m_esm.ApplyShader( ShaderType( i ), pass.stageInputs[i].m_shader );
 			for( Tr2SamplerSetupMap::const_iterator it = pass.stageInputs[i].samplers.begin(); 
@@ -165,11 +174,10 @@ void Tr2Shader::ApplyAllStateForPass(
 // Arguments:
 //   passIndex - The index of the pass for which to apply render state.
 // --------------------------------------------------------------------------------------
-void Tr2Shader::ApplyRenderStates( 
-										uint32_t passIndex,
-										Tr2RenderContext &renderContext ) const
+void Tr2Shader::ApplyRenderStates( uint32_t passIndex, Tr2RenderContext &renderContext ) const
 {
-	const Tr2Pass& pass = m_effect.passes[passIndex];
+	auto& technique = m_effect.techniques[0];
+	auto& pass = technique.passes[passIndex];
 
 	renderContext.m_esm.ApplyRenderStates( pass.renderStates );
 }
@@ -180,12 +188,10 @@ void Tr2Shader::ApplyRenderStates(
 // Arguments:
 //   passIndex - The index of the pass for which to apply sampler state.
 // --------------------------------------------------------------------------------------
-void Tr2Shader::ApplySamplerStates( 
-										uint32_t passIndex, 
-										Tr2RenderContextEnum::ShaderType type,
-										Tr2RenderContext &renderContext ) const
+void Tr2Shader::ApplySamplerStates( uint32_t passIndex, Tr2RenderContextEnum::ShaderType type, Tr2RenderContext &renderContext ) const
 {
-	const Tr2Pass& pass = m_effect.passes[passIndex];
+	auto& technique = m_effect.techniques[0];
+	auto& pass = technique.passes[passIndex];
 
 	for( Tr2SamplerSetupMap::const_iterator it = pass.stageInputs[type].samplers.begin(); 
 		it != pass.stageInputs[type].samplers.end(); ++it )
@@ -204,18 +210,20 @@ void Tr2Shader::ApplySamplerStates(
 //   passIndex - The index of the pass for which to apply the shader.
 //   type - Shader type to apply
 // --------------------------------------------------------------------------------------
-void Tr2Shader::ApplyShader( 
-									uint32_t passIndex, 
-									Tr2RenderContextEnum::ShaderType type,
-									Tr2RenderContext &renderContext ) const
+void Tr2Shader::ApplyShader( uint32_t passIndex, Tr2RenderContextEnum::ShaderType type, Tr2RenderContext &renderContext ) const
 {
-	const Tr2Pass& pass = m_effect.passes[passIndex];
+	auto& technique = m_effect.techniques[0];
+	auto& pass = technique.passes[passIndex];
 	renderContext.m_esm.ApplyShader( type, pass.stageInputs[type].m_shader );
 }
 
-unsigned Tr2Shader::GetShaderTypeMask()
+unsigned Tr2Shader::GetShaderTypeMask() const
 {
-	return m_shaderTypeMask;
+	if( m_effect.techniques.empty() )
+	{
+		return 0;
+	}
+	return m_effect.techniques[0].shaderTypeMask;
 }
 
 // --------------------------------------------------------------------------------------
@@ -236,7 +244,13 @@ Tr2EffectDescription& Tr2Shader::GetEffect()
 void Tr2Shader::ProcessEffect()
 {
 	m_sortValue = 0;
-	if( !m_effect.passes.empty() )
+	if( m_effect.techniques.empty() )
+	{
+		return;
+	}
+	auto& technique = m_effect.techniques[0];
+
+	if( !technique.passes.empty() )
 	{
 		// Construct sort value so that the following parameters affect it, in the order given:
 		// 1) Number of passes
@@ -244,23 +258,11 @@ void Tr2Shader::ProcessEffect()
 		// 3) Vertex shader in the first pass
 		// 4) Render states set in the first pass
 
-		unsigned int ps = m_effect.passes[0].stageInputs[PIXEL_SHADER].m_shader & 0x3ff;
-		unsigned int vs = m_effect.passes[0].stageInputs[VERTEX_SHADER].m_shader & 0x3ff;
-		unsigned int states = m_effect.passes[0].renderStates & 0x3ff;
-		unsigned int numPasses = m_effect.passes.size() & 0x3;
+		unsigned int ps = technique.passes[0].stageInputs[PIXEL_SHADER].m_shader & 0x3ff;
+		unsigned int vs = technique.passes[0].stageInputs[VERTEX_SHADER].m_shader & 0x3ff;
+		unsigned int states = technique.passes[0].renderStates & 0x3ff;
+		unsigned int numPasses = technique.passes.size() & 0x3;
 
 		m_sortValue = (numPasses << 30) | (ps << 20) | (vs << 10) | states;
-	}
-
-	m_shaderTypeMask = 0;
-	for( auto pass = m_effect.passes.cbegin(); pass != m_effect.passes.cend(); ++pass )
-	{
-		for( unsigned i = SHADER_TYPE_FIRST; i != SHADER_TYPE_COUNT; ++i )
-		{
-			if( pass->stageInputs[i].m_shader != Tr2EffectStageInput::INVALID )
-			{
-				m_shaderTypeMask |= 1u << i;
-			}
-		}
 	}
 }

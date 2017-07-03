@@ -3,6 +3,8 @@
 #ifndef Tr2EffectDescription_H
 #define Tr2EffectDescription_H
 
+extern const BlueSharedString DEFAULT_TECHNIQUE;
+
 // --------------------------------------------------------------------------------------
 // Description:
 //   Structure to describe effect compile #define. Used for compiling effects from
@@ -193,6 +195,19 @@ struct Tr2Pass
 	Tr2EffectStageInput stageInputs[Tr2RenderContextEnum::SHADER_TYPE_COUNT];
 	// Handle to render state setup
 	unsigned int renderStates;
+	unsigned int shaderTypeMask;
+};
+
+struct Tr2EffectTechnique
+{
+	Tr2EffectTechnique()
+		:passes( "Tr2EffectTechnique::passes" )
+	{
+	}
+
+	BlueSharedString name;
+	TrackableStdVector<Tr2Pass> passes;
+	unsigned int shaderTypeMask;
 };
 
 // --------------------------------------------------------------------------------------
@@ -210,8 +225,7 @@ struct Tr2EffectDescription
 			   size_t stringTableSize,
 			   const char* effectName );
 
-	// Pass descriptions
-	TrackableStdVector<Tr2Pass> passes;
+	TrackableStdVector<Tr2EffectTechnique> techniques;
 	// Mapping from parameter name to its annotations
 	Tr2EffectAnnotationMap annotations;
 };

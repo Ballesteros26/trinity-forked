@@ -73,9 +73,10 @@ public:
 };
 
 typedef std::vector<std::unique_ptr<Tr2EffectPassParameters>> Tr2EffectPassParametersVector;
+typedef std::vector<Tr2EffectPassParametersVector> Tr2EffectTechniqueParametersVector;
 
-
-BLUE_CLASS( Tr2Material ): public IRoot
+BLUE_CLASS( Tr2Material ): 
+	public IRoot
 {
 public:
 	Tr2Material( IRoot* lockobj = nullptr );
@@ -92,7 +93,7 @@ public:
 	virtual bool LoadResources();
 protected:
 	Tr2ShaderPtr m_shader;
-	Tr2EffectPassParametersVector m_parametersForPasses;
+	Tr2EffectTechniqueParametersVector m_parametersForPasses;
 	uint32_t m_sortValue;
 private:
 	void ApplyShaderInputs( unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, bool& samplersChanged, Tr2RenderContext& renderContext ) const;

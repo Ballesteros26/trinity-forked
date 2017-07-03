@@ -974,9 +974,14 @@ bool Tr2Renderer::RunComputeShader( Tr2Material* effect,
 	}
 	bool result = false;
 	auto& desc = shader->GetEffectDescription();
-	for( unsigned i = 0; i < desc.passes.size(); ++i )
+	if( desc.techniques.empty() )
 	{
-		auto& stage = desc.passes[i].stageInputs[COMPUTE_SHADER];
+		return false;
+	}
+	auto& technique = desc.techniques[0];
+	for( unsigned i = 0; i < technique.passes.size(); ++i )
+	{
+		auto& stage = technique.passes[i].stageInputs[COMPUTE_SHADER];
 		if( stage.m_exists )
 		{
 			shader->ApplyAllStateForPass( i, renderContext );
@@ -1021,9 +1026,14 @@ bool Tr2Renderer::RunComputeShaderIndirect( Tr2Material* effect, Tr2GpuBufferAL&
 	}
 
 	auto& desc = shader->GetEffectDescription();
-	for( unsigned i = 0; i < shader->GetPassCount(); ++i )
+	if( desc.techniques.empty() )
 	{
-		auto& stage = desc.passes[i].stageInputs[COMPUTE_SHADER];
+		return false;
+	}
+	auto& technique = desc.techniques[0];
+	for( size_t i = 0; i < technique.passes.size(); ++i )
+	{
+		auto& stage = technique.passes[i].stageInputs[COMPUTE_SHADER];
 		if( stage.m_exists )
 		{
 			shader->ApplyAllStateForPass( i, renderContext );

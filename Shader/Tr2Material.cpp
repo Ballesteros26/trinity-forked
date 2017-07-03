@@ -97,7 +97,7 @@ void Tr2Material::ApplyShaderInputs( unsigned int passIndex, Tr2RenderContextEnu
 
 void Tr2Material::ApplyShaderInputs( unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, bool& samplersChanged, Tr2RenderContext& renderContext ) const
 {
-	auto& pp = *m_parametersForPasses[passIndex];
+	auto& pp = *m_parametersForPasses[0][passIndex];
 	auto& input = pp.m_stageInput[shaderType];
 
 	auto cb = input.m_constantBuffer.get();

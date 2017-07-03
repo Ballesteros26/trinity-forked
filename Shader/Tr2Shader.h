@@ -14,25 +14,17 @@ public:
 	EXPOSE_TO_BLUE();
 
 	uint32_t GetPassCount() const;
-
-	void ApplyAllStateForPass(	uint32_t passIndex, Tr2RenderContext &renderContext ) const;
-	
-	// Return a bitfield that indicates which shader types are used by this effect/material.
-	uint32_t GetShaderTypeMask();
-
+	void ApplyAllStateForPass( uint32_t passIndex, Tr2RenderContext &renderContext ) const;
+	uint32_t GetShaderTypeMask() const;
 	const Tr2EffectDescription& GetEffectDescription() const;
 
-	// individual accessors if needed.
 	void ApplyRenderStates( uint32_t passIndex, Tr2RenderContext &renderContext ) const;
-
-	void ApplySamplerStates( uint32_t passIndex,  Tr2RenderContextEnum::ShaderType type, Tr2RenderContext &renderContext ) const;
-
+	void ApplySamplerStates( uint32_t passIndex, Tr2RenderContextEnum::ShaderType type, Tr2RenderContext &renderContext ) const;
 	void ApplyShader( uint32_t passIndex, Tr2RenderContextEnum::ShaderType type, Tr2RenderContext &renderContext ) const;
 
 	const Tr2EffectConstant* GetConstant( const char* name ) const;
 	const Tr2EffectResource* GetResource( const char* name ) const;
 	const Tr2EffectParameterAnnotationMap* GetParameterAnnotations( const char* parameterName ) const;
-
 
 	unsigned int GetSortValue() const;
 	
@@ -41,7 +33,6 @@ public:
 
 private:
 	unsigned int m_sortValue;
-	unsigned m_shaderTypeMask;
 	Tr2EffectDescription m_effect;
 };
 
