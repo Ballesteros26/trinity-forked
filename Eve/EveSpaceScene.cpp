@@ -1720,9 +1720,9 @@ void EveSpaceScene::RenderDepthPass( Tr2RenderContext& renderContext )
 		ApplyPerFrameData( renderContext );
 
 		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DEPTH_ONLY );
-		renderContext.RenderBatchesWithOverride( m_primaryBatches[TRIBATCHTYPE_OPAQUE], f_writeDepthOpaqueOverride, Tr2RenderContext::OM_DO_NOT_SET_ORIGINAL_PS );
+		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_OPAQUE], BlueSharedString( "Depth" ) );
 		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DEPTH_ONLY );
-		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_DEPTH] );
+		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_DEPTH], BlueSharedString( "Depth" ) );
 		
 		// Planet z areas and shadowed objects need special treatment
 		for( auto it = m_planets.begin(); it != m_planets.end(); ++it )
@@ -1745,9 +1745,9 @@ void EveSpaceScene::RenderDepthPass( Tr2RenderContext& renderContext )
 
 			FinalizeBatches( m_secondaryBatches );
 			renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DEPTH_ONLY );
-			renderContext.RenderBatchesWithOverride( m_secondaryBatches[TRIBATCHTYPE_OPAQUE], f_writeDepthOpaqueOverride, Tr2RenderContext::OM_DO_NOTHING );
+			renderContext.RenderBatches( m_secondaryBatches[TRIBATCHTYPE_OPAQUE], BlueSharedString( "Depth" ) );
 			renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DEPTH_ONLY );
-			renderContext.RenderBatches( m_secondaryBatches[TRIBATCHTYPE_DEPTH] );
+			renderContext.RenderBatches( m_secondaryBatches[TRIBATCHTYPE_DEPTH], BlueSharedString( "Depth" ) );
 			ClearBatches( m_secondaryBatches );
 
 			visible.clear();
@@ -1828,7 +1828,7 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 	if( !m_hasDepthPass )
 	{
 		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_DEPTH_ONLY );
-		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_DEPTH] );
+		renderContext.RenderBatches( m_primaryBatches[TRIBATCHTYPE_DEPTH], BlueSharedString( "Depth" ) );
 	}
 
 	renderContext.m_esm.UnsetAllTextures();
