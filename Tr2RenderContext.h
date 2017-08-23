@@ -57,8 +57,7 @@ struct Tr2RenderContextBase: public IRoot, public ITr2RenderContextEvents
 
 	void RenderBatches( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE );
 	void RenderBatchesWithOverride( ITriRenderBatchAccumulator* batches, Tr2Material* overrideEffect, OverrideMode overrideMode, const BlueSharedString& techniqueName = DEFAULT_TECHNIQUE );
-	void RenderBatchesForPicking( Tr2Material* effect, TriRenderBatch* &p, const BlueSharedString& techniqueName, int &objectNum );
-	void RenderBatchesForPickingWithoutOverride( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName, int &objectNum );
+	void RenderBatchesForPicking( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName );
 
 	// Render batches from an accumulator that was not set up for sorting by effect,
 	// so they are rendered in whatever order they were added to the accumulator.

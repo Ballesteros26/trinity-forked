@@ -31,9 +31,6 @@ BLUE_DEFINE_INTERFACE( ITr2InteriorCullable );
 BLUE_DEFINE_INTERFACE( ITr2Interior );
 
 
-static const char* s_pickingEffectName   = "res:/graphics/effect/managed/interior/system/picking.fx";
-
-
 namespace
 {
 	const char* VISUALIZER_NAME[VM_COUNT] =
@@ -152,8 +149,6 @@ Tr2InteriorScene::Tr2InteriorScene( IRoot* lockobj /*= NULL */ ):
 
 	// picking
 	m_pickBuffer.PrepareResources();
-	m_pickEffect.CreateInstance();
-	m_pickEffect->SetEffectPathName( s_pickingEffectName );
 	m_pickBuffer.SetClearColor( 0x0 );
 
 	// Variable Handles
@@ -1066,11 +1061,6 @@ ITriRenderBatchAccumulator* Tr2InteriorScene::GetOpaquePickingBatchAccumulator( 
 ITriRenderBatchAccumulator* Tr2InteriorScene::GetPickingBatchAccumulator( void )
 {
 	return m_pickingBatches;
-}
-
-Tr2Material* Tr2InteriorScene::GetPickingEffect( PickComponents pass )
-{
-	return m_pickEffect;
 }
 
 // -------------------------------------------------------------

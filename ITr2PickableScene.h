@@ -157,18 +157,6 @@ protected:
 
 	// -------------------------------------------------------------
 	// Description:
-	//   Returns a shader material to use for rendering picking batches
-	//   (only used as a override material for opaque batches). 
-	// Arguments:
-	//   pass  - union of PickComponent that are to be queried during
-	//		this pass.
-	// Return Value:
-	//   Shader material to use for rendering.
-	// -------------------------------------------------------------
-	virtual Tr2Material* GetPickingEffect( PickComponents pass ) = 0;
-
-	// -------------------------------------------------------------
-	// Description:
 	//   Checks if the picking areas need to be rendered during the
 	//   given pass. 
 	// Arguments:

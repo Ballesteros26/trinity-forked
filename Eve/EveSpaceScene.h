@@ -367,7 +367,6 @@ protected:
 	
 	// Utility batches.
 	ITriRenderBatchAccumulator* m_shadowBatches;
-	ITriRenderBatchAccumulator* m_opaquePickingBatches;
 	ITriRenderBatchAccumulator* m_pickingBatches;
 
 	Tr2EffectPtr m_backgroundEffect;
@@ -470,7 +469,6 @@ private:
 	void GetPickingObjectsToRender( std::vector<ITr2Renderable*>& pickableRenderObjects );
 
 	Tr2PickBuffer m_pickBuffer;
-	Tr2EffectPtr m_pickEffect;
 	EveStarfieldPtr m_starfield;
 
 	bool m_hasDepthPass;

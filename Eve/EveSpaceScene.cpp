@@ -85,8 +85,6 @@ bool g_eveSpaceObjectImpactEffectEnabled = true;
 TRI_REGISTER_SETTING( "eveSpaceObjectImpactEffectEnabled", g_eveSpaceObjectImpactEffectEnabled );
 
 
-const char* s_evePickingEffectPath = "res:/Graphics/Effect/Managed/space/system/Picking.fx";
-
 bool g_eveSpaceSceneDynamicLighting = false;
 TRI_REGISTER_SETTING( "eveSpaceSceneDynamicLighting", g_eveSpaceSceneDynamicLighting );
 
@@ -192,7 +190,6 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	
 	// Picking batches
 	m_pickingBatches = CCP_NEW( "EveSpaceScene/m_pickingBatches" ) TriRenderBatchAccumulator<>( allocator );
-	m_opaquePickingBatches = CCP_NEW( "EveSpaceScene/m_opaquePickingBatches" ) TriRenderBatchAccumulator<>( allocator );
 		
 	m_sunData.DiffuseColor = Color( 1.0f, 1.0f, 1.0f, 1.0f );
 	m_sunData.DirWorld = Vector3( 0.0f, -1.0f, 0.0f );
@@ -201,9 +198,6 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_ambientColor = Color( 0.25f, 0.25f, 0.25f, 1.0f );
 	m_fogColor = Color( 0.25f, 0.25f, 0.25f, 1.0f );
 	m_fogEnd = m_fogStart = m_fogMax = 0.0f;
-
-	m_pickEffect.CreateInstance();
-	m_pickEffect->SetEffectPathName( s_evePickingEffectPath );
 
 	m_pickBuffer.PrepareResources();
 
@@ -2559,7 +2553,7 @@ IRoot* EveSpaceScene::PickObjectAndArea( int x, int y, TriProjection* proj, TriV
 				// We always pick against the opaque geometry that's rendered
 				if( pickTypes != PICK_TYPE_PICKING )
 				{
-					pickable->GetPickingBatches( m_opaquePickingBatches, pickTypes & ~PICK_TYPE_PICKING, perObjectData);
+					pickable->GetPickingBatches( m_pickingBatches, pickTypes & ~PICK_TYPE_PICKING, perObjectData);
 				}
 				// Additionally, we can pick against geometry that's only rendered for picking,
 				// allowing us to put placeholders in for things that are partly transparent, but still should be pickable
@@ -2572,26 +2566,12 @@ IRoot* EveSpaceScene::PickObjectAndArea( int x, int y, TriProjection* proj, TriV
 			const Matrix* pCurMatrix = &Tr2Renderer::GetIdentityTransform();
 			Tr2Renderer::SetWorldTransform( *pCurMatrix );
 
-			// Render the opaque batches for picking. These are the same as the non sorted batches, 
-			// but the pixelshader is overriden with a pick pixel shader.
-			m_opaquePickingBatches->Finalize();
-
-			TriRenderBatch* p = m_opaquePickingBatches->GetFirstBatch();
-			int objectNum = 0xffffffff;
-			
-			if( p != NULL )
-			{
-				renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
-				renderContext.RenderBatchesForPickingWithoutOverride( m_opaquePickingBatches, BlueSharedString( "Picking" ), objectNum );
-			}
-
-			// Render additional picking batches. These use a user specified pick shader with no override.
 			m_pickingBatches->Finalize();
 
 			if( m_pickingBatches != NULL )
 			{
 				renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
-				renderContext.RenderBatchesForPickingWithoutOverride( m_pickingBatches, BlueSharedString( "Picking" ), objectNum );
+				renderContext.RenderBatchesForPicking( m_pickingBatches, BlueSharedString( "Picking" ) );
 			}
 
 			if( m_pickBuffer.EndRendering( renderContext ) )
@@ -2599,7 +2579,6 @@ IRoot* EveSpaceScene::PickObjectAndArea( int x, int y, TriProjection* proj, TriV
 				GetPickingResults( m_pickBuffer, renderContext, objId, aId, dist );
 			}
 
-			m_opaquePickingBatches->Clear();
 			m_pickingBatches->Clear();
 		}
 

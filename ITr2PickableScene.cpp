@@ -342,8 +342,6 @@ bool ITr2PickableScene::RenderPicking( ITriRenderBatchAccumulator* pOpaquePickin
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();	//TODO
 
-    int objectNum = 0xffffffff;
-
 	// Use a shader variable for identifying which components are expected.
 	// We can't use situations here because the flags might change during a single
 	// frame.
@@ -373,7 +371,7 @@ bool ITr2PickableScene::RenderPicking( ITriRenderBatchAccumulator* pOpaquePickin
 		pOpaquePickingBatches->Finalize();
 
         renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
-        renderContext.RenderBatchesForPickingWithoutOverride( pOpaquePickingBatches, BlueSharedString( "Picking" ), objectNum );
+        renderContext.RenderBatchesForPicking( pOpaquePickingBatches, BlueSharedString( "Picking" ) );
     }
 
     if( pPickingBatches && RenderPickingAreasForComponents( pass ) )
@@ -381,7 +379,7 @@ bool ITr2PickableScene::RenderPicking( ITriRenderBatchAccumulator* pOpaquePickin
         pPickingBatches->Finalize();
 
         renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
-		renderContext.RenderBatchesForPickingWithoutOverride( pPickingBatches, DEFAULT_TECHNIQUE, objectNum );
+		renderContext.RenderBatchesForPicking( pPickingBatches, DEFAULT_TECHNIQUE );
     }
 
     if( !pickBuffer.EndRendering( renderContext ) )

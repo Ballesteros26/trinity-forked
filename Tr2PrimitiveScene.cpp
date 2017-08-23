@@ -24,14 +24,12 @@ Tr2PrimitiveScene::Tr2PrimitiveScene( IRoot* lockobj ) :
 	PARENTLOCK( m_primitives ),
 	PARENTLOCK( m_textLabels ),
 	PARENTLOCK( m_excludedPickingPrimitives ),
-	m_pickBuffer( NULL, Tr2RenderContextEnum::PIXEL_FORMAT_R32G32B32A32_FLOAT, 1 ),
-	m_pickEffect()
+	m_pickBuffer( NULL, Tr2RenderContextEnum::PIXEL_FORMAT_R32G32B32A32_FLOAT, 1 )
 {
 	m_pickBuffer.PrepareResources();	
 	m_allocator = CCP_NEW( "Tr2PrimitiveScene/m_allocator" ) TriPoolAllocator();    
 	m_opaqueBatches = CCP_NEW( "Tr2PrimitiveScene/m_opaqueBatches" ) TriRenderBatchAccumulator<>( m_allocator );
     m_pickingBatches = CCP_NEW( "Tr2PrimitiveScene/m_pickingBatches" ) TriRenderBatchAccumulator<>( m_allocator );
-	m_pickEffect.CreateInstance();
 }
 
 Tr2PrimitiveScene::~Tr2PrimitiveScene()
@@ -235,8 +233,6 @@ bool Tr2PrimitiveScene::RenderPicking(
 	renderContext.m_esm.SetInvertedDepthTest( true );
 	ON_BLOCK_EXIT( [&] { renderContext.m_esm.SetInvertedDepthTest( false ); } );
 
-    int objectNum = 0xffffffff;
-
 	// Use a shader variable for identifying which components are expected.
 	// We can't use situations here because the flags might change during a single
 	// frame.
@@ -261,7 +257,7 @@ bool Tr2PrimitiveScene::RenderPicking(
         pPickingBatches->Finalize();
 
         renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_PICKING );
-		renderContext.RenderBatchesForPickingWithoutOverride( pPickingBatches, DEFAULT_TECHNIQUE, objectNum );
+		renderContext.RenderBatchesForPicking( pPickingBatches, DEFAULT_TECHNIQUE );
     }
 
     if( !pickBuffer.EndRendering( renderContext ) )
@@ -389,9 +385,4 @@ void Tr2PrimitiveScene::DecodeBufferPixel( const void* pBuffer, PickComponents p
 Tr2PickBuffer& Tr2PrimitiveScene::GetPickBuffer( void )
 {
 	return m_pickBuffer;
-}
-
-Tr2Material* Tr2PrimitiveScene::GetPickingEffect( PickComponents pass )
-{ 
-	return m_pickEffect; 
 }

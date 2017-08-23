@@ -200,7 +200,6 @@ private:
 	virtual ITriRenderBatchAccumulator* GetOpaquePickingBatchAccumulator();
 	virtual ITriRenderBatchAccumulator* GetPickingBatchAccumulator();
 
-	virtual Tr2Material* GetPickingEffect( PickComponents pass );
 	virtual bool RenderPickingAreasForComponents( PickComponents pass ) const { return true; }
 	virtual Tr2PickBuffer& GetPickBuffer( void ) { return m_pickBuffer; }
 	virtual unsigned int GetRequiredPasses( PickComponents requestedComponents, PickComponents* passes );
@@ -240,7 +239,6 @@ private:
 
 	// Mouse picking
 	Tr2PickBuffer m_pickBuffer;
-	Tr2EffectPtr m_pickEffect;
 
 	Be::Time m_lastUpdateTime;
 

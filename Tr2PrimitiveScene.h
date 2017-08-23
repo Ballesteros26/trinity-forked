@@ -76,7 +76,6 @@ private:
 	// If you need special behaviour for picking, these batches are rendered without a picking override
 	ITriRenderBatchAccumulator* GetPickingBatchAccumulator( void );
 
-	Tr2Material* GetPickingEffect( PickComponents pass );
 	bool RenderPickingAreasForComponents( PickComponents pass ) const { return true; }
 	unsigned int GetRequiredPasses( PickComponents requestedComponents, PickComponents* passes );
 
@@ -102,8 +101,6 @@ private:
 	Tr2ManipulationToolPtr m_manipulator;
 	// Pick buffer
 	Tr2PickBuffer m_pickBuffer;
-	// Picking effect
-	Tr2EffectPtr m_pickEffect;
 
 	Tr2ConstantBufferAL	m_vertexConstants;
 };

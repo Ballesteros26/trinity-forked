@@ -473,110 +473,10 @@ void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator
 	}
 }
 
-void Tr2RenderContextBase::RenderBatchesForPicking( Tr2Material* effect, TriRenderBatch* &p, const BlueSharedString& techniqueName, int &objectNum )
+void Tr2RenderContextBase::RenderBatchesForPicking( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
-	CCP_ASSERT( effect );
-
-
-	auto shader = effect->GetShaderStateInterface();
-
-	if( !shader )
-	{
-		// Might still be loading or load could have failed
-		return;
-	}
-
-	uint32_t passCount = shader->GetPassCount( 0 );
-	CCP_ASSERT( passCount == 1 );
-	if( passCount == 0 )
-	{
-		return;
-	}
-
-	Tr2RenderContext *renderContext = reinterpret_cast<Tr2RenderContext*>( this );
-
-	shader->ApplyShader( 0, 0, PIXEL_SHADER, *renderContext );
-	shader->ApplyRenderStates( 0, 0, *renderContext );
-	shader->ApplySamplerStates( 0, 0, PIXEL_SHADER, *renderContext );
-
-	Tr2ConstantBufferAL*	perObjectConstantBuffers[CBUFFER_COUNT];
-	for( uint32_t i = 0; i != CBUFFER_COUNT; ++i )
-	{
-		perObjectConstantBuffers[i] = &m_perObjectConstantBuffers[i];
-	}
-
-	while( p )
-	{
-		const Tr2PerObjectData* perObjectData = p->GetPerObjectData();
-
-		if( perObjectData )
-		{
-			perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, shader->GetShaderTypeMask( 0 ), *renderContext );
-			uint32_t id = perObjectData->GetUserData();
-			if( id != objectNum )
-			{
-				objectNum = id;
-				if( m_objectIdVariable )
-				{
-					m_objectIdVariable->SetValue( (float)id );
-				}
-			}
-
-			uint32_t areaID = p->GetPickingData();
-			if( m_areaIdVariable )
-			{
-				m_areaIdVariable->SetValue( (float)areaID );
-			}
-
-			// Apply vertex shader inputs from the effect associated with the batch
-			auto originalShader = p->GetShaderStateInterface();
-			auto originalMaterial = p->GetShaderMaterialInterface();
-
-			// FIXME, allow for picking
-			if( originalShader == nullptr )
-			{
-				p = p->GetNext();
-				continue;
-			}
-
-			uint32_t technique;
-			if( !originalShader->GetTechniqueIndex( techniqueName, technique ) )
-			{
-				p = p->GetNext();
-				continue;
-			}
-
-			if( originalShader && originalShader->GetPassCount( technique ) > 0 )
-			{
-				for( uint32_t shaderType = SHADER_TYPE_FIRST; shaderType < SHADER_TYPE_COUNT; ++shaderType )
-				{
-					if( shaderType != PIXEL_SHADER && SHADER_TYPE_EXISTS( shaderType ) )
-					{
-						originalShader->ApplyShader( technique, 0, ShaderType( shaderType ), *renderContext );
-						originalShader->ApplySamplerStates( technique, 0, ShaderType( shaderType ), *renderContext );
-						originalMaterial->ApplyShaderInputs( technique, 0, ShaderType( shaderType ), *renderContext );
-					}
-				}
-
-				// Apply pixel shader inputs from the pick effect
-				effect->ApplyShaderInputs( 0, 0, PIXEL_SHADER, *renderContext );
-
-				p->SubmitGeometry( *renderContext );
-
-				CCP_STATS_INC( batchCount );
-			}
-		}
-
-		p = p->GetNext();
-	}
-
-}
-
-void Tr2RenderContextBase::RenderBatchesForPickingWithoutOverride( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName, int &objectNum )
-{
-	CCP_STATS_ZONE( __FUNCTION__ );
-	D3DPERF_EVENT(L"Tr2EffectStateManager::RenderBatchesForPickingWithoutOverride");
+	D3DPERF_EVENT(L"Tr2EffectStateManager::RenderBatchesForPicking");
 
 
 	const Tr2PerObjectData* curPerObjectData = nullptr;
@@ -623,13 +523,9 @@ void Tr2RenderContextBase::RenderBatchesForPickingWithoutOverride( ITriRenderBat
 			}
 
 			uint32_t id = perObjectData->GetUserData();
-			if( id != objectNum )
+			if( m_objectIdVariable )
 			{
-				objectNum = id;
-				if( m_objectIdVariable )
-				{
-					m_objectIdVariable->SetValue( (float)id );
-				}
+				m_objectIdVariable->SetValue( (float)id );
 			}
 
 			uint32_t areaID = it->GetPickingData();
