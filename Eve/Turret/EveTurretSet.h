@@ -401,7 +401,6 @@ private:
 
 	// firing effect redfile path
 	std::string m_firingEffectResPath;
-	std::string m_firingEffectSecondaryResPath;
 
 	// firing effect
 	EveTurretFiringFXPtr m_firingEffect;
