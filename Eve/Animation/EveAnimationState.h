@@ -9,6 +9,7 @@
 BLUE_DECLARE( EveSpaceObject2 );
 BLUE_DECLARE( EveAnimationStateMachine );
 BLUE_DECLARE( EveMeshOverlayEffect );
+BLUE_DECLARE_INTERFACE( IEveSpaceObjectChild );
 
 enum EveAnimationStateStartCommand {
 	EVE_ANIM_START_DEFAULT,
@@ -45,6 +46,7 @@ public:
 private:
 	std::string m_name;
 	std::string m_overlayPath;
+	std::string m_childPath;
 	
 	bool m_doInitialization;
 
@@ -52,6 +54,7 @@ private:
 	PEveAnimationCurveVector m_curves;
 	PEveAnimationCommandVector m_commands;
 	EveMeshOverlayEffectPtr m_overlay;
+	IEveSpaceObjectChildPtr m_child;
 	
 	PEveAnimationCurveVector m_initCurves;
 	PEveAnimationCommandVector m_initCommands;

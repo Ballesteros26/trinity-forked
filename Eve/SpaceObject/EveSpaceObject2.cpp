@@ -2255,9 +2255,19 @@ void EveSpaceObject2::AddToChildrenList( EveTransformPtr transform )
 // Description:
 //   Add a child to the effectChildren list
 // --------------------------------------------------------------------------------
-void EveSpaceObject2::AddToEffectChildrenList( IEveSpaceObjectChildPtr child ) 
+void EveSpaceObject2::AddToEffectChildrenList( IEveSpaceObjectChildPtr child )
 {
 	m_effectChildren.Append( child->GetRootObject() );
+}
+
+// --------------------------------------------------------------------------------
+void EveSpaceObject2::RemoveFromEffectChildrenList( IEveSpaceObjectChild* child )
+{
+	auto index = m_effectChildren.FindKey( child );
+	if( index >= 0 )
+	{
+		m_effectChildren.Remove( index );
+	}
 }
 
 // --------------------------------------------------------------------------------

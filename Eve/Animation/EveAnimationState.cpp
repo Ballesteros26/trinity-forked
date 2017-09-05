@@ -109,6 +109,13 @@ void EveAnimationState::UpdateDuration( EveAnimationStateMachine* sm, EveSpaceOb
 	{
 		maxCurveDuration = max( maxCurveDuration, so->GetCurveSetDuration( (*it)->m_name ) );
 	}
+	if( m_child )
+	{
+		for( auto it = m_curves.cbegin(); it != m_curves.cend(); it++ )
+		{
+			maxCurveDuration = max( maxCurveDuration, m_child->GetCurveSetDuration( ( *it )->m_name ) );
+		}
+	}
 
 	m_animationDuration = max( m_animationDuration, maxCurveDuration );
 }
@@ -157,6 +164,19 @@ void EveAnimationState::Start( EveAnimationStateMachine* sm, EveSpaceObject2* ow
 			owner->AddOverlayEffect( m_overlay );
 		}
 		m_progress = EVE_ANIM_RUNNING;
+	}
+
+	if( !m_child && !m_childPath.empty() )
+	{
+		BeResMan->SetUrgentResourceLoads( true );
+		m_child = BeResMan->LoadObject<IEveSpaceObjectChild>( m_childPath.c_str() );
+		BeResMan->SetUrgentResourceLoads( false );
+	}
+
+	if( m_child )
+	{
+		owner->AddToEffectChildrenList( m_child );
+		m_child->RegisterWithQuadRenderer( *Tr2QuadRenderer::Instance() );
 	}
 
 	PlayAnimation( sm, owner );
@@ -213,6 +233,13 @@ void EveAnimationState::PlayCurves( EveSpaceObject2* owner )
 	for( auto it = m_curves.cbegin(); it != m_curves.cend(); it++ )
 	{
 		owner->PlayCurveSet( (*it)->m_name );
+	}
+	if( m_child )
+	{
+		for( auto it = m_curves.cbegin(); it != m_curves.cend(); it++ )
+		{
+			m_child->PlayCurveSet( ( *it )->m_name );
+		}
 	}
 }
 
@@ -304,6 +331,11 @@ void EveAnimationState::EndAnimation( EveAnimationStateMachine* sm, EveSpaceObje
 		owner->RemoveOverlayEffect( m_overlay );
 		m_overlay = nullptr;
 	}
+	if( m_child )
+	{
+		owner->RemoveFromEffectChildrenList( m_child );
+		m_child = nullptr;
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -337,6 +369,16 @@ void EveAnimationState::Cleanup( EveSpaceObject2* owner, Be::Time time )
 	{
 		owner->UpdateCurveSet( (*it)->m_name, time );
 		owner->StopCurveSet( (*it)->m_name );
+	}
+	if( m_child )
+	{
+		for( auto it = m_curves.cbegin(); it != m_curves.cend(); it++ )
+		{
+			m_child->UpdateCurveSet( ( *it )->m_name, time );
+			m_child->StopCurveSet( ( *it )->m_name );
+		}
+		owner->RemoveFromEffectChildrenList( m_child );
+		m_child.Unlock();
 	}
 	if( m_doInitialization )
 	{

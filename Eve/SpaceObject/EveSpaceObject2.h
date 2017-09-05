@@ -334,6 +334,7 @@ public:
 
 	// add to children
 	void AddToEffectChildrenList( IEveSpaceObjectChildPtr child );
+	void RemoveFromEffectChildrenList( IEveSpaceObjectChild* child );
 
 	// access to curves
 	void SetModelRotationCurve( ITriQuaternionFunctionPtr rotationCurve );
