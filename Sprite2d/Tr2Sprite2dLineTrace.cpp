@@ -362,7 +362,7 @@ void Tr2Sprite2dLineTrace::AddSegment(
 			// calculate arc length and number of steps
 			float arcLength = angleDiff * m_lineWidth;
 
-			unsigned int numSteps = (unsigned int)abs( arcLength ) / 4;
+			unsigned int numSteps = (unsigned int)std::abs( arcLength ) / 4;
 
 			if( numSteps < 2 )
 				numSteps = 2;
@@ -527,7 +527,7 @@ void Tr2Sprite2dLineTrace::AddRoundJoint(
 
 	// calculate arc length and number of steps
 	float arcLength = angleDiff * m_lineWidth;
-	unsigned int numSteps = (unsigned int)abs( arcLength ) / 4;
+	unsigned int numSteps = (unsigned int)std::abs( arcLength ) / 4;
 
 	if( numSteps < 2 )
 		numSteps = 2;
