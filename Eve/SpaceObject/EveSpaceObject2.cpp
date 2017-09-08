@@ -622,19 +622,27 @@ void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
 				auto& locator = locators[i];
 				auto position = locator.position;
 				auto rotation = locator.direction;
+				uint32_t color = 0x990088ff;
 
 				if( locator.boneIndex >= 0 && m_animationUpdater && m_animationUpdater->IsInitialized() )
 				{
 					size_t boneCount = size_t( m_animationUpdater->GetMeshBoneCount() );
 					if( boneCount )
 					{
-						const granny_matrix_3x4* bones = m_animationUpdater->GetMeshBoneMatrixList();
-						Matrix boneTF;
-						D3DXMatrixIdentity( &boneTF );
-						TriMatrixCopyFrom3x4( &boneTF, &bones[locator.boneIndex] );
-						position = XMVector3TransformCoord( position, boneTF );
+						if( locator.boneIndex < int( boneCount ) )
+						{
+							const granny_matrix_3x4* bones = m_animationUpdater->GetMeshBoneMatrixList();
+							Matrix boneTF;
+							D3DXMatrixIdentity( &boneTF );
+							TriMatrixCopyFrom3x4( &boneTF, &bones[locator.boneIndex] );
+							position = XMVector3TransformCoord( position, boneTF );
 
-						rotation = XMQuaternionMultiply( rotation, XMQuaternionRotationMatrix( boneTF ) );
+							rotation = XMQuaternionMultiply( rotation, XMQuaternionRotationMatrix( boneTF ) );
+						}
+						else
+						{
+							color = 0x99ff4444;
+						}
 					}
 				}
 
@@ -645,7 +653,7 @@ void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
 					m_boundingSphereRadius / 50.f,
 					8,
 					Tr2DebugRenderer::Lit,
-					0x990088ff );
+					color );
 			}
 		}
 	}
@@ -2462,7 +2470,7 @@ Vector3 EveSpaceObject2::GetObjectSpaceDamageLocatorPosition( uint32_t index ) c
 	if( m_animationUpdater && m_animationUpdater->IsInitialized() )
 	{
 		size_t boneCount = size_t( m_animationUpdater->GetMeshBoneCount() );
-		if( boneCount )
+		if( boneCount && damageLocator.boneIndex < int( boneCount ) )
 		{
 			const granny_matrix_3x4* bones = m_animationUpdater->GetMeshBoneMatrixList();
 			Matrix boneTF;
@@ -2504,7 +2512,7 @@ Vector3 EveSpaceObject2::GetObjectSpaceDamageLocatorDirection( uint32_t index ) 
 	if( m_animationUpdater && m_animationUpdater->IsInitialized() )
 	{
 		size_t boneCount = size_t( m_animationUpdater->GetMeshBoneCount() );
-		if( boneCount )
+		if( boneCount && damageLocator.boneIndex < int( boneCount ) )
 		{
 			const granny_matrix_3x4* bones = m_animationUpdater->GetMeshBoneMatrixList();
 
