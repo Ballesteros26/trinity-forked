@@ -388,6 +388,37 @@ static PyObject* PyCompareBitmaps( PyObject* self, PyObject* args )
 
 	return PyInt_FromSize_t( count );
 }
+
+static PyObject* PyBgraToRgb( PyObject*, PyObject* args )
+{
+	Py_buffer buffer;
+	if( !PyArg_ParseTuple( args, "s*", &buffer ) )
+	{
+		return nullptr;
+	}
+	ON_BLOCK_EXIT( [&] { PyBuffer_Release( &buffer ); } );
+
+	auto count = buffer.len / 4;
+	if( count < 1 )
+	{
+		PyErr_SetString( PyExc_ValueError, "Buffer is too short" );
+		return nullptr;
+	}
+
+	std::unique_ptr<uint8_t[]> output( new uint8_t[count * 3] );
+	auto src = static_cast<const uint8_t*>( buffer.buf );
+	auto dst = output.get();
+	for( Py_ssize_t i = 0; i < count; ++i )
+	{
+		dst[0] = src[2];
+		dst[1] = src[1];
+		dst[2] = src[0];
+		dst += 3;
+		src += 4;
+	}
+	return PyString_FromStringAndSize( reinterpret_cast<const char*>( output.get() ), count * 3 );
+}
+
 #endif
 
 const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
@@ -670,8 +701,8 @@ const Be::ClassInfo* Tr2HostBitmap::ExposeToBlue()
 	EXPOSURE_END()
 }
 
-
 #if BLUE_WITH_PYTHON
+
 MAP_FUNCTION
 (
 	"CompareBitmaps", 
@@ -692,4 +723,15 @@ MAP_FUNCTION
 	"  of both bitmaps.\n"
 	":rtype: int"
 );
+
+MAP_FUNCTION
+(
+	"BgraToRgb",
+	PyBgraToRgb,
+	"Converts a buffer containing B8G8R8A8 pixel values to R8G8B8 buffer\n"
+	":param pixels: readable buffer with pixel color values\n"
+	":type pixels: buffer | str\n"
+	":rtype: str"
+);
+
 #endif
