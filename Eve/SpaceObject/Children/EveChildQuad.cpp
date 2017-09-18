@@ -62,6 +62,7 @@ bool EveChildQuad::Initialize()
 	if( m_effect )
 	{
 		m_effectKey = m_effect->GetHashValue();
+		Tr2QuadRenderer::Instance()->RegisterEffect( m_effectKey, TRIBATCHTYPE_ADDITIVE, sizeof( Quad ), 1, GetQuadDefinition(), m_effect );
 	}
 	if( m_staticTransform )
 	{
