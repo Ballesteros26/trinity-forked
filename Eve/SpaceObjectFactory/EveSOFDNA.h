@@ -73,6 +73,7 @@ public:
 	const Vector3* GetHullShapeEllipsoidRadius() const;
 	bool IsHullAnimated() const;
 	bool DynamicBoundingSphereEnabled() const;
+	bool CastShadow() const;
 	const EveSOFDataMgr::HullBoosterData* GetHullBoosterData( size_t n ) const;
 	size_t GetHullBoosterCount() const;
 	const Vector3* GetHullAudioPosition( size_t n ) const;

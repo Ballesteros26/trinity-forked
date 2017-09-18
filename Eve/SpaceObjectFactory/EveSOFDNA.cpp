@@ -322,6 +322,7 @@ void EveSOFDNA::SetupCustomData()
 		m_customHullData[i].shapeEllipsoidRadius = m_hullDatas[i]->shapeEllipsoidRadius;
 		m_customHullData[i].isSkinned = m_hullDatas[i]->isSkinned;
 		m_customHullData[i].enableDynamicBoundingSphere = m_hullDatas[i]->enableDynamicBoundingSphere;
+		m_customHullData[i].castShadow = m_hullDatas[i]->castShadow;
 		m_customHullData[i].audioPosition = m_hullDatas[i]->audioPosition;
 	}
 
@@ -927,6 +928,15 @@ bool EveSOFDNA::IsHullAnimated() const
 bool EveSOFDNA::DynamicBoundingSphereEnabled() const
 {
 	return ( m_hullDatas.size() > 1 ) || ( m_hullDatas[0]->enableDynamicBoundingSphere );
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Does this hull cast a shadow?
+// --------------------------------------------------------------------------------
+bool EveSOFDNA::CastShadow() const
+{
+	return m_hullDatas[0]->castShadow;
 }
 
 // --------------------------------------------------------------------------------

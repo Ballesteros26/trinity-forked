@@ -303,14 +303,17 @@ void EveSOF::SetupMesh( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
 	obj->SetShapeEllipsoid( dna->GetHullShapeEllipsoidCenter(), dna->GetHullShapeEllipsoidRadius() );
 	obj->EnableDynamicBoundingSphere( dna->DynamicBoundingSphereEnabled() );
 
-	// shadow
-	if( dna->IsHullAnimated() )
+	// shadow caster?
+	if( dna->CastShadow() )
 	{
-		obj->SetShadowEffect( m_shadowEffectSkinned );
-	}
-	else
-	{
-		obj->SetShadowEffect( m_shadowEffect );
+		if( dna->IsHullAnimated() )
+		{
+			obj->SetShadowEffect( m_shadowEffectSkinned );
+		}
+		else
+		{
+			obj->SetShadowEffect( m_shadowEffect );
+		}
 	}
 
 	// setup mesh areas, try sharing as many Tr2LodResources as possible

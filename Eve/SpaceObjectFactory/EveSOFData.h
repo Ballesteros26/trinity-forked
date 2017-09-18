@@ -643,6 +643,7 @@ public:
 	Vector3 m_shapeEllipsoidRadius;
 	bool m_isSkinned;
 	bool m_enableDynamicBoundingSphere;
+	bool m_castShadow;
 
 	// materials
 	PEveSOFDataHullAreaVector m_opaqueAreas;

@@ -236,6 +236,7 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 	m_shapeEllipsoidRadius( -1.f, -1.f, -1.f ),
 	m_isSkinned( false ),
 	m_enableDynamicBoundingSphere( false ),
+	m_castShadow( true ),
 	m_impactEffectType( IMPACTEFFECT_NONE ),
 	m_audioPosition( 0.f, 0.f, 0.f )
 {}

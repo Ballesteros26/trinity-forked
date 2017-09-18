@@ -244,6 +244,7 @@ public:
 		Vector3 shapeEllipsoidRadius;
 		bool isSkinned;
 		bool enableDynamicBoundingSphere;
+		bool castShadow;
 		Vector3 audioPosition;
 		std::vector<HullSpriteSetData> spriteSets;
 		std::vector<HullSpotlightSetData> spotlightSets;
