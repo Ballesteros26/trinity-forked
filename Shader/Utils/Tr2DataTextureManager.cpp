@@ -77,6 +77,16 @@ bool Tr2DataTextureManager::OnPrepareResources()
 	return true;
 }
 
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Set global variables
+// --------------------------------------------------------------------------------
+void Tr2DataTextureManager::SetVariables()
+{
+	GlobalStore().RegisterVariable( "ImpactShieldDataMap", m_dataTexture );
+}
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Syncronous update
@@ -84,9 +94,6 @@ bool Tr2DataTextureManager::OnPrepareResources()
 void Tr2DataTextureManager::Update( EveUpdateContext& updateContext )
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
-
-	// need to do this here, always!
-	GlobalStore().RegisterVariable( "ImpactShieldDataMap", m_dataTexture );
 
 	// 0
 	m_maxPixelCount = m_maxBlockCount = 0;

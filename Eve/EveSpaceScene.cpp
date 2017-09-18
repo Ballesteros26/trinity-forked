@@ -1144,6 +1144,11 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 		m_shLightingManager->UpdateWithDirectionalLight( m_sunData.DirWorld, Vector3( 1.f, 1.f, 1.f ) );
 	}
 
+	if( m_dataTextureMgr )
+	{
+		m_dataTextureMgr->SetVariables();
+	}
+
 	SetNoShadow();
 
 	// Set up the frustum for visibility checking.

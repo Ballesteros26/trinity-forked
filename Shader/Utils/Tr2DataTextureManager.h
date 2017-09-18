@@ -52,6 +52,9 @@ public:
 
 	// get texture offset
 	int32_t GetTextureOffset( int32_t blockID ) const;
+
+	// set variables to the variable store
+	void SetVariables();
 	
 private:
 	// general data
