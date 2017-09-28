@@ -53,18 +53,6 @@ bool TriVariableParameter::Initialize()
 	return true;
 }
 
-size_t TriVariableParameter::GetValueSize() const
-{
-	if( m_variable )
-	{
-		return m_variable->GetValueSize();
-	}
-	else
-	{
-		return 0;
-	}
-}
-
 void TriVariableParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType, 
 												unsigned char* destHandle, 
 												size_t size,

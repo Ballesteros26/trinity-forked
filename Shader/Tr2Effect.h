@@ -62,8 +62,6 @@ public:
 	Tr2Effect(IRoot* lockobj = NULL);	
 	virtual ~Tr2Effect();
 
-	bool IsEqual( Tr2Effect* other );
-
 	// Utility Functions
 	bool PopulateParameters();
 	bool PruneParameters();
@@ -104,8 +102,6 @@ public:
 	unsigned GetHashValue() const;
 
 	const Tr2ConstantEffectParameter* GetConstParameters( size_t& count ) const;
-	virtual void UnloadResources();
-	virtual bool LoadResources();
 	ITriEffectParameter* GetParameterByName( const char* name ) const;
 
 	/////////////////////////////////////////////////////////////////////////////////////

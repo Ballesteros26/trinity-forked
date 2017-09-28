@@ -14,11 +14,6 @@ TriTransformParameter::TriTransformParameter(IRoot* lockobj):
 {
 }
 
-size_t TriTransformParameter::GetValueSize() const
-{
-	return sizeof(Matrix);
-}
-
 unsigned TriTransformParameter::GetHashValue( unsigned startingHash ) const
 {
 	auto name = m_name.c_str();

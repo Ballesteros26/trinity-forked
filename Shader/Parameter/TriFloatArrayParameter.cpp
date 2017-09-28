@@ -75,12 +75,6 @@ void TriFloatArrayParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType
 }
 
 // ------------------------------------------------------------------------------------------------------
-size_t TriFloatArrayParameter::GetValueSize() const
-{
-	return m_value.size() * sizeof( TriVector4 );
-}
-
-// ------------------------------------------------------------------------------------------------------
 void TriFloatArrayParameter::RebuildEffectHandles( Tr2Shader* effectRes )
 {
 	m_cachedEffect = effectRes;

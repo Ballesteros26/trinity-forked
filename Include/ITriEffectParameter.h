@@ -25,28 +25,13 @@
 
 #include "ITr2EffectValue.h"
 
-// Forward declarations
-class TriTextureRes;
 BLUE_DECLARE( Tr2Shader );
 
 BLUE_INTERFACE(ITriEffectParameter) : public ITr2EffectValue
 {
-	// Only allow texture parameters to be mapped to samplers
-	virtual bool IsTextureParameter() { return false; }
-
 	virtual const char* GetParameterName() const = 0;
 
 	virtual void RebuildEffectHandles( Tr2Shader* effectRes ) = 0;
-
-	// --------------------------------------------------------------------------------------
-	// Description:
-	//   Checks if the parameter is ready to be used. (For texture resource parameters
-	//   this means that the texture is prepared)
-	// Return value:
-	//   true If the parameter is ready to be used
-	//	 false Otherwise
-	// --------------------------------------------------------------------------------------
-	virtual bool IsPrepared() const { return true; }
 
 	virtual unsigned GetHashValue( unsigned startingHash ) const = 0;
 };
@@ -56,27 +41,6 @@ TYPEDEF_BLUECLASS( ITriEffectParameterDict );
 
 BLUE_INTERFACE(ITriEffectResourceParameter) : public ITriEffectParameter
 {
-
-	virtual bool IsTextureParameter() { return true; }
-
-	// Force a reload from disk
-	virtual void ReloadResources() = 0; 
-	
-	// Kick off a load, in case resource has been unloaded
-	virtual bool LoadResources() 
-	{ return false; }; 
-
-	// Unload the resource
-	virtual void UnloadResources() 
-	{ /*do nothing by default*/ }; 
-
-	virtual void* GetResourcePointer() const = 0;
-
-	// Return the size of a texture pointer
-	virtual size_t GetValueSize() const
-	{
-		return sizeof(void*);
-	}
 };
 BLUE_DECLARE_IVECTOR( ITriEffectResourceParameter );
 

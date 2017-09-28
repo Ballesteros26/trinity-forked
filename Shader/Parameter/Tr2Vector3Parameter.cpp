@@ -69,17 +69,6 @@ void Tr2Vector3Parameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType in
 
 // --------------------------------------------------------------------------------------
 // Description:
-//   Gets the size of the Vector3 parameter in bytes
-// Return Value:
-//   The size of the Vector3 parameter in bytes
-// --------------------------------------------------------------------------------------
-size_t Tr2Vector3Parameter::GetValueSize() const
-{
-	return sizeof(m_value);
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
 //   Sets the value of the parameter.  If the parameter is rerouted, it sets the
 //   rerouted value as well.
 // Arguments:

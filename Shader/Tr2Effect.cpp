@@ -1113,44 +1113,6 @@ bool Tr2Effect::IsParameterUsedByTechnique( const std::string& parameterName )
 	return GetShaderStateInterface()->GetConstant( parameterName.c_str() ) != nullptr;
 }
 
-bool Tr2Effect::IsEqual( Tr2Effect* other )
-{
-	if( other == NULL )
-	{
-		return false;
-	}
-
-	if( other == this )
-	{
-		return true;
-	}
-
-	if( GetShaderStateInterface() != other->GetShaderStateInterface() )
-	{
-		return false;
-	}
-
-	if( m_resources.GetSize() != other->m_resources.GetSize() )
-	{
-		return false;
-	}
-
-	for( EffectResourceList::iterator it = m_resources.begin(), itOther = other->m_resources.begin(); it != m_resources.end(); ++it, ++itOther )
-	{
-	    ITriEffectResourceParameter* mine = *it;
-		ITriEffectResourceParameter* theirs = *itOther;
-
-		if( mine->GetResourcePointer() != theirs->GetResourcePointer() )
-		{
-			return false;
-		}
-	}
-
-	// todo: parameters
-
-	return true;
-}
-
 Tr2EffectRes* Tr2Effect::GetEffectRes() const
 {
 	return m_effectResource;
@@ -1683,31 +1645,6 @@ void Tr2Effect::MapPassParameters(
 			}
 		}
 	}
-}
-
-void Tr2Effect::UnloadResources()
-{
-	CCP_STATS_ZONE( __FUNCTION__ );
-
-	for( auto it = m_resources.cbegin(); it != m_resources.cend(); ++it )
-	{
-		(*it)->UnloadResources();
-	}
-}
-
-bool Tr2Effect::LoadResources()
-{
-	CCP_STATS_ZONE( __FUNCTION__ );
-
-	bool result = true;
-	for( auto it = m_resources.cbegin(); it != m_resources.cend(); ++it )
-	{
-		if( !(*it)->LoadResources() )
-		{
-			result = false;
-		}
-	}
-	return result;
 }
 
 void Tr2Effect::SetVariableStore( Tr2VariableStore* variableStore )

@@ -36,7 +36,11 @@ Tr2GeometryBufferParameter::~Tr2GeometryBufferParameter()
 // --------------------------------------------------------------------------------------
 bool Tr2GeometryBufferParameter::Initialize()
 {
-	LoadResources();
+	if( !m_resourcePath.empty() )
+	{
+		m_gpuBuffer.Unlock();
+		BeResMan->GetResourceW( m_resourcePath.c_str(), L"", BlueInterfaceIID<ITr2GpuBuffer>(), (void**)&m_gpuBuffer );
+	}
 	return true;
 }
 
@@ -53,7 +57,7 @@ bool Tr2GeometryBufferParameter::OnModified( Be::Var* val )
 {
 	if( IsMatch( val, m_resourcePath ) )
 	{
-		UnloadResources();
+		m_gpuBuffer.Unlock();
 		Initialize();
 		RebuildEffectHandles( m_cachedEffect );
 	}
@@ -118,82 +122,6 @@ void Tr2GeometryBufferParameter::RebuildEffectHandles( Tr2Shader* effectRes )
 
 // --------------------------------------------------------------------------------------
 // Description:
-//   Implements ITriEffectResourceParameter interface. Supposed to reload parameter data.
-//   Does nothing.
-// --------------------------------------------------------------------------------------
-void Tr2GeometryBufferParameter::ReloadResources()
-{
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Implements ITriEffectResourceParameter interface. Loads geometry resource.
-// Return value:
-//   true If the parameter is ready to be used, i.e. if it is not referencing any 
-//         resources or resources are already loaded.
-//   false If resources referenced by the parameter are being loaded.
-// --------------------------------------------------------------------------------------
-bool Tr2GeometryBufferParameter::LoadResources()
-{
-	if ( !m_resourcePath.empty() )
-	{
-		m_gpuBuffer.Unlock();
-		BeResMan->GetResourceW( m_resourcePath.c_str(), L"", BlueInterfaceIID<ITr2GpuBuffer>(), (void**)&m_gpuBuffer );
-		if( !m_gpuBuffer )
-		{
-			return true;
-		}
-		IBlueResourcePtr async = BlueCastPtr( m_gpuBuffer );
-		if( !async )
-		{
-			return false;
-		}
-		return async->IsGood();
-	}
-	return true;
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Implements ITriEffectResourceParameter interface. Unlocks geometry resource and UAV
-//   buffer.
-// --------------------------------------------------------------------------------------
-void Tr2GeometryBufferParameter::UnloadResources()
-{
-	m_gpuBuffer.Unlock();
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Implements ITriEffectResourceParameter interface. Returns parameter value as a raw
-//   pointer. Used for caching.
-// Return value:
-//   Value as a raw pointer.
-// --------------------------------------------------------------------------------------
-void* Tr2GeometryBufferParameter::GetResourcePointer() const
-{
-	if( m_gpuBuffer )
-	{
-		return m_gpuBuffer->GetGpuBuffer( m_meshIndex );
-	}
-	return nullptr;
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
-//   Implements ITriEffectResourceParameter interface. Checks if the parameter is ready
-//   to be used.
-// Return value:
-//   true If paramter contains geometry or UAV buffer
-//   false Otherwise
-// --------------------------------------------------------------------------------------
-bool Tr2GeometryBufferParameter::IsPrepared() const
-{
-	return m_gpuBuffer && m_gpuBuffer->GetGpuBuffer( m_meshIndex );
-}
-
-// --------------------------------------------------------------------------------------
-// Description:
 //   Implements ITriEffectResourceParameter interface. Applies paramter value to effect.
 // Arguments:
 //   inputType - Shader type to apply resource to
@@ -238,4 +166,11 @@ void Tr2GeometryBufferParameter::CopyValueToEffect(		Tr2RenderContextEnum::Shade
 bool Tr2GeometryBufferParameter::IsValid() const
 {
 	return m_gpuBuffer && m_gpuBuffer->GetGpuBuffer( m_meshIndex );
+}
+
+// --------------------------------------------------------------------------------------
+void Tr2GeometryBufferParameter::SetGpuBuffer( ITr2GpuBuffer* buffer )
+{
+	m_resourcePath = L"";
+	m_gpuBuffer = buffer;
 }

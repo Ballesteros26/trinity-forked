@@ -40,7 +40,6 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITriEffectParameter
 
-	size_t GetValueSize() const;
 	void CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType, 
 							unsigned char* destHandle, 
 							size_t size,

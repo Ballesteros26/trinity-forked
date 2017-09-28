@@ -29,8 +29,7 @@ BLUE_CLASS( Tr2Mesh ):
 	public Tr2MeshBase,
 	public IInitialize,
 	public INotify,
-	public IBlueAsyncResNotifyTarget,
-	public IUnloadable
+	public IBlueAsyncResNotifyTarget
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -66,11 +65,6 @@ public:
 	// IBlueAsyncResNotifyTarget
 	virtual void ReleaseCachedData( BlueAsyncRes* p );
 	virtual void RebuildCachedData( BlueAsyncRes* p );
-
-	//////////////////////////////////////////////////////////////////////////
-	// IUnloadable
-	virtual void UnloadWhenUnreferenced();
-	virtual void ReloadWhenReferenced();
 private:
 	void InitializeGeometryResource();
 

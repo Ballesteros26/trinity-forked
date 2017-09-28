@@ -88,9 +88,6 @@ public:
 	void ApplyShaderInputs( uint32_t techniqueIndex, unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, Tr2RenderContext& renderContext ) const;
 	uint32_t GetSortValue() const;
 	Tr2Shader* GetShaderStateInterface() const;
-
-	virtual void UnloadResources();
-	virtual bool LoadResources();
 protected:
 	Tr2ShaderPtr m_shader;
 	Tr2EffectTechniqueParametersVector m_parametersForPasses;

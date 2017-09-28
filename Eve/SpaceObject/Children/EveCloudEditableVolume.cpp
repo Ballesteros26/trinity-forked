@@ -426,29 +426,6 @@ void EveCloudVolumeTextureParameter::RebuildEffectHandles( Tr2Shader* effectRes 
 	m_isUsedByEffect = true;
 }
 
-void EveCloudVolumeTextureParameter::ReloadResources()
-{
-}
-
-bool EveCloudVolumeTextureParameter::LoadResources()
-{
-	return true;
-}
-
-void EveCloudVolumeTextureParameter::UnloadResources()
-{
-}
-
-void* EveCloudVolumeTextureParameter::GetResourcePointer() const
-{
-	return m_volume;
-}
-
-bool EveCloudVolumeTextureParameter::IsPrepared() const
-{
-	return true;
-}
-
 void EveCloudVolumeTextureParameter::CopyValueToEffect(	
 	Tr2RenderContextEnum::ShaderType inputType, 
 	unsigned char* destHandle, 

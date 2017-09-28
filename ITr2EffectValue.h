@@ -16,9 +16,6 @@ BLUE_INTERFACE( ITr2EffectValue ) : public IRoot
 		RESOURCE_FLAG_UAV	= 2,
 	};
 
-	// Use this method to validate that the Copy won't overflow destination
-	virtual size_t GetValueSize() const = 0;
-
 	// Copy the value to the effect using 'destHandle'.  For basic types 'destHandle'
 	// is a memory address for the constant block being constructed for the effect.
 	// For resources the 'destHandle' plays the role of the sampler index and size

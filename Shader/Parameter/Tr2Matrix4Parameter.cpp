@@ -41,11 +41,6 @@ void Tr2Matrix4Parameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType in
 	}
 }
 
-size_t Tr2Matrix4Parameter::GetValueSize() const
-{
-	return sizeof(m_value);
-}
-
 Matrix	Tr2Matrix4Parameter::GetValue()
 {
 	if( m_reroutedValue )

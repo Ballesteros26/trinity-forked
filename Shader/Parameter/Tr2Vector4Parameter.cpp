@@ -44,11 +44,6 @@ void Tr2Vector4Parameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType in
 	}
 }
 
-size_t Tr2Vector4Parameter::GetValueSize() const
-{
-	return sizeof(m_value);
-}
-
 // --------------------------------------------------------------------------------------
 // Description:
 //   Used to get the value of the parameter.  If the parameter is rerouted, gets the value

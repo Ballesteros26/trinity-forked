@@ -35,11 +35,6 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	// ITriEffectResourceParameter
-	void ReloadResources();
-	bool LoadResources();
-	void UnloadResources();
-	void* GetResourcePointer() const;
-	bool IsPrepared() const;
 	void CopyValueToEffect(		Tr2RenderContextEnum::ShaderType inputType, 
 								unsigned char* destHandle, 
 								size_t resourceFlags,
@@ -55,6 +50,8 @@ public:
 	bool Initialize();
 
 	bool IsValid() const;
+
+	void SetGpuBuffer( ITr2GpuBuffer* buffer );
 
 	std::string m_name;
 

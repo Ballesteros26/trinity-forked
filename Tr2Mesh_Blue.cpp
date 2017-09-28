@@ -45,7 +45,6 @@ const Be::ClassInfo* Tr2Mesh::ExposeToBlue()
 		MAP_INTERFACE( Tr2Mesh )
 		MAP_INTERFACE( IInitialize )
 		MAP_INTERFACE( INotify )
-		MAP_INTERFACE( IUnloadable )
 
 		MAP_ATTRIBUTE( "geometry", m_geometryResource, "na", Be::READ )			
 		MAP_ATTRIBUTE_WITH_CHOOSER

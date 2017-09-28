@@ -43,11 +43,6 @@ void Tr2FloatParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inpu
 	}
 }
 
-size_t Tr2FloatParameter::GetValueSize() const
-{
-	return sizeof(m_value);
-}
-
 float Tr2FloatParameter::GetValue()
 {
 	if( m_reroutedValue )

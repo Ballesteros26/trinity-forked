@@ -156,11 +156,6 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	// ITriEffectResourceParameter
-	void ReloadResources();
-	bool LoadResources();
-	void UnloadResources();
-	void* GetResourcePointer() const;
-	bool IsPrepared() const;
 	void CopyValueToEffect(	Tr2RenderContextEnum::ShaderType inputType, 
 							unsigned char* destHandle, 
 							size_t isSRGB,

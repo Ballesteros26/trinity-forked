@@ -56,17 +56,9 @@ void TriTextureParameter::SetResourcePath( const char* resourcePath )
 	OnModified( (Be::Var*)&m_resourcePath );
 }
 
-void TriTextureParameter::ReloadResources()
-{
-	if ( m_resource )
-	{
-		m_resource->ReloadResources();
-	}
-}
-
 bool TriTextureParameter::OnModified(	Be::Var* val )
 {
-	UnloadResources();
+	m_resource.Unlock();
 
 	Initialize();
 
@@ -119,26 +111,18 @@ void TriTextureParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType in
 	}
 }
 
-// --------------------------------------------------------------------------------------
-// Description:
-//   Checks if the texture resource is prepared.
-// Return value:
-//   true If the resource path is empty or resource is good
-//	 false Otherwise
-// --------------------------------------------------------------------------------------
-bool TriTextureParameter::IsPrepared() const
-{
-	if( *m_resourcePath.c_str() == 0 || ( m_resource && m_resource->IsPrepared() ) )
-	{
-		return true;
-	}
-	return false;
-}
-
 // ---------------------------------------------------------------
 bool TriTextureParameter::Initialize()
 {
-	LoadResources();
+	if( !m_resourcePath.empty() )
+	{
+		m_resource = nullptr;
+		BeResMan->GetResource( m_resourcePath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_resource );
+	}
+	else
+	{
+		m_resource.Unlock();
+	}
 	return true;
 }
 
@@ -155,35 +139,6 @@ void TriTextureParameter::SetResource( TriTextureRes* newRes )
 TriTextureRes* TriTextureParameter::GetResource() const
 {
 	return m_resource;
-}
-
-void* TriTextureParameter::GetResourcePointer() const
-{
-	return m_resource ? m_resource->GetTexture() : nullptr;
-}
-
-bool TriTextureParameter::LoadResources()
-{
-	if ( !m_resourcePath.empty() )
-	{
-		m_resource = nullptr;
-		BeResMan->GetResource( m_resourcePath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_resource );
-		if( !m_resource )
-		{
-			return true;
-		}
-		return m_resource->IsPrepared();
-	}
-	else
-	{
-		UnloadResources();
-	}
-	return true;
-}
-
-void TriTextureParameter::UnloadResources()
-{
-	m_resource.Unlock();
 }
 
 // --------------------------------------------------------------------------------------

@@ -161,12 +161,3 @@ Tr2Shader* Tr2Material::GetShaderStateInterface() const
 {
 	return m_shader;
 }
-
-void Tr2Material::UnloadResources()
-{
-}
-
-bool Tr2Material::LoadResources()
-{
-	return true;
-}
