@@ -543,8 +543,6 @@ void EveMissileWarhead::UpdateWarhead( float deltaT, float estimatedTotalAliveTi
 
 	// reduce all our influences and move the warhead closer to zero
 	Quaternion id( 0.f, 0.f, 0.f, 1.f );
-	D3DXQuaternionSlerp( &m_currentOrientation, &m_startOrientation, &id, flight01 );
-	D3DXQuaternionNormalize( &m_currentOrientation, &m_currentOrientation );
 	D3DXVec3Lerp( &m_currentOffset, &m_currentStartOffset, &m_currentEndOffset, powf( flight01, 1.f + m_acceleration ) );
 
 	// apply the inverse ball movement which holds the warhead in position during short eject-phase
@@ -574,17 +572,12 @@ void EveMissileWarhead::UpdateWarhead( float deltaT, float estimatedTotalAliveTi
 	{
 		if( m_startDataValid )
 		{
-			if( D3DXVec3LengthSq( &translation ) > 1.f )
+			if( D3DXVec3LengthSq( &translation ) > 0.f )
 			{
 				// move/facing direction is in global world-space, we need it in "ball"-space
 				D3DXVec3TransformNormal( &translation, &translation, invBallRotation );
 				// turn facing vector into a rotation
 				TriQuaternionArcFromForward( &m_currentOrientation, &translation );
-			}
-			else
-			{
-				// backup
-				m_currentOrientation = m_startOrientation;
 			}
 		}
 	}
