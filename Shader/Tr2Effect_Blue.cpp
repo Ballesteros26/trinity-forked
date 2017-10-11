@@ -25,7 +25,6 @@ static PyObject* PyGetParameterAnnotations( PyObject* self, PyObject* args )
 
 	if (!pThis->GetShaderStateInterface())
 	{
-		CCP_LOGERR( "Tr2Effect::GetParameterAnnotations: no effect resource loaded." );
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
