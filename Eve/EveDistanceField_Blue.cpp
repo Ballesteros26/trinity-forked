@@ -10,12 +10,9 @@ const Be::ClassInfo* EveDistanceField::ExposeToBlue()
 		MAP_INTERFACE( IListNotify )
 
 		MAP_ATTRIBUTE( "cameraView", m_cameraView, "na", Be::READWRITE )
-		MAP_ATTRIBUTE( "objects", m_objects, "na", Be::READWRITE )
+		MAP_ATTRIBUTE( "objects", m_objects, "na", Be::READWRITE | Be::NOTIFY  )
 		MAP_ATTRIBUTE( "curveSet", m_curveSet, "na", Be::READWRITE )
 		MAP_ATTRIBUTE( "distance", m_distance, "na", Be::READWRITE )
-		MAP_ATTRIBUTE( "maxDimension", m_maxDimension, "na", Be::READ )
-		MAP_ATTRIBUTE( "maxDistance", m_maxDistance, "na", Be::READ )
-
 		
 		MAP_ATTRIBUTE( "timeAdjustmentSecondsOut", 
 						m_timeAdjustmentSecondsOut, 
@@ -32,14 +29,9 @@ const Be::ClassInfo* EveDistanceField::ExposeToBlue()
 		MAP_ATTRIBUTE( "maxXZRatio", m_maxXZRatio, "", Be::READWRITE );
 		MAP_ATTRIBUTE( "minYRatio", m_minYRatio, "", Be::READWRITE );
 		
-		MAP_METHOD_AND_WRAP(
-			"SetMaxDistance",
-			SetMaxDistance,
-			"Sets the maximum distance of the distance field and updates the distancecurve\n"
-			":param maxDistance: the new maximum distance\n"
-			)
+		MAP_ATTRIBUTE( "minDistance", m_minDistance, "The threshold distance from an object in the field where you are 100% inside the environment", Be::READWRITE | Be::NOTIFY );
+		MAP_ATTRIBUTE( "maxDistance", m_maxDistance, "The threshold distance from an object in the field where you are outside the environment", Be::READWRITE | Be::NOTIFY );
 		
-
 		MAP_METHOD_AND_WRAP( 
 			"SetupDynamicDistanceField", 
 			SetupDynamicDistanceField, 

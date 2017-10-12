@@ -20,7 +20,8 @@ BLUE_DECLARE( Tr2CurveScalar );
 //   a simple volume the covers the objects.
 // --------------------------------------------------------------------------------------
 BLUE_CLASS( EveDistanceField ):
-	public IListNotify
+	public IListNotify,
+	public INotify
 {
 public:
 	EveDistanceField( IRoot* lockobj = 0 );
@@ -30,6 +31,10 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IListNotify
 	void OnListModified( long event, ssize_t key, ssize_t key2, IRoot* value, const IList* theList );
+	
+	/////////////////////////////////////////////////////////////////////////////////////
+	// INotify
+	bool OnModified( Be::Var* value );
 
 	void Update( const EveUpdateContext& updateContext );
 	
@@ -47,7 +52,8 @@ private:
 
 	TriViewPtr m_cameraView;
 
-	float m_maxDimension;
+	// min and max distance for determining how far inside the environment you are
+	float m_minDistance;
 	float m_maxDistance;
 	// distance value used by curve set
 	float m_distance;
@@ -75,10 +81,10 @@ private:
 
 	// middle of the field modified by distance threshold and so on
 	Vector3 m_middle;
-	// dimensions of the field/volume
+	// dimensions of the field/volume fog
 	Vector3 m_dimensions;
 	void SetNeutralValues();
-	void CalculateFieldCoverage( Be::Time t );
+	float CalculateFieldCoverageAndDistance( Be::Time t, const Vector3& posRef, const Vector3& originShift );
 };
 	
 TYPEDEF_BLUECLASS( EveDistanceField );
