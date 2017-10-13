@@ -90,6 +90,7 @@ using std::max;
 #include "Vector2.h"
 #include "Vector3.h"
 #include "Vector4.h"
+#include "Utilities/Plane.h"
 #include "Utilities/Matrix.h"
 #include "Utilities/Color.h"
 #include "Utilities/Quaternion.h"

@@ -106,14 +106,14 @@ void GetProjectedCubeBounds(  AxisAlignedBoundingBox& box, const Matrix& worldVi
 	{
 		for( int j = 0; j < 4; ++j )
 		{
-			D3DXVec3TransformCoord( &sides[i][j], &sides[i][j], &worldView );
+			sides[i][j] = TransformCoord( sides[i][j], worldView );
 		}
 	}
 
 	Vector4 points[48];
 	int count = 0;
 
-	D3DXPLANE plane( 0, 0, 1, nearPlane );
+	Plane plane( 0, 0, 1, nearPlane );
 
 	for( int side = 0; side < 6; ++side )
 	{
@@ -121,16 +121,15 @@ void GetProjectedCubeBounds(  AxisAlignedBoundingBox& box, const Matrix& worldVi
 		{
 			const Vector3& vertex1 = sides[side][edge];
 			const Vector3& vertex2 = sides[side][( edge + 1 ) % 4];
-			float v0 = D3DXPlaneDotCoord( &plane, &vertex1 );
-			float v1 = D3DXPlaneDotCoord( &plane, &vertex2 );
+			float v0 = DotCoord( plane, vertex1 );
+			float v1 = DotCoord( plane, vertex2 );
 			if( v0 <= 0 )
 			{
 				points[count++] = Vector4( sides[side][edge], 0.f );
 			}
 			if( v0 * v1 < 0 )
 			{
-				Vector3 result;
-				D3DXPlaneIntersectLine( &result, &plane, &vertex1, &vertex2 );
+				Vector3 result = IntersectLine( plane, vertex1, vertex2 ).second;
 				points[count++] = Vector4( result, 0.f );
 			}
 		}
@@ -138,7 +137,7 @@ void GetProjectedCubeBounds(  AxisAlignedBoundingBox& box, const Matrix& worldVi
 
 	for( int i = 0; i < count; ++i )
 	{
-		D3DXVec4Transform( points + i, points + i, &proj );
+		points[i] = Transform( points[i], proj );
 	}
 
 	for( int i = 0; i < count; ++i )
@@ -242,7 +241,7 @@ bool EveChildCloud::HasTransparentBatches()
 float EveChildCloud::GetSortValue()
 {
 	Vector3 d = Tr2Renderer::GetViewPosition() - m_worldTransform.GetTranslation();
-	float distance = D3DXVec3Length( &d ) - D3DXVec3Length( &m_scaling ) * m_sortingModifier;
+	float distance = Length( d ) - Length( m_scaling ) * m_sortingModifier;
 	return distance;
 }
 
@@ -359,36 +358,29 @@ Tr2PerObjectData* EveChildCloud::GetPerObjectData( ITriRenderBatchAccumulator* a
 		return NULL;
 	}
 
-	D3DXMatrixTranspose( &data->m_data.m_world, &m_worldTransform );
+	data->m_data.m_world = Transpose( m_worldTransform );
 
 	Matrix worldView = m_worldTransform * Tr2Renderer::GetViewTransform();
-	D3DXMatrixTranspose( &data->m_data.m_worldView, &worldView );
+	data->m_data.m_worldView = Transpose( worldView );
 
 	Matrix worldViewProjection = m_worldTransform * Tr2Renderer::GetViewTransform() * Tr2Renderer::GetProjectionTransform();
 
-	Matrix worldViewTransposed;
-	D3DXMatrixTranspose( &worldViewTransposed, &worldView );
+	Matrix worldViewTransposed = Transpose( worldView );
 	Vector4 nearPlane( 0.f, 0.f, -1.f, -Tr2Renderer::GetFrontClip() );
-	D3DXVec4Transform( &data->m_data.m_nearPlaneLocal, &nearPlane, &worldViewTransposed );
+	data->m_data.m_nearPlaneLocal = Transform( nearPlane, worldViewTransposed );
 
-	Matrix worldViewInv;
-	D3DXMatrixInverse( &worldViewInv, nullptr, &worldView );
-	D3DXMatrixTranspose( &data->m_data.m_worldViewInv, &worldViewInv );
-	Vector3 zero( 0.f, 0.f, 0.f );
-	D3DXVec3TransformCoord( &data->m_data.m_eyePosLocal, &zero, &worldViewInv );
+	Matrix worldViewInv = Inverse( worldView );
+	data->m_data.m_worldViewInv = Transpose( worldViewInv );
+	data->m_data.m_eyePosLocal = TransformCoord( Vector3( 0.f, 0.f, 0.f ), worldViewInv );
 
 	const float fakeNearPlane = 500;
 	// We modify the original projection matrix by changing clip planes to avoid precision problems
 	Matrix fakeProjection = Tr2Renderer::GetProjectionTransform();
 	fakeProjection._33 = -1;
 	fakeProjection._43 = -fakeNearPlane * 2;
-	Matrix fakeProjectionInv;
-	D3DXMatrixInverse( &fakeProjectionInv, nullptr, &fakeProjection );
-	D3DXMatrixTranspose( &data->m_data.m_projectionInv, &fakeProjectionInv );
+	data->m_data.m_projectionInv = Transpose( Inverse( fakeProjection ) );
 
-	Vector3 center;
-	D3DXVec3TransformCoord( &center, &zero, &worldViewProjection );
-	data->m_data.m_screenDepth = center.z;
+	data->m_data.m_screenDepth = TransformCoord( Vector3( 0.f, 0.f, 0.f ), worldViewProjection ).z;
 
 	AxisAlignedBoundingBox box;
 	GetProjectedCubeBounds( box, m_worldTransform * Tr2Renderer::GetViewTransform(), fakeProjection, 1, m_min, m_max );
@@ -447,7 +439,7 @@ void EveChildCloud::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpace
 		m_volume->Update( updateContext.GetTime() );
 	}
 
-	D3DXMatrixTransformation( &m_localTransform, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_translation );
+	m_localTransform = TransformationMatrix( m_scaling, m_rotation, m_translation );
 
 	Matrix parent;
 	if( childParent )
@@ -458,7 +450,7 @@ void EveChildCloud::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpace
 	{
 		spaceObjectParent->GetLocalToWorldTransform( parent );
 	}
-	D3DXMatrixMultiply( &m_worldTransform, &m_localTransform, &parent );
+	m_worldTransform = m_localTransform * parent;
 	BoundingSphereFromBox( m_boundingSphere, m_min, m_max, &m_worldTransform );
 }
 

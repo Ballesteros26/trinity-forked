@@ -573,6 +573,8 @@ inline Vector4 operator*( const Matrix& m, Vector4 p )
 
 #endif
 
+#include "Quaternion.h"
+
 inline bool IsMatch( Be::Var* value, const Matrix& t )
 {
 	return (Be::Var*)&t == value;
@@ -586,6 +588,69 @@ inline Matrix IdentityMatrix()
 		0, 1, 0, 0,
 		0, 0, 1, 0,
 		0, 0, 0, 1 );
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix TranslationMatrix( float x, float y, float z )
+{
+	return Matrix(
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		x, y, z, 1.f );
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix TranslationMatrix( const Vector3& translation )
+{
+	return Matrix(
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		translation.x, translation.y, translation.z, 1.f );
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix ScalingMatrix( float sx, float sy, float sz )
+{
+	return Matrix(
+		sx, 0.f, 0.f, 0.f,
+		0.f, sy, 0.f, 0.f,
+		0.f, 0.f, sz, 0.f,
+		0.f, 0.f, 0.f, 1.f );
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix ScalingMatrix( const Vector3& scaling )
+{
+	return Matrix(
+		scaling.x, 0.f, 0.f, 0.f,
+		0.f, scaling.y, 0.f, 0.f,
+		0.f, 0.f, scaling.z, 0.f,
+		0.f, 0.f, 0.f, 1.f );
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix RotationMatrix( const Quaternion& q )
+{
+	Matrix out;
+	out.m[0][0] = 1.0f - 2.0f * ( q.y * q.y + q.z * q.z );
+	out.m[0][1] = 2.0f * ( q.x *q.y + q.z * q.w );
+	out.m[0][2] = 2.0f * ( q.x * q.z - q.y * q.w );
+	out.m[0][3] = 0.0f;
+	out.m[1][0] = 2.0f * ( q.x * q.y - q.z * q.w );
+	out.m[1][1] = 1.0f - 2.0f * ( q.x * q.x + q.z * q.z );
+	out.m[1][2] = 2.0f * ( q.y *q.z + q.x *q.w );
+	out.m[1][3] = 0.0f;
+	out.m[2][0] = 2.0f * ( q.x * q.z + q.y * q.w );
+	out.m[2][1] = 2.0f * ( q.y *q.z - q.x *q.w );
+	out.m[2][2] = 1.0f - 2.0f * ( q.x * q.x + q.y * q.y );
+	out.m[2][3] = 0.0f;
+	out.m[3][0] = 0.0f;
+	out.m[3][1] = 0.0f;
+	out.m[3][2] = 0.0f;
+	out.m[3][3] = 1.0f;
+	return out;
 }
 
 // --------------------------------------------------------------------------------------
@@ -715,6 +780,106 @@ inline Vector3 TransformNormal( const Vector3& normal, const Matrix& transform )
 		normal.x * transform._11 + normal.y * transform._21 + normal.z * transform._31,
 		normal.x * transform._12 + normal.y * transform._22 + normal.z * transform._32,
 		normal.x * transform._13 + normal.y * transform._23 + normal.z * transform._33 );
+}
+
+// --------------------------------------------------------------------------------------
+inline Vector4 Transform( const Vector4& point, const Matrix& transform )
+{
+	return Vector4(
+		point.x * transform._11 + point.y * transform._21 + point.z * transform._31 + point.w * transform._41,
+		point.x * transform._12 + point.y * transform._22 + point.z * transform._32 + point.w * transform._42,
+		point.x * transform._13 + point.y * transform._23 + point.z * transform._33 + point.w * transform._43,
+		point.x * transform._14 + point.y * transform._24 + point.z * transform._34 + point.w * transform._44 );
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix TransformationMatrix(
+	const Vector3* scalingCenter,
+	const Quaternion* scalingRotation,
+	const Vector3* scaling,
+	const Vector3* rotationCenter,
+	const Quaternion *rotation,
+	const Vector3* translation )
+{
+	Matrix m1, m2, m3, m4, m5, m6, m7, p1, p2, p3, p4, p5;
+	Quaternion prc;
+	Vector3 psc, pt;
+
+	if( !scalingCenter )
+	{
+		psc.x = 0.0f;
+		psc.y = 0.0f;
+		psc.z = 0.0f;
+	}
+	else
+	{
+		psc.x = scalingCenter->x;
+		psc.y = scalingCenter->y;
+		psc.z = scalingCenter->z;
+	}
+	if( !rotationCenter )
+	{
+		prc.x = 0.0f;
+		prc.y = 0.0f;
+		prc.z = 0.0f;
+	}
+	else
+	{
+		prc.x = rotationCenter->x;
+		prc.y = rotationCenter->y;
+		prc.z = rotationCenter->z;
+	}
+	if( !translation )
+	{
+		pt.x = 0.0f;
+		pt.y = 0.0f;
+		pt.z = 0.0f;
+	}
+	else
+	{
+		pt.x = translation->x;
+		pt.y = translation->y;
+		pt.z = translation->z;
+	}
+	m1 = TranslationMatrix( -psc );
+	if( !scalingRotation )
+	{
+		m2 = IdentityMatrix();
+		m4 = IdentityMatrix();
+	}
+	else
+	{
+		m4 = RotationMatrix( *scalingRotation );
+		m2 = Inverse( m4 );
+	}
+	if( !scaling )
+	{
+		m3 = IdentityMatrix();
+	}
+	else
+	{
+		m3 = ScalingMatrix( *scaling );
+	}
+	if( !rotation )
+	{
+		m6 = IdentityMatrix();
+	}
+	else
+	{
+		m6 = RotationMatrix( *rotation );
+	}
+	m5 = TranslationMatrix( psc.x - prc.x, psc.y - prc.y, psc.z - prc.z );
+	m7 = TranslationMatrix( prc.x + pt.x, prc.y + pt.y, prc.z + pt.z );
+	return m1 * m2 * m3 * m4 * m5 * m6 * m7;
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix TransformationMatrix(
+	const Vector3& scaling,
+	const Quaternion& rotation,
+	const Vector3& translation )
+{
+	return ScalingMatrix( scaling ) * RotationMatrix( rotation ) * TranslationMatrix( translation );
 }
 
 #endif // MATRIX_H
