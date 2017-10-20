@@ -101,7 +101,7 @@ using std::max;
 #endif
 
 #include "include/Tr2WindowHandle.h"
-#include "TrinityAL/Tr2Hal.h"
+#include "TrinityAL/include/TrinityAL.h"
 #include "Tr2RenderContext.h"
 #include "Tr2RenderUtils.h"
 #include "granny.h"
