@@ -1508,15 +1508,15 @@ bool TriGeometryRes::GetIntersectionPoints( const Vector3* pos, const Vector3*di
 			float pu, pv, dist;
 			if( m_meshes[i]->m_indexBuffer.Is16Bit() )
 			{
-				index1 = pShortIndices[++currentIndex];
-				index2 = pShortIndices[++currentIndex];
-				index3 = pShortIndices[++currentIndex];
+				index1 = pShortIndices[currentIndex++];
+				index2 = pShortIndices[currentIndex++];
+				index3 = pShortIndices[currentIndex++];
 			}
 			else
 			{
-				index1 = pLongIndices[++currentIndex];
-				index2 = pLongIndices[++currentIndex];
-				index3 = pLongIndices[++currentIndex];
+				index1 = pLongIndices[currentIndex++];
+				index2 = pLongIndices[currentIndex++];
+				index3 = pLongIndices[currentIndex++];
 			}
 
 			ConvertTriangleData( position->m_dataType, vertSize, pVertices, index1, index2, index3, &p1, &p2, &p3 );
