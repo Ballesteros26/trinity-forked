@@ -89,7 +89,6 @@ void Tr2PerObjectDataSkinned::SetPerObjectDataToDevice( Tr2ConstantBufferAL** bu
 
 void Tr2PerObjectDataSkinned::UpdateVertexShaderCBMirror( void* destination, Tr2RenderContext& renderContext ) const
 {
-	const unsigned totalSize = ( TR2_MAX_BONES_PER_MESHAREA * 3 + 5 + 4 ) * 16;
 	uint8_t* vs = static_cast<uint8_t*>( destination );
 	memcpy( vs + ( TR2_MAX_BONES_PER_MESHAREA * 3 ) * 16, &m_worldMat.m[0][0], 4 * 16 );
 	memcpy( vs + ( TR2_MAX_BONES_PER_MESHAREA * 3 + 5 ) * 16, &m_mirrorMatrix.m[0][0], 4 * 16 );
@@ -120,12 +119,13 @@ void Tr2PerAreaDataSkinned::SetPerObjectDataToDevice( Tr2ConstantBufferAL** buff
 
 		CCP_ASSERT( m_jointCount <= TR2_MAX_BONES_PER_MESHAREA );
 
-		const unsigned totalSize = m_jointCount * 3 * 16;
+		const unsigned totalSize = ( TR2_MAX_BONES_PER_MESHAREA * 3 + 5 + 4 ) * 16;
+		const unsigned jointSize = m_jointCount * 3 * 16;
 
 		if( char* vs = (char*)buffer.GetBufferMirror( totalSize, renderContext ) )
 		{
 			m_perObjectDataPtr->UpdateVertexShaderCBMirror( vs, renderContext );
-			memcpy( vs, &m_jointTransforms, totalSize );
+			memcpy( vs, &m_jointTransforms, jointSize );
 		}
 
 		buffer.UpdateFromMirror( renderContext );
