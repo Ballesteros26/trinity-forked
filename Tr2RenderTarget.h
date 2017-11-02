@@ -67,7 +67,7 @@ public:
 	operator Tr2RenderTargetAL&() { return GetRenderTarget(); }
 	operator const Tr2RenderTargetAL&() const { return GetRenderTarget(); }
 
-	uint32_t GetSharedHandle() const;
+	uintptr_t GetSharedHandle() const;
 	
 	std::string m_name;
 private:

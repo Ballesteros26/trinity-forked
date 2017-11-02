@@ -210,7 +210,7 @@ bool Tr2RenderTarget::HasALObject( int type, size_t object )
 // Return Value:
 //   Shared handle of contained AL render target
 // --------------------------------------------------------------------------------------
-uint32_t Tr2RenderTarget::GetSharedHandle() const
+uintptr_t Tr2RenderTarget::GetSharedHandle() const
 {
 	return m_renderTarget.GetSharedHandle();
 }
