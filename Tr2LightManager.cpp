@@ -251,8 +251,12 @@ ALResult Tr2LightManager::UpdateLists( uint32_t msaaType, Tr2RenderContext& rend
 	return hr;
 }
 
-void Tr2LightManager::ReleaseResources( TriStorage )
+void Tr2LightManager::ReleaseResources( TriStorage s )
 {
+	if( s & m_perFrameData.GetMemoryClass() )
+	{
+		m_perFrameData.Destroy();
+	}
 }
 
 bool Tr2LightManager::OnPrepareResources()

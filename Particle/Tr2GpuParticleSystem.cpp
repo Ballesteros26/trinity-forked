@@ -264,6 +264,18 @@ void Tr2GpuParticleSystem::ReleaseResources( TriStorage s )
 	}
 	m_decl = Tr2EffectStateManager::UNINITIALIZED_DECLARATION;
 #endif
+	if( s & m_emitCB.GetMemoryClass() )
+	{
+		m_emitCB.Destroy();
+	}
+	if( s & m_updateCB.GetMemoryClass() )
+	{
+		m_updateCB.Destroy();
+	}
+	if( s & m_sortCB.GetMemoryClass() )
+	{
+		m_sortCB.Destroy();
+	}
 }
 
 #if GPU_PARTICLES_METHOD == GPU_PARTICLES_BUFFER_METHOD
