@@ -105,6 +105,12 @@ public:
 	const EveSOFDataMgr::FactionSpriteSetColorData* GetFactionSpriteSetData( int groupIndex ) const;
 	const EveSOFDataMgr::FactionChildData* GetFactionChildData( int groupIndex ) const;
 
+	// get color data
+	const Color* GetColorSpriteSet() const;
+
+	// get visibility data
+	bool IsInVisibilityData( uint32_t h ) const;
+
 	// get pattern data
 	size_t GetPatternLayerCount() const;
 	const EveSOFDataMgr::PatternProjectionData* GetPatternProjectionData( size_t layer ) const;

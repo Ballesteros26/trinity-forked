@@ -1157,6 +1157,18 @@ size_t EveSOFDNA::GetHullBoosterCount() const
 }
 
 // --------------------------------------------------------------------------------
+const Color* EveSOFDNA::GetColorSpriteSet() const
+{
+	return m_factionData->colorData.spriteSetColors;
+}
+
+// --------------------------------------------------------------------------------
+bool EveSOFDNA::IsInVisibilityData( uint32_t h ) const
+{
+	return ( m_factionData->visibilityData.count( h ) != 0 );
+}
+
+// --------------------------------------------------------------------------------
 // Description:
 //   Return the number of layers of this pattern
 // --------------------------------------------------------------------------------

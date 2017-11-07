@@ -546,48 +546,56 @@ void EveSOF::SetupSpriteSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 		{
 			const EveSOFDataMgr::HullSpriteSetData* spriteSetData = &( *ssit );
 
-			// create a spriteset for this ship
-			EveSpriteSetPtr spriteSet;
-			spriteSet.CreateInstance();
-			// set skinned or unskinned shader
-			spriteSet->SetEffect( m_spriteSetEffect );
-			spriteSet->SetSkinned( spriteSetData->skinned );
-			// add all the individual items
-			for( auto ssiit = spriteSetData->items.begin(); ssiit != spriteSetData->items.end(); ++ssiit )
+			// vivible?
+//			if( dna->IsInVisibilityData( spriteSetData->visibilityGroup ) )
 			{
-				const EveSOFDataMgr::HullSpriteSetItemData* itemData = &( *ssiit );
-
-				// faction data?
-				const EveSOFDataMgr::FactionSpriteSetColorData* factionSpriteData = dna->GetFactionSpriteSetData( itemData->groupIndex );
-				if( !factionSpriteData )
+				// create a spriteset for this ship
+				EveSpriteSetPtr spriteSet;
+				spriteSet.CreateInstance();
+				// set skinned or unskinned shader
+				spriteSet->SetEffect( m_spriteSetEffect );
+				spriteSet->SetSkinned( spriteSetData->skinned );
+				// add all the individual items
+				for( auto ssiit = spriteSetData->items.begin(); ssiit != spriteSetData->items.end(); ++ssiit )
 				{
-					// This spriteset item is not used for this faction.
-					continue;
+					const EveSOFDataMgr::HullSpriteSetItemData* itemData = &( *ssiit );
+
+					// color data?
+					const Color* spriteSetColors = dna->GetColorSpriteSet();
+
+					// faction data?
+					const EveSOFDataMgr::FactionSpriteSetColorData* factionSpriteData = dna->GetFactionSpriteSetData( itemData->groupIndex );
+					if( !factionSpriteData )
+					{
+						// This spriteset item is not used for this faction.
+						continue;
+					}
+
+					// create spriteset items
+					EveSpriteSetItemPtr spriteSetItem;
+					spriteSetItem.CreateInstance();
+
+					// set it up the per-faction data
+					spriteSetItem->m_color = factionSpriteData->color;
+//					spriteSetItem->m_color = spriteSetColors[itemData->colorType];
+
+					// set it up the per-hull data
+					spriteSetItem->m_blinkPhase = itemData->blinkPhase;
+					spriteSetItem->m_blinkRate = itemData->blinkRate;
+					spriteSetItem->m_boneIndex = itemData->boneIndex;
+					spriteSetItem->m_falloff = itemData->falloff;
+					spriteSetItem->m_maxScale = itemData->maxScale;
+					spriteSetItem->m_minScale = itemData->minScale;
+					spriteSetItem->m_position = itemData->position + hullOffset;
+
+					// put it into spriteset
+					spriteSet->Add( spriteSetItem );
 				}
-
-				// create spriteset items
-				EveSpriteSetItemPtr spriteSetItem;
-				spriteSetItem.CreateInstance();
-
-				// set it up the per-faction data
-				spriteSetItem->m_color = factionSpriteData->color;
-
-				// set it up the per-hull data
-				spriteSetItem->m_blinkPhase = itemData->blinkPhase;
-				spriteSetItem->m_blinkRate = itemData->blinkRate;
-				spriteSetItem->m_boneIndex = itemData->boneIndex;
-				spriteSetItem->m_falloff = itemData->falloff;
-				spriteSetItem->m_maxScale = itemData->maxScale;
-				spriteSetItem->m_minScale = itemData->minScale;
-				spriteSetItem->m_position = itemData->position + hullOffset;
-
-				// put it into spriteset
-				spriteSet->Add( spriteSetItem );
+				// spriteset needs internal rebuild
+				spriteSet->Rebuild();
+				// put set onto ship
+				obj->AddSpriteSet( spriteSet );
 			}
-			// spriteset needs internal rebuild
-			spriteSet->Rebuild();
-			// put set onto ship
-			obj->AddSpriteSet( spriteSet );
 		}
 
 		// next hull needs offset update from hull's locator

@@ -29,6 +29,18 @@ public:
 TYPEDEF_BLUECLASS( EveSOFDataParameter );
 BLUE_DECLARE_VECTOR( EveSOFDataParameter );
 
+BLUE_CLASS( EveSOFDataGenericString ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataGenericString( IRoot* lockobj = NULL );
+	~EveSOFDataGenericString() {}
+
+	std::string m_str;
+};
+TYPEDEF_BLUECLASS( EveSOFDataGenericString );
+BLUE_DECLARE_VECTOR( EveSOFDataGenericString );
 
 BLUE_CLASS( EveSOFDataTexture ) :
 	public IRoot
@@ -144,6 +156,36 @@ public:
 };
 TYPEDEF_BLUECLASS( EveSOFDataArea );
 
+BLUE_CLASS( EveSOFDataFactionColorSet ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataFactionColorSet( IRoot* lockobj = NULL );
+	~EveSOFDataFactionColorSet() {}
+
+	// color type
+	enum ColorType
+	{
+		TYPE_PRIMARY = 0,
+		TYPE_SECONDARY,
+		TYPE_TERTIARY,
+		TYPE_REACTOR,
+		TYPE_WHITE,
+		TYPE_YELLOW,
+		TYPE_ORANGE,
+		TYPE_RED,
+		TYPE_BLUE,
+		TYPE_GREEN,
+		TYPE_TEMP_HAZE,
+
+		TYPE_MAX,
+	};
+
+	// color data
+	Color m_colors[TYPE_MAX];
+};
+TYPEDEF_BLUECLASS( EveSOFDataFactionColorSet );
 
 
 
@@ -361,6 +403,7 @@ public:
 	Vector3 m_position;
 	float m_blinkRate, m_blinkPhase, m_minScale, m_maxScale, m_falloff;
 	int m_boneIndex, m_groupIndex;
+	EveSOFDataFactionColorSet::ColorType m_colorType;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullSpriteSetItem );
 BLUE_DECLARE_VECTOR( EveSOFDataHullSpriteSetItem );
@@ -374,8 +417,10 @@ public:
 	EveSOFDataHullSpriteSet( IRoot* lockobj = NULL );
 	~EveSOFDataHullSpriteSet() {}
 
-	// animated?
 	std::string m_name;
+	// visibility group name
+	BlueSharedString m_visibilityGroup;
+	// animated?
 	bool m_skinned;
 	// items
 	PEveSOFDataHullSpriteSetItemVector m_items;
@@ -398,6 +443,7 @@ public:
 	float m_spacing, m_blinkRate, m_blinkPhase, m_blinkPhaseShift, m_minScale, m_maxScale, m_falloff;
 	int m_boneIndex, m_groupIndex;
 	bool m_isCircle;
+	EveSOFDataFactionColorSet::ColorType m_colorType;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullSpriteLineSetItem );
 BLUE_DECLARE_VECTOR( EveSOFDataHullSpriteLineSetItem );
@@ -714,6 +760,21 @@ TYPEDEF_BLUECLASS( EveSOFDataFactionSpriteSet );
 BLUE_DECLARE_VECTOR( EveSOFDataFactionSpriteSet );
 
 
+BLUE_CLASS( EveSOFDataFactionVisibilityGroupSet ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataFactionVisibilityGroupSet( IRoot* lockobj = NULL );
+	~EveSOFDataFactionVisibilityGroupSet() {}
+
+	// visibility groups
+	PEveSOFDataGenericStringVector m_visibilityGroups;
+};
+TYPEDEF_BLUECLASS( EveSOFDataFactionVisibilityGroupSet );
+BLUE_DECLARE_VECTOR( EveSOFDataFactionVisibilityGroupSet );
+
+
 BLUE_CLASS( EveSOFDataFactionSpotlightSet ) :
 	public IRoot
 {
@@ -825,6 +886,8 @@ public:
 	PEveSOFDataFactionPlaneSetVector m_planeSets;
 	PEveSOFDataFactionDecalVector m_decals;
 	PEveSOFDataFactionChildVector m_children;
+	EveSOFDataFactionVisibilityGroupSetPtr m_visibilityGroupSet;
+	EveSOFDataFactionColorSetPtr m_colorSet;
 
 	// material usage
 	int m_materialUsageMtl1;
@@ -981,19 +1044,6 @@ BLUE_DECLARE_VECTOR( EveSOFDataMaterial );
 // --------------------------------------------------------------------------------
 // All data storage classes for generic data
 // --------------------------------------------------------------------------------
-BLUE_CLASS( EveSOFDataGenericString ) :
-	public IRoot
-{
-public:
-	EXPOSE_TO_BLUE();
-	EveSOFDataGenericString( IRoot* lockobj = NULL );
-	~EveSOFDataGenericString() {}
-
-	std::string m_str;
-};
-TYPEDEF_BLUECLASS( EveSOFDataGenericString );
-BLUE_DECLARE_VECTOR( EveSOFDataGenericString );
-
 BLUE_CLASS( EveSOFDataGenericDamage ) :
 	public IRoot
 {

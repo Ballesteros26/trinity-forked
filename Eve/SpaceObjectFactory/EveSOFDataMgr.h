@@ -138,11 +138,13 @@ public:
 		Vector3 position;
 		float blinkRate, blinkPhase, minScale, maxScale, falloff;
 		int boneIndex, groupIndex;
+		EveSOFDataFactionColorSet::ColorType colorType;
 	};
 
 	struct HullSpriteSetData
 	{
 		bool skinned;
+		uint32_t visibilityGroup;
 		std::vector<HullSpriteSetItemData> items;
 	};
 
@@ -153,6 +155,7 @@ public:
 		float spacing, blinkRate, blinkPhase, blinkPhaseShift, minScale, maxScale, falloff;
 		int boneIndex, groupIndex;
 		bool isCircle;
+		EveSOFDataFactionColorSet::ColorType colorType;
 	};
 
 	struct HullSpriteLineSetData
@@ -269,6 +272,13 @@ public:
 		std::map<int32_t, size_t> meshIndexToOpaqueAreaLookup;
 	};
 
+	// color data structs
+	struct ColorData
+	{
+		// spriteset color data
+		Color spriteSetColors[EveSOFDataFactionColorSet::TYPE_MAX];
+	};
+
 	// faction data structs
 	struct FactionSpriteSetColorData
 	{
@@ -314,6 +324,10 @@ public:
 
 		// hull area materials
 		AreaMaterialData areaMaterials;
+		// color data
+		ColorData colorData;
+		// visibility data
+		std::set<uint32_t> visibilityData;
 		// spritesets
 		std::map<int, FactionSpriteSetColorData> spriteSetsColor;
 		// spotlight sets

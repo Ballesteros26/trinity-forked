@@ -56,6 +56,47 @@ const Be::ClassInfo* EveSOFDataArea::ExposeToBlue()
 
 
 
+Be::VarChooser EveSOFDataFactionColorSetTypeChooser[] =
+{
+	{ "Primary", BeCast( EveSOFDataFactionColorSet::TYPE_PRIMARY ), "Primary Color" },
+	{ "Secondary", BeCast( EveSOFDataFactionColorSet::TYPE_SECONDARY ), "Secondary Color" },
+	{ "Tertiary", BeCast( EveSOFDataFactionColorSet::TYPE_TERTIARY ), "Tertiary Color" },
+	{ "Reactor", BeCast( EveSOFDataFactionColorSet::TYPE_REACTOR ), "Reactor Color" },
+	{ "White", BeCast( EveSOFDataFactionColorSet::TYPE_WHITE ), "White" },
+	{ "Yellow", BeCast( EveSOFDataFactionColorSet::TYPE_YELLOW ), "Yellow" },
+	{ "Orange", BeCast( EveSOFDataFactionColorSet::TYPE_ORANGE ), "Orange" },
+	{ "Red", BeCast( EveSOFDataFactionColorSet::TYPE_RED ), "Red" },
+	{ "Blue", BeCast( EveSOFDataFactionColorSet::TYPE_BLUE ), "Blue" },
+	{ "Green", BeCast( EveSOFDataFactionColorSet::TYPE_GREEN ), "Green" },
+	{ "TEMP_Haze", BeCast( EveSOFDataFactionColorSet::TYPE_TEMP_HAZE ), "TEMPORARY Haze" },
+	{ 0 }
+};
+BLUE_REGISTER_ENUM_EX( "EveSOFDataFactionColorSetType", EveSOFDataFactionColorSet::ColorType, EveSOFDataFactionColorSetTypeChooser, ENUM_REG_ENUM_OBJECT_ON_MODULE );
+
+BLUE_DEFINE( EveSOFDataFactionColorSet );
+const Be::ClassInfo* EveSOFDataFactionColorSet::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( EveSOFDataFactionColorSet, "" )
+		MAP_INTERFACE( EveSOFDataFactionColorSet )
+
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_PRIMARY].mKey, m_colors[TYPE_PRIMARY], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_SECONDARY].mKey, m_colors[TYPE_SECONDARY], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_TERTIARY].mKey, m_colors[TYPE_TERTIARY], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_REACTOR].mKey, m_colors[TYPE_REACTOR], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_WHITE].mKey, m_colors[TYPE_WHITE], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_YELLOW].mKey, m_colors[TYPE_YELLOW], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_ORANGE].mKey, m_colors[TYPE_ORANGE], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_RED].mKey, m_colors[TYPE_RED], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_BLUE].mKey, m_colors[TYPE_BLUE], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_GREEN].mKey, m_colors[TYPE_GREEN], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_TEMP_HAZE].mKey, m_colors[TYPE_TEMP_HAZE], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		EXPOSURE_END()
+}
+
+
+
+
+
 BLUE_DEFINE( EveSOFDataBoosterShape );
 const Be::ClassInfo* EveSOFDataBoosterShape::ExposeToBlue()
 {
@@ -230,6 +271,18 @@ const Be::ClassInfo* EveSOFDataFactionSpriteSet::ExposeToBlue()
 
 
 
+BLUE_DEFINE( EveSOFDataFactionVisibilityGroupSet );
+const Be::ClassInfo* EveSOFDataFactionVisibilityGroupSet::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( EveSOFDataFactionVisibilityGroupSet, "" )
+		MAP_INTERFACE( EveSOFDataFactionVisibilityGroupSet )
+
+		MAP_ATTRIBUTE( "visibilityGroups", m_visibilityGroups, "", Be::READWRITE | Be::PERSIST )
+		EXPOSURE_END()
+}
+
+
+
 BLUE_DEFINE( EveSOFDataFactionSpotlightSet );
 const Be::ClassInfo* EveSOFDataFactionSpotlightSet::ExposeToBlue()
 {
@@ -274,7 +327,8 @@ const Be::ClassInfo* EveSOFDataHullSpriteSetItem::ExposeToBlue()
 		MAP_ATTRIBUTE( "falloff", m_falloff, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "boneIndex", m_boneIndex, ":jessica-widget: boneindex", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "groupIndex", m_groupIndex, "", Be::READWRITE | Be::PERSIST )
-    EXPOSURE_END()
+		MAP_ATTRIBUTE_WITH_CHOOSER( "colorType", m_colorType, "", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataFactionColorSetTypeChooser )
+		EXPOSURE_END()
 }
 
 
@@ -287,7 +341,7 @@ const Be::ClassInfo* EveSOFDataHullSpriteSet::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "skinned", m_skinned, "Is this spriteset bone-animated.", Be::READWRITE | Be::PERSIST )
-
+		MAP_ATTRIBUTE( "visibilityGroup", m_visibilityGroup, "Name for visibility group to toggle visibility for the whole set.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "items", m_items, "The items in this spriteset", Be::READWRITE | Be::PERSIST )
     EXPOSURE_END()
 }
@@ -313,6 +367,7 @@ const Be::ClassInfo* EveSOFDataHullSpriteLineSetItem::ExposeToBlue()
 		MAP_ATTRIBUTE( "boneIndex", m_boneIndex, ":jessica-widget: boneindex", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "groupIndex", m_groupIndex, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "isCircle", m_isCircle, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE_WITH_CHOOSER( "colorType", m_colorType, "", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataFactionColorSetTypeChooser )
 		EXPOSURE_END()
 }
 
@@ -669,11 +724,13 @@ const Be::ClassInfo* EveSOFDataFaction::ExposeToBlue()
 		MAP_ATTRIBUTE( "description", m_description, "A description string. NOT used by the SOF, it's just for debugging purposes.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "resPathInsert", m_resPathInsert, "Insert string to build texture res path.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "areaTypes", m_areaTypes, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "colorSet", m_colorSet, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "decals", m_decals, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "spriteSets", m_spriteSets, "All the groups of sprite sets.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "spotlightSets", m_spotlightSets, "All the groups of spotlight sets.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "planeSets", m_planeSets, "All the groups of plane sets.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "children", m_children, "All the groups of children.", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "visibilityGroupSet", m_visibilityGroupSet, "All visibility groups enabled on this faction.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "materialUsageMtl1", m_materialUsageMtl1, "Material usage of Mtl1\n:jessica-group: MaterialUsage", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "materialUsageMtl2", m_materialUsageMtl2, "Material usage of Mtl2\n:jessica-group: MaterialUsage", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "materialUsageMtl3", m_materialUsageMtl3, "Material usage of Mtl3\n:jessica-group: MaterialUsage", Be::READWRITE | Be::PERSIST )

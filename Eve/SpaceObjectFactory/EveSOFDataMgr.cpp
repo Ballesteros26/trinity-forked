@@ -497,6 +497,8 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 
 		HullSpriteSetData hssd;
 		hssd.skinned = spriteSetData->m_skinned;
+		std::string visGroupName( spriteSetData->m_visibilityGroup.c_str() );
+		hssd.visibilityGroup = CcpHashFNV1( visGroupName.c_str(), visGroupName.size() );
 		for( auto ssiit = spriteSetData->m_items.begin(); ssiit != spriteSetData->m_items.end(); ++ssiit )
 		{
 			EveSOFDataHullSpriteSetItemPtr spriteSetItemData = (*ssiit);
@@ -510,6 +512,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 			hssid.minScale = spriteSetItemData->m_minScale;
 			hssid.position = spriteSetItemData->m_position;
 			hssid.groupIndex = spriteSetItemData->m_groupIndex;
+			hssid.colorType = spriteSetItemData->m_colorType;
 			hssd.items.push_back( hssid );
 		}
 		hd.spriteSets.push_back( hssd );
@@ -605,6 +608,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 			hslsid.rotation = spriteLineSetItemData->m_rotation;
 			hslsid.spacing = spriteLineSetItemData->m_spacing;
 			hslsid.isCircle = spriteLineSetItemData->m_isCircle;
+			hslsid.colorType = spriteLineSetItemData->m_colorType;
 			hslsd.items.push_back( hslsid );
 		}
 		hd.spriteLineSets.push_back( hslsd );
@@ -839,6 +843,28 @@ void EveSOFDataMgr::GenerateFactionData( FactionData& fd, EveSOFDataFactionPtr s
 	fd.materialUsageList[1] = srcData->m_materialUsageMtl2;
 	fd.materialUsageList[2] = srcData->m_materialUsageMtl3;
 	fd.materialUsageList[3] = srcData->m_materialUsageMtl4;
+
+	// colors
+	memset( &fd.colorData, 0, sizeof( ColorData ) );
+	if( srcData->m_colorSet )
+	{
+		for( size_t i = 0; i < EveSOFDataFactionColorSet::TYPE_MAX; ++i )
+		{
+			// spriteset colors
+			fd.colorData.spriteSetColors[i] = srcData->m_colorSet->m_colors[i];
+		}
+	}
+
+	// vis groups
+	fd.visibilityData.clear();
+	if( srcData->m_visibilityGroupSet )
+	{
+		for( auto vgsit = srcData->m_visibilityGroupSet->m_visibilityGroups.begin(); vgsit != srcData->m_visibilityGroupSet->m_visibilityGroups.end(); ++vgsit )
+		{
+			uint32_t h = CcpHashFNV1( ( *vgsit )->m_str.c_str(), ( *vgsit )->m_str.size() );
+			fd.visibilityData.insert( h );
+		}
+	}
 
 	// sprite set colors
 	fd.spriteSetsColor.clear();
