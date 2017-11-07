@@ -7,6 +7,7 @@
 #include "EveChildModifierSRT.h"
 
 BLUE_DEFINE( EveChildModifierSRT );
+BLUE_DEFINE_INTERFACE( IEveChildTransformModifier );
 
 const Be::ClassInfo* EveChildModifierSRT::ExposeToBlue()
 {
