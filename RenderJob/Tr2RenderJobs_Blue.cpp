@@ -47,16 +47,6 @@ const Be::ClassInfo* Tr2RenderJobs::ExposeToBlue()
 			Be::READ | Be::PERSIST
 		)
 
-#ifdef _WIN32
-		MAP_PROPERTY
-		(
-			"threadPoolSize",
-			GetThreadPoolSize,
-			SetThreadPoolSize,
-			"debugging"
-		)
-#endif
-
 	EXPOSURE_END()
 }
 
