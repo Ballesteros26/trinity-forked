@@ -68,6 +68,7 @@ Be::VarChooser EveSOFDataFactionColorSetTypeChooser[] =
 	{ "Red", BeCast( EveSOFDataFactionColorSet::TYPE_RED ), "Red" },
 	{ "Blue", BeCast( EveSOFDataFactionColorSet::TYPE_BLUE ), "Blue" },
 	{ "Green", BeCast( EveSOFDataFactionColorSet::TYPE_GREEN ), "Green" },
+	{ "Cyan", BeCast( EveSOFDataFactionColorSet::TYPE_CYAN ), "Cyan" },
 	{ "TEMP_Haze", BeCast( EveSOFDataFactionColorSet::TYPE_TEMP_HAZE ), "TEMPORARY Haze" },
 	{ 0 }
 };
@@ -89,6 +90,7 @@ const Be::ClassInfo* EveSOFDataFactionColorSet::ExposeToBlue()
 		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_RED].mKey, m_colors[TYPE_RED], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_BLUE].mKey, m_colors[TYPE_BLUE], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_GREEN].mKey, m_colors[TYPE_GREEN], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_CYAN].mKey, m_colors[TYPE_CYAN], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( EveSOFDataFactionColorSetTypeChooser[TYPE_TEMP_HAZE].mKey, m_colors[TYPE_TEMP_HAZE], ":jessica - group : SpriteSets", Be::READWRITE | Be::PERSIST )
 		EXPOSURE_END()
 }

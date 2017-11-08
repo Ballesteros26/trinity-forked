@@ -177,6 +177,7 @@ public:
 		TYPE_RED,
 		TYPE_BLUE,
 		TYPE_GREEN,
+		TYPE_CYAN,
 		TYPE_TEMP_HAZE,
 
 		TYPE_MAX,
