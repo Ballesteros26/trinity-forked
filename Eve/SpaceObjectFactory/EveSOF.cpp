@@ -546,7 +546,7 @@ void EveSOF::SetupSpriteSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 			const EveSOFDataMgr::HullSpriteSetData* spriteSetData = &( *ssit );
 
 			// vivible?
-//			if( dna->IsInVisibilityData( spriteSetData->visibilityGroup ) )
+			if( dna->IsInVisibilityData( spriteSetData->visibilityGroup ) )
 			{
 				// create a spriteset for this ship
 				EveSpriteSetPtr spriteSet;
@@ -575,8 +575,8 @@ void EveSOF::SetupSpriteSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 					spriteSetItem.CreateInstance();
 
 					// set it up the per-faction data
-					spriteSetItem->m_color = factionSpriteData->color;
-//					spriteSetItem->m_color = spriteSetColors[itemData->colorType];
+//					spriteSetItem->m_color = factionSpriteData->color;
+					spriteSetItem->m_color = spriteSetColors[itemData->colorType];
 
 					// set it up the per-hull data
 					spriteSetItem->m_blinkPhase = itemData->blinkPhase;
@@ -855,7 +855,7 @@ void EveSOF::SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna
 			const EveSOFDataMgr::HullSpriteLineSetData* spriteLineSetData = &( *slsit );
 
 			// vivible?
-//			if( dna->IsInVisibilityData( spriteLineSetData->visibilityGroup ) )
+			if( dna->IsInVisibilityData( spriteLineSetData->visibilityGroup ) )
 			{
 				// create a spriteset for this ship
 				EveSpriteLineSetPtr spriteLineSet;
@@ -883,8 +883,8 @@ void EveSOF::SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna
 					spriteLineSetItem.CreateInstance();
 
 					// set it up the per-faction data
-					spriteLineSetItem->m_color = factionSpriteData->color;
-//					spriteLineSetItem->m_color = spriteSetColors[itemData->colorType];
+//					spriteLineSetItem->m_color = factionSpriteData->color;
+					spriteLineSetItem->m_color = spriteSetColors[itemData->colorType];
 
 					// set it up the per-hull data
 					spriteLineSetItem->m_blinkPhaseShift = itemData->blinkPhaseShift;
