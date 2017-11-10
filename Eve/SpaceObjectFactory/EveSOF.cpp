@@ -567,7 +567,7 @@ void EveSOF::SetupSpriteSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 					if( !factionSpriteData )
 					{
 						// This spriteset item is not used for this faction.
-						continue;
+//						continue;
 					}
 
 					// create spriteset items
@@ -875,7 +875,7 @@ void EveSOF::SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna
 					if( !factionSpriteData )
 					{
 						// This spritelineset item is not used for this faction.
-						continue;
+//						continue;
 					}
 
 					// create spritelineset items
