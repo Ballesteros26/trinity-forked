@@ -228,7 +228,7 @@ bool TriDevice::CreateSimpleDevice(
 	mHwnd = hwnd;
 	mDeviceLost = false;
 
-	if( !SetPresentParameters( mAdapter, mPresentParam ) )
+	if( type != NO_ADAPTER && !SetPresentParameters( mAdapter, mPresentParam ) )
 	{
 		return false;
 	}
