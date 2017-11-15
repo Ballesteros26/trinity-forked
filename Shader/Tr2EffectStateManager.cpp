@@ -390,11 +390,6 @@ void Tr2EffectStateManager::Shutdown()
 		}
 		s_shaders[i].clear();
 	}
-    for( auto it = s_vertexLayoutMap.begin(); it != s_vertexLayoutMap.end(); ++it )
-    {
-        delete it->second;
-    }
-	s_vertexLayoutMap.clear();
 }
 
 void Tr2EffectStateManager::BeginManagedRendering()
@@ -835,11 +830,6 @@ void Tr2EffectStateManager::ReleaseDeviceResources( TriStorage s )
 			}
 			s_shaders[i].clear();
 		}
-        for( auto it = s_vertexLayoutMap.begin(); it != s_vertexLayoutMap.end(); ++it )
-        {
-            delete it->second;
-        }
-		s_vertexLayoutMap.clear();
 
 		s_renderStateSetups.erase( s_renderStateSetups.begin() + RM_COUNT, s_renderStateSetups.end() );
 		m_renderStates.clear();
