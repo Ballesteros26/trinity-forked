@@ -172,7 +172,7 @@ void Tr2Shader::ApplyAllStateForPass( uint32_t techniqueIndex, uint32_t passInde
 				renderContext.m_esm.ApplySamplerSetup( 
 					Tr2RenderContextEnum::ShaderType( i ), 
 					it->first, 
-					it->second.handle );
+					it->second.sampler );
 			}
 		}
 	}
@@ -210,7 +210,7 @@ void Tr2Shader::ApplySamplerStates( uint32_t techniqueIndex, uint32_t passIndex,
 		renderContext.m_esm.ApplySamplerSetup( 
 			type, 
 			it->first, 
-			it->second.handle );
+			it->second.sampler );
 	}
 }
 

@@ -70,7 +70,7 @@ public:
 	void ApplyStandardStates( RenderingMode rm );
 
 	void ApplyRenderStates( uint32_t ix );
-	void ApplySamplerSetup( Tr2RenderContextEnum::ShaderType inputType, uint32_t samplerIx, uint32_t ix );
+	void ApplySamplerSetup( Tr2RenderContextEnum::ShaderType inputType, uint32_t samplerIx, const Tr2SamplerStateAL& sampler );
 	void ApplyShaderBuffer( Tr2RenderContextEnum::ShaderType inputType, uint32_t samplerIx, const Tr2GpuBufferAL& buffer );
 	void ApplyTexture( 
 		Tr2RenderContextEnum::ShaderType inputType, 
@@ -111,8 +111,6 @@ public:
 	void SetInvertedDepthTest( bool invertedDepthTest );
 	bool IsDepthTestInverted() const;
 
-	static uint32_t RegisterSamplerSetup( const Tr2SamplerDescription& description );
-	
 	static uint32_t GetVertexDeclarationHandle( const Tr2VertexDefinition& vertexDefinition );
 	void ApplyVertexDeclaration( uint32_t declaration );
 	static bool GetVertexDeclarationElements( uint32_t declaration, Tr2VertexDefinition& definition );
@@ -137,7 +135,7 @@ private:
 		void Reset();
 		
 		std::pair<Tr2ObjectALOpaquePointer, Tr2RenderContextEnum::ColorSpace> m_samplerTextures[Tr2RenderContextEnum::SHADER_TYPE_COUNT][SAMPLER_MAX_COUNT];
-		uint32_t m_samplerSetupBinding[Tr2RenderContextEnum::SHADER_TYPE_COUNT][SAMPLER_MAX_COUNT];
+		Tr2SamplerStateAL m_samplerSetupBinding[Tr2RenderContextEnum::SHADER_TYPE_COUNT][SAMPLER_MAX_COUNT];
 		uint32_t m_shaderProgram;
 
 		uint32_t m_vertexDeclaration;

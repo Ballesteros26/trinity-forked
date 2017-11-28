@@ -106,8 +106,7 @@ typedef TrackableStdMap<int, Tr2EffectResource> Tr2EffectResourceMap;
 struct Tr2SamplerSetup
 {
 	const char* name;
-	// Sampler state handle (see Tr2EffectStateManager)
-	unsigned int handle;
+	Tr2SamplerStateAL sampler;
 };
 
 typedef TrackableStdMap<int, Tr2SamplerSetup> Tr2SamplerSetupMap;

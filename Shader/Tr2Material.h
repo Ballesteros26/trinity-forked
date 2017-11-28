@@ -35,7 +35,7 @@ typedef std::vector<Tr2EffectParam>		Tr2EffectParamVector;
 struct Tr2SamplerOverrideData
 {
 	uint32_t registerIndex;
-	uint32_t handle;
+	Tr2SamplerStateAL sampler;
 };
 
 typedef std::vector<Tr2SamplerOverrideData> Tr2SamplerOverrideDataVector;

@@ -135,7 +135,7 @@ void Tr2Material::ApplyShaderInputs( uint32_t techniqueIndex, unsigned int passI
 	samplersChanged |= !input.m_samplers.empty();
 	for( auto it = input.m_samplers.begin(); it != input.m_samplers.end(); ++it )
 	{
-		renderContext.m_esm.ApplySamplerSetup( shaderType, it->registerIndex, it->handle );
+		renderContext.m_esm.ApplySamplerSetup( shaderType, it->registerIndex, it->sampler );
 	}
 
 	for( auto it = input.m_uavs.cbegin(); it != input.m_uavs.cend(); ++it )

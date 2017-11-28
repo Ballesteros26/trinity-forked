@@ -50,6 +50,8 @@ bool Tr2EffectDescription::Read( const void* data,
 								 size_t stringTableSize, 
 								 const char* effectName )
 {
+	USE_MAIN_THREAD_RENDER_CONTEXT();
+
 	techniques.clear();
 	annotations.clear();
 
@@ -411,7 +413,7 @@ bool Tr2EffectDescription::Read( const void* data,
 						minLOD,
 						maxLOD );
 
-					samplerSetup.handle = Tr2EffectStateManager::RegisterSamplerSetup( sampler );
+					samplerSetup.sampler.Create( sampler, renderContext );
 
 					pass.stageInputs[type].samplers[registerIndex] = samplerSetup;
 				}

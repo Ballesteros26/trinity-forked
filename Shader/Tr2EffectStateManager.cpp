@@ -18,8 +18,6 @@ namespace {
 	std::vector<Tr2ShaderAL*> s_shaders;
 	std::vector<std::pair<Tr2ShaderProgramAL*, std::vector<uint32_t>>> s_shaderPrograms;
 
-	std::vector<std::pair<Tr2SamplerDescription, Tr2SamplerStateAL*>> s_samplerSetups;
-
 	typedef std::vector<uint32_t>		TRenderStateKeyValues;
 
 	static uint32_t opaquePairs[] = 
@@ -265,7 +263,7 @@ void Tr2EffectStateManager::CurrentValues::Reset()
 		for( int i = 0; i < SAMPLER_MAX_COUNT; ++i )
 		{
 			m_samplerTextures[j][i] = std::make_pair( nullptr, Tr2RenderContextEnum::COLOR_SPACE_LINEAR );
-			m_samplerSetupBinding[j][i] = UNKNOWN;
+			m_samplerSetupBinding[j][i] = Tr2SamplerStateAL();
 		}
 	}
 	m_shaderProgram = UNKNOWN;
@@ -568,25 +566,18 @@ void Tr2EffectStateManager::DoApplyRenderStates( uint32_t ix )
 	}
 }
 
-void Tr2EffectStateManager::ApplySamplerSetup( ShaderType inputType, uint32_t samplerIx, uint32_t ix )
+void Tr2EffectStateManager::ApplySamplerSetup( ShaderType inputType, uint32_t samplerIx, const Tr2SamplerStateAL& sampler )
 {
 	if( m_isManagedRendering )
 	{
-		if( ix == m_currentValues.m_samplerSetupBinding[inputType][samplerIx] )
+		if( sampler == m_currentValues.m_samplerSetupBinding[inputType][samplerIx] )
 		{
 			return;
 		}
-		m_currentValues.m_samplerSetupBinding[inputType][samplerIx] = ix;
+		m_currentValues.m_samplerSetupBinding[inputType][samplerIx] = sampler;
 	}
 
-	if( ix < s_samplerSetups.size() )
-	{
-		Tr2SamplerStateAL& ss = *s_samplerSetups[ix].second;
-		{
-			D3DPERF_EVENT( L"ApplySamplerSetup" );
-			m_renderContext.SetSamplerState( ss, inputType, samplerIx );
-		}
-	}
+	m_renderContext.SetSamplerState( sampler, inputType, samplerIx );
 }
 
 void Tr2EffectStateManager::ForgetTexture( const Tr2TextureAL& texture )
@@ -846,30 +837,6 @@ void Tr2EffectStateManager::ApplyIndexBuffer( const Tr2IndexBufferAL & indices )
 }
 
 
-uint32_t Tr2EffectStateManager::RegisterSamplerSetup( const Tr2SamplerDescription& description )
-{
-	for( size_t i = 0; i < s_samplerSetups.size(); ++i )
-	{
-		const Tr2SamplerDescription& existing = s_samplerSetups[i].first;
-		if( existing == description )
-		{
-			// We've seen this setup before
-			return (uint32_t)i;
-		}
-	}
-
-	// New setup, add it
-	USE_MAIN_THREAD_RENDER_CONTEXT();
-	Tr2SamplerStateAL* ss( new Tr2SamplerStateAL );
-	if( FAILED( ss->Create( renderContext, description ) ) )
-	{
-		delete ss;
-		return UNKNOWN;
-	}
-	s_samplerSetups.push_back( std::make_pair( description, ss ) );
-	return (uint32_t)s_samplerSetups.size() - 1;
-}
-
 void Tr2EffectStateManager::ReleaseDeviceResources( TriStorage s )
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
@@ -912,11 +879,6 @@ void Tr2EffectStateManager::ReleaseDeviceResources( TriStorage s )
 
 		s_renderStateSetups.erase( s_renderStateSetups.begin() + RM_COUNT, s_renderStateSetups.end() );
 		m_renderStates.clear();
-		for( auto it = s_samplerSetups.begin(); it != s_samplerSetups.end(); ++it )
-		{
-			delete it->second;
-		}
-		s_samplerSetups.clear();
 
 		for( uint32_t i = 0; i != CBUFFER_COUNT; ++i )
 		{

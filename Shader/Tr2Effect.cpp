@@ -648,6 +648,8 @@ void Tr2Effect::RebuildSamplerOverrides()
 		return;
 	}
 
+	USE_MAIN_THREAD_RENDER_CONTEXT();
+
 	auto& desc = m_shader->GetEffectDescription();
 	for( size_t technique = 0; technique < desc.techniques.size(); ++technique )
 	{
@@ -671,7 +673,7 @@ void Tr2Effect::RebuildSamplerOverrides()
 						if( it->second.name && strcmp( jt->name.c_str(), it->second.name ) == 0 )
 						{
 							Tr2SamplerOverrideData d;
-							d.handle = Tr2EffectStateManager::RegisterSamplerSetup( CreateSamplerDescription( *jt ) );
+							d.sampler.Create( CreateSamplerDescription( *jt ), renderContext );
 							d.registerIndex = it->first;
 
 							pp.m_stageInput[i].m_samplers.push_back( d );
