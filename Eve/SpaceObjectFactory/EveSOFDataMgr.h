@@ -137,7 +137,7 @@ public:
 	{
 		Vector3 position;
 		float blinkRate, blinkPhase, minScale, maxScale, falloff;
-		int boneIndex, groupIndex;
+		int boneIndex;
 		EveSOFDataFactionColorSet::ColorType colorType;
 	};
 
@@ -153,7 +153,7 @@ public:
 		Vector3 position, scaling;
 		Quaternion rotation;
 		float spacing, blinkRate, blinkPhase, blinkPhaseShift, minScale, maxScale, falloff;
-		int boneIndex, groupIndex;
+		int boneIndex;
 		bool isCircle;
 		EveSOFDataFactionColorSet::ColorType colorType;
 	};

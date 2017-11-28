@@ -259,20 +259,6 @@ const Be::ClassInfo* EveSOFDataHullPlaneSet::ExposeToBlue()
 
 
 
-BLUE_DEFINE( EveSOFDataFactionSpriteSet );
-const Be::ClassInfo* EveSOFDataFactionSpriteSet::ExposeToBlue()
-{
-    EXPOSURE_BEGIN( EveSOFDataFactionSpriteSet, "" )
-        MAP_INTERFACE( EveSOFDataFactionSpriteSet )
-
-		MAP_ATTRIBUTE( "groupIndex", m_groupIndex, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "color", m_color, "", Be::READWRITE | Be::PERSIST )
-    EXPOSURE_END()
-}
-
-
-
 BLUE_DEFINE( EveSOFDataFactionVisibilityGroupSet );
 const Be::ClassInfo* EveSOFDataFactionVisibilityGroupSet::ExposeToBlue()
 {
@@ -328,7 +314,6 @@ const Be::ClassInfo* EveSOFDataHullSpriteSetItem::ExposeToBlue()
 		MAP_ATTRIBUTE( "maxScale", m_maxScale, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "falloff", m_falloff, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "boneIndex", m_boneIndex, ":jessica-widget: boneindex", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "groupIndex", m_groupIndex, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE_WITH_CHOOSER( "colorType", m_colorType, "", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataFactionColorSetTypeChooser )
 		EXPOSURE_END()
 }
@@ -367,7 +352,6 @@ const Be::ClassInfo* EveSOFDataHullSpriteLineSetItem::ExposeToBlue()
 		MAP_ATTRIBUTE( "maxScale", m_maxScale, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "falloff", m_falloff, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "boneIndex", m_boneIndex, ":jessica-widget: boneindex", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "groupIndex", m_groupIndex, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "isCircle", m_isCircle, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE_WITH_CHOOSER( "colorType", m_colorType, "", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataFactionColorSetTypeChooser )
 		EXPOSURE_END()
@@ -728,7 +712,6 @@ const Be::ClassInfo* EveSOFDataFaction::ExposeToBlue()
 		MAP_ATTRIBUTE( "areaTypes", m_areaTypes, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "colorSet", m_colorSet, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "decals", m_decals, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "spriteSets", m_spriteSets, "All the groups of sprite sets.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "spotlightSets", m_spotlightSets, "All the groups of spotlight sets.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "planeSets", m_planeSets, "All the groups of plane sets.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "children", m_children, "All the groups of children.", Be::READWRITE | Be::PERSIST )

@@ -403,7 +403,7 @@ public:
 	// per-hull data of a spriteset
 	Vector3 m_position;
 	float m_blinkRate, m_blinkPhase, m_minScale, m_maxScale, m_falloff;
-	int m_boneIndex, m_groupIndex;
+	int m_boneIndex;
 	EveSOFDataFactionColorSet::ColorType m_colorType;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullSpriteSetItem );
@@ -442,7 +442,7 @@ public:
 	Vector3 m_position, m_scaling;
 	Quaternion m_rotation;
 	float m_spacing, m_blinkRate, m_blinkPhase, m_blinkPhaseShift, m_minScale, m_maxScale, m_falloff;
-	int m_boneIndex, m_groupIndex;
+	int m_boneIndex;
 	bool m_isCircle;
 	EveSOFDataFactionColorSet::ColorType m_colorType;
 };
@@ -747,23 +747,6 @@ BLUE_DECLARE_VECTOR( EveSOFDataHull );
 // All data storage classes for per-faction data
 // --------------------------------------------------------------------------------
 
-BLUE_CLASS( EveSOFDataFactionSpriteSet ) :
-	public IRoot
-{
-public:
-	EXPOSE_TO_BLUE();
-	EveSOFDataFactionSpriteSet( IRoot* lockobj = NULL );
-	~EveSOFDataFactionSpriteSet() {}
-
-	// per-faction data of a spriteset
-	int m_groupIndex;
-	std::string m_name;
-	Color m_color;
-};
-TYPEDEF_BLUECLASS( EveSOFDataFactionSpriteSet );
-BLUE_DECLARE_VECTOR( EveSOFDataFactionSpriteSet );
-
-
 BLUE_CLASS( EveSOFDataFactionVisibilityGroupSet ) :
 	public IRoot
 {
@@ -885,7 +868,6 @@ public:
 	std::string m_resPathInsert;
 
 	// data
-	PEveSOFDataFactionSpriteSetVector m_spriteSets;
 	PEveSOFDataFactionSpotlightSetVector m_spotlightSets;
 	PEveSOFDataFactionPlaneSetVector m_planeSets;
 	PEveSOFDataFactionDecalVector m_decals;

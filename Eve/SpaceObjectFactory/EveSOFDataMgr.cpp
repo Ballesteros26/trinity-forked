@@ -511,7 +511,6 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 			hssid.maxScale = spriteSetItemData->m_maxScale;
 			hssid.minScale = spriteSetItemData->m_minScale;
 			hssid.position = spriteSetItemData->m_position;
-			hssid.groupIndex = spriteSetItemData->m_groupIndex;
 			hssid.colorType = spriteSetItemData->m_colorType;
 			hssd.items.push_back( hssid );
 		}
@@ -605,7 +604,6 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 			hslsid.maxScale = spriteLineSetItemData->m_maxScale;
 			hslsid.minScale = spriteLineSetItemData->m_minScale;
 			hslsid.position = spriteLineSetItemData->m_position;
-			hslsid.groupIndex = spriteLineSetItemData->m_groupIndex;
 			hslsid.scaling = spriteLineSetItemData->m_scaling;
 			hslsid.rotation = spriteLineSetItemData->m_rotation;
 			hslsid.spacing = spriteLineSetItemData->m_spacing;
