@@ -31,7 +31,9 @@ Tr2GrannyAnimation::Tr2GrannyAnimation( IRoot* lockobj ) :
 	m_boneBoundsInitialized( false ),
 	m_additiveMode( false ),
 	m_aimingBone( false ),
-	m_aimBone( "" )
+	m_aimBone( "" ),
+	m_paused( false ),
+	m_pauseTime( 0.f )
 {
 }
 
@@ -827,7 +829,7 @@ void Tr2GrannyAnimation::PrePhysicsAnimation( Be::Time time, const Matrix &model
 {
 	if( IsInitialized() && m_animationEnabled )
 	{
-		float animationTime = Tr2Renderer::GetAnimationTime();
+		float animationTime = GetAnimationTime();
 
 		// TODO: Should this be done here? Seems wasteful to sample animations and build the pose
 		// for objects that are off-screen.
@@ -1057,6 +1059,33 @@ void Tr2GrannyAnimation::ChainAnimation( const char* animName )
 void Tr2GrannyAnimation::ChainAnimationEx( const char* animName, int loopCount, float delay, float speed )
 {
 	PlayAnimation( animName, false, loopCount, delay, speed );
+}
+
+float Tr2GrannyAnimation::GetAnimationTime()
+{
+	if ( m_paused )
+	{
+		return m_pauseTime;
+	}
+	return Tr2Renderer::GetAnimationTime();
+}
+
+void Tr2GrannyAnimation::TogglePauseAnimations()
+{
+	if ( m_paused )
+	{
+		m_paused = false;
+		m_pauseTime = 0.0;
+	}
+	else
+	{
+		m_paused = true;
+		m_pauseTime = Tr2Renderer::GetAnimationTime();
+	}
+	for( auto it = m_animationLayers.begin(); it != m_animationLayers.end(); it++ )
+	{
+		it->second.TogglePauseAnimation();
+	}
 }
 
 bool Tr2GrannyAnimation::IsInitialized() const
@@ -1455,3 +1484,4 @@ std::pair<TriGeometryRes*, std::map<std::pair<TriGeometryRes*, uint32_t>, uint32
 
 	return std::make_pair( newGeometry.Detach(), result );
 }
+

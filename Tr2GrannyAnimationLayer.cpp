@@ -17,7 +17,9 @@ Tr2GrannyAnimationLayer::Tr2GrannyAnimationLayer() :
 	m_lastControlUpdateTime( 0.f ),
 	m_controlParamEnabled( false ),
 	m_basePose( nullptr ),
-	m_skewRate( 0.f )
+	m_skewRate( 0.f ),
+	m_pauseTime( 0.f ),
+	m_paused( false )
 {
 }
 
@@ -33,7 +35,9 @@ Tr2GrannyAnimationLayer::Tr2GrannyAnimationLayer( float defaultBoneWeight ) :
 	m_lastControlUpdateTime( 0.f ),
 	m_controlParamEnabled( false ),
 	m_basePose( nullptr ),
-	m_skewRate( 0.f )
+	m_skewRate( 0.f ),
+	m_pauseTime( 0.f ),
+	m_paused( false )
 {
 }
 
@@ -49,7 +53,9 @@ Tr2GrannyAnimationLayer::Tr2GrannyAnimationLayer( float defaultBoneWeight, float
 	m_lastControlUpdateTime( 0.f ),
 	m_controlParamEnabled( false ),
 	m_basePose( nullptr ),
-	m_skewRate( 0.f )
+	m_skewRate( 0.f ),
+	m_pauseTime( 0.f ),
+	m_paused( false )
 {
 }
 
@@ -108,6 +114,32 @@ void Tr2GrannyAnimationLayer::QueueAnimation( const char* animName, bool replace
 	m_animationQueue.push_back( ar );
 }
 
+
+float Tr2GrannyAnimationLayer::GetLayerAnimationTime()
+{
+	if ( m_paused )
+	{
+		return m_pauseTime;
+	}
+	return Tr2Renderer::GetAnimationTime();
+}
+
+
+void Tr2GrannyAnimationLayer::TogglePauseAnimation()
+{
+	if ( m_paused )
+	{
+		m_paused = false;
+		m_pauseTime = 0.0;
+	}
+	else
+	{
+		m_paused = true;
+		m_pauseTime = Tr2Renderer::GetAnimationTime();
+	}
+}
+
+
 bool Tr2GrannyAnimationLayer::PlayAnimation( const Tr2GrannyAnimation* grannyAnimation, const char* animName, bool replace, int loopCount, float delay, float speed, bool clearWhenDone )
 {
 	if( !m_modelInstance )
@@ -126,7 +158,7 @@ bool Tr2GrannyAnimationLayer::PlayAnimation( const Tr2GrannyAnimation* grannyAni
 		ClearAnimations();
 	}
 
-	float startTime = Tr2Renderer::GetAnimationTime();
+	float startTime = GetLayerAnimationTime();
 	if( !replace )
 	{
 		float maxRemaining = 0.0f;
@@ -142,7 +174,7 @@ bool Tr2GrannyAnimationLayer::PlayAnimation( const Tr2GrannyAnimation* grannyAni
 		
 			GrannySetControlLoopCount( control, newLoopCount );
 			float remaining = GrannyGetControlDurationLeft( control );
-			GrannyCompleteControlAt( control, Tr2Renderer::GetAnimationTime() + remaining );
+			GrannyCompleteControlAt( control, GetLayerAnimationTime() + remaining );
 			if( remaining > maxRemaining )
 			{
 				maxRemaining = remaining;
@@ -160,10 +192,10 @@ bool Tr2GrannyAnimationLayer::PlayAnimation( const Tr2GrannyAnimation* grannyAni
 
 	if( loopCount > 0 && clearWhenDone )
 	{
-		GrannyCompleteControlAt( control, Tr2Renderer::GetAnimationTime() + GrannyGetControlDurationLeft( control ) + delay );
+		GrannyCompleteControlAt( control, GetLayerAnimationTime() + GrannyGetControlDurationLeft( control ) + delay );
 	}
 
-	GrannySetControlClock( control, Tr2Renderer::GetAnimationTime() );
+	GrannySetControlClock( control, GetLayerAnimationTime());
 	RegisterTextTracks( control, animation );
 
 	
@@ -335,7 +367,7 @@ void Tr2GrannyAnimationLayer::FreeCompletedControls()
 
 float Tr2GrannyAnimationLayer::GetAnimationChainCompleteTime()
 {
-	float startTime = Tr2Renderer::GetAnimationTime();
+	float startTime = GetLayerAnimationTime();
 	return startTime + GetAnimationRemainingTime();
 }
 

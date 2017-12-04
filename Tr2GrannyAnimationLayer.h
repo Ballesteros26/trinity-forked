@@ -49,6 +49,8 @@ public:
 	void SetLayerWeight( float layerWeight );
 	void SetControlParam( float fixedTime );
 	void SetControlParamSkewRate( float skewRate );
+
+	void TogglePauseAnimation();
 	
 	std::string m_name;
 	
@@ -70,6 +72,7 @@ private:
 	void RegisterTextTracks( granny_control* control, const granny_animation* animation );
 	void SampleTextTracks( IBlueEventListener* listener);
 	void UpdateControlParam( float control_increment );
+	float GetLayerAnimationTime();
 
 	void FreeCompletedControls();
 	granny_track_mask* m_trackMask;
@@ -84,6 +87,9 @@ private:
 	float m_lastControlUpdateTime;
 	granny_local_pose *m_basePose;
 	float m_skewRate;
+
+	float m_pauseTime;
+	bool m_paused;
 
 	const char* m_trackMaskName;
 };

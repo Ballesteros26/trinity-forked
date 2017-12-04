@@ -81,6 +81,13 @@ const Be::ClassInfo* Tr2GrannyAnimation::ExposeToBlue()
 		)
 		MAP_METHOD_AND_WRAP
 		(
+			"TogglePauseAnimations",
+			TogglePauseAnimations,
+			"TogglePauseAnimations()\n\n"
+			"Pauses/unpauses animation playback."
+		)
+		MAP_METHOD_AND_WRAP
+		(
 			"EndAnimation",
 			EndAnimation,
 			"EndAnimation()\n\n"

@@ -73,6 +73,8 @@ public:
 	void ChainAnimation( const char* animName );
 	void ChainAnimationEx( const char* animName, int loopCount, float delay, float speed );
 
+	void TogglePauseAnimations();
+
 	bool GetDynamicBounds( Vector4& boundingSphere, Vector3 &aabbMin, Vector3 &aabbMax );
 	void RenderDynamicBounds( const Matrix& modelTransform );
 	Vector4 CalculateSkinnedBoundingSphere( granny_file_info* fi=nullptr );
@@ -149,6 +151,10 @@ private:
 	bool m_animationEnabled;
 
 	bool m_additiveMode;
+
+	float GetAnimationTime();
+	bool m_paused;
+	float m_pauseTime;
 
 	granny_file_info* GetFileInfo() const;
 	Tr2GrannyAnimationLayer* GetAnimationLayer( const char* name );
