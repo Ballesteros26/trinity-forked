@@ -1071,22 +1071,22 @@ float Tr2GrannyAnimation::GetAnimationTime()
 	return Tr2Renderer::GetAnimationTime() - m_totalPauseOffset;
 }
 
-void Tr2GrannyAnimation::TogglePauseAnimations()
+void Tr2GrannyAnimation::TogglePauseAnimations( bool pause )
 {
-	if ( m_paused )
+	if ( m_paused && !pause )
 	{
 		m_paused = false;
 		m_totalPauseOffset = Tr2Renderer::GetAnimationTime() - m_pauseTime;
 		m_pauseTime = 0.0;
 	}
-	else
+	else if ( !m_paused && pause )
 	{
 		m_paused = true;
 		m_pauseTime = Tr2Renderer::GetAnimationTime() - m_totalPauseOffset;
 	}
 	for( auto it = m_animationLayers.begin(); it != m_animationLayers.end(); it++ )
 	{
-		it->second.TogglePauseAnimation();
+		it->second.TogglePauseAnimation( pause );
 	}
 }
 

@@ -128,15 +128,15 @@ float Tr2GrannyAnimationLayer::GetLayerAnimationTime()
 }
 
 
-void Tr2GrannyAnimationLayer::TogglePauseAnimation()
+void Tr2GrannyAnimationLayer::TogglePauseAnimation( bool pause )
 {
-	if ( m_paused )
+	if ( m_paused && !pause )
 	{
 		m_paused = false;
 		m_totalPauseOffset = Tr2Renderer::GetAnimationTime() - m_pauseTime;
 		m_pauseTime = 0.0;
 	}
-	else
+	else if ( !m_paused && pause )
 	{
 		m_paused = true;
 		m_pauseTime = Tr2Renderer::GetAnimationTime() - m_totalPauseOffset;

@@ -50,7 +50,7 @@ public:
 	void SetControlParam( float fixedTime );
 	void SetControlParamSkewRate( float skewRate );
 
-	void TogglePauseAnimation();
+	void TogglePauseAnimation( bool pause );
 	
 	std::string m_name;
 	

@@ -73,7 +73,7 @@ public:
 	void ChainAnimation( const char* animName );
 	void ChainAnimationEx( const char* animName, int loopCount, float delay, float speed );
 
-	void TogglePauseAnimations();
+	void TogglePauseAnimations( bool pause );
 
 	bool GetDynamicBounds( Vector4& boundingSphere, Vector3 &aabbMin, Vector3 &aabbMax );
 	void RenderDynamicBounds( const Matrix& modelTransform );
