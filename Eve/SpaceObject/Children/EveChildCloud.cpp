@@ -185,7 +185,8 @@ EveChildCloud::~EveChildCloud()
 
 bool EveChildCloud::Initialize()
 {
-	ReleaseResources( TRISTORAGE_ALL );
+	m_vertexBuffer = Tr2BufferAL();
+	m_indexBuffers.clear();
 	PrepareResources();
 	return true;
 }
@@ -194,7 +195,8 @@ bool EveChildCloud::OnModified( Be::Var* value )
 {
 	if( IsMatch( value, m_preTesselationLevel ) )
 	{
-		ReleaseResources( TRISTORAGE_ALL );
+		m_vertexBuffer = Tr2BufferAL();
+		m_indexBuffers.clear();
 		PrepareResources();
 	}
 	return true;
