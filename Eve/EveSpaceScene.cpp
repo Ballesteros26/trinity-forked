@@ -593,8 +593,8 @@ void EveSpaceScene::PrepareShadowMap(
 
 	ShadowPerFrameVSData data;
 	// column_major for shaders
-	D3DXMatrixTranspose( &data.ViewMat, &lightView );
-	D3DXMatrixTranspose( &data.ViewProjectionMat, &lightViewProj );
+	data.ViewMat = Transpose( lightView );
+	data.ViewProjectionMat = Transpose( lightViewProj );
 
 	Vector3 lightMin, lightMax;
 	m_shadowMap->GetReceiverLightAabb( lightMin, lightMax );
@@ -621,8 +621,8 @@ void EveSpaceScene::PrepareShadowMap(
 	m_shadowMap->EndShadowRendering();
 
 	// column_major for shaders
-	D3DXMatrixTranspose( &m_perFrameVS.ShadowViewMat, &lightView );
-	D3DXMatrixTranspose( &m_perFrameVS.ShadowViewProjectionMat, &lightViewProj );
+	m_perFrameVS.ShadowViewMat = Transpose( lightView );
+	m_perFrameVS.ShadowViewProjectionMat = Transpose( lightViewProj );
 
 	m_perFramePS.ShadowCameraRange = data.CameraRange;
 
@@ -1131,7 +1131,7 @@ void EveSpaceScene::UpdatePostProcessPSData()
 	double reprojection[16];
 	Matrix4dMultiply( reprojection, invViewProjD, m_viewProjectLastD );
 	Matrix repro = Matrix4dToMatrix( reprojection );
-	D3DXMatrixTranspose( &m_postProcessPSData.ReprojectionMatrix, &repro );
+	m_postProcessPSData.ReprojectionMatrix = Transpose( repro );
 
 	memcpy( m_viewProjectLastD, currentViewProjD, 128 );
 	
@@ -2164,21 +2164,20 @@ void EveSpaceScene::ClearVariableStore()
 void EveSpaceScene::PopulatePerFrameVSData( PerFrameVSData &data )
 {
 	// column_major for shaders
-	D3DXMatrixTranspose( &data.ViewMat, &Tr2Renderer::GetViewTransform() );
+	data.ViewMat = Transpose( Tr2Renderer::GetViewTransform() );
 	Matrix proj = Tr2Renderer::GetReversedDepthProjectionTransform();
-	D3DXMatrixTranspose( &data.ProjectionMat, &proj );
+	data.ProjectionMat = Transpose( proj );
 	Matrix viewProject( Tr2Renderer::GetViewTransform() * proj );
-	D3DXMatrixTranspose( &data.ViewProjectionMat, &viewProject );
+	data.ViewProjectionMat = Transpose( viewProject );
 	// attention: need the transposed, but shader also needs column_major, so it is transpose(transpose(m)) == m
 	data.ViewInverseTransposeMat = Tr2Renderer::GetInverseViewTransform();
 	
 #if( TRINITY_PLATFORM==TRINITY_DIRECTX11 || TRINITY_PLATFORM==TRINITY_OPENGL4 )
-	D3DXMatrixTranspose( &data.ViewProjectionLast, &m_viewProjectLast );
+	data.ViewProjectionLast = Transpose( m_viewProjectLast );
 #endif
 
 	// each scene has a nebula and that can be rotated and inverted (via scaling)
-	D3DXMatrixRotationQuaternion( &data.EnvMapRotationMat, &m_envMapRotation );
-	D3DXMatrixTranspose( &data.EnvMapRotationMat, &data.EnvMapRotationMat );
+	data.EnvMapRotationMat = Transpose( RotationMatrix( m_envMapRotation ) );
 
 	// sun data
 	data.Sun = m_sunData;
@@ -2218,13 +2217,12 @@ void EveSpaceScene::PopulatePerFrameVSData( PerFrameVSData &data )
 void EveSpaceScene::PopulatePerFramePSData( PerFramePSData &data )
 {
 	// column_major for shaders
-	D3DXMatrixTranspose( &data.ViewMat, &Tr2Renderer::GetViewTransform() );
+	data.ViewMat = Transpose( Tr2Renderer::GetViewTransform() );
 	// attention: need the transposed, but shader also needs column_major, so it is transpose(transpose(m)) == m
 	data.ViewInverseTransposeMat = Tr2Renderer::GetInverseViewTransform();
 	
 	// each scene has a nebula and that can be rotated
-	D3DXMatrixRotationQuaternion( &data.EnvMapRotationMat, &m_envMapRotation );
-	D3DXMatrixTranspose( &data.EnvMapRotationMat, &data.EnvMapRotationMat );
+	data.EnvMapRotationMat = Transpose( RotationMatrix( m_envMapRotation ) );
 
 	data.Sun = m_sunData;
 	data.Sun.DiffuseColor = m_useSunColorWithDynamicLights && g_eveSpaceSceneDynamicLighting ? m_sunColorWithDynamicLights : m_sunColor;

@@ -93,7 +93,7 @@ Vector3* EveLocalPositionCurve::CalculateNearestBoundingPoint( Vector3* in, Be::
 		Matrix matInv;
 		D3DXQuaternionNormalize( &parentRotation, &parentRotation );
 		D3DXQuaternionInverse( &parentRotation, &parentRotation );
-		D3DXMatrixRotationQuaternion( &matInv, &parentRotation );
+		matInv = RotationMatrix( parentRotation );
 		
 		Vector3 transformedDir = TransformCoord( dir, matInv );
 

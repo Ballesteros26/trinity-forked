@@ -143,8 +143,8 @@ Tr2PerObjectData* EveChildParticleSystem::GetPerObjectData( ITriRenderBatchAccum
 	}
 
 	// column_major for shaders
-	D3DXMatrixTranspose( &data->m_world, &m_worldTransform );
-	D3DXMatrixInverse( &data->m_worldInverseTranspose, NULL, &m_worldTransform );
+	data->m_world = Transpose( m_worldTransform );
+	data->m_worldInverseTranspose = Inverse( m_worldTransform );
 
 	return data;
 }

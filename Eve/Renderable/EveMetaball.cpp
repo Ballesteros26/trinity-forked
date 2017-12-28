@@ -398,7 +398,7 @@ void EveMetaball::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shader
 {
 	if( shaderType == Tr2RenderContextEnum::VERTEX_SHADER)
 	{
-		D3DXMatrixTranspose( reinterpret_cast<Matrix*>( data ), &m_worldTransform );
+		*reinterpret_cast<Matrix*>( data ) = Transpose( m_worldTransform );
 	}
 }
 

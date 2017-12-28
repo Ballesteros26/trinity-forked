@@ -1957,7 +1957,7 @@ void EveSpaceObject2::UpdateWorldTransform( Be::Time time )
 		return;
 	}
 	m_lastUpdateTransformTime = time;
-	D3DXMatrixTranspose( &m_vsData.worldTransformLast, &m_worldTransform );
+	m_vsData.worldTransformLast = Transpose( m_worldTransform );
 
 	if( m_ballPosition )
 	{
@@ -1985,20 +1985,19 @@ void EveSpaceObject2::UpdateWorldTransform( Be::Time time )
 		m_modelRotation->Update( &modelRotation, time );
 		Quaternion rotation;
 		D3DXQuaternionMultiply( &rotation, &modelRotation, &m_worldRotation);
-		D3DXMatrixRotationQuaternion(&m_worldTransform, &rotation);
+		m_worldTransform = RotationMatrix( rotation );
 	}
 	else
 	{
-		D3DXMatrixRotationQuaternion(&m_worldTransform, &m_worldRotation);
+		m_worldTransform = RotationMatrix( m_worldRotation );
 	}
 
 	// scaling: as of now: ONLY FOR ASTEROIDS!
 	if(m_modelScale != 1.f)
 	{
 		// build and mult scale-matrix
-		Matrix scaleMatrix;
-		D3DXMatrixScaling(&scaleMatrix, m_modelScale, m_modelScale, m_modelScale);
-		D3DXMatrixMultiply(&m_worldTransform, &m_worldTransform, &scaleMatrix);
+		Matrix scaleMatrix = ScalingMatrix( m_modelScale, m_modelScale, m_modelScale );
+		m_worldTransform = m_worldTransform * scaleMatrix;
 	}
 
 	if( m_modelTranslation )
@@ -2019,7 +2018,7 @@ void EveSpaceObject2::UpdateWorldTransform( Be::Time time )
 		m_worldTransform._43 = m_worldPosition.z;
 	}
 	//is this done in a parent class/subclass anywhere else?
-	D3DXMatrixInverse( &m_invWorldTransform, nullptr, &m_worldTransform );
+	m_invWorldTransform = Inverse( m_worldTransform );
 }
 
 bool EveSpaceObject2::IsShadowReceiveEnabled()

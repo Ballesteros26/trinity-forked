@@ -55,7 +55,7 @@ void EveCustomMask::GetDebugDrawMatrix( Matrix* matrix, float objectRadius ) con
 	Vector3 finalScale( 0.1f * objectRadius, m_scaling.y * objectRadius, m_scaling.z * objectRadius );
 
 	// build matrix
-	D3DXMatrixTransformation( matrix, nullptr, nullptr, &finalScale, nullptr, &m_rotation, &m_position );
+	*matrix = TransformationMatrix( finalScale, m_rotation, m_position );
 }
 
 // --------------------------------------------------------------------------------
@@ -66,9 +66,9 @@ void EveCustomMask::FillPerObjectData( size_t n, EveSpaceObjectVSData* vsData, E
 {
 	// projection matrix goes into VS data
 	Matrix customMaskTransform, invCustomMaskTransform;
-	D3DXMatrixTransformation( &customMaskTransform, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_position );
-	D3DXMatrixInverse( &invCustomMaskTransform, nullptr, &customMaskTransform );
-	D3DXMatrixTranspose( &vsData->customMaskMatrix[n], &invCustomMaskTransform );
+	customMaskTransform = TransformationMatrix( m_scaling, m_rotation, m_position );
+	invCustomMaskTransform = Inverse( customMaskTransform );
+	vsData->customMaskMatrix[n] = Transpose( invCustomMaskTransform );
 	// additional data
 	vsData->customMaskData[n] = Vector4( 1.f, m_isMirrored ? 1.f : 0.f, 0.f, 0.f );
 	// material source IDs go into PS data

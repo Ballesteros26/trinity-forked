@@ -22,8 +22,8 @@ Vector3 TransformPoint( const Vector3& localCenter, Tr2SolidSet* solid, Matrix& 
 	float scale = fabs( Dot( dir, normal ) * g_primitiveDistanceScaleMultiplier * Tr2Renderer::GetFieldOfView() );
 
 	Matrix scaleMat, finalTransform;
-	D3DXMatrixScaling( &scaleMat, scale, scale, scale );
-	D3DXMatrixMultiply( &finalTransform, &scaleMat, &solid->m_localTransform );
+	scaleMat = ScalingMatrix( scale, scale, scale );
+	finalTransform = scaleMat * solid->m_localTransform;
 
 	return Vector3( XMVector3TransformCoord( localCenter, finalTransform ) );
 }
@@ -144,21 +144,21 @@ void Tr2ScalingTool::Move( int mouseX, int mouseY, int mouseXDelta, int mouseYDe
 			Vector3 translate;
 			Matrix translation;
 			translate = xAxis * delta;
-			D3DXMatrixTranslation( &translation, translate.x, translate.y, translate.z );
-			D3DXMatrixMultiply( &m_xBox->m_localTransform, &m_xBox->m_localTransform, &translation );
+			translation = TranslationMatrix( translate );
+			m_xBox->m_localTransform = m_xBox->m_localTransform * translation;
 
 			// y
 			translate = yAxis * delta;
-			D3DXMatrixTranslation( &translation, translate.x, translate.y, translate.z );
-			D3DXMatrixMultiply( &m_yBox->m_localTransform, &m_yBox->m_localTransform, &translation );
+			translation = TranslationMatrix( translate );
+			m_yBox->m_localTransform = m_yBox->m_localTransform * translation;
 
 			// z
 			translate = zAxis * delta;
-			D3DXMatrixTranslation( &translation, translate.x, translate.y, translate.z );
-			D3DXMatrixMultiply( &m_zBox->m_localTransform, &m_zBox->m_localTransform, &translation );
+			translation = TranslationMatrix( translate );
+			m_zBox->m_localTransform = m_zBox->m_localTransform * translation;
 
 			Matrix scaleA, scaleB;
-			D3DXMatrixScaling( &scaleA, m_scale.x, m_scale.y, m_scale.z );
+			scaleA = ScalingMatrix( m_scale.x, m_scale.y, m_scale.z );
 
 			Vector3 nextScale = m_scale;
 
@@ -166,7 +166,7 @@ void Tr2ScalingTool::Move( int mouseX, int mouseY, int mouseXDelta, int mouseYDe
 			nextScale.y = ( m_initialScale.y*scale );
 			nextScale.z = ( m_initialScale.z*scale );
 
-			D3DXMatrixScaling( &scaleB, nextScale.x, nextScale.y, nextScale.z );
+			scaleB = ScalingMatrix( nextScale.x, nextScale.y, nextScale.z );
 			// Check the move callback for if we should be moving or not
 			if( OnMoveCallback( scaleA, scaleB ) )
 			{
@@ -212,7 +212,7 @@ void Tr2ScalingTool::Move( int mouseX, int mouseY, int mouseXDelta, int mouseYDe
 			float scale = l1 / m_initialLength;
 
 			Matrix scaleA, scaleB;
-			D3DXMatrixScaling( &scaleA, m_scale.x, m_scale.y, m_scale.z );
+			scaleA = ScalingMatrix( m_scale.x, m_scale.y, m_scale.z );
 
 			if( Dot( vecC, axis ) >= 0.0f )
 			{
@@ -233,10 +233,10 @@ void Tr2ScalingTool::Move( int mouseX, int mouseY, int mouseXDelta, int mouseYDe
 			{
 				nextScale.z = ( m_initialScale.z*scale );
 			}
-			D3DXMatrixScaling( &scaleB, nextScale.x, nextScale.y, nextScale.z );
+			scaleB = ScalingMatrix( nextScale.x, nextScale.y, nextScale.z );
 
-			D3DXMatrixTranslation( &translation, m_movement.x, m_movement.y, m_movement.z );
-			D3DXMatrixMultiply( &selectedPrimitive->m_localTransform, &selectedPrimitive->m_localTransform, &translation );
+			translation = TranslationMatrix( m_movement );
+			selectedPrimitive->m_localTransform = selectedPrimitive->m_localTransform * translation;
 			// Check the move callback for if we should be moving or not
 			if( OnMoveCallback( scaleA, scaleB ) )
 			{
@@ -346,7 +346,7 @@ void Tr2ScalingTool::GenLineSets()
 
 	//xBox
 	c_tris = Tr2ManipulationTool::GetBoxTriangles( Vector3( -0.075f, -0.075f, -0.075f ),Vector3( 0.075f, 0.075f, 0.075f ), &numVectors );
-	D3DXMatrixTranslation( &translationMat, 1.0f, 0.0f, 0.0f );
+	translationMat = TranslationMatrix( 1.0f, 0.0f, 0.0f );
 	TransformCoords( c_tris, numVectors, translationMat );
 
 	for( int i = 0; i < numVectors/3; i++ )
@@ -363,7 +363,7 @@ void Tr2ScalingTool::GenLineSets()
 
 	//yBox
 	c_tris = Tr2ManipulationTool::GetBoxTriangles( Vector3( -0.075f, -0.075f, -0.075f ),Vector3( 0.075f, 0.075f, 0.075f ), &numVectors );
-	D3DXMatrixTranslation( &translationMat, 0.0f, 1.0f, 0.0f );
+	translationMat = TranslationMatrix( 0.0f, 1.0f, 0.0f );
 	TransformCoords( c_tris, numVectors, translationMat );
 
 	for( int i = 0; i < numVectors/3; i++ )
@@ -380,7 +380,7 @@ void Tr2ScalingTool::GenLineSets()
 
 	//yBox
 	c_tris = Tr2ManipulationTool::GetBoxTriangles( Vector3( -0.075f, -0.075f, -0.075f ),Vector3( 0.075f, 0.075f, 0.075f ), &numVectors );
-	D3DXMatrixTranslation( &translationMat, 0.0f, 0.0f, 1.0f );
+	translationMat = TranslationMatrix( 0.0f, 0.0f, 1.0f );
 	TransformCoords( c_tris, numVectors, translationMat );
 
 	for( int i = 0; i < numVectors/3; i++ )
@@ -421,9 +421,8 @@ void Tr2ScalingTool::GenLineSets()
 
 void Tr2ScalingTool::Update()
 {
-	Matrix translation;
-	D3DXMatrixTranslation(&translation, m_pivot.x, m_pivot.y, m_pivot.z );
-	D3DXMatrixMultiply(&m_worldTransform, &m_localTransform, &translation );
+	Matrix translation = TranslationMatrix( m_pivot );
+	m_worldTransform = m_localTransform * translation;
 	for( PrimitiveIterator it = m_primitives.begin(); it != m_primitives.end(); ++it )
 	{
 		(*it)->UpdateTransform();
@@ -482,14 +481,13 @@ void Tr2ScalingTool::Init( Matrix& initialTransform )
 	Quaternion rotation;
 	Matrix rotationMatrix;
 	D3DXMatrixDecompose(&scaling, &rotation, &pos, &initialTransform);
-	D3DXMatrixRotationQuaternion(&rotationMatrix, &rotation);
+	rotationMatrix = RotationMatrix( rotation );
 
-	D3DXMatrixTranslation(&m_localTransform, pos.x, pos.y, pos.z);
-	D3DXMatrixMultiply(&m_localTransform, &rotationMatrix, &m_localTransform);
+	m_localTransform = TranslationMatrix( pos );
+	m_localTransform = rotationMatrix * m_localTransform;
 
-	Matrix translation;
-	D3DXMatrixTranslation(&translation, m_pivot.x, m_pivot.y, m_pivot.z );
-	D3DXMatrixMultiply(&m_worldTransform, &m_localTransform, &translation );
+	Matrix translation = TranslationMatrix( m_pivot );
+	m_worldTransform = m_localTransform * translation;
 	ResetPrimitives();
 	// Compute initial length when captured
 	Vector3 vecA, vecB, vecC;

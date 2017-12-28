@@ -51,9 +51,9 @@ EveSpaceObjectDecal::~EveSpaceObjectDecal()
 void EveSpaceObjectDecal::UpdateDecalMatrix()
 {
 	// update decal matrix
-	D3DXMatrixTransformation( &m_decalMatrix, NULL, NULL, &m_scaling, NULL, &m_rotation, &m_position );
+	m_decalMatrix = TransformationMatrix( m_scaling, m_rotation, m_position );
 	// and calc the inverse right away, is needed for intersection
-	D3DXMatrixInverse( &m_invDecalMatrix, NULL, &m_decalMatrix );
+	m_invDecalMatrix = Inverse( m_decalMatrix );
 }
 
 // ------------------------------------------------------------------------------------------------------
@@ -227,16 +227,16 @@ Tr2PerObjectData* EveSpaceObjectDecal::GetPerObjectData( ITriRenderBatchAccumula
 	}
 
 	// world matrix
-	D3DXMatrixTranspose( &perObjectData->m_worldMatrix, &m_parentData.transform );
+	perObjectData->m_worldMatrix = Transpose( m_parentData.transform );
 	// inv world matrix
-	D3DXMatrixInverse( &perObjectData->m_invWorldMatrix, NULL, &perObjectData->m_worldMatrix );
+	perObjectData->m_invWorldMatrix = Inverse( perObjectData->m_worldMatrix );
 
 	// decal matrix (both nrm and inv)
-	D3DXMatrixTranspose( &perObjectData->m_decalMatrix, &m_decalMatrix );
-	D3DXMatrixTranspose( &perObjectData->m_invDecalMatrix, &m_invDecalMatrix );
+	perObjectData->m_decalMatrix = Transpose( m_decalMatrix );
+	perObjectData->m_invDecalMatrix = Transpose( m_invDecalMatrix );
 
 	// matrix from possible bone animation of parent
-	D3DXMatrixTranspose( &perObjectData->m_parentBoneMatrix, &m_parentBoneMatrix );
+	perObjectData->m_parentBoneMatrix = Transpose( m_parentBoneMatrix );
 
 	// clip sphere data from parent
 	perObjectData->m_shipData = m_parentData.shipData;
@@ -310,8 +310,7 @@ void EveSpaceObjectDecal::RenderDebugInfo( Tr2DebugRenderer& renderer, const Mat
 {
 	Matrix worldDecalMatrix;
 
-	D3DXMatrixMultiply( &worldDecalMatrix, &m_parentBoneMatrix, &worldMatrix );
-	D3DXMatrixMultiply( &worldDecalMatrix, &m_decalMatrix, &worldDecalMatrix );
+	worldDecalMatrix = m_decalMatrix * m_parentBoneMatrix * worldMatrix;
 	renderer.DrawBox( this, worldDecalMatrix, Vector3( -1, -1, -1 ), Vector3( 1, 1, 1 ), Tr2DebugRenderer::Wireframe, Tr2DebugColor( 0xff00ffff, 0x2200ffff ) );
 	renderer.DrawBox( this, worldDecalMatrix, Vector3( -1, -1, -1 ), Vector3( 1, 1, 1 ), Tr2DebugRenderer::Solid, 0 );
 }

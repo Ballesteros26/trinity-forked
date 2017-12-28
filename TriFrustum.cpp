@@ -52,10 +52,9 @@ void TriFrustum::DeriveFrustum( const Matrix* view, const Vector3* campos, const
 {
 	CacheTransformationData( view, campos, projection, viewport );
 
-	Matrix worldMat;
 	// It does not make any sense of doing frustum culling in any other space then world space.
 	// Otherwise we would have to move all the geometry to camera space before we would do any culling.
-	D3DXMatrixMultiply(&worldMat, view, projection );
+	Matrix worldMat = *view * *projection;
 
 	// Now do the actual extraction
 	ExtractFrustum( &worldMat );

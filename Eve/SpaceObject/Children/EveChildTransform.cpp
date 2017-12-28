@@ -17,7 +17,7 @@ void EveChildTransform::RebuildLocalTransform()
 {
 	if( m_useSRT )
 	{
-		D3DXMatrixTransformation( &m_localTransform, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_translation );
+		m_localTransform = TransformationMatrix( m_scaling, m_rotation, m_translation );
 	}
 }
 
@@ -37,7 +37,7 @@ void EveChildTransform::Setup( const Vector3* scale, const Quaternion* rotation,
 		{
 			m_translation = *translation;
 		}
-		D3DXMatrixTransformation( &m_localTransform, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_translation);
+		m_localTransform = TransformationMatrix( m_scaling, m_rotation, m_translation );
 	}
 }
 
@@ -51,14 +51,14 @@ void EveChildTransform::UpdateTransform( const Matrix& parentTransform )
 {
 	if( m_staticTransform || !m_useSRT )
 	{
-		D3DXMatrixMultiply( &m_worldTransform, &m_localTransform, &parentTransform );
+		m_worldTransform = m_localTransform * parentTransform;
 	}
 	else
 	{
-		D3DXMatrixTransformation( &m_localTransform, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_translation );
+		m_localTransform = TransformationMatrix( m_scaling, m_rotation, m_translation );
 		if( !m_useStaticRotation )
 		{
-			D3DXMatrixMultiply( &m_worldTransform, &m_localTransform, &parentTransform );
+			m_worldTransform = m_localTransform * parentTransform;
 		}
 		else
 		{
@@ -68,9 +68,8 @@ void EveChildTransform::UpdateTransform( const Matrix& parentTransform )
 			Matrix parentTransformWithoutRotation;
 			
 			D3DXMatrixDecompose( &scale, &rotation, &translation, &parentTransform );
-			D3DXMatrixTransformation( &parentTransformWithoutRotation, nullptr, nullptr, &scale, nullptr, nullptr, &translation );
-						
-			D3DXMatrixMultiply( &m_worldTransform, &m_localTransform, &parentTransformWithoutRotation );
+			parentTransformWithoutRotation = ScalingMatrix( scale ) * TranslationMatrix( translation );
+			m_worldTransform = m_localTransform * parentTransformWithoutRotation;
 		}
 	}
 }

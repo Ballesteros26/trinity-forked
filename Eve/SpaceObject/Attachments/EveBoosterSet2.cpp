@@ -250,7 +250,7 @@ Tr2PerObjectData* EveBoosterSet2Renderable::GetPerObjectData( ITriRenderBatchAcc
 	}
 
 	// column_major for shaders
-	D3DXMatrixTranspose( &perObjectData->m_vsData.shipMatrix, &m_parentTransform );
+	perObjectData->m_vsData.shipMatrix = Transpose( m_parentTransform );
 
 	// vs data
 	perObjectData->m_vsData.boosterIntensity = m_overallIntensity;

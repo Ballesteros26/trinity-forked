@@ -118,10 +118,10 @@ void EveChildLink::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpace
 	// need inverse rotation-only from worldmatrix
 	Matrix invRotationWorldMat;
 	TriMatrixRemoveTranslation( &invRotationWorldMat, &m_worldTransform );
-	D3DXMatrixInverse( &invRotationWorldMat, nullptr, &invRotationWorldMat );
+	invRotationWorldMat = Inverse( invRotationWorldMat );
 
 	// combine inverse to link matrix, so we can do the intersection calculation in axis-aligned space
-	D3DXMatrixMultiply( &linkRotationMat, &linkRotationMat, &invRotationWorldMat );
+	linkRotationMat = linkRotationMat * invRotationWorldMat;
 
 	// the link rotation matrix is rotation only so far, so put the offset to the target in it's translation part
 	Vector3 offsetToTarget = m_currentDistance * m_currentDirection;
@@ -129,8 +129,8 @@ void EveChildLink::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpace
 
 	// the link is to attach to the shield ellipsoid, so use ellipsoid center on worldmatrix
 	Matrix ellipsoidCenterMat, finalWorldMat;
-	D3DXMatrixTranslation( &ellipsoidCenterMat, shieldEllipsoidCenter.x, shieldEllipsoidCenter.y, shieldEllipsoidCenter.z );
-	D3DXMatrixMultiply( &finalWorldMat, &ellipsoidCenterMat, &m_worldTransform );
+	ellipsoidCenterMat = TranslationMatrix( shieldEllipsoidCenter );
+	finalWorldMat = ellipsoidCenterMat * m_worldTransform;
 
 	// update perobject data buffers
 	m_perObjectDataVs.InvalidateBufferData();
@@ -140,8 +140,8 @@ void EveChildLink::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpace
 	{
 		spaceObjectParent->GetPerObjectStructs( m_vsData, m_psData );
 	}
-	D3DXMatrixTranspose( &m_vsData.worldTransform, &finalWorldMat );
-	D3DXMatrixTranspose( &m_vsData.worldTransformLast, &linkRotationMat );
+	m_vsData.worldTransform = Transpose( finalWorldMat );
+	m_vsData.worldTransformLast = Transpose( linkRotationMat );
 }
 
 // --------------------------------------------------------------------------------

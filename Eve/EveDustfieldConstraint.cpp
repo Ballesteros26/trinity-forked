@@ -115,8 +115,7 @@ void EveDustfieldConstraint::Update( const EveUpdateContext& updateContext, IEve
 		m_originShift *= m_movementScale;
 	}
 
-	Matrix inverseView;
-    D3DXMatrixInverse( &inverseView, NULL, &m_cameraView->GetTransform() );
+	Matrix inverseView = Inverse( m_cameraView->GetTransform() );
 	m_referencePosition = inverseView.GetTranslation();
 
 	Vector3 direction;

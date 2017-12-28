@@ -104,8 +104,7 @@ bool EveSpriteLineSet::OnPrepareResources()
 		auto spriteLine = *slit;
 
 		// need matrix for roation
-		Matrix m;
-		D3DXMatrixRotationQuaternion( &m, &spriteLine->m_rotation );
+		Matrix m = RotationMatrix( spriteLine->m_rotation );
 
 		// interpret as circle or line?
 		if( spriteLine->m_isCircle )

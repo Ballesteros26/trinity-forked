@@ -281,11 +281,11 @@ void Tr2SkinnedObject::UpdateBones( Be::Time time, Tr2ApexScene* apexScene )
 				{
 					const Matrix& invBind = skel->m_joints[renderRigIx].m_inverseWorldTransform;
 
-					D3DXMatrixMultiply( &final, &invBind, &accumulatedTransforms[transformIx] );
+					final = invBind * accumulatedTransforms[transformIx];
 				}
 				else
 				{
-					D3DXMatrixScaling(&final, 1.0f, 1.0f, 1.0f);
+					final = IdentityMatrix();
 				}
 
 				float* p = &dst[transformIx * 3*4];
@@ -497,7 +497,7 @@ void Tr2SkinnedObject::SetRotation( const Quaternion& rotQuat )
 	Vector3		tmpTranslation;	
 	
 	D3DXMatrixDecompose( &tmpScale, &tmpRotation, &tmpTranslation, &m_transform );
-	D3DXMatrixTransformation( &m_transform, NULL, NULL, &tmpScale, NULL, &rotQuat, &tmpTranslation );
+	static_cast<Matrix&>( m_transform ) = TransformationMatrix( tmpScale, rotQuat, tmpTranslation );
 
 	return;
 }
@@ -520,7 +520,7 @@ void Tr2SkinnedObject::SetScaling( const Vector3& scaleVec )
 	Vector3		tmpTranslation;	
 
 	D3DXMatrixDecompose( &tmpScale, &tmpRotation, &tmpTranslation, &m_transform );
-	D3DXMatrixTransformation( &m_transform, NULL, NULL, &scaleVec, NULL, &tmpRotation, &tmpTranslation );
+	static_cast<Matrix&>( m_transform ) = TransformationMatrix( scaleVec, tmpRotation, tmpTranslation );
 }
 
 void Tr2SkinnedObject::ResetAnimationBindings()

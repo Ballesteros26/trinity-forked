@@ -794,13 +794,12 @@ static PyObject* PyPickParticle( PyObject* self, PyObject* args )
 	proj->GetMatrixWithoutViewAdjustment( projMat );
 	const Matrix& viewMat = view->GetTransform();
 
-	Matrix worldView;
-	D3DXMatrixMultiply( &worldView, &world, &viewMat );
+	Matrix worldView = world * viewMat;
 
 	// Scaling of particles is done in view space in the shader
 
 	Matrix projection2view;
-	if( !D3DXMatrixInverse( &projection2view, NULL, &projMat ) )
+	if( !Inverse( projection2view, projMat ) )
 	{
 		return PyInt_FromLong( -1 );
 	}

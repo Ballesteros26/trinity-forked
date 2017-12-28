@@ -140,9 +140,8 @@ void EveLensflare::PrepareRender( const TriFrustum& frustum )
 	m_transform._44 = 1.0f;	
 
 	// apply another scaling matrix to scale down for occlusion
-	Matrix scaleMat;
-	D3DXMatrixScaling( &scaleMat, m_occlusionIntensity, m_occlusionIntensity, 1.f );
-	D3DXMatrixMultiply( &m_transform, &scaleMat, &m_transform );
+	Matrix scaleMat = ScalingMatrix( m_occlusionIntensity, m_occlusionIntensity, 1.f );
+	m_transform = scaleMat * m_transform;
     
 	// pass important data to shader
 	m_directionVar = Vector4( m_direction, m_sunSize );

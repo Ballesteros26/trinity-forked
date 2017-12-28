@@ -438,8 +438,7 @@ void BoundingBoxProject( Vector3& min, Vector3& max, const Matrix& view, const M
 	corners[7].y = max.y;
 	corners[7].z = min.z;
 
-	Matrix viewProj;
-	D3DXMatrixMultiply( &viewProj, &view, &proj );
+	Matrix viewProj = view * proj;
 	for( int i = 0; i < 8; ++i )
 	{
 		corners[i] = TransformCoord( corners[i], viewProj );

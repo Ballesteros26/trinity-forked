@@ -22,8 +22,7 @@ Matrix EveChildModifierLookAtCamera::ApplyTransform( const Matrix& transform ) c
 		const Vector3& pos = transform.GetTranslation();
 		const Vector3& camPos = Tr2Renderer::GetViewPosition();
 		Vector3 up( 0.0f, 1.0f, 0.0f );
-		D3DXMatrixLookAtRH( &invView, &camPos, &pos, &up );
-		D3DXMatrixTranspose( &invView, &invView );
+		invView = Transpose( LookAtMatrix( camPos, pos, up ) );
 
 		float parentScaleX = Length( transform.GetX() );
 		float parentScaleY = Length( transform.GetY() );

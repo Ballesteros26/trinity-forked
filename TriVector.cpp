@@ -389,10 +389,7 @@ void TriVector::PyUnproject(
     y = 1.0f - 2.0f * ( y - vp->y ) / vp->height;
     z = ( z - vp->minZ ) / ( vp->maxZ - vp->minZ );
     
-    Matrix worldViewProjInv;
-    D3DXMatrixMultiply( &worldViewProjInv, world->GetMatrix(), view->GetMatrix() );
-    D3DXMatrixMultiply( &worldViewProjInv, &worldViewProjInv, project->GetMatrix() );
-    D3DXMatrixInverse( &worldViewProjInv, nullptr, &worldViewProjInv );
+    Matrix worldViewProjInv = Inverse( *world->GetMatrix() * *view->GetMatrix() * *project->GetMatrix() );
     
     *static_cast<Vector3*>( this ) = TransformCoord( *this, worldViewProjInv );
 }

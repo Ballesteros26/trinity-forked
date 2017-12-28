@@ -153,8 +153,7 @@ void EveChildBillboard::UpdateAsyncronous( EveUpdateContext& updateContext, IEve
 	const Vector3& pos = m_worldTransform.GetTranslation();
 	const Vector3& camPos = Tr2Renderer::GetViewPosition();
 	Vector3 up( 0.0f, 1.0f, 0.0f );
-	D3DXMatrixLookAtRH( &invView, &camPos, &pos, &up );
-	D3DXMatrixTranspose( &invView, &invView );
+	invView = Transpose( LookAtMatrix( camPos, pos, up ) );
 
 	float parentScaleX = Length( parentTransform.GetX() );
 	float parentScaleY = Length( parentTransform.GetY() );
@@ -190,8 +189,8 @@ Tr2PerObjectData* EveChildBillboard::GetPerObjectData( ITriRenderBatchAccumulato
 	}
 
 	// column_major for shaders
-	D3DXMatrixTranspose( &data->m_world, &m_worldTransform );
-	D3DXMatrixInverse( &data->m_worldInverseTranspose, NULL, &m_worldTransform );
+	data->m_world = Transpose( m_worldTransform );
+	data->m_worldInverseTranspose = Inverse( m_worldTransform );
 
 	return data;
 }

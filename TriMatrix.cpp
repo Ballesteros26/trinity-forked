@@ -117,26 +117,10 @@ Matrix* TriMatrix::CopyMatrix(
 	return in;
 }
 
-void TriMatrix::AffineTransformation(
-	float scaling,
-	const Vector3* pRotationCenter,
-	const Quaternion* pRotation,
-	const Vector3* pTranslation
-	)
-{
-	D3DXMatrixAffineTransformation(
-		this,
-		scaling,
-		pRotationCenter,
-		pRotation,
-		pTranslation
-		);
-}
-
 float TriMatrix::Determinant(	  
 	) 
 {
-	return D3DXMatrixDeterminant(this);
+	return ::Determinant( *this );
 }
 
 void TriMatrix::Identity(
@@ -149,14 +133,8 @@ float TriMatrix::Inverse(
 	) 
 {
 	float ret;
-	D3DXMatrixInverse(this, &ret, this);
+	::Inverse( *this, ret, *this );
 	return ret;
-}
-
-bool TriMatrix::IsIdentity(
-	) 
-{
-	return D3DXMatrixIsIdentity(this) != 0;
 }
 
 void TriMatrix::LookAtRH(	  
@@ -165,205 +143,14 @@ void TriMatrix::LookAtRH(
 	const Vector3* pUp
 	) 
 {
-	D3DXMatrixLookAtRH(
-		this,
-		pEye,
-		pAt,
-		pUp);
-}
-
-void TriMatrix::LookAtLH(
-	const Vector3* pEye,
-	const Vector3* pAt,
-	const Vector3* pUp
-	) 
-{
-	D3DXMatrixLookAtLH(
-		this,
-		pEye,
-		pAt,
-		pUp);
+	*static_cast<Matrix*>( this ) = LookAtMatrix( *pEye, *pAt, *pUp );
 }
 
 void TriMatrix::Multiply(		  
 	const Matrix* pM2
 	) 
 {
-	D3DXMatrixMultiply(this, this, pM2);
-}
-void TriMatrix::OrthoRH(		
-	float w,
-	float h,
-	float zn,
-	float zf
-	) 
-{
-	D3DXMatrixOrthoRH(
-		this,
-		w,
-		h,
-		zn,
-		zf);
-}
-
-void TriMatrix::OrthoLH(
-	float w,
-	float h,
-	float zn,
-	float zf
-	) 
-{
-	D3DXMatrixOrthoLH(
-		this,
-		w,
-		h,
-		zn,
-		zf);
-}
-
-void TriMatrix::OrthoOffCenterRH(
-	float l,
-	float r,
-	float t,
-	float b,
-	float zn,
-	float zf
-	) 
-{
-	D3DXMatrixOrthoOffCenterRH(
-		this,
-		l,
-		r,
-		t,
-		b,
-		zn,
-		zf);
-}
-
-void TriMatrix::OrthoOffCenterLH(
-	float l,
-	float r,
-	float t,
-	float b,
-	float zn,
-	float zf
-	) 
-{
-	D3DXMatrixOrthoOffCenterLH(
-		this,
-		l,
-		r,
-		t,
-		b,
-		zn,
-		zf);
-}
-
-void TriMatrix::PerspectiveRH(
-	float w,
-	float h,
-	float zn,
-	float zf
-	) 
-{
-	D3DXMatrixPerspectiveRH(
-		this,
-		w,
-		h,
-		zn,
-		zf);
-}
-
-void TriMatrix::PerspectiveFovLH(
-	float fovy,
-	float Aspect,
-	float zn,
-	float zf
-	) 
-{
-	D3DXMatrixPerspectiveFovLH(
-		this,
-		fovy,
-		Aspect,
-		zn,
-		zf);
-}
-
-void TriMatrix::PerspectiveFovRH(
-	float fovy,
-	float Aspect,
-	float zn,
-	float zf
-	) 
-{
-	D3DXMatrixPerspectiveFovRH(
-		this,
-		fovy,
-		Aspect,
-		zn,
-		zf);
-}
-
-void TriMatrix::PerspectiveLH(	
-	float w,
-	float h,
-	float zn,
-	float zf
-	) 
-{
-	D3DXMatrixPerspectiveLH(
-		this,
-		w,
-		h,
-		zn,
-		zf);
-}
-
-void TriMatrix::PerspectiveOffCenterRH(		
-	float l,
-	float r,
-	float t,
-	float b,
-	float zn,
-	float zf
-	) 
-{
-	D3DXMatrixPerspectiveOffCenterRH(
-		this,
-		l,
-		r,
-		t,
-		b,
-		zn,
-		zf);
-}
-
-void TriMatrix::PerspectiveOffCenterLH(
-	float l,
-	float r,
-	float t,
-	float b,
-	float zn,
-	float zf
-	) 
-{
-	D3DXMatrixPerspectiveOffCenterLH(
-		this,
-		l,
-		r,
-		t,
-		b,
-		zn,
-		zf);
-}
-
-void TriMatrix::Reflect(	
-	const D3DXPLANE* pPlane
-	) 
-{
-	D3DXMatrixReflect(
-		this,
-		pPlane);
+	*static_cast<Matrix*>( this ) = *this * *pM2;
 }
 
 void TriMatrix::RotationAxis(	  
@@ -371,33 +158,28 @@ void TriMatrix::RotationAxis(
 	float Angle
 	) 
 {
-	D3DXMatrixRotationAxis(
-		this,
-		pV,
-		Angle);
+	*static_cast<Matrix*>( this ) = RotationMatrix( *pV, Angle );
 }
 
 void TriMatrix::RotationQuaternion(	
 	const Quaternion* pQ
 	) 
 {
-	D3DXMatrixRotationQuaternion(
-		this,
-		pQ);
+	*static_cast<Matrix*>( this ) = RotationMatrix( *pQ );
 }
 
 void TriMatrix::RotationX(	  
 	float Angle
 	) 
 {
-	D3DXMatrixRotationX(this, Angle);
+	*static_cast<Matrix*>( this ) = RotationXMatrix( Angle );
 }
 
 void TriMatrix::RotationY(
 	float Angle
 	) 
 {
-	D3DXMatrixRotationY(this, Angle);
+	*static_cast<Matrix*>( this ) = RotationYMatrix( Angle );
 }
 
 void TriMatrix::RotationYawPitchRoll(
@@ -417,7 +199,7 @@ void TriMatrix::RotationZ(
 	float Angle
 	) 
 {
-	D3DXMatrixRotationZ(this, Angle);
+	*static_cast<Matrix*>( this ) = RotationZMatrix( Angle );
 }
 
 void TriMatrix::Scaling(	  
@@ -426,18 +208,7 @@ void TriMatrix::Scaling(
 	float sz
 	) 
 {
-	D3DXMatrixScaling(this, sx, sy, sz);
-}
-
-void TriMatrix::Shadow(	  
-	const Vector4* pLight,
-	const D3DXPLANE* pPlane
-	) 
-{
-	D3DXMatrixShadow(
-		this,
-		pLight,
-		pPlane);
+	*static_cast<Matrix*>( this ) = ScalingMatrix( sx, sy, sz );
 }
 
 void TriMatrix::Transformation(	  
@@ -449,8 +220,7 @@ void TriMatrix::Transformation(
 	const Vector3* pTranslation
 	) 
 {
-	D3DXMatrixTransformation(
-		this,
+	*static_cast<Matrix*>( this ) = TransformationMatrix(
 		pScalingCenter,
 		pScalingRotation,
 		pScaling,
@@ -465,19 +235,13 @@ void TriMatrix::Translation(
 	float z
 	) 
 {
-	D3DXMatrixTranslation(
-		this,
-		x,
-		y,
-		z);
+	*static_cast<Matrix*>( this ) = TranslationMatrix( x, y, z );
 }
 
 void TriMatrix::Transpose(	  	  
 	)
 {
-	D3DXMatrixTranspose(
-		this,
-		this);
+	*static_cast<Matrix*>( this ) = ::Transpose( *this );
 }
 
 
@@ -503,30 +267,9 @@ PyObject* TriMatrix::Py__init__(
 #endif
 
 
-void TriMatrix::PyAffineTransformation( 
-	float scaling, 
-	ITriVector* rotationCenter, 
-	ITriQuaternion* rotation, 
-	ITriVector* translation )
-{
-	AffineTransformation(
-		scaling,
-		rotationCenter->GetVector(),
-		rotation->GetQuaternion(),
-		translation->GetVector() );
-}
-
 void TriMatrix::PyLookAtRH( ITriVector* eye, ITriVector* at, ITriVector* up ) 
 {
 	LookAtRH(
-		eye->GetVector(),
-		at->GetVector(),
-		up->GetVector() );
-}
-
-void TriMatrix::PyLookAtLH( ITriVector* eye, ITriVector* at, ITriVector* up ) 
-{
-	LookAtLH(
 		eye->GetVector(),
 		at->GetVector(),
 		up->GetVector() );

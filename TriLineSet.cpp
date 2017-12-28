@@ -178,10 +178,8 @@ void TriLineSet::AddCylinder( const Vector3& start, const Vector3& end, float ra
 	m._43 = end.z;
 	m._44 = 1.0f;
 
-	Matrix scale;
-	D3DXMatrixScaling( &scale, radius, radius, length );
-
-	D3DXMatrixMultiply( &m, &scale, &m );
+	Matrix scale = ScalingMatrix( radius, radius, length );
+	m = scale * m;
 
 	if( segments < 4 )
 	{
@@ -260,10 +258,8 @@ void TriLineSet::AddCone( const Vector3& start, const Vector3& end, float radius
 	m._43 = end.z;
 	m._44 = 1.0f;
 
-	Matrix scale;
-	D3DXMatrixScaling( &scale, radius, radius, length );
-
-	D3DXMatrixMultiply( &m, &scale, &m );
+	Matrix scale = ScalingMatrix( radius, radius, length );
+	m = scale * m;
 
 	if( segments < 4 )
 	{

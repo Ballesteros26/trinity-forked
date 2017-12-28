@@ -480,7 +480,7 @@ void Tr2GrannyAnimation::RenderBones( const Matrix& modelTransform )
 	{
 		initialPlacement = Vector3( fi->Models[ m_modelIndex ]->InitialPlacement.Position );
 	}
-	D3DXMatrixTranslation( &initialTranslation, initialPlacement.x, initialPlacement.y, initialPlacement.z );
+	initialTranslation = TranslationMatrix( initialPlacement );
 	
 	for( int boneIdx = 0; boneIdx < m_meshBoneCount; boneIdx++ )
 	{
@@ -514,7 +514,7 @@ void Tr2GrannyAnimation::RenderDynamicBounds( const Matrix& modelTransform )
 	{
 		initialPlacement = Vector3( fi->Models[ m_modelIndex ]->InitialPlacement.Position );
 	}
-	D3DXMatrixTranslation( &initialTranslation, initialPlacement.x, initialPlacement.y, initialPlacement.z );
+	initialTranslation = TranslationMatrix( initialPlacement );
 
 	for( unsigned i = 0; i < m_boneBounds.size(); ++i )
 	{
@@ -901,8 +901,8 @@ void Tr2GrannyAnimation::PrePhysicsAnimation( Be::Time time, const Matrix &model
 						Matrix toMat = *reinterpret_cast<Matrix*>( GrannyGetWorldPose4x4( m_worldPose, i ) );
 
 						// Transform to our world coordinates
-						D3DXMatrixMultiply(&fromMat, &fromMat, &modelTransform);
-						D3DXMatrixMultiply(&toMat, &toMat, &modelTransform);
+						fromMat = fromMat * modelTransform;
+						toMat = toMat * modelTransform;
 
 						g_debugRenderer->DrawLine( fromMat.GetTranslation(), toMat.GetTranslation() );
 					}
@@ -916,7 +916,7 @@ void Tr2GrannyAnimation::PrePhysicsAnimation( Be::Time time, const Matrix &model
 					Matrix m = *reinterpret_cast<Matrix*>( GrannyGetWorldPose4x4( m_worldPose, i ) );
 
 					// Transform to our world coordinates
-					D3DXMatrixMultiply(&m, &m, &modelTransform);
+					m = m * modelTransform;
 
 					g_debugRenderer->Printf( m.GetTranslation(), 0xffffffff, name );
 				}

@@ -63,8 +63,8 @@ void Tr2Transform::UpdateViewDependentData( const TriFrustum& frustum, const Mat
 		finalScale = m_scaling;
 	}
 
-	D3DXMatrixTransformation( &m_localTransform, 0, 0, &finalScale, 0, &m_rotation, &m_translation );
-	D3DXMatrixMultiply( &m_worldTransform, &m_localTransform, &parentTransform );
+	m_localTransform = TransformationMatrix( finalScale, m_rotation, m_translation );
+	m_worldTransform = m_localTransform * parentTransform;
 
 	switch( m_modifier )
 	{
@@ -116,9 +116,9 @@ void Tr2Transform::UpdateViewDependentData( const TriFrustum& frustum, const Mat
 			{
 				// apply the parent transform ONLY to the translation!
 				Vector3 newTranslation = TransformCoord( m_translation, parentTransform );
-				D3DXMatrixTransformation( &m_localTransform, 0, 0, &finalScale, 0, &m_rotation, &newTranslation );
+				m_localTransform = TransformationMatrix( finalScale, m_rotation, newTranslation );
 				Vector3 temp( m_localTransform._41, m_localTransform._42, m_localTransform._43 );
-				D3DXMatrixMultiply( &m_worldTransform , &m_localTransform, &Tr2Renderer::GetInverseViewTransform() );
+				m_worldTransform = m_localTransform * Tr2Renderer::GetInverseViewTransform();
 				m_worldTransform._41 = temp.x;
 				m_worldTransform._42 = temp.y;
 				m_worldTransform._43 = temp.z;
@@ -129,18 +129,16 @@ void Tr2Transform::UpdateViewDependentData( const TriFrustum& frustum, const Mat
 		case TR2TM_EVE_BOOSTER:
 		case TR2TM_EVE_SIMPLE_HALO:
 			{
-				Matrix translationTransform;
-				D3DXMatrixTranslation( &translationTransform, m_translation.x, m_translation.y, m_translation.z );
+				Matrix translationTransform = TranslationMatrix( m_translation );
 
-				D3DXMatrixMultiply( &m_worldTransform, &translationTransform, &parentTransform );
+				m_worldTransform = translationTransform * parentTransform;
 
 				const Vector3& myPos = m_worldTransform.GetTranslation();
 				const Vector3& camPos = Tr2Renderer::GetViewPosition();
 				Vector3 d = camPos - myPos;
 
 				Vector3 camFwd = d;
-				Matrix parentT;
-				D3DXMatrixTranspose( &parentT, &parentTransform );
+				Matrix parentT = Transpose( parentTransform );
 				TriVectorRotateMatrix(&camFwd, &camFwd, &parentT);
 
 
@@ -179,11 +177,9 @@ void Tr2Transform::UpdateViewDependentData( const TriFrustum& frustum, const Mat
 						scale = 0.0f;
 					}
 
-					Matrix scalingTransform;
-					D3DXMatrixScaling( &scalingTransform, m_scaling.x * scale, m_scaling.y * scale, m_scaling.z * scale );
+					Matrix scalingTransform = ScalingMatrix( m_scaling * scale );
 
-					D3DXMatrixMultiply( &m_worldTransform, &alignMat, &m_worldTransform );
-					D3DXMatrixMultiply( &m_worldTransform, &scalingTransform, &m_worldTransform );
+					m_worldTransform = scalingTransform * alignMat * m_worldTransform;
 				}
 				else if( m_modifier == TR2TM_EVE_BOOSTER )
 				{
@@ -194,24 +190,19 @@ void Tr2Transform::UpdateViewDependentData( const TriFrustum& frustum, const Mat
 
 					scale *= m_scaling.x;
 
-					Matrix scalingTransform;
-					D3DXMatrixScaling( &scalingTransform, scale, scale, scale );
+					Matrix scalingTransform = ScalingMatrix( scale, scale, scale );
 
-					Matrix translationTransform;
-					D3DXMatrixTranslation( &translationTransform, 0.0f, 0.0f, trans );
+					Matrix translationTransform = TranslationMatrix( 0.0f, 0.0f, trans );
 
-					D3DXMatrixMultiply( &m_worldTransform, &scalingTransform, &m_worldTransform );
-					D3DXMatrixMultiply( &m_worldTransform, &alignMat, &m_worldTransform );
-					D3DXMatrixMultiply( &m_worldTransform, &translationTransform, &m_worldTransform );
+					m_worldTransform = translationTransform * alignMat * scalingTransform * m_worldTransform;
 				}
 				else // TR2TM_EVE_CAMERA_ROTATION_ALIGNED
 				{
-					D3DXMatrixMultiply( &m_worldTransform, &alignMat, &m_worldTransform );
+					m_worldTransform = alignMat * m_worldTransform;
 
-					Matrix scalingTransform;
-					D3DXMatrixScaling( &scalingTransform, finalScale.x, finalScale.y, finalScale.z );
+					Matrix scalingTransform = ScalingMatrix( finalScale );
 
-					D3DXMatrixMultiply( &m_worldTransform, &scalingTransform, &m_worldTransform );
+					m_worldTransform = scalingTransform * m_worldTransform;
 				}
 			}
 			break;
@@ -221,9 +212,7 @@ void Tr2Transform::UpdateViewDependentData( const TriFrustum& frustum, const Mat
 				Matrix invView;
 				const Vector3& pos = m_worldTransform.GetTranslation();
 				const Vector3& camPos = Tr2Renderer::GetViewPosition();
-				Vector3 up( 0.0f, 1.0f, 0.0f );
-				D3DXMatrixLookAtRH( &invView, &camPos, &pos, &up );
-				D3DXMatrixTranspose( &invView, &invView );
+				invView = Transpose( LookAtMatrix( camPos, pos, Vector3( 0.0f, 1.0f, 0.0f ) ) );
 
 				float parentScaleX = Length( parentTransform.GetX() );
 				float parentScaleY = Length( parentTransform.GetY() );

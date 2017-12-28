@@ -19,6 +19,5 @@ EveChildModifierSRT::~EveChildModifierSRT()
 
 Matrix EveChildModifierSRT::ApplyTransform( const Matrix& transform ) const
 {
-	Matrix local;	
-	return *D3DXMatrixTransformation( &local, nullptr, nullptr, &m_scaling, nullptr, &m_rotation, &m_translation ) * transform;
+	return TransformationMatrix( m_scaling, m_rotation, m_translation ) * transform;
 }

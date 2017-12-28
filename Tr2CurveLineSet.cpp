@@ -448,11 +448,11 @@ bool Tr2CurveLineSet::FillVertexBuffer()
 					float segmentAngle = fullAngle / (float)m_lines[i].numOfSegments;
 
 					// run through all segmens and create lines
-					D3DXMatrixRotationAxis( &rotationMatrix, &rotationAxis, -segmentAngle );
+					rotationMatrix = RotationMatrix( rotationAxis, -segmentAngle );
 
 					Vector3 dir0 = TransformNormal( startDir, rotationMatrix );
 
-					D3DXMatrixRotationAxis( &rotationMatrix, &rotationAxis, segmentAngle );
+					rotationMatrix = RotationMatrix( rotationAxis, segmentAngle );
 
 					Vector3 dir1 = startDir;
 					Vector3 dir2 = TransformNormal( dir1, rotationMatrix );;
@@ -511,12 +511,10 @@ bool Tr2CurveLineSet::FillVertexBuffer()
 					Vector3 tangent2 = m_lines[i].intermediatePosition - m_lines[i].position2;
 					tangent2 *= -1.f;
 					// run through all segmens and create lines
-					Vector3 pos0 = m_lines[i].position1;
+					Vector3 pos0 = Hermite( m_lines[i].position1, tangent1, m_lines[i].position2, tangent2, -1.0f / m_lines[i].numOfSegments );
 					Vector3 pos1 = m_lines[i].position1;
-					Vector3 pos2 = m_lines[i].position1;
+					Vector3 pos2 = Hermite( m_lines[i].position1, tangent1, m_lines[i].position2, tangent2, 1.0f / m_lines[i].numOfSegments );
 					Vector3 pos3 = m_lines[i].position1;
-					pos0 = Hermite( m_lines[i].position1, tangent1, m_lines[i].position2, tangent2, -1.0f / m_lines[i].numOfSegments );
-					pos2 = Hermite( m_lines[i].position1, tangent1, m_lines[i].position2, tangent2, 1.0f / m_lines[i].numOfSegments );
 					// also interpolate color across all the segments
 					Color col1 = m_lines[i].color1;
 					Color col2 = m_lines[i].color2;

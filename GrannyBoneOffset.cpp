@@ -143,7 +143,7 @@ void GrannyBoneOffset::SetRotation( const std::string &bone, float r, float i, f
 	q.y = i;
 	q.z = j;
 	q.w = k;
-	D3DXMatrixRotationQuaternion( &mq, &q );
+	mq = RotationMatrix( q );
 
 	memcpy( m, &mq.m[0][0], 64 );
 	

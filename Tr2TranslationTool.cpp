@@ -139,9 +139,9 @@ void Tr2TranslationTool::GenLineSets()
 		Vector constants and magic numbers that would be nice to remove.
 	*/
 	Matrix rotateMat, translation, transform;
-	D3DXMatrixRotationZ( &rotateMat, -XM_PI/2.0f );
-	D3DXMatrixTranslation( &translation, 0.0f, 1.0f, 0.0f );
-	D3DXMatrixMultiply( &transform, &translation, &rotateMat );
+	rotateMat = RotationZMatrix( -XM_PI / 2.0f );
+	translation = TranslationMatrix( 0.0f, 1.0f, 0.0f );
+	transform = translation * rotateMat;
 	Vector3* c_tris = NULL;
 	int numVectors = 0;
 	int subDivisions = 20;
@@ -248,8 +248,8 @@ void Tr2TranslationTool::GenLineSets()
 
 	//zCone
 	c_tris = Tr2ManipulationTool::GetConeTriangles(0.25f, 0.075f, subDivisions, &numVectors);
-	D3DXMatrixRotationX( &rotateMat, XM_PI/2.0f );	
-	D3DXMatrixMultiply( &transform, &translation, &rotateMat );
+	rotateMat = RotationXMatrix( XM_PI / 2.0f );
+	transform = translation * rotateMat;
 	TransformCoords( c_tris, numVectors, transform );
 
 	for( int i = 0; i < numVectors/3; i++ )
@@ -298,9 +298,8 @@ void Tr2TranslationTool::Update()
 	if( m_moved )
 	{
 		Matrix temp;
-		Matrix translation; 
-		D3DXMatrixTranslation( &translation, m_movement.x, m_movement.y, m_movement.z );
-		D3DXMatrixMultiply( &temp, &m_localTransform, &translation );
+		Matrix translation = TranslationMatrix( m_movement );
+		temp = m_localTransform * translation;
 		// Check the move callback for if we should be moving or not
 		if( OnMoveCallback( m_localTransform, temp ))
 		{
@@ -315,9 +314,8 @@ void Tr2TranslationTool::Update()
 		m_moved = false;
 	}
 
-	Matrix translation;
-	D3DXMatrixTranslation(&translation, m_pivot.x, m_pivot.y, m_pivot.z );
-	D3DXMatrixMultiply(&m_worldTransform, &m_localTransform, &translation );
+	Matrix translation = TranslationMatrix( m_pivot );
+	m_worldTransform = m_localTransform * translation;
 	for( PrimitiveIterator it = m_primitives.begin(); it != m_primitives.end(); ++it )
 	{
 		(*it)->m_localTransform = m_localTransform;

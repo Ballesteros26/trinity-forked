@@ -255,8 +255,7 @@ EveSwarm::~EveSwarm()
 Matrix EveSwarm::GetObserverTransform() const
 {
 	Vector3 translation = GetModelWorldPosition() - m_worldPosition;
-	Matrix translationMatrix;
-	D3DXMatrixTranslation( &translationMatrix, translation.x, translation.y, translation.z );
+	Matrix translationMatrix = TranslationMatrix( translation );
 	return m_worldTransform * translationMatrix;
 }
 
@@ -374,8 +373,7 @@ void EveSwarm::UpdateAsyncronous( EveUpdateContext& context )
 		auto rit = m_renderables.begin();
 		for( unsigned i = 0; i < m_vehicles.size() && rit != m_renderables.end(); i++, rit++ )
 		{
-			Matrix world;
-			D3DXMatrixAffineTransformation( &world, 1.f, nullptr, &(m_vehicles[i].rotation), &(m_vehicles[i].position) );
+			Matrix world = RotationMatrix( m_vehicles[i].rotation ) * TranslationMatrix( m_vehicles[i].position );
 			(*rit)->SetWorldTransform( world );
 		
 			if( m_boosters )

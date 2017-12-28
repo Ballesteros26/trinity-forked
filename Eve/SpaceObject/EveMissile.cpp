@@ -133,7 +133,7 @@ void EveMissile::UpdateSyncronous( EveUpdateContext& updateContext )
 		// inverse it to get inverse!
 		D3DXQuaternionInverse( &quat, &quat );
 		// turn it into the matrix we need
-		D3DXMatrixRotationQuaternion( &invBallRotationMatrix, &quat );
+		invBallRotationMatrix = RotationMatrix( quat );
 	}
 
 	// time goes on
@@ -190,7 +190,7 @@ void EveMissile::UpdateSyncronous( EveUpdateContext& updateContext )
 			}
 			const Vector3 locatorOffset = locatorPositionWS - *worldPos;
 			locatorPositionWS = TransformCoord( locatorOffset, invBallRotationMatrix );
-			D3DXMatrixTranslation( &locatorMatrix, locatorPositionWS.x, locatorPositionWS.y, locatorPositionWS.z );
+			locatorMatrix = TranslationMatrix( locatorPositionWS );
 
 			wh->UpdateEndTransform( locatorMatrix, evt == EveMissileWarhead::EVT_SWITCH_TARGET );
 
@@ -229,8 +229,7 @@ void EveMissile::UpdateVisibility( const TriFrustum& frustum, const Matrix& pare
 		EveMissileWarhead* warhead = (*it);
 		 
 		// apply the offset transform to the transform of this spaceobject
-		Matrix subMissileTransform;
-		D3DXMatrixMultiply( &subMissileTransform, &warhead->GetCurrentOffsetTransform(), &m_worldTransform );
+		Matrix subMissileTransform = warhead->GetCurrentOffsetTransform() * m_worldTransform;
 
 		// final call
 		warhead->UpdateVisibility( frustum, subMissileTransform );

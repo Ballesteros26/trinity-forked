@@ -654,6 +654,112 @@ inline Matrix RotationMatrix( const Quaternion& q )
 }
 
 // --------------------------------------------------------------------------------------
+inline Matrix RotationMatrix( const Vector3& axis, float angle )
+{
+	Vector3 normal = Normalize( axis );
+
+	float sinAngle = sin( angle );
+	float cosAngle = cos( angle );
+
+	Matrix out;
+	out.m[0][0] = ( 1.0f - cosAngle ) * normal.x * normal.x + cosAngle;
+	out.m[1][0] = ( 1.0f - cosAngle ) * normal.x * normal.y - sinAngle * normal.z;
+	out.m[2][0] = ( 1.0f - cosAngle ) * normal.x * normal.z + sinAngle * normal.y;
+	out.m[3][0] = 0.f;
+	out.m[0][1] = ( 1.0f - cosAngle ) * normal.y * normal.x + sinAngle * normal.z;
+	out.m[1][1] = ( 1.0f - cosAngle ) * normal.y * normal.y + cosAngle;
+	out.m[2][1] = ( 1.0f - cosAngle ) * normal.y * normal.z - sinAngle * normal.x;
+	out.m[3][1] = 0.f;
+	out.m[0][2] = ( 1.0f - cosAngle ) * normal.z * normal.x - sinAngle * normal.y;
+	out.m[1][2] = ( 1.0f - cosAngle ) * normal.z * normal.y + sinAngle * normal.x;
+	out.m[2][2] = ( 1.0f - cosAngle ) * normal.z * normal.z + cosAngle;
+	out.m[3][2] = 0.f;
+	out.m[0][3] = 0.f;
+	out.m[1][3] = 0.f;
+	out.m[2][3] = 0.f;
+	out.m[3][3] = 1.f;
+	return out;
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix RotationXMatrix( float angle )
+{
+	float sinAngle = sin( angle );
+	float cosAngle = cos( angle );
+
+	Matrix out;
+	out.m[0][0] = 1.0f;
+	out.m[0][1] = 0.0f;
+	out.m[0][2] = 0.0f;
+	out.m[0][3] = 0.0f;
+	out.m[1][0] = 0.0f;
+	out.m[1][1] = cosAngle;
+	out.m[1][2] = sinAngle;
+	out.m[1][3] = 0.0f;
+	out.m[2][0] = 0.0f;
+	out.m[2][1] = -sinAngle;
+	out.m[2][2] = cosAngle;
+	out.m[2][3] = 0.0f;
+	out.m[3][0] = 0.0f;
+	out.m[3][1] = 0.0f;
+	out.m[3][2] = 0.0f;
+	out.m[3][3] = 1.0f;
+	return out;
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix RotationYMatrix( float angle )
+{
+	float sinAngle = sin( angle );
+	float cosAngle = cos( angle );
+
+	Matrix out;
+	out.m[0][0] = cosAngle;
+	out.m[0][1] = 0.0f;
+	out.m[0][2] = -sinAngle;
+	out.m[0][3] = 0.0f;
+	out.m[1][0] = 0.0f;
+	out.m[1][1] = 1.0f;
+	out.m[1][2] = 0.0f;
+	out.m[1][3] = 0.0f;
+	out.m[2][0] = sinAngle;
+	out.m[2][1] = 0.0f;
+	out.m[2][2] = cosAngle;
+	out.m[2][3] = 0.0f;
+	out.m[3][0] = 0.0f;
+	out.m[3][1] = 0.0f;
+	out.m[3][2] = 0.0f;
+	out.m[3][3] = 1.0f;
+	return out;
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix RotationZMatrix( float angle )
+{
+	float sinAngle = sin( angle );
+	float cosAngle = cos( angle );
+
+	Matrix out;
+	out.m[0][0] = cosAngle;
+	out.m[0][1] = sinAngle;
+	out.m[0][2] = 0.0f;
+	out.m[0][3] = 0.0f;
+	out.m[1][0] = -sinAngle;
+	out.m[1][1] = cosAngle;
+	out.m[1][2] = 0.0f;
+	out.m[1][3] = 0.0f;
+	out.m[2][0] = 0.0f;
+	out.m[2][1] = 0.0f;
+	out.m[2][2] = 1.0f;
+	out.m[2][3] = 0.0f;
+	out.m[3][0] = 0.0f;
+	out.m[3][1] = 0.0f;
+	out.m[3][2] = 0.0f;
+	out.m[3][3] = 1.0f;
+	return out;
+}
+
+// --------------------------------------------------------------------------------------
 inline Matrix Transpose( const Matrix& m )
 {
 	Matrix out;
@@ -722,6 +828,54 @@ inline Matrix Inverse( const Matrix& m )
 		}
 	}
 	return out;
+}
+
+// --------------------------------------------------------------------------------------
+inline bool Inverse( Matrix& out, float& det, const Matrix& m )
+{
+	Vector4 v, vec[3];
+
+	det = Determinant( m );
+	if( !det )
+	{
+		return false;
+	}
+	else
+	{
+		for( int i = 0; i < 4; i++ )
+		{
+			float signedDet = ( i & 1 ) ? -1.f : 1.f;
+			signedDet /= det;
+			for( int j = 0; j < 4; j++ )
+			{
+				if( j != i )
+				{
+					int a = j;
+					if( j > i )
+					{
+						a = a - 1;
+					}
+					vec[a].x = m.m[j][0];
+					vec[a].y = m.m[j][1];
+					vec[a].z = m.m[j][2];
+					vec[a].w = m.m[j][3];
+				}
+			}
+			v = Cross( vec[0], vec[1], vec[2] );
+			out.m[0][i] = signedDet * v.x;
+			out.m[1][i] = signedDet * v.y;
+			out.m[2][i] = signedDet * v.z;
+			out.m[3][i] = signedDet * v.w;
+		}
+	}
+	return true;
+}
+
+// --------------------------------------------------------------------------------------
+inline bool Inverse( Matrix& out, const Matrix& m )
+{
+	float det;
+	return Inverse( out, det, m );
 }
 
 // --------------------------------------------------------------------------------------
@@ -932,6 +1086,39 @@ inline Matrix TransformationMatrix(
 	const Vector3& translation )
 {
 	return ScalingMatrix( scaling ) * RotationMatrix( rotation ) * TranslationMatrix( translation );
+}
+
+// --------------------------------------------------------------------------------------
+inline Matrix LookAtMatrix(
+	const Vector3& peye,
+	const Vector3& pat,
+	const Vector3& pup )
+{
+	Vector3 right, rightn, up, upn, vec, vec2;
+	vec2 = pat - peye;
+	vec = Normalize( vec2 );
+	right = Cross( pup, vec );
+	up = Cross( vec, right );
+	rightn = Normalize( right );
+	upn = Normalize( up );
+	Matrix out;
+	out.m[0][0] = -rightn.x;
+	out.m[1][0] = -rightn.y;
+	out.m[2][0] = -rightn.z;
+	out.m[3][0] = Dot( rightn, peye );
+	out.m[0][1] = upn.x;
+	out.m[1][1] = upn.y;
+	out.m[2][1] = upn.z;
+	out.m[3][1] = -Dot( upn, peye );
+	out.m[0][2] = -vec.x;
+	out.m[1][2] = -vec.y;
+	out.m[2][2] = -vec.z;
+	out.m[3][2] = Dot( vec, peye );
+	out.m[0][3] = 0.0f;
+	out.m[1][3] = 0.0f;
+	out.m[2][3] = 0.0f;
+	out.m[3][3] = 1.0f;
+	return out;
 }
 
 #endif // MATRIX_H

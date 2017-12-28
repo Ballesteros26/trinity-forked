@@ -157,8 +157,7 @@ bool EvePlaneSet::OnPrepareResources()
 	for( unsigned int i = 0; i < n; ++i )
 	{
 		// build transformation matrix out of the individual item data
-		Matrix itemTransform;
-		D3DXMatrixTransformation( &itemTransform, NULL, NULL, &m_planes[i]->m_scaling, NULL, &m_planes[i]->m_rotation, &m_planes[i]->m_position );
+		Matrix itemTransform = TransformationMatrix( m_planes[i]->m_scaling, m_planes[i]->m_rotation, m_planes[i]->m_position );
 		for( unsigned int j = 0; j < 4; ++j )
 		{
 			PlaneVertex& vertex = verts[i * 4 + j];

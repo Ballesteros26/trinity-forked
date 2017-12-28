@@ -292,19 +292,17 @@ ITr2SpriteObject* Tr2Sprite2dScene::PickObject( int x, int y, const TriProjectio
 
 		gTriDev->ScreenToProjection( x, y, &fx, &fy, vp );
 
-		Matrix worldTransform;
-		D3DXMatrixTransformation( &worldTransform, NULL, NULL, &m_scaling, NULL, &m_rotation, &m_translation );
+		Matrix worldTransform = TransformationMatrix( m_scaling, m_rotation, m_translation );
 
 		Matrix worldViewTransform;
 		Matrix viewTransform = view->GetTransform();
-		D3DXMatrixMultiply( &worldViewTransform, &worldTransform, &viewTransform );
+		worldViewTransform = worldTransform * viewTransform;
 
 		Matrix worldViewProjectionTransform;
 		Matrix projectionTransform = proj->GetTransform();
-		D3DXMatrixMultiply( &worldViewProjectionTransform, &worldViewTransform, &projectionTransform );
+		worldViewProjectionTransform = worldViewTransform * projectionTransform;
 
-		Matrix invWorldViewProjectionTransform;
-		D3DXMatrixInverse( &invWorldViewProjectionTransform, NULL, &worldViewProjectionTransform );
+		Matrix invWorldViewProjectionTransform = Inverse( worldViewProjectionTransform );
 
 		Vector3 rayStart = TransformCoord( Vector3( fx, fy, 0.0f ), invWorldViewProjectionTransform );
 
@@ -397,9 +395,8 @@ void Tr2Sprite2dScene::PushTranslation( const Vector2& t )
 		{
 			const Matrix& parent = m_transformStack->back().transform;
 
-			Matrix transform;
-			D3DXMatrixTranslation( &transform, t.x, t.y, 0.0f );
-			D3DXMatrixMultiply( &entry.transform, &transform, &parent );
+			Matrix transform = TranslationMatrix( t.x, t.y, 0.0f );
+			entry.transform = transform * parent;
 
 			entry.isTranslationOnly = false;
 		}
@@ -505,14 +502,13 @@ void Tr2Sprite2dScene::PushTransform( const Matrix& m )
 		const TransformStackEntry& top = m_transformStack->back();
 		if( top.isTranslationOnly )
 		{
-			Matrix parent;
-			D3DXMatrixTranslation( &parent, top.translation.x, top.translation.y, 0.0f );
-			D3DXMatrixMultiply( &entry.transform, &m, &parent );
+			Matrix parent = TranslationMatrix( top.translation.x, top.translation.y, 0.0f );
+			entry.transform = m * parent;
 		}
 		else
 		{
 			const Matrix& parent = m_transformStack->back().transform;
-			D3DXMatrixMultiply( &entry.transform, &m, &parent );
+			entry.transform = m * parent;
 		}
 	}
 
@@ -1155,7 +1151,7 @@ void Tr2Sprite2dScene::SubmitGeometry( Tr2RenderContext& renderContext )
 	Matrix transposedMatrixes[TR2_SS_MAX_TRANSFORM_COUNT];
 	for( unsigned i = 0; i < TR2_SS_MAX_TRANSFORM_COUNT; ++i )
 	{
-		D3DXMatrixTranspose( transposedMatrixes + i, m_transformArray + i );
+		transposedMatrixes[i] = Transpose( m_transformArray[i] );
 	}
 
 	bool result = FillAndSetConstants(	
@@ -1337,8 +1333,7 @@ bool Tr2Sprite2dScene::IsInside( const Vector2& pointIn, const Vector2& topLeft,
 
 			//construct inverse, transform point by this, compare against
 			// untransformed bounding rectangle
-			Matrix inv;
-			D3DXMatrixInverse( &inv, NULL, &transform );
+			Matrix inv = Inverse( transform );
 
 			TransformPoint(point, point, inv);
 		}
@@ -2279,7 +2274,7 @@ void Tr2Sprite2dScene::DetermineWorldTransform()
 	}
 	else
 	{
-		D3DXMatrixTransformation( &worldTransform, NULL, NULL, &m_scaling, NULL, &m_rotation, &m_translation );
+		worldTransform = TransformationMatrix( m_scaling, m_rotation, m_translation );
 	}
 	Tr2Renderer::SetWorldTransform( worldTransform );
 }

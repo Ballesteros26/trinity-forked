@@ -114,8 +114,8 @@ Tr2PerObjectData* Tr2PrimitiveSet::GetPerObjectData( ITriRenderBatchAccumulator*
 	PerObjectVSData perObjectVSBuffer;
 
 	// column_major for shaders
-	D3DXMatrixTranspose( &perObjectVSBuffer.WorldMat, &m_worldTransform );	
-	D3DXMatrixTranspose( &perObjectPSBuffer.WorldMat, &m_worldTransform );
+	perObjectVSBuffer.WorldMat = Transpose( m_worldTransform );
+	perObjectPSBuffer.WorldMat = Transpose( m_worldTransform );
 
 	data->CopyToVSFloatBuffer( perObjectVSBuffer );
 	data->CopyToPSFloatBuffer( perObjectPSBuffer );
@@ -137,8 +137,8 @@ void Tr2PrimitiveSet::UpdateTransform( void )
 		Vector3 normal = Vector3( view._13, view._23, view._33 );
 		Vector3 dir(viewPos - lineSetPos);
 		m_scale = fabs( Dot( dir, normal ) * g_primitiveDistanceScaleMultiplier * Tr2Renderer::GetFieldOfView() );
-		D3DXMatrixScaling( &scale_mat, m_scale, m_scale, m_scale );
-		D3DXMatrixMultiply( &finalTransform, &scale_mat, &m_localTransform );
+		scale_mat = ScalingMatrix( m_scale, m_scale, m_scale );
+		finalTransform = scale_mat * m_localTransform;
 	}
 	else
 	{
@@ -161,7 +161,7 @@ void Tr2PrimitiveSet::UpdateTransform( void )
 		rotation._33 = view._33;
 
 		// Need to scale the matrix before we translate it...
-		D3DXMatrixMultiply( &finalTransform, &scale_mat, &rotation );
+		finalTransform = scale_mat * rotation;
 
 		finalTransform._41 = m_localTransform._41;
 		finalTransform._42 = m_localTransform._42;
@@ -171,7 +171,7 @@ void Tr2PrimitiveSet::UpdateTransform( void )
 	{
 		if( m_scaleByDistanceToView )
 		{
-			D3DXMatrixMultiply( &finalTransform, &scale_mat, &m_localTransform );
+			finalTransform = scale_mat * m_localTransform;
 		}
 		else
 		{

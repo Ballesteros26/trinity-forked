@@ -47,8 +47,8 @@ void EveEffectRoot2::UpdateSyncronous( EveUpdateContext& updateContext )
 
 	UpdateWorldTransform( updateContext.GetTime() );
 
-	D3DXMatrixTransformation( &m_localTransform, 0, 0, &m_scaling, 0, &m_rotation, &m_translation );
-	D3DXMatrixMultiply( &m_lastUpdateMatrix, &m_localTransform, &m_worldTransform );
+	m_localTransform = TransformationMatrix( m_scaling, m_rotation, m_translation );
+	m_lastUpdateMatrix = m_localTransform * m_worldTransform;
 	m_secondaryLightingSphereRadiusWorld = m_secondaryLightingSphereRadiusLocal * ( m_scaling.x + m_scaling.y + m_scaling.z ) / 3.f;
 
 	for( TriObserverLocalVector::iterator it = m_observers.begin(); it != m_observers.end(); ++it )
@@ -176,7 +176,7 @@ void EveEffectRoot2::UpdateWorldTransform( Be::Time time )
 		D3DXQuaternionMultiply( &rotation, &modelRotation, &rotation);
 	}
 
-	D3DXMatrixTransformation( &m_worldTransform, NULL, NULL, NULL, NULL, &rotation, &translation );
+	m_worldTransform = RotationMatrix( rotation ) * TranslationMatrix( translation );
 	
 	if( m_modelTranslation )
 	{
@@ -193,8 +193,8 @@ void EveEffectRoot2::UpdateModelCenterWorldPosition( Vector3 &position, Be::Time
 	// This version of the function should perform an update on the model / ball position
 	Matrix currentTransform;
 	UpdateWorldTransform( t );
-	D3DXMatrixTransformation( &currentTransform, 0, 0, &m_scaling, 0, &m_rotation, &m_translation );
-	D3DXMatrixMultiply( &currentTransform, &currentTransform, &m_worldTransform );
+	currentTransform = TransformationMatrix( m_scaling, m_rotation, m_translation );
+	currentTransform = currentTransform * m_worldTransform;
 
 	position = TransformCoord( m_boundingSphere.GetXYZ(), currentTransform );
 }

@@ -65,11 +65,10 @@ void EveCurveLineSet::UpdateVisibility( const TriFrustum& frustum, const Matrix&
 	}
 
 	// local transform
-	Matrix localTransform;
-	D3DXMatrixTransformation( &localTransform, NULL, NULL, &m_scaling, NULL, &m_rotation, &m_translation );
+	Matrix localTransform = TransformationMatrix( m_scaling, m_rotation, m_translation );
 
 	// store final world transform
-	D3DXMatrixMultiply( &m_worldTransform, &localTransform, &parentTransform );
+	m_worldTransform = localTransform * parentTransform;
 	Vector4 boundingSphere = m_boundingSphere;
 	BoundingSphereTransform( m_worldTransform, boundingSphere );
 
@@ -115,8 +114,8 @@ Tr2PerObjectData* EveCurveLineSet::GetPerObjectData( ITriRenderBatchAccumulator*
 	EvePerObjectVSData perObjectVSBuffer;
 
 	// column_major for shaders
-	D3DXMatrixTranspose( &perObjectVSBuffer.WorldMat, &m_worldTransform );
-	D3DXMatrixTranspose( &perObjectPSBuffer.WorldMat, &m_worldTransform );
+	perObjectVSBuffer.WorldMat = Transpose( m_worldTransform );
+	perObjectPSBuffer.WorldMat = Transpose( m_worldTransform );
 
 	data->CopyToVSFloatBuffer( perObjectVSBuffer );
 	data->CopyToPSFloatBuffer( perObjectPSBuffer );

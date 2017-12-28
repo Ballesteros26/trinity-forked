@@ -66,13 +66,12 @@ void Tr2RotationTool::Move( int mouseX, int mouseY, int mouseXDelta, int mouseYD
 	if( m_selectedAxis == "w" )
 	{
 		Matrix worldInv;
-		float det = 0.0f;
 		Vector3 viewVec;
 		viewVec.x = viewMatrix._13;
 		viewVec.y = viewMatrix._23;
 		viewVec.z = viewMatrix._33;
 
-		D3DXMatrixInverse( &worldInv, &det, &m_localTransform );
+		worldInv = Inverse( m_localTransform );
 		m_movement = TransformNormal( viewVec, worldInv );
 		float rdot = Dot( m_movement, viewVec );
 		float ddot = Dot( dnormal, m_movement );
@@ -91,12 +90,9 @@ void Tr2RotationTool::Move( int mouseX, int mouseY, int mouseXDelta, int mouseYD
 		Vector3 norm = Cross( preP, curP );
 		// Since the hemisphere vectors are in view space we have to make sure 
 		// the translation of camera is undone     
-		Matrix invView;
-		D3DXMatrixInverse(&invView, NULL, &viewMatrix);
-		norm = TransformNormal( norm, invView);
-		Matrix worldInv;
-		float det = 0.0f;		
-		D3DXMatrixInverse( &worldInv, &det, &m_localTransform );
+		Matrix invView = Inverse( viewMatrix );
+		norm = TransformNormal( norm, invView );
+		Matrix worldInv = Inverse( m_localTransform );
 		m_movement = TransformNormal( norm, worldInv );
 
 		dot = Dot( curP, preP );
@@ -297,7 +293,7 @@ void Tr2RotationTool::GenLineSets()
 
 	// xLine
 	c_tris = Tr2ManipulationTool::GetCirclePoints(1.0f, 60, &numVectors);
-	D3DXMatrixRotationY( &rotateMat, XM_PI/2.0f );		
+	rotateMat = RotationYMatrix( XM_PI / 2.0f );
 	TransformCoords( c_tris, numVectors, rotateMat );
 
 	for( int i = 0; i < numVectors/2; i++ )
@@ -322,7 +318,7 @@ void Tr2RotationTool::GenLineSets()
 
 	// yLine
 	c_tris = Tr2ManipulationTool::GetCirclePoints(1.0f, 60, &numVectors);
-	D3DXMatrixRotationX( &rotateMat, XM_PI/2.0f );		
+	rotateMat = RotationXMatrix( XM_PI / 2.0f );
 	TransformCoords( c_tris, numVectors, rotateMat );
 	for( int i = 0; i < numVectors/2; i++ )
 	{
@@ -378,9 +374,8 @@ void Tr2RotationTool::Update()
 	if( m_moved )
 	{
 		Matrix temp;
-		Matrix rotation; 
-		D3DXMatrixRotationAxis( &rotation, &m_movement, m_angle );
-		D3DXMatrixMultiply( &temp, &rotation, &m_localTransform );
+		Matrix rotation = RotationMatrix( m_movement, m_angle );
+		temp = rotation * m_localTransform;
 
 		// Check the move callback for if we should be moving or not
 		if( OnMoveCallback( m_localTransform, temp  ))
@@ -393,9 +388,8 @@ void Tr2RotationTool::Update()
 		}
 		m_moved = false;
 	}
-	Matrix translation;
-	D3DXMatrixTranslation(&translation, m_pivot.x, m_pivot.y, m_pivot.z );
-	D3DXMatrixMultiply(&m_worldTransform, &m_localTransform, &translation );
+	Matrix translation = TranslationMatrix( m_pivot );
+	m_worldTransform = m_localTransform * translation;
 	for( PrimitiveIterator it = m_primitives.begin(); it != m_primitives.end(); ++it )
 	{
 		(*it)->m_localTransform = m_localTransform;

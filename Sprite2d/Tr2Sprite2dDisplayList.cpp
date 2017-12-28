@@ -66,7 +66,7 @@ void Tr2Sprite2dDisplayList::Entry::SubmitGeometry( Tr2RenderContext& renderCont
 	Matrix transposedMatrixes[TR2_SS_MAX_TRANSFORM_COUNT];
 	for( unsigned i = 0; i < TR2_SS_MAX_TRANSFORM_COUNT; ++i )
 	{
-		D3DXMatrixTranspose( transposedMatrixes + i, transformArray + i );
+		transposedMatrixes[i] = Transpose( transformArray[i] );
 	}
 
 	HRESULT result = FillAndSetConstants(	

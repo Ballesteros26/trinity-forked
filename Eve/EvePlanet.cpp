@@ -136,7 +136,7 @@ void EvePlanet::Update( EveUpdateContext& updateContext )
 
 	// calculate worldmatrix
 	Vector3 scale( m_scaling, m_scaling, m_scaling );
-	D3DXMatrixTransformation( &m_worldTransform, NULL, NULL, &scale, NULL, &rotation, &translation );
+	m_worldTransform = TransformationMatrix( scale, rotation, translation );
 
 	// update models	
 	if( m_highDetail )
@@ -158,11 +158,9 @@ void EvePlanet::Update( EveUpdateContext& updateContext )
 
 void EvePlanet::UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform )
 {
-	Matrix planetScaleTransform;
-	D3DXMatrixScaling( &planetScaleTransform, 1.f / m_renderScale, 1.f / m_renderScale, 1.f / m_renderScale );
+	Matrix planetScaleTransform = ScalingMatrix( 1.f / m_renderScale, 1.f / m_renderScale, 1.f / m_renderScale );
 
-	Matrix scaledTransform;
-	D3DXMatrixMultiply( &scaledTransform, &m_worldTransform, &planetScaleTransform );
+	Matrix scaledTransform = m_worldTransform * planetScaleTransform;
 	
 	// pixel diameters, also for the max possible
 	m_estimatedPixelDiameter = EstimatePixelDiameterPos( (const Vector3*)&scaledTransform._41, 1.f / Tr2Renderer::GetProjectionTransform()._11, m_renderScale );

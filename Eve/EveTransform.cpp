@@ -56,9 +56,9 @@ Tr2PerObjectData* EveTransform::GetPerObjectData( ITriRenderBatchAccumulator* ac
 	}
 
 	// column_major for shaders
-	D3DXMatrixTranspose( &data->m_world, &m_worldTransform );
+	data->m_world = Transpose( m_worldTransform );
 	// attention: need the transposed, but shader also needs column_major, so it is transpose(transpose(m)) == m
-	if( D3DXMatrixInverse( &data->m_worldInverseTranspose, NULL, &m_worldTransform ) == NULL)
+	if( !Inverse( data->m_worldInverseTranspose, m_worldTransform ) )
 	{
 		// ok, so a complete row is 0.f -> find it and "fix" it
 		Matrix wm = m_worldTransform;
@@ -68,7 +68,7 @@ Tr2PerObjectData* EveTransform::GetPerObjectData( ITriRenderBatchAccumulator* ac
 			wm._22 = 0.1f;
 		else if( wm._31 == 0.f && wm._32 == 0.f && wm._33 == 0.f )
 			wm._33 = 0.1f;
-		D3DXMatrixInverse( &data->m_worldInverseTranspose, NULL, &wm );
+		data->m_worldInverseTranspose = Inverse( wm );
 	}
 
 	return data;

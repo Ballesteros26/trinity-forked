@@ -346,8 +346,7 @@ void EveCloudEditableVolume::RenderDebugInfo( const Matrix& world, Tr2RenderCont
 	{
 		return;
 	}
-	Matrix scale;
-	D3DXMatrixScaling( &scale, 0.5f, 0.5f, 0.5f );
+	Matrix scale = ScalingMatrix( 0.5f, 0.5f, 0.5f );
 	Tr2Renderer::DrawOrientedBox( scale * world, 0xffff0000 );
 
 	for( auto it = m_balls.begin(); it != m_balls.end(); ++it )

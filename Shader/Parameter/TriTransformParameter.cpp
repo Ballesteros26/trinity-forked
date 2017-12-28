@@ -27,9 +27,7 @@ void TriTransformParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType 
 												Tr2RenderContext &renderContext ) const
 {
 	// Calculate transform - this code is based on TriTexture and emulates old Trinity:	
-	Matrix original;
-	D3DXMatrixTransformation(
-		&original,
+	Matrix original = TransformationMatrix(
 		NULL,
 		NULL,
 		&m_scaling,
@@ -61,12 +59,12 @@ void TriTransformParameter::CopyValueToEffect(	Tr2RenderContextEnum::ShaderType 
 			// Later it turned out that this could be used to perfectly bumpmap
 			// rotating asteroids.
 			Matrix mat;
-			if( !D3DXMatrixInverse( &mat, NULL, &m_worldTransform ) )
+			if( !Inverse( mat, m_worldTransform ) )
 			{
 				mat = IdentityMatrix();
 			}
-			mat._41 = mat._42 = mat._43 = 0.0f;			
-			D3DXMatrixMultiply( &texTransform, &texTransform, &mat );
+			mat._41 = mat._42 = mat._43 = 0.0f;
+			texTransform = texTransform * mat;
 		}
 		else if(  (m_transformBase == TRITB_CAMERA_ROTATION)  
 				||(m_transformBase == TRITB_CAMERA_ROTATION_ALIGNED) )

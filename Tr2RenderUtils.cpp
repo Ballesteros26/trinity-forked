@@ -70,8 +70,7 @@ void SetupScreenQuadInCameraSpace( Tr2ScreenVertex quad[4], int width, int heigh
 
 	// Transform to view space:
 	const Matrix& projectionRaw = Tr2Renderer::GetProjectionRawTransform();
-	Matrix proj2view;
-	D3DXMatrixInverse( &proj2view, NULL, &projectionRaw );
+	Matrix proj2view = Inverse( projectionRaw );
 	tl = TransformCoord( tl, proj2view );
 	br = TransformCoord( br, proj2view );
 	

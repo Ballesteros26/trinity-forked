@@ -255,12 +255,12 @@ Vector3* Tr2ManipulationTool::GetTrianglesAroundLine( const Vector3 &start, cons
 	}
 
 	Matrix rot, t1, t2, compA, compB;
-	D3DXMatrixRotationQuaternion( &rot, &rotation );
-	D3DXMatrixTranslation( &t1, start.x, start.y, start.z );
-	D3DXMatrixTranslation( &t2, end.x, end.y, end.z );
+	rot = RotationMatrix( rotation );
+	t1 = TranslationMatrix( start );
+	t2 = TranslationMatrix( end );
 	
-	D3DXMatrixMultiply( &compA, &rot, &t1 );
-	D3DXMatrixMultiply( &compB, &rot, &t2 );
+	compA = rot * t1;
+	compB = rot * t2;
 	
 	Vector3 startTri[3];
 	Vector3 endTri[3];

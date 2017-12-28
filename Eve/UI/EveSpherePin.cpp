@@ -240,11 +240,10 @@ void EveSpherePin::Update( EveUpdateContext& updateContext )
 void EveSpherePin::UpdateViewDependentData( const TriFrustum& frustum, const Matrix& parentTransform )
 {
 	// local transform
-	Matrix localTransform;
-	D3DXMatrixTransformation( &localTransform, NULL, NULL, &m_scaling, NULL, &m_rotation, &m_translation );
+	Matrix localTransform = TransformationMatrix( m_scaling, m_rotation, m_translation );
 
 	// store final world transform
-	D3DXMatrixMultiply( &m_worldTransform, &localTransform, &parentTransform );
+	m_worldTransform = localTransform * parentTransform;
 }
 
 void EveSpherePin::UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform )
@@ -340,7 +339,7 @@ Tr2PerObjectData* EveSpherePin::GetPerObjectData( ITriRenderBatchAccumulator* ac
 	}
 
 	// set world matrix
-	D3DXMatrixTranspose( &perObjectData->m_worldMatrix, &m_worldTransform );
+	perObjectData->m_worldMatrix = Transpose( m_worldTransform );
 	// set all other pin data
 	perObjectData->m_pinPosition = Vector4( m_centerNormal, m_pinRadius );
 	perObjectData->m_pinRotation =  Vector4( m_pinRotation, 0.f, 0.f, 0.f );

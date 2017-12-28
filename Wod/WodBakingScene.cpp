@@ -14,11 +14,11 @@ static void PopulatePerFrameVSData( Tr2PerFrameVSData &data )
 	memset( &data, 0, sizeof( Tr2PerFrameVSData ) );
 
 	// column_major for shaders
-	D3DXMatrixTranspose( &data.ViewMat, &Tr2Renderer::GetViewTransform() );
-	D3DXMatrixTranspose( &data.ProjectionMat, &Tr2Renderer::GetProjectionTransform() );
+	data.ViewMat = Transpose( Tr2Renderer::GetViewTransform() );
+	data.ProjectionMat = Transpose( Tr2Renderer::GetProjectionTransform() );
 	
 	Matrix viewProjectionMat = Tr2Renderer::GetViewTransform() * Tr2Renderer::GetProjectionTransform();
-	D3DXMatrixTranspose( &data.ViewProjectionMat, &viewProjectionMat );
+	data.ViewProjectionMat = Transpose( viewProjectionMat );
 
 	// attention: need the transposed, but shader also needs column_major, so it is transpose(transpose(m)) == m
 	data.ViewInverseTransposeMat = Tr2Renderer::GetInverseViewTransform();
@@ -35,7 +35,7 @@ static void PopulatePerFramePSData( Tr2PerFramePSData &data )
 
 	// column_major for shaders
     Matrix viewProj = Tr2Renderer::GetViewTransform() * Tr2Renderer::GetProjectionTransform();
-	D3DXMatrixTranspose( &data.ViewProjectionMat, &viewProj );
+	data.ViewProjectionMat = Transpose( viewProj );
 	// attention: need the transposed, but shader also needs column_major, so it is transpose(transpose(m)) == m
 	data.ViewInverseTransposeMat = Tr2Renderer::GetInverseViewTransform();
 

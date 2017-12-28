@@ -158,8 +158,8 @@ void EveStretch::UpdateVisibility( const TriFrustum& frustum, const Matrix& pare
 		{
 			// Artwork is authored aligned to the y-axis rather than z
 			// so we add a rotation here.
-			D3DXMatrixRotationX( &m, -XM_PI / 2.0f );
-			D3DXMatrixMultiply( &m, &m, &m_sourceTransform );
+			m = RotationXMatrix( -XM_PI / 2.0f );
+			m = m * m_sourceTransform;
 		}
 		else
 		{
@@ -168,7 +168,7 @@ void EveStretch::UpdateVisibility( const TriFrustum& frustum, const Matrix& pare
 			D3DXQuaternionMultiply( &rotation,
 				TriQuaternionRotationArc( &tmpResult, &Y_AXIS, &directionVec ), &rotation );
 
-			D3DXMatrixTransformation( &m, NULL, NULL, NULL, NULL, &rotation, &m_sourcePosition );
+			m = TransformationMatrix( Vector3( 1, 1, 1 ), rotation, m_sourcePosition );
 		}
 		m_sourceObject->UpdateVisibility( frustum, m );
 		// The object's LOD is the highest of it's move, stretch, dest and source object's LODs
@@ -183,8 +183,7 @@ void EveStretch::UpdateVisibility( const TriFrustum& frustum, const Matrix& pare
 			TriQuaternionRotationArc(&tmpResult, &Y_AXIS, &directionVec), &rotation);
 
 		Vector3 scaling = Vector3( m_destObjectScale, m_destObjectScale, m_destObjectScale );
-		Matrix m;
-		D3DXMatrixTransformation( &m, NULL, NULL, &scaling, NULL, &rotation, &m_destinationPosition );
+		Matrix m = TransformationMatrix( scaling, rotation, m_destinationPosition );
 
 		m_destObject->UpdateVisibility( frustum, m );
 		// The object's LOD is a combination of it's move, stretch, dest and source object's LODs
@@ -195,10 +194,8 @@ void EveStretch::UpdateVisibility( const TriFrustum& frustum, const Matrix& pare
 	{
 		if( m_useTransformsForStretch )
 		{
-			Matrix scaling;
-
-			D3DXMatrixScaling( &scaling, 1.0f, 1.0f, scalingLength );
-			D3DXMatrixMultiply( &m, &scaling, &m_sourceTransform );
+			Matrix scaling = ScalingMatrix( 1.0f, 1.0f, scalingLength );
+			m = scaling * m_sourceTransform;
 		}
 		else
 		{
@@ -213,7 +210,7 @@ void EveStretch::UpdateVisibility( const TriFrustum& frustum, const Matrix& pare
 
 			Vector3 scaling( 1.0f, 1.0f, scalingLength );
 
-			D3DXMatrixTransformation( &m, NULL, NULL, &scaling, NULL, &rotation, &m_sourcePosition );
+			m = TransformationMatrix( scaling, rotation, m_sourcePosition );
 		}
 		m_stretchObject->UpdateVisibility( frustum, m );
 		// The object's LOD is a combination of it's move, stretch, dest and source object's LODs
@@ -257,7 +254,7 @@ void EveStretch::UpdateVisibility( const TriFrustum& frustum, const Matrix& pare
 			}
 			movedPostition = Lerp( m_sourcePosition, m_destinationPosition, progress );
 		}
-		D3DXMatrixTransformation( &m, NULL, NULL, NULL, NULL, &rotation, &movedPostition );
+		m = TransformationMatrix( Vector3( 1, 1, 1 ), rotation, movedPostition );
 		m_moveObject->UpdateVisibility( frustum, m );
 
 		// The object's LOD is a combination of it's move, stretch, dest and source object's LODs
@@ -490,8 +487,8 @@ void EveStretch::GetLights( Tr2LightManager& lightManager ) const
 		{
 			// Artwork is authored aligned to the y-axis rather than z
 			// so we add a rotation here.
-			D3DXMatrixRotationX( &m, -XM_PI / 2.0f );
-			D3DXMatrixMultiply( &m, &m, &m_sourceTransform );
+			m = RotationXMatrix( -XM_PI / 2.0f );
+			m = m * m_sourceTransform;
 			scaling = XMVectorGetX( XMVectorAdd( XMVector3LengthEst( m.GetX() ),
 				XMVectorAdd( XMVector3LengthEst( m.GetY() ), XMVector3LengthEst( m.GetZ() ) ) ) ) / 3.f;
 		}
@@ -502,7 +499,7 @@ void EveStretch::GetLights( Tr2LightManager& lightManager ) const
 			D3DXQuaternionMultiply( &rotation,
 				TriQuaternionRotationArc( &tmpResult, &Y_AXIS, &directionVec ), &rotation );
 
-			D3DXMatrixTransformation( &m, NULL, NULL, NULL, NULL, &rotation, &m_sourcePosition );
+			m = TransformationMatrix( Vector3( 1, 1, 1 ), rotation, m_sourcePosition );
 		}
 
 		for( auto it = std::begin( m_sourceLights ); it != std::end( m_sourceLights ); ++it )
@@ -518,8 +515,7 @@ void EveStretch::GetLights( Tr2LightManager& lightManager ) const
 			TriQuaternionRotationArc( &tmpResult, &Y_AXIS, &directionVec ), &rotation );
 
 		Vector3 scaling = Vector3( m_destObjectScale, m_destObjectScale, m_destObjectScale );
-		Matrix m;
-		D3DXMatrixTransformation( &m, NULL, NULL, &scaling, NULL, &rotation, &m_destinationPosition );
+		Matrix m = TransformationMatrix( scaling, rotation, m_destinationPosition );
 
 		for( auto it = std::begin( m_destLights ); it != std::end( m_destLights ); ++it )
 		{

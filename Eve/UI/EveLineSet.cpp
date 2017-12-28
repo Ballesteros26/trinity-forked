@@ -109,7 +109,7 @@ void EveLineSet::UpdateSyncronous( EveUpdateContext& updateContext )
 		m_ballRotation->Update( &rotation, updateContext.GetTime() );
 	}
 
-	D3DXMatrixTransformation( &m_worldTransform, 0, 0, &m_scaling, 0, &rotation, &translation );
+	m_worldTransform = TransformationMatrix( m_scaling, rotation, translation );
 }
 
 void EveLineSet::UpdateAsyncronous( EveUpdateContext& updateContext )
@@ -208,8 +208,8 @@ Tr2PerObjectData* EveLineSet::GetPerObjectData( ITriRenderBatchAccumulator* accu
 	EvePerObjectVSData perObjectVSBuffer;
 
 	// column_major for shaders
-	D3DXMatrixTranspose( &perObjectVSBuffer.WorldMat, &m_worldTransform );
-	D3DXMatrixTranspose( &perObjectPSBuffer.WorldMat, &m_worldTransform );
+	perObjectVSBuffer.WorldMat = Transpose( m_worldTransform );
+	perObjectPSBuffer.WorldMat = Transpose( m_worldTransform );
 
 	data->CopyToVSFloatBuffer( perObjectVSBuffer );
 	data->CopyToPSFloatBuffer( perObjectPSBuffer );

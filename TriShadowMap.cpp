@@ -77,8 +77,7 @@ void TriShadowMap::CalculateShadowFrustum(
 		vUp = Vector3( 0.0f, 0.0f, 1.0f );
 	}
 
-	Matrix lightView;
-    D3DXMatrixLookAtRH( &lightView, &lightViewPosition, &targetPos, &vUp );
+	Matrix lightView = LookAtMatrix( lightViewPosition, targetPos, vUp );
 
 	//
 	// Set up projection matrix.
@@ -302,7 +301,7 @@ bool TriShadowMap::BeginShadowRendering( Vector3& lightViewPosition, Matrix& lig
 		vUp = Vector3( 0.0f, 0.0f, 1.0f );
 	}
 
-    D3DXMatrixLookAtRH( &lightView, &lightViewPosition, &targetPos, &vUp );
+	lightView = LookAtMatrix( lightViewPosition, targetPos, vUp );
 
 	//
 	// Set up projection matrix.
@@ -321,7 +320,7 @@ bool TriShadowMap::BeginShadowRendering( Vector3& lightViewPosition, Matrix& lig
 
 	D3DXMatrixOrthoRH( &proj, m_boundsMax.x - m_boundsMin.x, m_boundsMax.y - m_boundsMin.y, -m_boundsMax.z, -m_boundsMin.z );
 
-	D3DXMatrixMultiply( &lightViewProj, &lightView, &proj );
+	lightViewProj = lightView * proj;
 
 	m_backupReadOnlyDepth = renderContext.GetReadOnlyDepth();
 	renderContext.SetReadOnlyDepth( false );

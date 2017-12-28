@@ -39,20 +39,6 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 			"Constructor arguments" 
 		)
 
-#if BLUE_WITH_PYTHON
-		////////////////////////////////////////////////////////////////////////////
-		//               AffineTransformation
-		MAP_METHOD_AND_WRAP
-		( 
-			"AffineTransformation",
-			PyAffineTransformation, 
-			"See D3DX documentation\n" 
-			":param scaling: \n"
-			":param rotationCenter: \n"
-			":param rotation: \n"
-			":param translation: \n"
-		)
-#endif
 		////////////////////////////////////////////////////////////////////////////
 		//               Determinant
 		MAP_METHOD_AND_WRAP
@@ -78,14 +64,6 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 			"See D3DX documentation" 
 		)
 		////////////////////////////////////////////////////////////////////////////
-		//               IsIdentity
-		MAP_METHOD_AND_WRAP
-		( 
-			"IsIdentity",
-			IsIdentity, 
-			"See D3DX documentation" 
-		)
-		////////////////////////////////////////////////////////////////////////////
 		//               LookAtRH
 		MAP_METHOD_AND_WRAP
 		( 
@@ -97,16 +75,6 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 			":param up: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
-		//               LookAtLH
-		MAP_METHOD_AND_WRAP
-		( 
-			"LookAtLH",
-			PyLookAtLH, 
-			"See D3DX documentation\n" 
-			":param eye: \n"
-			":param at: \n"
-			":param up: \n"
-		)////////////////////////////////////////////////////////////////////////////
 		//               Multiply
 		MAP_METHOD_AND_WRAP
 		( 
@@ -114,134 +82,6 @@ const Be::ClassInfo* TriMatrix::ExposeToBlue()
 			PyMultiply, 
 			"See D3DX documentation\n" 
 			":param other: \n"
-		)
-		////////////////////////////////////////////////////////////////////////////
-		//               OrthoRH
-		MAP_METHOD_AND_WRAP
-		( 
-			"OrthoRH",
-			OrthoRH, 
-			"See D3DX documentation\n" 
-			":param width: \n"
-			":param height: \n"
-			":param zn: \n"
-			":param zf: \n"
-		)
-		////////////////////////////////////////////////////////////////////////////
-		//               OrthoLH
-		MAP_METHOD_AND_WRAP
-		( 
-			"OrthoLH",
-			OrthoLH, 
-			"See D3DX documentation\n" 
-			":param width: \n"
-			":param height: \n"
-			":param zn: \n"
-			":param zf: \n"
-		)
-		////////////////////////////////////////////////////////////////////////////
-		//               OrthoOffCenterRH
-		MAP_METHOD_AND_WRAP
-		( 
-			"OrthoOffCenterRH",
-			OrthoOffCenterRH, 
-			"See D3DX documentation\n" 
-			":param l: \n"
-			":param r: \n"
-			":param t: \n"
-			":param b: \n"
-			":param zn: \n"
-			":param zf: \n"
-		)
-		////////////////////////////////////////////////////////////////////////////
-		//               OrthoOffCenterLH
-		MAP_METHOD_AND_WRAP
-		( 
-			"OrthoOffCenterLH",
-			OrthoOffCenterLH, 
-			"See D3DX documentation\n" 
-			":param l: \n"
-			":param r: \n"
-			":param t: \n"
-			":param b: \n"
-			":param zn: \n"
-			":param zf: \n"
-		)
-		////////////////////////////////////////////////////////////////////////////
-		//               PerspectiveRH
-		MAP_METHOD_AND_WRAP
-		( 
-			"PerspectiveRH",
-			PerspectiveRH, 
-			"See D3DX documentation\n" 
-			":param width: \n"
-			":param height: \n"
-			":param zn: \n"
-			":param zf: \n"
-		)
-		////////////////////////////////////////////////////////////////////////////
-		//               PerspectiveFovLH
-		MAP_METHOD_AND_WRAP
-		( 
-			"PerspectiveFovLH",
-			PerspectiveFovLH, 
-			"See D3DX documentation\n" 
-			":param fov: \n"
-			":param aspect: \n"
-			":param zn: \n"
-			":param zf: \n"
-		)
-		////////////////////////////////////////////////////////////////////////////
-		//               PerspectiveFovRH
-		MAP_METHOD_AND_WRAP
-		( 
-			"PerspectiveFovRH",
-			PerspectiveFovRH, 
-			"See D3DX documentation\n" 
-			":param fov: \n"
-			":param aspect: \n"
-			":param zn: \n"
-			":param zf: \n"
-		)
-		////////////////////////////////////////////////////////////////////////////
-		//               PerspectiveLH
-		MAP_METHOD_AND_WRAP
-		( 
-			"PerspectiveLH",
-			PerspectiveLH, 
-			"See D3DX documentation\n" 
-			":param width: \n"
-			":param height: \n"
-			":param zn: \n"
-			":param zf: \n"
-		)
-		////////////////////////////////////////////////////////////////////////////
-		//               PerspectiveOffCenterRH
-		MAP_METHOD_AND_WRAP
-		( 
-			"PerspectiveOffCenterRH",
-			PerspectiveOffCenterRH, 
-			"See D3DX documentation\n" 
-			":param l: \n"
-			":param r: \n"
-			":param t: \n"
-			":param b: \n"
-			":param zn: \n"
-			":param zf: \n"
-		)
-		////////////////////////////////////////////////////////////////////////////
-		//               PerspectiveOffCenterLH
-		MAP_METHOD_AND_WRAP
-		( 
-			"PerspectiveOffCenterLH",
-			PerspectiveOffCenterLH, 
-			"See D3DX documentation\n" 
-			":param l: \n"
-			":param r: \n"
-			":param t: \n"
-			":param b: \n"
-			":param zn: \n"
-			":param zf: \n"
 		)
 		////////////////////////////////////////////////////////////////////////////
 		//               RotationAxis

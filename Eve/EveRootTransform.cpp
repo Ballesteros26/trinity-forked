@@ -41,7 +41,7 @@ void EveRootTransform::UpdateSyncronous( EveUpdateContext& updateContext )
 		D3DXQuaternionMultiply( &rotation, &modelRotation, &rotation);
 	}
 
-	D3DXMatrixTransformation( &m_lastUpdateMatrix, NULL, NULL, NULL, NULL, &rotation, &translation );
+	m_lastUpdateMatrix = RotationMatrix( rotation ) * TranslationMatrix( translation );
 
 	if( m_modelTranslation )
 	{

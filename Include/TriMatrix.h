@@ -74,13 +74,6 @@ public:
 	// IMatrix
 	/////////////////////////////////////////////////////////////////////////////////////
 
-	void AffineTransformation(
-		float	 scaling,
-		const Vector3* pRotationCenter,
-		const Quaternion* pRotation,
-		const Vector3* pTranslation
-		); 
-
 	float Determinant(	  
 		); 
 
@@ -90,16 +83,7 @@ public:
 	float Inverse(
 		); 
 
-	bool IsIdentity(
-		); 
-
 	void LookAtRH(	  
-		const Vector3* pEye,
-		const Vector3* pAt,
-		const Vector3* pUp
-		); 
-
-	void LookAtLH(
 		const Vector3* pEye,
 		const Vector3* pAt,
 		const Vector3* pUp
@@ -108,88 +92,6 @@ public:
 	void Multiply(		  
 	  const Matrix* pM2
 	); 
-
-	void OrthoRH(		
-		float w,
-		float h,
-		float zn,
-		float zf
-		); 
-
-	void OrthoLH(
-		float w,
-		float h,
-		float zn,
-		float zf
-		); 
-
-	void OrthoOffCenterRH(
-		float l,
-		float r,
-		float t,
-		float b,
-		float zn,
-		float zf
-		); 
-
-	void OrthoOffCenterLH(
-		float l,
-		float r,
-		float t,
-		float b,
-		float zn,
-		float zf
-		); 
-
-	void PerspectiveRH(
-		float w,
-		float h,
-		float zn,
-		float zf
-		); 
-
-	void PerspectiveFovLH(
-		float fovy,
-		float Aspect,
-		float zn,
-		float zf
-		); 
-
-	void PerspectiveFovRH(
-		float fovy,
-		float Aspect,
-		float zn,
-		float zf
-		); 
-
-	void PerspectiveLH(	
-		float w,
-		float h,
-		float zn,
-		float zf
-		); 
-
-	void PerspectiveOffCenterRH(		
-		float l,
-		float r,
-		float t,
-		float b,
-		float zn,
-		float zf
-		); 
-
-	void PerspectiveOffCenterLH(
-		float l,
-		float r,
-		float t,
-		float b,
-		float zn,
-		float zf
-		); 
-
-	void Reflect(	
-		const D3DXPLANE* pPlane
-		); 
 
 	void RotationAxis(	  
 		const Vector3* pV,
@@ -222,11 +124,6 @@ public:
 		float sx,
 		float sy,
 		float sz
-		); 
-
-	void Shadow(	  
-		const Vector4* pLight,
-		const D3DXPLANE* pPlane
 		); 
 
 	void Transformation(	  
@@ -276,13 +173,7 @@ public:
 #if BLUE_WITH_PYTHON
 	PyObject* Py__init__( PyObject* args );
 #endif
-	void PyAffineTransformation( 
-		float scaling, 
-		ITriVector* rotationCenter, 
-		ITriQuaternion* rotation, 
-		ITriVector* translation );
 	void PyLookAtRH( ITriVector* eye, ITriVector* at, ITriVector* up );
-	void PyLookAtLH( ITriVector* eye, ITriVector* at, ITriVector* up );
 	void PyMultiply( ITriMatrix* other );
 	void PyRotationAxis( ITriVector* axis, float angle );
 	void PyRotationQuaternion( ITriQuaternion* quaternion );

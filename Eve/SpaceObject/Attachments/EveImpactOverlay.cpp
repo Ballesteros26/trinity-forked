@@ -252,10 +252,7 @@ void EveImpactOverlay::UpdateAsyncronous( EveUpdateContext& updateContext, EveSp
 	// need the inverse world matrix
 	Matrix parentWorldTransform, parentInverseWorldTransform;
 	parent->GetLocalToWorldTransform( parentWorldTransform );
-	if( !D3DXMatrixInverse( &parentInverseWorldTransform, nullptr, &parentWorldTransform ) )
-	{
-		parentInverseWorldTransform = parentWorldTransform;
-	}
+	parentInverseWorldTransform = Inverse( parentWorldTransform );
 
 	// get parent's bounding sphere
 	Vector4 parentBoundingSphere( 0.f, 0.f, 0.f, -1.f );

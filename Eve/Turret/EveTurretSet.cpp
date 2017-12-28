@@ -514,7 +514,7 @@ void EveTurretSet::RenderDynamicBounds()
 		{
 			initialPlacement = Vector3( fi->Models[ 0 ]->InitialPlacement.Position );
 		}
-		D3DXMatrixTranslation( &initialTranslation, initialPlacement.x, initialPlacement.y, initialPlacement.z );
+		initialTranslation = TranslationMatrix( initialPlacement );
 
 		for( unsigned i = 0; i < m_boneBounds.size(); ++i )
 		{
@@ -959,7 +959,7 @@ void EveTurretSet::UpdateAsyncronous( EveUpdateContext& updateContext, const Par
 								Matrix id = IdentityMatrix();
 								GrannyBuildWorldPose( it->grnSkeleton, 0, it->grnSkeleton->BoneCount, it->grnLocalPose, &id.m[0][0], it->grnWorldPose );
 								granny_real32* boneWorldTransform = GrannyGetWorldPose4x4( it->grnWorldPose, m_systemBoneID[bone] );
-								D3DXMatrixMultiply( &localTransform, reinterpret_cast<const Matrix*>( boneWorldTransform ), &id );
+								localTransform = *reinterpret_cast<const Matrix*>( boneWorldTransform ) * id;
 								localTransformPtr = &localTransform;
 							}
 							// modify this bone's transform data
@@ -1034,13 +1034,13 @@ void EveTurretSet::UpdateTurretTransforms(const Matrix* turretTransformMatrix)
 	{
 		Matrix localMatrix;		
 		Vector3 localPos = Vector3(it->localPosition.x, it->localPosition.y, it->localPosition.z);
-		D3DXMatrixRotationQuaternion( &localMatrix, &it->localQuaternion );
+		localMatrix = RotationMatrix( it->localQuaternion );
 		TriMatrixTranslate(&localMatrix, &localMatrix, &localPos);
 		
 		// first parent matrix (ship or station), then local matrix (locator position)
-		D3DXMatrixMultiply( &it->worldMatrix, &localMatrix, turretTransformMatrix );
+		it->worldMatrix = localMatrix * *turretTransformMatrix;
 		// we need the inverse matrix for the tracking later
-		D3DXMatrixInverse( &it->invWorldMatrix, NULL, &it->worldMatrix );
+		it->invWorldMatrix = Inverse( it->worldMatrix );
 		// this validates this turret
 		it->valid = true;
 	}
@@ -1100,7 +1100,7 @@ Matrix EveTurretSet::GetTurretBoneTransform( uint32_t closestTurret, uint32_t bo
 		// granny tells us firing-bone position in turret-space
 		granny_real32* boneTransform = GrannyGetWorldPose4x4( m_singleTurrets[closestTurret].grnWorldPose, boneID );
 		// create this pos in worldspace
-		D3DXMatrixMultiply( &m, reinterpret_cast<const Matrix*>( boneTransform ), &m );
+		m = *reinterpret_cast<const Matrix*>( boneTransform ) * m;
 	}
 	else
 	{
@@ -1115,16 +1115,15 @@ Matrix EveTurretSet::GetTurretBoneTransform( uint32_t closestTurret, uint32_t bo
 			TriQuaternionRotationArc( &directRotationQuaternion, &zAxis, &nrmToTarget );
 			// now combine the translation from the worldmatrix and the rotation from the direct targeting
 			Vector3 tr = m.GetTranslation();
-			D3DXMatrixAffineTransformation( &m, 1.f, NULL, &directRotationQuaternion, &tr );
+			m = RotationMatrix( directRotationQuaternion ) * TranslationMatrix( tr );
 		}
 		else
 		{
 			// eject straight out of ship, because target cone is very small
 			// attn: locator up is +Y, but missile eject is in +Z! so rotate around X
-			Matrix y2xMatrix;
-			D3DXMatrixRotationX( &y2xMatrix, -0.5f * XM_PI );
+			Matrix y2xMatrix = RotationXMatrix( -0.5f * XM_PI );
 			// apply this rotation to "before" world transform
-			D3DXMatrixMultiply( &m, &y2xMatrix, &m );
+			m = y2xMatrix * m;
 		}
 	}
 	return m;
@@ -1582,7 +1581,7 @@ Tr2PerObjectData* EveTurretSet::GetPerObjectData( ITriRenderBatchAccumulator* ac
 	Vector3 scale, translation;
 
 	// tell "parent"-ship matrix
-	D3DXMatrixTranspose( &perObjectData->m_shipMatrix, &m_parentData.transform );
+	perObjectData->m_shipMatrix = Transpose( m_parentData.transform );
 
 	// put together clip-data, so we can have a clip plane to cut off the turrets base to avoid intersections
 	perObjectData->m_baseCutoffData = Vector4( m_bottomClipHeight, 0.f, 0.f, 0.f );

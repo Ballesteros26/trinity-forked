@@ -481,7 +481,7 @@ void EveCamera::Update( Be::Time t )
 	}
 	
 	Matrix viewTransform, viewTransformInt;
-	D3DXMatrixLookAtRH( &viewTransform, &vecCamPos, &vecCamIntr, &realUpDir);
+	viewTransform = LookAtMatrix( vecCamPos, vecCamIntr, realUpDir );
 	// now rotate toward other interest
 	Quaternion tmpResult;
 	TriMatrixRotate( &viewTransformInt, &viewTransform, static_cast<Quaternion*>( D3DXQuaternionInverse(&tmpResult, &m_rotationOfInterest) ) );

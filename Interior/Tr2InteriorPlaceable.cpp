@@ -429,7 +429,7 @@ void Tr2InteriorPlaceable::SetRotation( const Quaternion& rotQuat )
 		Vector3		tmpTranslation;	
 
 		D3DXMatrixDecompose( &tmpScale, &tmpRotation, &tmpTranslation, &m_transform );
-		D3DXMatrixTransformation( &m_transform, NULL, NULL, &tmpScale, NULL, &rotQuat, &tmpTranslation );
+		static_cast<Matrix&>( m_transform ) = TransformationMatrix( tmpScale, rotQuat, tmpTranslation );
 	}
 }
 
@@ -456,7 +456,7 @@ void Tr2InteriorPlaceable::SetScaling( const Vector3& scaleVec )
 		Vector3		tmpTranslation;	
 
 		D3DXMatrixDecompose( &tmpScale, &tmpRotation, &tmpTranslation, &m_transform );
-		D3DXMatrixTransformation( &m_transform, NULL, NULL, &scaleVec, NULL, &tmpRotation, &tmpTranslation );
+		static_cast<Matrix&>( m_transform ) = TransformationMatrix( scaleVec, tmpRotation, tmpTranslation );
 	}
 }
 
@@ -566,7 +566,7 @@ Tr2PerObjectData* Tr2InteriorPlaceable::GetPerObjectDataWithLightSet( ITriRender
 	memset( &perObjectVSBuffer, 0, sizeof( perObjectVSBuffer ) );
 
 	// column_major for shaders
-	D3DXMatrixTranspose( &perObjectVSBuffer.WorldMat, &objectToWorldMatrix );
+	perObjectVSBuffer.WorldMat = Transpose( objectToWorldMatrix );
 
 	// put pointlights in perobject data
 	if( lightSet )

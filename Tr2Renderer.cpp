@@ -257,7 +257,7 @@ namespace
 
     void UpdateViewProjectionTransform()
 	{
-		D3DXMatrixMultiply( &s_viewProjectionTransform, &s_viewTransform, &s_projectionTransform );
+		s_viewProjectionTransform = s_viewTransform * s_projectionTransform;
 		s_viewProjectionMatrixVar = s_viewProjectionTransform;
 
 		s_frustumPlanes[0] = Vector4( s_viewProjectionTransform._13,
@@ -293,10 +293,10 @@ namespace
 		// Apply scaling and offset to projection matrix. If the viewport extends
 		// the render target we need to clip the viewport and thus scale+offset the
 		// projection.
-		D3DXMatrixMultiply( &s_projectionTransform, &s_projectionTransform, &s_viewport2projectionAdjustment );
+		s_projectionTransform = s_projectionTransform * s_viewport2projectionAdjustment;
 
 		// Cache inverse projection matrix
-		D3DXMatrixInverse( &s_inverseProjectionTransform, NULL, &s_projectionTransform );
+		s_inverseProjectionTransform = Inverse( s_projectionTransform );
 
 		Vector4 corner( 1.f, 1.f, 1.f, 1.f );
 		D3DXVec4Transform( &corner, &corner, &s_inverseProjectionTransform );
@@ -642,7 +642,7 @@ void Tr2Renderer::SetWorldTransform( const Matrix& m )
 void Tr2Renderer::SetViewTransform( const Matrix& m )
 {
     s_viewTransform = m;
-    D3DXMatrixInverse( &s_inverseViewTransform, NULL, &s_viewTransform );
+	s_inverseViewTransform = Inverse( s_viewTransform );
 
 	UpdateViewProjectionTransform();
 

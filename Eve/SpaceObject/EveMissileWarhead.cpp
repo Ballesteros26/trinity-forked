@@ -503,8 +503,7 @@ void EveMissileWarhead::UpdateWarhead( float deltaT, float estimatedTotalAliveTi
 
 	// calculate eject velocity vector
 	Vector3 ejectVelocityDir( 0.f, 0.f, m_currentEjectVelocity );
-	Matrix rotMatrix;
-	D3DXMatrixRotationQuaternion( &rotMatrix, &m_startOrientation );
+	Matrix rotMatrix = RotationMatrix( m_startOrientation );
 	ejectVelocityDir = TransformNormal( ejectVelocityDir, rotMatrix );
 	// calculate missile-ball velocity in global space
 	Vector3 globalBallVelocity = TransformNormal( *currentBallVelocity, *invBallRotation );
@@ -595,7 +594,7 @@ void EveMissileWarhead::UpdateWarhead( float deltaT, float estimatedTotalAliveTi
 	}
 
 	// put it all together into a single transform matrix
-	D3DXMatrixAffineTransformation( &m_currentOffsetTransform, 1.f, NULL, &m_currentOrientation, &m_currentOffset );
+	m_currentOffsetTransform = RotationMatrix( m_currentOrientation ) * TranslationMatrix( m_currentOffset );
 }
 
 // --------------------------------------------------------------------------------
@@ -645,9 +644,9 @@ void EveMissileWarhead::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType 
 	else
 	{
 		uint8_t* perObjectVS = static_cast<uint8_t*>( data );
-		D3DXMatrixTranspose( reinterpret_cast<Matrix*>( perObjectVS ), &m_worldTransform );
+		*reinterpret_cast<Matrix*>( perObjectVS ) = Transpose( m_worldTransform );
 		perObjectVS += sizeof(Matrix);
-		D3DXMatrixTranspose( reinterpret_cast<Matrix*>( perObjectVS ), &m_worldTransform );
+		*reinterpret_cast<Matrix*>( perObjectVS ) = Transpose( m_worldTransform );
 		perObjectVS += sizeof(Matrix);
 		memset( perObjectVS, 0, sizeof( Vector4 ) * 2 );
 	}

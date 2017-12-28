@@ -136,7 +136,7 @@ Tr2PerObjectData* EveChildMesh::GetPerObjectData( ITriRenderBatchAccumulator* ac
 		}
 
 		perObjectData->m_world = m_vsData.worldTransform;
-		D3DXMatrixInverse( &perObjectData->m_worldInverseTranspose, NULL, &m_worldTransform );
+		perObjectData->m_worldInverseTranspose = Inverse( m_worldTransform );
 		return perObjectData;
 	}
 	
@@ -186,12 +186,12 @@ void EveChildMesh::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpace
 	{
 		spaceObjectParent->GetLocalToWorldTransform( localToWorldTransform );
 		spaceObjectParent->GetPerObjectStructs( m_vsData, m_psData );
-		D3DXMatrixTranspose( &m_vsData.worldTransformLast, &m_worldTransform );
+		m_vsData.worldTransformLast = Transpose( m_worldTransform );
 	}
 	else if ( childParent )
 	{
 		childParent->GetLocalToWorldTransform( localToWorldTransform );
-		D3DXMatrixTranspose( &m_vsData.worldTransformLast, &m_worldTransform );
+		m_vsData.worldTransformLast = Transpose( m_worldTransform );
 	}
 	else
 	{
