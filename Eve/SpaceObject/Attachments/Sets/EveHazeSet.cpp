@@ -59,9 +59,9 @@ EveHazeSet::~EveHazeSet()
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Set the main effect of this set from the outside
+//   Seup this guy from the outside
 // --------------------------------------------------------------------------------
-void EveHazeSet::SetEffect( Tr2EffectPtr effect )
+void EveHazeSet::Setup( Tr2EffectPtr effect )
 {
 	m_effect = effect;
 }
@@ -200,8 +200,6 @@ void EveHazeSet::SubmitGeometry( Tr2RenderContext& renderContext )
 // --------------------------------------------------------------------------------
 void EveHazeSet::GetBatches( ITriRenderBatchAccumulator* accumulator, TriBatchType batchType, const Tr2PerObjectData* perObjectData )
 {
-	Rebuild();
-
 	if( !m_vertexBuffer.IsValid() )
 	{
 		return;

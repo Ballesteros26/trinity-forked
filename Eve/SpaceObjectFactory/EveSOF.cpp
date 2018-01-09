@@ -18,6 +18,7 @@
 #include "Eve/SpaceObject/Utils/EveCustomMask.h"
 #include "Eve/SpaceObject/Attachments/Sets/EveSpriteSet.h"
 #include "Eve/SpaceObject/Attachments/Sets/EveSpriteLineSet.h"
+#include "Eve/SpaceObject/Attachments/Sets/EveHazeSet.h"
 #include "Eve/SpaceObject/Attachments/EveTrailsSet.h"
 #include "Eve/SpaceObject/Attachments/Sets/EveSpotlightSet.h"
 #include "Eve/SpaceObject/Attachments/Sets/EvePlaneSet.h"
@@ -67,6 +68,11 @@ EveSOF::EveSOF( IRoot* lockobj ) :
 	m_spriteSetEffect->StartUpdate();
 	m_spriteSetEffect->SetEffectPathName( "res:/graphics/effect/managed/space/spaceobject/fx/blinkinglightspool.fx" );
 	m_spriteSetEffect->EndUpdate();
+
+	m_hazeSetEffect.CreateInstance();
+	m_hazeSetEffect->StartUpdate();
+	m_hazeSetEffect->SetEffectPathName( "res:/graphics/effect/managed/space/spaceobject/fx/hazespherical.fx" );
+	m_hazeSetEffect->EndUpdate();
 
 	m_shadowEffect.CreateInstance();
 	m_shadowEffect->SetEffectPathName( "res:/graphics/effect/managed/space/spaceobject/shadow/shadow.fx" );
@@ -133,6 +139,7 @@ IRootPtr EveSOF::BuildFromDNA( const char* dnaString )
 	SetupSpotlightSets( newObj, dna );
 	SetupPlaneSets( newObj, dna );
 	SetupSpriteLineSets( newObj, dna );
+	SetupHazeSets( newObj, dna );
 	SetupEffects( newObj, dna );
 
 	// attachments to ship
@@ -889,6 +896,73 @@ void EveSOF::SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna
 				spriteLineSet->Rebuild();
 				// put set onto ship
 				obj->AddSpriteLineSet( spriteLineSet );
+			}
+		}
+
+		// next hull needs offset update from hull's locator
+		const Vector3* nextSubsystemOffset = dna->GetHullNextSubsystemOffset( hullIdx );
+		if( nextSubsystemOffset )
+		{
+			hullOffset += *nextSubsystemOffset;
+		}
+	}
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   This is where it is all going to happen
+// --------------------------------------------------------------------------------
+void EveSOF::SetupHazeSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
+{
+	CCP_STATS_ZONE( __FUNCTION__ );
+
+	// cycle over all hulls in the multi-hull list
+	Vector3 hullOffset( 0.f, 0.f, 0.f );
+	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
+	{
+		// cycle over all hazesets of this hull
+		const std::vector<EveSOFDataMgr::HullHazeSetData>& hullHazeSets = dna->GetHullHazeSets( hullIdx );
+		for( auto hhsit = hullHazeSets.begin(); hhsit != hullHazeSets.end(); ++hhsit )
+		{
+			const EveSOFDataMgr::HullHazeSetData* hazeSetData = &( *hhsit );
+
+			// vivible?
+			if( dna->IsInVisibilityData( hazeSetData->visibilityGroup ) )
+			{
+				// create a hazeset for this ship
+				EveHazeSetPtr hazeSet;
+				hazeSet.CreateInstance();
+				// set shader
+				hazeSet->Setup( m_hazeSetEffect );
+				// add all the individual items
+				for( auto hhsiit = hazeSetData->items.begin(); hhsiit != hazeSetData->items.end(); ++hhsiit )
+				{
+					const EveSOFDataMgr::HullHazeSetItemData* itemData = &( *hhsiit );
+
+					// color data?
+					const Color* spriteSetColors = dna->GetColorSpriteSet();
+
+					// create spritelineset items
+					EveHazeSetItemPtr hazeSetItem;
+					hazeSetItem.CreateInstance();
+
+					// set it up the colorset data
+					hazeSetItem->m_color = itemData->hazeBrightness * spriteSetColors[itemData->colorType];
+
+					// set it up the per-hull data
+					hazeSetItem->m_position = itemData->position + hullOffset;
+					hazeSetItem->m_rotation = itemData->rotation;
+					hazeSetItem->m_scaling = itemData->scaling;
+					hazeSetItem->m_boneIndex = -1;
+					hazeSetItem->m_hazeData = Vector4( itemData->hazeFalloff, itemData->sourceSize, itemData->sourceBrightness, 0.f );
+
+					// put it into hazeset
+					hazeSet->AddHazeItem( hazeSetItem );
+				}
+				// spriteset needs internal rebuild
+				hazeSet->Rebuild();
+				// put set onto ship
+				obj->AddHazeSet( hazeSet );
 			}
 		}
 

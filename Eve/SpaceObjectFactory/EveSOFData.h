@@ -471,6 +471,43 @@ TYPEDEF_BLUECLASS( EveSOFDataHullSpriteLineSet );
 BLUE_DECLARE_VECTOR( EveSOFDataHullSpriteLineSet );
 
 
+BLUE_CLASS( EveSOFDataHullHazeSetItem ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataHullHazeSetItem( IRoot* lockobj = NULL );
+	~EveSOFDataHullHazeSetItem() {}
+
+	// per-hull data of a haze set
+	Vector3 m_position, m_scaling;
+	Quaternion m_rotation;
+	EveSOFDataFactionColorSet::ColorType m_colorType;
+	float m_hazeBrightness, m_hazeFalloff, m_sourceSize, m_sourceBrightness;
+};
+TYPEDEF_BLUECLASS( EveSOFDataHullHazeSetItem );
+BLUE_DECLARE_VECTOR( EveSOFDataHullHazeSetItem );
+
+
+BLUE_CLASS( EveSOFDataHullHazeSet ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataHullHazeSet( IRoot* lockobj = NULL );
+	~EveSOFDataHullHazeSet() {}
+
+	// general
+	std::string m_name;
+	// visibility group name
+	BlueSharedString m_visibilityGroup;
+	// items
+	PEveSOFDataHullHazeSetItemVector m_items;
+};
+TYPEDEF_BLUECLASS( EveSOFDataHullHazeSet );
+BLUE_DECLARE_VECTOR( EveSOFDataHullHazeSet );
+
+
 BLUE_CLASS( EveSOFDataHullBoosterItem ) :
 	public IRoot
 {
@@ -711,6 +748,7 @@ public:
 	PEveSOFDataHullSpotlightSetVector m_spotlightSets;
 	PEveSOFDataHullPlaneSetVector m_planeSets;
 	PEveSOFDataHullSpriteLineSetVector m_spriteLineSets;
+	PEveSOFDataHullHazeSetVector m_hazeSets;
 	ImpactEffectType m_impactEffectType;
 
 	// decals

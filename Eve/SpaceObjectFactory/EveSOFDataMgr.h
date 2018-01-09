@@ -165,6 +165,20 @@ public:
 		std::vector<HullSpriteLineSetItemData> items;
 	};
 
+	struct HullHazeSetItemData
+	{
+		Vector3 position, scaling;
+		Quaternion rotation;
+		EveSOFDataFactionColorSet::ColorType colorType;
+		float hazeBrightness, hazeFalloff, sourceSize, sourceBrightness;
+	};
+
+	struct HullHazeSetData
+	{
+		uint32_t visibilityGroup;
+		std::vector<HullHazeSetItemData> items;
+	};
+
 	struct HullAreas
 	{
 		unsigned int index;
@@ -254,6 +268,7 @@ public:
 		std::vector<HullSpotlightSetData> spotlightSets;
 		std::vector<HullPlaneSetData> planeSets;
 		std::vector<HullSpriteLineSetData> spriteLineSets;
+		std::vector<HullHazeSetData> hazeSets;
 		PatternProjectionData defaultPattern;
 		EveSOFDataHull::ImpactEffectType impactEffectType;
 		std::vector<HullAreas> opaqueAreas;

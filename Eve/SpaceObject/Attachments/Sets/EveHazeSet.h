@@ -58,8 +58,8 @@ public:
 	// hand out batches
 	void GetBatches( ITriRenderBatchAccumulator* accumulator, TriBatchType batchType, const Tr2PerObjectData* perObjectData );
 
-	// access effect
-	void SetEffect( Tr2EffectPtr effect );
+	// setup
+	void Setup( Tr2EffectPtr effect );
 
 	// access items
 	void AddHazeItem( EveHazeSetItemPtr item );

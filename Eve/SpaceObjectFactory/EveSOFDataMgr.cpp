@@ -614,6 +614,33 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		hd.spriteLineSets.push_back( hslsd );
 	}
 
+	// hazesets
+	hd.hazeSets.clear();
+	for( auto hsit = srcData->m_hazeSets.begin(); hsit != srcData->m_hazeSets.end(); ++hsit )
+	{
+		EveSOFDataHullHazeSetPtr hazeSetData = ( *hsit );
+
+		HullHazeSetData hhsd;
+		std::string visGroupName( hazeSetData->m_visibilityGroup.c_str() );
+		hhsd.visibilityGroup = CcpHashFNV1( visGroupName.c_str(), visGroupName.size() );
+		for( auto hsiit = hazeSetData->m_items.begin(); hsiit != hazeSetData->m_items.end(); ++hsiit )
+		{
+			EveSOFDataHullHazeSetItemPtr hazeSetItemData = ( *hsiit );
+
+			HullHazeSetItemData hhsid;
+			hhsid.position = hazeSetItemData->m_position;
+			hhsid.scaling = hazeSetItemData->m_scaling;
+			hhsid.rotation = hazeSetItemData->m_rotation;
+			hhsid.colorType = hazeSetItemData->m_colorType;
+			hhsid.hazeBrightness = hazeSetItemData->m_hazeBrightness;
+			hhsid.hazeFalloff = hazeSetItemData->m_hazeFalloff;
+			hhsid.sourceBrightness = hazeSetItemData->m_sourceBrightness;
+			hhsid.sourceSize = hazeSetItemData->m_sourceSize;
+			hhsd.items.push_back( hhsid );
+		}
+		hd.hazeSets.push_back( hhsd );
+	}
+
 	// default hull pattern
 	EveSOFDataPatternPerHullPtr defaultPattern = srcData->m_defaultPattern;
 	// only one layer for the default hull one (yet...)

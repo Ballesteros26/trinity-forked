@@ -374,6 +374,39 @@ const Be::ClassInfo* EveSOFDataHullSpriteLineSet::ExposeToBlue()
 
 
 
+BLUE_DEFINE( EveSOFDataHullHazeSetItem );
+const Be::ClassInfo* EveSOFDataHullHazeSetItem::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( EveSOFDataHullHazeSetItem, "" )
+		MAP_INTERFACE( EveSOFDataHullHazeSetItem )
+
+		MAP_ATTRIBUTE( "position", m_position, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "scaling", m_scaling, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "rotation", m_rotation, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE_WITH_CHOOSER( "colorType", m_colorType, "", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataFactionColorSetTypeChooser )
+		MAP_ATTRIBUTE( "hazeBrightness", m_hazeBrightness, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "hazeFalloff", m_hazeFalloff, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "sourceBrightness", m_sourceBrightness, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "sourceSize", m_sourceSize, "", Be::READWRITE | Be::PERSIST )
+		EXPOSURE_END()
+}
+
+
+
+BLUE_DEFINE( EveSOFDataHullHazeSet );
+const Be::ClassInfo* EveSOFDataHullHazeSet::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( EveSOFDataHullHazeSet, "" )
+		MAP_INTERFACE( EveSOFDataHullHazeSet )
+
+		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "visibilityGroup", m_visibilityGroup, "Name for visibility group to toggle visibility for the whole set.", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "items", m_items, "The items in this hazeset", Be::READWRITE | Be::PERSIST )
+		EXPOSURE_END()
+}
+
+
+
 BLUE_DEFINE( EveSOFDataHullBooster );
 const Be::ClassInfo* EveSOFDataHullBooster::ExposeToBlue()
 {
@@ -588,6 +621,7 @@ const Be::ClassInfo* EveSOFDataHull::ExposeToBlue()
 		MAP_ATTRIBUTE( "spotlightSets", m_spotlightSets, "The spotlightsets", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "planeSets", m_planeSets, "The planesets", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "spriteLineSets", m_spriteLineSets, "The spritelinesets", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "hazeSets", m_hazeSets, "The hazesets", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE_WITH_CHOOSER( "impactEffectType", m_impactEffectType, "Type of impact effect on this hull", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFImpactEffectTypeChooser )
 
 		MAP_ATTRIBUTE( "hullDecals", m_hullDecals, "The hull decals", Be::READWRITE | Be::PERSIST )

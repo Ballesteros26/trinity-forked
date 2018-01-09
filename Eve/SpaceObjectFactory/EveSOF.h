@@ -63,6 +63,7 @@ private:
 	void SetupSpotlightSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
+	void SetupHazeSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupInstancedMeshes( EveSpaceObject2Ptr newObj, EveSOFDNAPtr dna ) const;
 	void SetupDecals( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
@@ -83,6 +84,7 @@ private:
 	PEveSOFDataMgr m_dataMgr;
 
 	// shared
+	Tr2EffectPtr m_hazeSetEffect;
 	Tr2EffectPtr m_spriteSetEffect;
 	Tr2EffectPtr m_shadowEffect, m_shadowEffectSkinned;
 	BlueSharedString m_depthOnlyEffectName;

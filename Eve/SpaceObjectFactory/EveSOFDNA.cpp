@@ -577,6 +577,15 @@ const std::vector<EveSOFDataMgr::HullSpriteLineSetData>& EveSOFDNA::GetHullSprit
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Return an array to all the hazesets on this hull
+// --------------------------------------------------------------------------------
+const std::vector<EveSOFDataMgr::HullHazeSetData>& EveSOFDNA::GetHullHazeSets( size_t n ) const
+{
+	return m_hullDatas[n]->hazeSets;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Return an array to all the turret locators on this hull
 // --------------------------------------------------------------------------------
 const std::vector<EveSOFDataMgr::LocatorData>& EveSOFDNA::GetHullTurretLocators( size_t n ) const

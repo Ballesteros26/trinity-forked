@@ -224,6 +224,7 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 	PARENTLOCK( m_spotlightSets ),
 	PARENTLOCK( m_planeSets ),
 	PARENTLOCK( m_spriteLineSets ),
+	PARENTLOCK( m_hazeSets ),
 	PARENTLOCK( m_hullDecals ),
 	PARENTLOCK( m_opaqueAreas ),
 	PARENTLOCK( m_decalAreas ),
@@ -436,6 +437,18 @@ EveSOFDataHullSpriteLineSetItem::EveSOFDataHullSpriteLineSetItem( IRoot* lockobj
 	m_boneIndex( 0 ),
 	m_isCircle( false ),
 	m_colorType( EveSOFDataFactionColorSet::TYPE_PRIMARY )
+{}
+
+EveSOFDataHullHazeSet::EveSOFDataHullHazeSet( IRoot* lockobj ) :
+	PARENTLOCK( m_items ),
+	m_visibilityGroup( "primary" )
+{}
+
+EveSOFDataHullHazeSetItem::EveSOFDataHullHazeSetItem( IRoot* lockobj ) :
+	m_position( 0.f, 0.f, 0.f ), m_scaling( 1.f, 1.f, 1.f ),
+	m_rotation( 0.f, 0.f, 0.f, 1.f ),
+	m_colorType( EveSOFDataFactionColorSet::TYPE_PRIMARY ),
+	m_hazeBrightness( 1.f ), m_hazeFalloff( 6.f ), m_sourceSize( 0.2f ), m_sourceBrightness( 2.f )
 {}
 
 EveSOFDataFactionVisibilityGroupSet::EveSOFDataFactionVisibilityGroupSet( IRoot* lockobj ) :
