@@ -344,8 +344,21 @@ void Tr2GrannyAnimationLayer::SampleAnimation( float animationTime, granny_local
 		}
 
 		granny_model_control_binding *binding = GrannyModelControlsBegin( m_modelInstance );
+
+		if ( binding == GrannyModelControlsEnd( m_modelInstance ) )
+		{
+			// no bindings
+			return;
+		}
+		
 		// Construct the m_basePose from raw local clock 0 for the first control.
 		granny_control *control = GrannyGetControlFromBinding( binding );
+		
+		if ( !control )
+		{
+			return;
+		}
+
 		const float raw_local_time = GrannyGetControlRawLocalClock( control );
 		GrannySetControlRawLocalClock( control, 0 );
 		GrannySampleModelAnimations( m_modelInstance, 0, m_boneCount, m_basePose );
