@@ -705,6 +705,9 @@
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard.h">
       <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
     </ClInclude>
+    <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard2D.h">
+      <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
+    </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBooster.h">
       <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
     </ClInclude>
@@ -2464,6 +2467,12 @@
       <Filter>Source Files\Eve\SpaceObject\Children</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard2D.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard2D_Blue.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children\TransformModifiers</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard_Blue.cpp">
