@@ -132,7 +132,8 @@ public:
 		unsigned int width, 
 		unsigned int height, 
 		DeviceScreenType type, 
-		Tr2RenderContextEnum::PresentInterval presentInterval );
+		Tr2RenderContextEnum::PresentInterval presentInterval,
+		unsigned int adapter = Tr2VideoAdapterInfo::DEFAULT_ADAPTER );
 
 	// Parameter values for ApplicationActivated method
 	enum ApplicationActivation

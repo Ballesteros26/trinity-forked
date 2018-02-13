@@ -176,8 +176,10 @@ const Be::ClassInfo* TriDevice::ExposeToBlue()
 			"       that the device will render to. If omitted or either set to 0 the\n"
 			"       device will render to the entire window area.\n"
 			":type height: Optional[int]\n"
-			":param presentInterval: presentation interval"
+			":param presentInterval: presentation interval\n"
 			":type presentInterval: Optional[int]\n"
+			":param adapter: video adapter index\n"
+			":type adapter: Optional[int]\n"
 			":rtype: None"
 		)
 		MAP_METHOD_AS_METHOD

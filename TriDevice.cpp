@@ -167,7 +167,8 @@ bool TriDevice::CreateSimpleDevice(
 	unsigned int width,
 	unsigned int height,
 	DeviceScreenType type, 
-	Tr2RenderContextEnum::PresentInterval presentInterval )
+	Tr2RenderContextEnum::PresentInterval presentInterval,
+	unsigned int adapter )
 {
 	// Clean out old resources and the old device (if exists)
 	DestroyRenderContext();
@@ -202,7 +203,7 @@ bool TriDevice::CreateSimpleDevice(
 
 	//take nvperfhud into account!
 	// Set default settings
-	uint32_t adapterToUse = Tr2VideoAdapterInfo::DEFAULT_ADAPTER;
+	uint32_t adapterToUse = adapter;
 
 	CreateDeviceInt( adapterToUse, hwnd, pp );
 
@@ -219,6 +220,7 @@ bool TriDevice::CreateSimpleDevice(
 	mHeight = height;
 	mHwnd = hwnd;
 	mDeviceLost = false;
+	mAdapter = adapter;
 
 	if( type != NO_ADAPTER && !SetPresentParameters( mAdapter, mPresentParam ) )
 	{
@@ -757,8 +759,9 @@ PyObject* TriDevice::PythonCreateDeviceHelper( PyObject* args, DeviceScreenType 
 	int width = 0;
 	int height = 0;
 	int presentInterval = Tr2RenderContextEnum::PRESENT_INTERVAL_IMMEDIATE;
+	int adapter = Tr2VideoAdapterInfo::DEFAULT_ADAPTER;
 
-	if( screenType != NO_ADAPTER && !PyArg_ParseTuple( args, "i|iii", &hwnd, &width, &height, &presentInterval ) )
+	if( screenType != NO_ADAPTER && !PyArg_ParseTuple( args, "i|iiii", &hwnd, &width, &height, &presentInterval, &adapter ) )
 	{
 		return nullptr;
 	}
@@ -766,7 +769,7 @@ PyObject* TriDevice::PythonCreateDeviceHelper( PyObject* args, DeviceScreenType 
 	width  = std::max( 0, width );
 	height = std::max( 0, height );
 
-	bool OK = CreateSimpleDevice( hwnd, width, height, screenType, Tr2RenderContextEnum::PresentInterval( presentInterval ) );
+	bool OK = CreateSimpleDevice( hwnd, width, height, screenType, Tr2RenderContextEnum::PresentInterval( presentInterval ), adapter );
 		
 	if( !OK )
 	{
