@@ -49,6 +49,7 @@ EveChildParticleSphere::EveChildParticleSphere( IRoot* lockobj )
 	m_radius( 500.f ),
 	m_movementScale( 1.f ),
 	m_maxSpeed( 0.f ),
+	m_egoVelocity( 0, 0, 0 ),
 	m_egoSpeed( 0 ),
 	m_positionElement(),
 	m_velocityElement(),
@@ -86,7 +87,23 @@ bool EveChildParticleSphere::GetBoundingSphere( Vector4& sphere, BoundingSphereQ
 }
 
 // -----------------------------------------------------------------------------
-void EveChildParticleSphere::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
+void EveChildParticleSphere::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2*, IEveSpaceObjectChild* )
+{
+	if( m_bindStatus == BIND_PENDING )
+	{
+		Refresh();
+	}
+	Vector3 velocity( 0, 0, 0 );
+	if( auto ballpark = updateContext.GetBallpark() )
+	{
+		ballpark->DeltaVel( &velocity, updateContext.GetTime() );
+	}
+	m_egoSpeed = Length( velocity );
+	m_egoVelocity = velocity;
+}
+
+// -----------------------------------------------------------------------------
+void EveChildParticleSphere::UpdateAsyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 	Matrix parent;
 	if( childParent )
@@ -104,12 +121,6 @@ void EveChildParticleSphere::UpdateSyncronous( EveUpdateContext& updateContext, 
 	BoundingSphereTransform( m_worldTransform, m_boundingSphere );
 
 	Update( updateContext );
-}
-
-// -----------------------------------------------------------------------------
-void EveChildParticleSphere::UpdateAsyncronous( EveUpdateContext&, IEveSpaceObject2*, IEveSpaceObjectChild* )
-{
-
 }
 
 // -----------------------------------------------------------------------------
@@ -187,32 +198,13 @@ void EveChildParticleSphere::Update( const EveUpdateContext& updateContext )
 	}
 	originShift *= m_movementScale;
 
-	Vector3 velocity( 0, 0, 0 );
-	if( auto ballpark = updateContext.GetBallpark() )
+	if( m_bindStatus == BIND_VALID )
 	{
-		ballpark->DeltaVel( &velocity, updateContext.GetTime() );
+		auto previousReferencePosition = TransformCoord( m_previousOrigin + originShift, Inverse( m_worldTransform ) );
+
+		ApplyConstraint( previousReferencePosition, Normalize( m_egoVelocity ) );
+		AddParticles( previousReferencePosition, Normalize( m_egoVelocity ) );
 	}
-	m_egoSpeed = Length( velocity );
-
-	switch( m_bindStatus )
-	{
-	case BIND_PENDING:
-		Refresh();
-		if( m_bindStatus != BIND_VALID )
-		{
-			return;
-		}
-		break;
-	case BIND_INVALID:
-		return;
-	default:
-		break;
-	}
-
-	auto previousReferencePosition = TransformCoord( m_previousOrigin + originShift, Inverse( m_worldTransform ) );
-
-	ApplyConstraint( previousReferencePosition, Normalize( velocity ) );
-	AddParticles( previousReferencePosition, Normalize( velocity ) );
 
 	m_previousOrigin = m_worldTransform.GetTranslation();
 }
@@ -342,13 +334,13 @@ void EveChildParticleSphere::FillParticleData( float** particle, const Vector3& 
 			localPosition = Normalize( Vector3( randf() - 0.5f, randf() - 0.5f, randf() - 0.5f ) );
 			if( i == 9 || previousReferencePosition == Vector3( 0, 0, 0 ) )
 			{
-				distance = m_radius;
+				distance = m_radius * pow( randf(), 0.5f );
 				localPosition *= distance;
 			}
 			else
 			{
 				float minDistance = std::max( 0.f, m_radius - Length( previousReferencePosition ) );
-				distance = minDistance + randf() * ( m_radius - minDistance );
+				distance = minDistance + pow( randf(), 0.5f ) * ( m_radius - minDistance );
 				localPosition *= distance;
 				if( Length( localPosition - previousReferencePosition ) < m_radius )
 				{

@@ -89,6 +89,8 @@ private:
 	// Reference movement is clamped at this speed
 	float m_maxSpeed;
 
+	// ego velocity
+	Vector3 m_egoVelocity;
 	// ego speed
 	float m_egoSpeed;
 
