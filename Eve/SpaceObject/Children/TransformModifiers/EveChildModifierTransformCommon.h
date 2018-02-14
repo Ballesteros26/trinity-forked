@@ -9,6 +9,7 @@
 
 #include "StdAfx.h"
 #include "include/TriMath.h"
+#include "Tr2Renderer.h"
 
 inline void DistanceBase( const Matrix &transform, Matrix& alignMat, float& distCenter, Vector3& d )
 {
@@ -21,11 +22,34 @@ inline void DistanceBase( const Matrix &transform, Matrix& alignMat, float& dist
 	TriVectorRotateMatrix( &camFwd, &camFwd, &parentT );
 
 	float lengthSq = LengthSq( transform.GetX() );
-	camFwd.x /= lengthSq;
+	if ( lengthSq != 0 )
+	{
+		camFwd.x /= lengthSq;
+	}
+	else
+	{
+		camFwd.x = 0;
+	}
+
 	lengthSq = LengthSq( transform.GetY() );
-	camFwd.y /= lengthSq;
+	if ( lengthSq != 0 )
+	{
+		camFwd.y /= lengthSq;
+	}
+	else
+	{
+		camFwd.y = 0;
+	}
+
 	lengthSq = LengthSq( transform.GetZ() );
-	camFwd.z /= lengthSq;
+	if ( lengthSq != 0 )
+	{
+		camFwd.z /= lengthSq;
+	}
+	else
+	{
+		camFwd.z = 0;
+	}
 
 	distCenter = Length( camFwd );
 	camFwd = Normalize( camFwd );
@@ -37,6 +61,29 @@ inline void DistanceBase( const Matrix &transform, Matrix& alignMat, float& dist
 	Vector3 up = Normalize( Cross( camFwd, right ) );
 
 	TriMatrixChangeBase( &alignMat, &camFwd, &up );
+}
+
+inline Matrix Billboard2D( const Matrix &transform )
+{
+	float parentScaleX = Length( transform.GetX() );
+	float parentScaleY = Length( transform.GetY() );
+	float parentScaleZ = Length( transform.GetZ() );
+	Vector3 finalScale( parentScaleX, parentScaleY, parentScaleZ );
+
+	const Matrix& invView = Tr2Renderer::GetInverseViewTransform();
+
+	Matrix result = transform;
+	result._11 = invView._11 * finalScale.x;
+	result._12 = invView._12 * finalScale.x;
+	result._13 = invView._13 * finalScale.x;
+	result._21 = invView._21 * finalScale.y;
+	result._22 = invView._22 * finalScale.y;
+	result._23 = invView._23 * finalScale.y;
+	result._31 = invView._31 * finalScale.z;
+	result._32 = invView._32 * finalScale.z;
+	result._33 = invView._33 * finalScale.z;
+
+	return result;
 }
 
 #endif
