@@ -1684,6 +1684,10 @@ bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 			GetAllBatchesFromRenderables( visible, transparentObjects, m_secondaryBatches );
 			PrepareTransparentBatch( transparentObjects, m_secondaryBatches );
 			FinalizeBatches( m_secondaryBatches );
+
+			renderContext.m_esm.ApplyStandardStates(Tr2EffectStateManager::RM_DEPTH_ONLY);
+			renderContext.RenderBatches(m_secondaryBatches[TRIBATCHTYPE_DEPTH], BlueSharedString("Depth"));
+			
 			RenderOpaqueBatches( m_secondaryBatches, renderContext );
 			RenderTransparentBatches( m_secondaryBatches, renderContext );
 			ClearBatches( m_secondaryBatches );
