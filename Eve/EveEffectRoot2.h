@@ -11,6 +11,7 @@
 #include "Eve/SpaceObject/Children/IEveSpaceObjectChild.h"
 #include "Tr2ShLightingManager.h"
 #include "Include/ITriTargetable.h"
+#include "Tr2DebugRenderer.h"
 
 BLUE_DECLARE( Tr2PointLight );
 BLUE_DECLARE_VECTOR( Tr2PointLight );
@@ -21,7 +22,8 @@ BLUE_CLASS( EveEffectRoot2 ):
 	public IEveSpaceObject2,
 	public IInitialize,
 	public ITr2SecondaryLightSource,
-	public ITriTargetable
+	public ITriTargetable,
+	public ITr2DebugRenderable
 {
 public:
     EXPOSE_TO_BLUE();
@@ -68,7 +70,11 @@ public:
 	bool UpdateImpact( Vector3& out, const Vector3& direction, int impactIndex );
 	void GetImpactPosition( Vector3& out, int damageLocatorIndex, const Vector3& direction );
 	bool HasImpactConfigurationShield() const;
-	
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2DebugRenderable
+	virtual void GetDebugOptions( Tr2DebugRendererOptions& options );
+	virtual void RenderDebugInfo( Tr2DebugRenderer& renderer );
 
 	void Start();
 	void Stop();

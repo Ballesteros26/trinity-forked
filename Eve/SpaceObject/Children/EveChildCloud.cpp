@@ -410,19 +410,6 @@ void EveChildCloud::SubmitGeometry( Tr2RenderContext& renderContext )
 		m_indexBuffers[std::min( m_currentIB, m_indexBuffers.size() - 1 )].GetDesc().count / 3 );
 }
 
-IRoot* EveChildCloud::GetID( uint16_t areaId )
-{
-	return m_volume ? m_volume->GetID( areaId ) : nullptr;
-}
-
-void EveChildCloud::GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr2PickTypes pickTypes, const Tr2PerObjectData* perObjectData )
-{
-	if( ( pickTypes & PICK_TYPE_LOCATORS ) != 0 && m_volume )
-	{
-		m_volume->GetPickingBatches( batches, perObjectData );
-	}
-}
-
 void EveChildCloud::UpdateSyncronous( EveUpdateContext& updateContext, IEveSpaceObject2* spaceObjectParent, IEveSpaceObjectChild* childParent )
 {
 	if( m_volume )
@@ -461,4 +448,29 @@ void EveChildCloud::StopCurveSet( const std::string& name )
 float EveChildCloud::GetCurveSetDuration( const std::string& name ) const
 {
 	return 0;
+}
+
+void EveChildCloud::GetDebugOptions( Tr2DebugRendererOptions& options )
+{
+	options.insert( "Bounding Box" );
+	if( m_volume )
+	{
+		m_volume->GetDebugOptions( options );
+	}
+}
+
+void EveChildCloud::RenderDebugInfo( Tr2DebugRenderer& renderer )
+{
+	if( renderer.HasOption( GetRawRoot(), "Bounding Box" ) )
+	{
+		Vector3 minBounds( -0.5f, -0.5f, -0.5f );
+		Vector3 maxBounds( 0.5f, 0.5f, 0.5f );
+		uint32_t color = 0xff00ff00;
+
+		renderer.DrawBox( this, m_worldTransform, minBounds, maxBounds, Tr2DebugRenderer::Wireframe, color );
+	}
+	if( m_volume )
+	{
+		m_volume->RenderDebugInfo( renderer, m_worldTransform );
+	}
 }

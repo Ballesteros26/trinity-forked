@@ -308,3 +308,26 @@ void EveChildContainer::Setup( const Vector3* scale, const Quaternion* rotation,
 {
 	EveChildTransform::Setup( scale, rotation, translation, lowestLodVisible );
 }
+
+void EveChildContainer::GetDebugOptions( Tr2DebugRendererOptions& options )
+{
+	for( auto it = begin( m_objects ); it != end( m_objects ); ++it )
+	{
+		if( auto renderable = dynamic_cast<ITr2DebugRenderable*>( *it ) )
+		{
+			renderable->GetDebugOptions( options );
+		}
+	}
+}
+
+void EveChildContainer::RenderDebugInfo( Tr2DebugRenderer& renderer )
+{
+	for( auto it = begin( m_objects ); it != end( m_objects ); ++it )
+	{
+		if( auto renderable = dynamic_cast<ITr2DebugRenderable*>( *it ) )
+		{
+			renderable->RenderDebugInfo( renderer );
+		}
+	}
+}
+

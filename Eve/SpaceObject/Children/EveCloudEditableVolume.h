@@ -8,6 +8,7 @@
 #ifndef EveCloudVolumeBall_H
 #define EveCloudVolumeBall_H
 
+#include "Tr2DebugRenderer.h"
 #include "include/ITriEffectParameter.h"
 
 BLUE_DECLARE( TriTextureRes );
@@ -83,8 +84,8 @@ public:
 		IRoot* value,
 		const struct IList* theList );
 
-    IRoot* GetID( uint16_t areaId );
-	void GetPickingBatches( ITriRenderBatchAccumulator* batches, const Tr2PerObjectData* perObjectData );
+	void GetDebugOptions( Tr2DebugRendererOptions& options );
+	void RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& worldTransform );
 
 	void OnVolumeModified();
 

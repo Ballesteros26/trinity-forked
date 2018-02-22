@@ -432,3 +432,27 @@ void EveEffectRoot2::SetTransform( const Matrix& transform )
 {
 	Decompose( m_scaling, m_rotation, m_translation, transform );
 }
+
+// -----------------------------------------------------------------------------
+void EveEffectRoot2::GetDebugOptions( Tr2DebugRendererOptions& options )
+{
+	for( auto it = begin( m_effectChildren ); it != end( m_effectChildren ); ++it )
+	{
+		if( auto renderable = dynamic_cast<ITr2DebugRenderable*>( *it ) )
+		{
+			renderable->GetDebugOptions( options );
+		}
+	}
+}
+
+// -----------------------------------------------------------------------------
+void EveEffectRoot2::RenderDebugInfo( Tr2DebugRenderer& renderer )
+{
+	for( auto it = begin( m_effectChildren ); it != end( m_effectChildren ); ++it )
+	{
+		if( auto renderable = dynamic_cast<ITr2DebugRenderable*>( *it ) )
+		{
+			renderable->RenderDebugInfo( renderer );
+		}
+	}
+}

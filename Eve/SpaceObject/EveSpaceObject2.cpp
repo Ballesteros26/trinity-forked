@@ -443,6 +443,14 @@ void EveSpaceObject2::GetDebugOptions( Tr2DebugRendererOptions& options )
 		name += ( *it )->GetName();
 		options.insert( name.c_str() );
 	}
+
+	for( auto it = begin( m_effectChildren ); it != end( m_effectChildren ); ++it )
+	{
+		if( auto renderable = dynamic_cast<ITr2DebugRenderable*>( *it ) )
+		{
+			renderable->GetDebugOptions( options );
+		}
+	}
 }
 
 void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
@@ -664,6 +672,14 @@ void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
 					Tr2DebugRenderer::Lit,
 					color );
 			}
+		}
+	}
+
+	for( auto it = begin( m_effectChildren ); it != end( m_effectChildren ); ++it )
+	{
+		if( auto renderable = dynamic_cast<ITr2DebugRenderable*>( *it ) )
+		{
+			renderable->RenderDebugInfo( renderer );
 		}
 	}
 }

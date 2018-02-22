@@ -359,37 +359,30 @@ void EveCloudEditableVolume::RenderDebugInfo( const Matrix& world, Tr2RenderCont
 	}
 }
 
-IRoot* EveCloudEditableVolume::GetID( uint16_t areaId )
-{
-	if( size_t( areaId ) < m_balls.size() )
-	{
-		return m_balls[areaId]->GetRawRoot();
-	}
-	return nullptr;
-}
-
-void EveCloudEditableVolume::GetPickingBatches( ITriRenderBatchAccumulator* batches, const Tr2PerObjectData* perObjectData )
-{
-	uint16_t index = 0;
-	for( auto it = std::begin( m_balls ); it != std::end( m_balls ); ++it )
-	{
-		if( auto batch = batches->Allocate<Tr2PickingHelperBatch>() )
-		{
-			batch->SetPerObjectData( perObjectData );
-			batch->AddSphere( ( *it )->m_ballData.m_position, ( *it )->m_ballData.m_radius );
-			batch->SetAreaID( index++ );
-			batches->Commit( batch );
-		}
-		else
-		{
-			break;
-		}
-	}
-}
-
 TriTextureRes* EveCloudEditableVolume::GetTexture() const
 {
 	return m_texture;
+}
+
+void EveCloudEditableVolume::GetDebugOptions( Tr2DebugRendererOptions& options )
+{
+	options.insert( "Cloud Balls" );
+}
+
+void EveCloudEditableVolume::RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& worldTransform )
+{
+	if( renderer.HasOption( GetRawRoot(), "Cloud Balls" ) )
+	{
+		Vector3 minBounds( -0.5f, -0.5f, -0.5f );
+		Vector3 maxBounds( 0.5f, 0.5f, 0.5f );
+		uint32_t color = 0x888888ff;
+
+		for( auto it = begin( m_balls ); it != end( m_balls ); ++it )
+		{
+			renderer.DrawSphere( *it, worldTransform, ( *it )->m_ballData.m_position, ( *it )->m_ballData.m_radius, 16, Tr2DebugRenderer::Wireframe, color );
+			renderer.DrawSphere( *it, worldTransform, ( *it )->m_ballData.m_position, ( *it )->m_ballData.m_radius, 16, Tr2DebugRenderer::Solid, 0 );
+		}
+	}
 }
 
 

@@ -210,7 +210,7 @@ void EveChildExplosion::UpdateSyncronous(
 
 						m_globalExplosionContainer->m_objects.Append( m_globalExplosionInstance );
 						
-						m_objects.Append( m_globalExplosionContainer );
+						m_objects.Append( m_globalExplosionContainer->GetRawRoot() );
 					}
 				}
 			}

@@ -9,6 +9,7 @@
 
 #include "IEveSpaceObjectChild.h"
 #include "EveChildTransform.h"
+#include "Tr2DebugRenderer.h"
 #include "TransformModifiers/IEveChildTransformModifier.h"
 
 BLUE_DECLARE( TriCurveSet );
@@ -20,7 +21,8 @@ BLUE_DECLARE_VECTOR( Tr2PointLight );
 
 BLUE_CLASS( EveChildContainer ) :
 	public IEveSpaceObjectChild,
-	public EveChildTransform
+	public EveChildTransform,
+	public ITr2DebugRenderable
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -51,6 +53,9 @@ public:
 	void PlayAllCurveSets();
 	void StopAllCurveSets();
 	
+	void GetDebugOptions( Tr2DebugRendererOptions& options );
+	void RenderDebugInfo( Tr2DebugRenderer& renderer );
+
 	PIEveSpaceObjectChildVector m_objects;
 protected:
 	BlueSharedString m_name;

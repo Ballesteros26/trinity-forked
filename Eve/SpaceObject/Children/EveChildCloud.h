@@ -13,6 +13,7 @@
 #include "Eve/IEveSpaceObject2.h"
 #include "Eve/SpaceObject/Children/IEveSpaceObjectChild.h"
 #include "Tr2ShLightingManager.h"
+#include "Tr2DebugRenderer.h"
 
 BLUE_DECLARE( EveCloudEditableVolume );
 BLUE_DECLARE_INTERFACE( ITriVectorFunction );
@@ -25,12 +26,12 @@ BLUE_DECLARE_INTERFACE( ITriQuaternionFunction );
 // --------------------------------------------------------------------------------
 BLUE_CLASS( EveChildCloud ) :
 	public ITr2Renderable,
-	public ITr2Pickable,
 	public ITr2GeometryProvider,
 	public Tr2DeviceResource,
 	public IInitialize,
 	public INotify,
-	public IEveSpaceObjectChild
+	public IEveSpaceObjectChild,
+	public ITr2DebugRenderable
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -77,9 +78,9 @@ public:
 	virtual void ReleaseResources( TriStorage s );
 
 	//////////////////////////////////////////////////////////////////////////////////////
-	// ITr2Pickable
-    virtual IRoot* GetID( uint16_t areaId );
-	virtual void GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr2PickTypes pickTypes, const Tr2PerObjectData* perObjectData );
+	// ITr2DebugRenderable
+	void GetDebugOptions( Tr2DebugRendererOptions& options );
+	void RenderDebugInfo( Tr2DebugRenderer& renderer );
 
 private:
 	bool OnPrepareResources();
