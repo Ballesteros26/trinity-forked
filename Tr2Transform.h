@@ -22,6 +22,8 @@ enum Tr2TransformModifier
 	TR2TM_LOOK_AT_CAMERA = 3,
 	TR2TM_SIMPLE_HALO = 4,
 
+	TR2TM_PRE_TRANSLATE_WITH_CAMERA = 5,
+
 	// Compatibility modifiers - behave like the old TriTransform ones - less efficient
 	TR2TM_EVE_CAMERA_ROTATION_ALIGNED = 100,
 	TR2TM_EVE_BOOSTER = 101,

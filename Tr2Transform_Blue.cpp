@@ -31,6 +31,11 @@ Be::VarChooser ModifierChooser[] =
 		"Aligned with the camera, scales with angle to camera - useful for light glows"
 	},
 	{
+		"Pre-translate with camera",
+		BeCast( TR2TM_PRE_TRANSLATE_WITH_CAMERA ),
+		"Translates with the camera, preserving local transform"
+	},
+	{
 		"EVE Camera rotation aligned",     
 		BeCast( TR2TM_EVE_CAMERA_ROTATION_ALIGNED ),     
 		"Do not use in new content! Similar to billboard - used for converted content."

@@ -234,11 +234,18 @@ void Tr2Transform::UpdateViewDependentData( const TriFrustum& frustum, const Mat
 			break;
 
 		case TR2TM_TRANSLATE_WITH_CAMERA:
-			{
-				Vector3& pos = m_worldTransform.GetTranslation();
-				pos = Tr2Renderer::GetViewPosition();
-			}
-			break;
+		{
+			Vector3& pos = m_worldTransform.GetTranslation();
+			pos = Tr2Renderer::GetViewPosition();
+		}
+		break;
+
+		case TR2TM_PRE_TRANSLATE_WITH_CAMERA:
+		{
+			m_localTransform = TransformationMatrix( finalScale, m_rotation, Tr2Renderer::GetViewPosition() + m_translation );
+			m_worldTransform = m_localTransform * parentTransform;
+		}
+		break;
 
 		default:
 			break;
