@@ -20,6 +20,8 @@ EveChildMesh::EveChildMesh( IRoot* lockobj ):
 	m_isVisible( false ),
 	m_lowestLodVisible( TR2_LOD_LOW ),
 	m_minScreenSize( 0.f ),
+	m_sortValueOffset( 0 ),
+	m_sortValueScale( 1 ),
 	m_useSpaceObjectData( true ),
 	EveChildTransform()
 {
@@ -121,7 +123,7 @@ float EveChildMesh::GetSortValue()
 {
 	Vector3 d = Tr2Renderer::GetViewPosition() - m_worldTransform.GetTranslation();
 	float distance = Length( d );
-	return distance;
+	return distance * m_sortValueScale + m_sortValueOffset;
 }
 
 Tr2PerObjectData* EveChildMesh::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )

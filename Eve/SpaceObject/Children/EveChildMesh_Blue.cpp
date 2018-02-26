@@ -27,6 +27,10 @@ const Be::ClassInfo* EveChildMesh::ExposeToBlue()
 		MAP_ATTRIBUTE( "worldTransform", m_worldTransform, "", Be::READ )
 		MAP_ATTRIBUTE( "useSRT", m_useSRT, "Should local transform be built from scaling, rotation and translation attributes.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "staticTransform", m_staticTransform, "Does local transform need to be rebuilt every frame.", Be::READWRITE | Be::PERSIST )
+
+		MAP_ATTRIBUTE( "sortValueScale", m_sortValueScale, "Scale for camera distance used for transparent sort", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "sortValueOffset", m_sortValueOffset, "Offset for camera distance used for transparent sort", Be::READWRITE | Be::PERSIST )
+
 		MAP_ATTRIBUTE( "transformModifiers", m_transformModifiers, "", Be::READWRITE | Be::PERSIST )
 
 		MAP_METHOD_AND_WRAP( "RebuildLocalTransform", RebuildLocalTransform, "Rebuilds local transform if useSRT is set." )

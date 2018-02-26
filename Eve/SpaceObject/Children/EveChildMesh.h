@@ -72,22 +72,28 @@ public:
 protected:
 	// general data
 	BlueSharedString m_name;
-	bool m_display;
-	bool m_isVisible;
 
 	// the mesh
 	Tr2MeshBasePtr m_mesh;
+
+	PIEveChildTransformModifierVector m_transformModifiers;
+
 	Tr2Lod m_lowestLodVisible;
+
 	float m_minScreenSize;
 
+	float m_sortValueOffset;
+	float m_sortValueScale;
+
 	// per-object data
-	bool m_useSpaceObjectData;
 	Tr2PersistentPerObjectData<EveChildMesh> m_perObjectDataVs;
 	Tr2PersistentPerObjectData<EveChildMesh> m_perObjectDataPs;
 	EveSpaceObjectPSData m_psData;
 	EveSpaceObjectVSData m_vsData;
 	
-	PIEveChildTransformModifierVector m_transformModifiers;
+	bool m_display;
+	bool m_isVisible;
+	bool m_useSpaceObjectData;
 };
 
 TYPEDEF_BLUECLASS( EveChildMesh );
