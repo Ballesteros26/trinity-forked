@@ -42,6 +42,8 @@ BLUE_INTERFACE( IEveSpaceObject2 ) : public IRoot
 	virtual void GetLights( Tr2LightManager& lightManager ) const {}
 
 	virtual void GetPerObjectStructs( EveSpaceObjectVSData& vsData, EveSpaceObjectPSData& psData ) const {}
+
+	virtual bool IsPickable() const { return true; }
 };
 
 BLUE_DECLARE_IVECTOR( IEveSpaceObject2 );

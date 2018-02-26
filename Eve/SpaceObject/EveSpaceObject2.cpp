@@ -142,6 +142,7 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_update( true ),
 	m_enableShadow( true ),
 	m_allowLodSelection( false ),
+	m_isPickable( true ),
 	m_estimatedPixelDiameter( 0.f ),
 	m_estimatedPixelDiameterWithChildren( 0.f ),
 	m_boundingSphereCenter( 0.f, 0.f, 0.f ),
@@ -2772,6 +2773,12 @@ void EveSpaceObject2::GetLights( Tr2LightManager& lightManager ) const
 			( *it )->GetLights( lightManager );
 		}
 	}
+}
+
+// --------------------------------------------------------------------------------
+bool EveSpaceObject2::IsPickable() const
+{
+	return m_isPickable;
 }
 
 namespace

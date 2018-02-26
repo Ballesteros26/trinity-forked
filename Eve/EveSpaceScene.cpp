@@ -2665,12 +2665,15 @@ void EveSpaceScene::GetPickingObjectsToRender( std::vector<ITr2Renderable*>& pic
 
 	for( IEveSpaceObject2Vector::const_iterator it = m_objects.begin(); it != m_objects.end(); ++it )
 	{
-		// Note: Here we are relying on the EveSpaceObject's GetRenderables
-		// function to decide what objects are pickable in the given frustum.
-		// This is not necessarily what we want, as some objects might be
-		// renderable but not pickable (particle clouds?)
-		(*it)->UpdateVisibility( pickFrustum, IdentityMatrix() );
-		(*it)->GetRenderables( pickableRenderObjects, nullptr );
+		if( ( *it )->IsPickable() )
+		{
+			// Note: Here we are relying on the EveSpaceObject's GetRenderables
+			// function to decide what objects are pickable in the given frustum.
+			// This is not necessarily what we want, as some objects might be
+			// renderable but not pickable (particle clouds?)
+			( *it )->UpdateVisibility( pickFrustum, IdentityMatrix() );
+			( *it )->GetRenderables( pickableRenderObjects, nullptr );
+		}
 	}
 	m_cameraAttachmentParent->UpdateVisibility( pickFrustum, IdentityMatrix() );
 	m_cameraAttachmentParent->GetRenderables( pickableRenderObjects, nullptr );

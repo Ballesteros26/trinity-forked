@@ -166,6 +166,14 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 
 		MAP_ATTRIBUTE
 		(
+			"isPickable",
+			m_isPickable,
+			"Enables/disables picking for the object",
+			Be::READWRITE
+		)
+
+		MAP_ATTRIBUTE
+		(
 			"mesh",  
 			m_mesh, 
 			"Mesh for rendering space object", 

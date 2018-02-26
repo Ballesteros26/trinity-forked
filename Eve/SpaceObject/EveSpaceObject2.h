@@ -204,6 +204,7 @@ public:
 	virtual void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
 	virtual void AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer );
 	virtual void GetLights( Tr2LightManager& lightManager ) const;
+	virtual bool IsPickable() const;
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// IEveShadowCaster
@@ -392,6 +393,7 @@ protected:
 	bool m_update;
 	bool m_display;
 	bool m_allowLodSelection;
+	bool m_isPickable;
 
 	Matrix m_worldTransform;
 	Matrix m_invWorldTransform;
