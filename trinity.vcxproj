@@ -2659,9 +2659,6 @@
     <ClInclude Include="Eve\Animation\EveAnimationData.h" />
     <ClInclude Include="Eve\Animation\EveAnimationSequencer.h" />
     <ClInclude Include="Eve\Animation\EveAnimationState.h" />
-    <ClInclude Include="Eve\Renderable\EveMetaball.h" />
-    <ClInclude Include="Eve\Renderable\EveMetaballItem.h" />
-    <ClInclude Include="Eve\Renderable\EveMetaballTables.h" />
     <ClInclude Include="Eve\Renderable\EveSceneStaticParticles.h" />
     <ClInclude Include="Eve\Renderable\Stretch\EveFiringEffectElementContainer.h" />
     <ClInclude Include="Eve\Renderable\Stretch\EveLocalPositionCurve.h" />
@@ -3209,10 +3206,6 @@
     <ClCompile Include="Eve\Animation\EveAnimationSequencer_Blue.cpp" />
     <ClCompile Include="Eve\Animation\EveAnimationState.cpp" />
     <ClCompile Include="Eve\Animation\EveAnimationState_Blue.cpp" />
-    <ClCompile Include="Eve\Renderable\EveMetaball.cpp" />
-    <ClCompile Include="Eve\Renderable\EveMetaballItem.cpp" />
-    <ClCompile Include="Eve\Renderable\EveMetaballItem_Blue.cpp" />
-    <ClCompile Include="Eve\Renderable\EveMetaball_Blue.cpp" />
     <ClCompile Include="Eve\Renderable\EveSceneStaticParticles.cpp" />
     <ClCompile Include="Eve\Renderable\EveSceneStaticParticles_Blue.cpp" />
     <ClCompile Include="Eve\Renderable\Stretch\EveFiringEffectElementContainer.cpp" />
