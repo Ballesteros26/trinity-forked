@@ -81,6 +81,7 @@ protected:
 	Tr2Lod m_lowestLodVisible;
 
 	float m_minScreenSize;
+	float m_currentScreenSize;
 
 	float m_sortValueOffset;
 	float m_sortValueScale;

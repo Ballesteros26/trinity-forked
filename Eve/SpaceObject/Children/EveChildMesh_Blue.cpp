@@ -20,6 +20,7 @@ const Be::ClassInfo* EveChildMesh::ExposeToBlue()
 			m_minScreenSize, 
 			"Minimal size of object on screen, objects smaller than this size are not rendered.\n:jessica-group: LOD", 
 			Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "currentScreenSize", m_currentScreenSize, "Screen size for last frame\n:jessica-group: LOD", Be::READ)
 		MAP_ATTRIBUTE( "rotation", m_rotation, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "translation", m_translation, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "scaling", m_scaling,"", Be::READWRITE | Be::PERSIST )

@@ -20,6 +20,7 @@ EveChildMesh::EveChildMesh( IRoot* lockobj ):
 	m_isVisible( false ),
 	m_lowestLodVisible( TR2_LOD_LOW ),
 	m_minScreenSize( 0.f ),
+	m_currentScreenSize( -1.f ),
 	m_sortValueOffset( 0 ),
 	m_sortValueScale( 1 ),
 	m_useSpaceObjectData( true ),
@@ -55,9 +56,15 @@ void EveChildMesh::UpdateVisibility( const TriFrustum& frustum, const Matrix& pa
 		return;
 	}
 	Vector4 boundingSphere;
-	if( GetBoundingSphere( boundingSphere ) && frustum.GetPixelSizeAccross( &boundingSphere ) >= m_minScreenSize * g_eveSpaceSceneLODFactor )
+	if( GetBoundingSphere( boundingSphere ) )
 	{
-		m_isVisible = true;
+		m_currentScreenSize = frustum.GetPixelSizeAccross( &boundingSphere );
+
+		m_isVisible = m_currentScreenSize >= m_minScreenSize * g_eveSpaceSceneLODFactor;
+	}
+	else
+	{
+		m_currentScreenSize = -1;
 	}
 }
 
@@ -81,9 +88,6 @@ bool EveChildMesh::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query
 				// Fix asap <Logi 27. aug 2015>
 				sphere.w = 100000;
 			}
-			// Take scaling into account
-			float maxScale = std::max( this->m_scaling.x, std::max( this->m_scaling.y, this->m_scaling.z ) );
-			sphere.w *= maxScale;
 			BoundingSphereTransform( m_worldTransform, sphere );
 			return true;
 		}
