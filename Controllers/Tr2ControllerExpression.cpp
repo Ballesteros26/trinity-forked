@@ -78,7 +78,6 @@ namespace
 	bool IsValidVariableName( const char* name )
 	{
 		static std::regex namePattern( "[a-zA-Z_][a-zA-Z_0-9]*" );
-		std::smatch match;
 		return std::regex_match( name, namePattern );
 	}
 }
