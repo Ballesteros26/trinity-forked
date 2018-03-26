@@ -1,0 +1,21 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2018
+//    Copyright: CCP 2018
+//
+
+#include "StdAfx.h"
+#include "Tr2ActionPlayCurveSet.h"
+
+
+BLUE_DEFINE( Tr2ActionPlayCurveSet );
+
+const Be::ClassInfo* Tr2ActionPlayCurveSet::ExposeToBlue()
+{
+	EXPOSURE_BEGIN( Tr2ActionPlayCurveSet, "" )
+		MAP_INTERFACE( Tr2ActionPlayCurveSet )
+		MAP_INTERFACE( ITr2ControllerAction )
+
+		MAP_ATTRIBUTE( "curveSetName", m_curveSetName, "Curve set name", Be::READWRITE | Be::PERSIST )
+	EXPOSURE_END()
+}

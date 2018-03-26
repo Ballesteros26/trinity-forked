@@ -1,0 +1,38 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2018
+//    Copyright: CCP 2018
+//
+
+#pragma once
+
+#include "ITr2ControllerAction.h"
+#include "Controllers/Tr2BindingPoint.h"
+#include "Controllers/Tr2ControllerExpression.h"
+
+BLUE_CLASS( Tr2ActionSetValue ) :
+	public ITr2ControllerAction,
+	public INotify
+{
+public:
+	Tr2ActionSetValue( IRoot* = nullptr );
+
+	EXPOSE_TO_BLUE();
+
+	virtual void Link( Tr2Controller& controller );
+	virtual void Unlink();
+	virtual void Start( Tr2Controller& controller );
+
+	virtual bool OnModified( Be::Var* value );
+
+	bool IsBindingValid() const;
+	bool IsExpressionValid() const;
+private:
+	Tr2BindingPoint m_destination;
+	std::string m_value;
+
+	Tr2ControllerExpression m_evaluator;
+
+	const Tr2Controller* m_controller;
+};
+TYPEDEF_BLUECLASS( Tr2ActionSetValue );

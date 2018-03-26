@@ -1,0 +1,27 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2018
+//    Copyright: CCP 2018
+//
+
+#pragma once
+
+#include "ITr2ControllerAction.h"
+
+
+BLUE_DECLARE( EveMeshOverlayEffect );
+
+
+BLUE_CLASS( Tr2ActionOverlay ) : public ITr2ControllerAction
+{
+public:
+	EXPOSE_TO_BLUE();
+
+	virtual void Start( Tr2Controller& controller );
+	virtual void Stop( Tr2Controller& controller );
+private:
+	std::string m_path;
+	EveMeshOverlayEffectPtr m_overlay;
+};
+
+TYPEDEF_BLUECLASS( Tr2ActionOverlay );

@@ -1,0 +1,76 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2018
+//    Copyright: CCP 2018
+//
+
+#include "StdAfx.h"
+#include "Tr2ActionSetValue.h"
+#include "Controllers/Tr2Controller.h"
+
+
+
+Tr2ActionSetValue::Tr2ActionSetValue( IRoot* )
+	:m_controller( nullptr )
+{
+
+}
+
+void Tr2ActionSetValue::Link( Tr2Controller& controller )
+{
+	m_controller = &controller;
+	std::unordered_map<std::string, IRoot*> roots;
+	controller.GetBindingPathRoots( roots );
+	m_destination.Link( roots );
+	m_evaluator.SetExpr( m_value.c_str(), controller );
+}
+
+void Tr2ActionSetValue::Unlink()
+{
+	m_controller = nullptr;
+	m_destination.Unlink();
+	m_evaluator.Clear();
+}
+
+void Tr2ActionSetValue::Start( Tr2Controller& controller )
+{
+	if( !m_evaluator.IsExpressionValid() || !m_destination.IsValid() )
+	{
+		return;
+	}
+	auto value = m_evaluator.Eval();
+	if( !value.first )
+	{
+		return;
+	}
+	m_destination.SetValue( value.second );
+}
+
+bool Tr2ActionSetValue::OnModified( Be::Var* value )
+{
+	if( !m_controller )
+	{
+		return true;
+	}
+	if( IsMatch( value, m_destination.m_path ) || IsMatch( value, m_destination.m_attribute ) )
+	{
+		std::unordered_map<std::string, IRoot*> roots;
+		m_controller->GetBindingPathRoots( roots );
+		m_destination.Link( roots );
+	}
+	else if( IsMatch( value, m_value ) )
+	{
+		m_evaluator.SetExpr( m_value.c_str(), *m_controller );
+	}
+	return true;
+}
+
+bool Tr2ActionSetValue::IsBindingValid() const
+{
+	return m_destination.IsValid();
+}
+
+bool Tr2ActionSetValue::IsExpressionValid() const
+{
+	return m_evaluator.IsExpressionValid();
+}

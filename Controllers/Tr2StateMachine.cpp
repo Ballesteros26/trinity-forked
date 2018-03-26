@@ -1,0 +1,179 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2018
+//    Copyright: CCP 2018
+//
+
+#include "StdAfx.h"
+#include "Tr2StateMachine.h"
+#include "Tr2StateMachineState.h"
+
+
+Tr2StateMachine::Tr2StateMachine( IRoot* lockobj )
+	:PARENTLOCK( m_states ),
+	m_controller( nullptr ),
+	m_startTime( 0 ),
+	m_stateStartTime( 0 )
+{
+	m_states.SetNotify( this );
+}
+
+void Tr2StateMachine::OnListModified( long event, ssize_t key, ssize_t key2, IRoot* value, const IList* list )
+{
+	if( list == &m_states )
+	{
+		switch( event & BELIST_EVENTMASK )
+		{
+		case BELIST_INSERTED:
+			if( m_controller )
+			{
+				if( Tr2StateMachineStatePtr state = BlueCastPtr( value ) )
+				{
+					state->Link( *this );
+				}
+			}
+			break;
+		case BELIST_REMOVED:
+			if( Tr2StateMachineStatePtr state = BlueCastPtr( value ) )
+			{
+				if( state == m_currentState )
+				{
+					state->Stop();
+				}
+				m_currentState = m_startState;
+				m_stateStartTime = BeOS->GetCurrentFrameTime();
+				if( m_currentState )
+				{
+					m_currentState->Start();
+				}
+				state->Unlink();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+bool Tr2StateMachine::OnModified( Be::Var* value )
+{
+	if( IsMatch( value, m_startState ) && m_controller )
+	{
+		if( m_startState )
+		{
+			m_startState->Link( *this );
+		}
+	}
+	return true;
+}
+
+void Tr2StateMachine::Link( Tr2Controller& controller )
+{
+	Unlink();
+
+	m_controller = &controller;
+	for( auto it = begin( m_states ); it != end( m_states ); ++it )
+	{
+		( *it )->Link( *this );
+	}
+}
+
+void Tr2StateMachine::Unlink()
+{
+	if( !m_controller )
+	{
+		return;
+	}
+	Stop();
+	m_controller = nullptr;
+	for( auto it = begin( m_states ); it != end( m_states ); ++it )
+	{
+		( *it )->Unlink();
+	}
+}
+
+void Tr2StateMachine::FollowTransitions()
+{
+	std::unordered_set<Tr2StateMachineState*> seen;
+	seen.insert( m_currentState );
+
+	while( true )
+	{
+		auto next = m_currentState->Update();
+		if( !next )
+		{
+			return;
+		}
+		if( seen.find( next ) != seen.end() )
+		{
+			CCP_LOGERR( "Tr2StateMachine: infinite loop in state machine %s detected", m_name.c_str() );
+			return;
+		}
+		m_currentState = next;
+		m_currentState->Start();
+		m_stateStartTime = BeOS->GetCurrentFrameTime();
+	}
+}
+
+void Tr2StateMachine::Start()
+{
+	if( m_currentState || !m_controller )
+	{
+		return;
+	}
+
+	m_currentState = m_startState;
+	m_startTime = m_stateStartTime = BeOS->GetCurrentFrameTime();
+	if( !m_currentState )
+	{
+		return;
+	}
+	m_currentState->Start();
+	FollowTransitions();
+}
+
+void Tr2StateMachine::Stop()
+{
+	if( m_currentState )
+	{
+		m_currentState->Stop();
+		m_currentState = nullptr;
+	}
+	m_startTime = 0;
+	m_stateStartTime = 0;
+}
+
+void Tr2StateMachine::Update()
+{
+	if( m_currentState )
+	{
+		FollowTransitions();
+	}
+}
+
+Tr2Controller* Tr2StateMachine::GetController() const
+{
+	return m_controller;
+}
+
+Tr2StateMachineState* Tr2StateMachine::GetStateByName( const char* name ) const
+{
+	for( auto it = begin( m_states ); it != end( m_states ); ++it )
+	{
+		if( ( *it )->GetName() == name )
+		{
+			return *it;
+		}
+	}
+	return nullptr;
+}
+
+float Tr2StateMachine::GetMachineRunTime() const
+{
+	return m_startTime ? TimeAsFloat( BeOS->GetCurrentFrameTime() - m_startTime ) : 0.f;
+}
+
+float Tr2StateMachine::GetStateRunTime() const
+{
+	return m_stateStartTime ? TimeAsFloat( BeOS->GetCurrentFrameTime() - m_stateStartTime ) : 0.f;
+}

@@ -1,0 +1,23 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2018
+//    Copyright: CCP 2018
+//
+
+#pragma once
+
+#include "ITr2ControllerAction.h"
+
+
+BLUE_CLASS( Tr2ActionPlayCurveSet ) : public ITr2ControllerAction
+{
+public:
+	EXPOSE_TO_BLUE();
+
+	virtual void Start( Tr2Controller& controller );
+	virtual void Stop( Tr2Controller& controller );
+private:
+	std::string m_curveSetName;
+};
+
+TYPEDEF_BLUECLASS( Tr2ActionPlayCurveSet );

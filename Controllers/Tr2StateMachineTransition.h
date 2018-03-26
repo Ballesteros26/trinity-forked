@@ -1,0 +1,45 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2018
+//    Copyright: CCP 2018
+//
+
+#pragma once
+
+#include "Tr2ControllerExpression.h"
+
+
+BLUE_DECLARE( Tr2StateMachineState );
+
+
+BLUE_CLASS( Tr2StateMachineTransition ) : public INotify
+{
+public:
+	Tr2StateMachineTransition( IRoot* lockobj = nullptr );
+
+	EXPOSE_TO_BLUE();
+
+	virtual bool OnModified( Be::Var* value );
+
+	void Link( const Tr2StateMachineState& state );
+	void Unlink();
+
+	bool CanActivate() const;
+	Tr2StateMachineState* GetDestination() const;
+
+	IRoot* GetSource() const;
+
+	bool IsConditionValid() const;
+private:
+	void UpdateDestination();
+
+	std::string m_destinationName;
+	std::string m_condition;
+
+	BlueWeakRef<Tr2StateMachineState> m_destination;
+	Tr2ControllerExpression m_evaluator;
+	const Tr2StateMachineState* m_source;
+};
+
+TYPEDEF_BLUECLASS( Tr2StateMachineTransition );
+BLUE_DECLARE_VECTOR( Tr2StateMachineTransition );
