@@ -61,7 +61,7 @@ void Tr2ActionAnimateValue::Unlink()
 
 void Tr2ActionAnimateValue::Start( Tr2Controller& controller )
 {
-	if( !m_evaluator.IsExpressionValid() || !m_destination.IsValid() )
+	if( !m_destination.IsValid() )
 	{
 		return;
 	}
@@ -80,7 +80,7 @@ void Tr2ActionAnimateValue::Stop( Tr2Controller& controller )
 
 void Tr2ActionAnimateValue::Update( Be::Time realTime, Be::Time simTime )
 {
-	if( !m_evaluator.IsExpressionValid() || !m_destination.IsValid() )
+	if( !m_destination.IsValid() )
 	{
 		return;
 	}

@@ -34,7 +34,7 @@ void Tr2ActionSetValue::Unlink()
 
 void Tr2ActionSetValue::Start( Tr2Controller& controller )
 {
-	if( !m_evaluator.IsExpressionValid() || !m_destination.IsValid() )
+	if( !m_destination.IsValid() )
 	{
 		return;
 	}
