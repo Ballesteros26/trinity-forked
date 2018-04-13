@@ -54,8 +54,14 @@
 EveSOF::EveSOF( IRoot* lockobj ) :
 	PARENTLOCK( m_dataMgr )
 {
-	// hard-coded depth only shader name
+	// hard-coded names
 	m_depthOnlyEffectName = BlueSharedString( "depthonlyv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecal::USAGE_STANDARD] = BlueSharedString( "decalv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecal::USAGE_KILLCOUNTER] = BlueSharedString( "decalcounterv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecal::USAGE_HOLE] = BlueSharedString( "decalholev5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecal::USAGE_CYLINDRICAL] = BlueSharedString( "decalcylindricalv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecal::USAGE_GLOWCYLINDRICAL] = BlueSharedString( "decalglowcylindricalv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecal::USAGE_GLOWSTANDARD] = BlueSharedString( "decalglowv5.fx" );
 
 	// pre-register some really needed vars in the global variable store
 	Tr2Variable var1( "DepthMap", (ITr2TextureProvider*)nullptr );

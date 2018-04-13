@@ -86,7 +86,7 @@ private:
 	Tr2EffectPtr m_hazeSetEffectSpherical, m_hazeSetEffectHalfSpherical;
 	Tr2EffectPtr m_spriteSetEffect;
 	Tr2EffectPtr m_shadowEffect, m_shadowEffectSkinned;
-	BlueSharedString m_depthOnlyEffectName;
+	BlueSharedString m_depthOnlyEffectName, m_decalsEffectName[EveSOFDataHullDecal::USAGE_MAX];
 };
 
 TYPEDEF_BLUECLASS( EveSOF );

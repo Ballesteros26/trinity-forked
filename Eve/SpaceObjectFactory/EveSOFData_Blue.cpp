@@ -733,9 +733,12 @@ BLUE_DEFINE( EveSOFDataHullDecal );
 
 Be::VarChooser EveSOFDecalUsageChooser[] =
 {
-	{	"Standard", BeCast( EveSOFDataHullDecal::USAGE_STANDARD ), "Standard decal" },
-	{	"KillCounter", BeCast( EveSOFDataHullDecal::USAGE_KILLCOUNTER ), "The killcounter decal" },
-	{	"Logo", BeCast( EveSOFDataHullDecal::USAGE_LOGO ), "tbd" },
+	{ "Standard", BeCast( EveSOFDataHullDecal::USAGE_STANDARD ), "Standard decal" },
+	{ "KillCounter", BeCast( EveSOFDataHullDecal::USAGE_KILLCOUNTER ), "The killcounter decal" },
+	{ "Hole", BeCast( EveSOFDataHullDecal::USAGE_HOLE ), "Hole decal" },
+	{ "Cylindrical", BeCast( EveSOFDataHullDecal::USAGE_CYLINDRICAL ), "Cylindrical decal" },
+	{ "GlowCylindrical", BeCast( EveSOFDataHullDecal::USAGE_GLOWCYLINDRICAL ), "Glow cylindrical decal" },
+	{ "Glow", BeCast( EveSOFDataHullDecal::USAGE_GLOWSTANDARD ), "Glow decal" },
 	{ 0 }
 };
 BLUE_REGISTER_ENUM_EX( "DecalUsage", EveSOFDataHullDecal::Usage, EveSOFDecalUsageChooser, ENUM_REG_ENUM_OBJECT_ON_MODULE );

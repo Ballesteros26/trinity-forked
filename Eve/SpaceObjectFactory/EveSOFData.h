@@ -684,7 +684,12 @@ public:
 	{
 		USAGE_STANDARD = 0,
 		USAGE_KILLCOUNTER,
-		USAGE_LOGO,
+		USAGE_HOLE,
+		USAGE_CYLINDRICAL,
+		USAGE_GLOWCYLINDRICAL,
+		USAGE_GLOWSTANDARD,
+
+		USAGE_MAX,
 	};
 
 	// per-hull data of a hull decal
