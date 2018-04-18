@@ -194,10 +194,12 @@ public:
 
 	struct HullDecalData
 	{
+		bool useLegacy;
 		EveSOFDataHullDecal::Usage usage;
 		Vector3 position;
 		Quaternion rotation;
 		Vector3 scaling;
+		uint32_t visibilityGroup;
 		int groupIndex;
 		int boneIndex;
 		int meshIndex;

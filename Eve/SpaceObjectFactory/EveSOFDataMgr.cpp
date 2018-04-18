@@ -657,6 +657,9 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		EveSOFDataHullDecalPtr hullDecal = (*hdit);
 
 		HullDecalData hdd;
+		hdd.useLegacy = hullDecal->m_useLegacy;
+		std::string visGroupName( hullDecal->m_visibilityGroup.c_str() );
+		hdd.visibilityGroup = CcpHashFNV1( visGroupName.c_str(), visGroupName.size() );
 		hdd.usage = hullDecal->m_usage;
 		hdd.position = hullDecal->m_position;
 		hdd.rotation = hullDecal->m_rotation;

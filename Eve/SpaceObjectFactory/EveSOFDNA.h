@@ -53,6 +53,7 @@ public:
 	// get generic data
 	const char* GetAreaShaderLocationResPath() const;
 	const char* GetDecalShaderLocationResPath() const;
+	uint32_t GetDecalShader() const;
 	const char* GetShaderPrefix( bool isAnimated ) const;
 	std::string GetCompleteShaderPath( const char* shaderPath ) const;
 	const EveSOFDataMgr::GenericShaderData* GetGenericAreaShaderData( const BlueSharedString& shaderName ) const;

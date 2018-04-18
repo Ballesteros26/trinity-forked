@@ -390,6 +390,15 @@ const char* EveSOFDNA::GetDecalShaderLocationResPath() const
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Return decal shader
+// --------------------------------------------------------------------------------
+uint32_t EveSOFDNA::GetDecalShader() const
+{
+	return 0;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Return the prefix string for every shader
 // --------------------------------------------------------------------------------
 const char* EveSOFDNA::GetShaderPrefix( bool isAnimated ) const

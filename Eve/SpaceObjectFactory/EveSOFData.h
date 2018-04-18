@@ -693,12 +693,14 @@ public:
 	};
 
 	// per-hull data of a hull decal
+	bool m_useLegacy;
 	std::string m_name;
 	Usage m_usage;
 	Vector3 m_position, m_scaling;
 	Quaternion m_rotation;
 	std::string m_shader;
 	int m_groupIndex, m_boneIndex, m_meshIndex;
+	BlueSharedString m_visibilityGroup;
 	EveSOFDataFactionColorSet::ColorType m_glowColorType;
 	PEveSOFDataTextureVector m_textures;
 	PEveSOFDataParameterVector m_parameters;
