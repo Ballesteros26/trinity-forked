@@ -33,6 +33,8 @@ const Be::ClassInfo* EveChildParticleSphere::ExposeToBlue()
 		MAP_ATTRIBUTE( "positionShift", m_positionShiftNormalized, "Sphere position shift length since the previous frame, normalized", Be::READ )
 		MAP_ATTRIBUTE( "positionShiftMax", m_positionShiftMax, "Value of sphere shift length for positionShift to be 1", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "positionShiftMin", m_positionShiftMin, "Value of sphere shift length for positionShift to be 0", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "positionShiftIncreaseSpeed", m_positionShiftIncreaseSpeed, "Normalized position shift increase speed", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "positionShiftDecreaseSpeed", m_positionShiftDecreaseSpeed, "Normalized position shift decrease speed", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "useSpaceObjectData", m_useSpaceObjectData, "", Be::READWRITE | Be::PERSIST )
 

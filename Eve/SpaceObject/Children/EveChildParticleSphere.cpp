@@ -62,6 +62,8 @@ EveChildParticleSphere::EveChildParticleSphere( IRoot* lockobj )
 	m_positionShiftMax( 0 ),
 	m_positionShiftMin( 100 ),
 	m_positionShiftNormalized( 0 ),
+	m_positionShiftIncreaseSpeed( 1000.f ),
+	m_positionShiftDecreaseSpeed( 1000.f ),
 	m_positionElement(),
 	m_velocityElement(),
 	m_lifetimeElement(),
@@ -215,7 +217,15 @@ void EveChildParticleSphere::Update( const EveUpdateContext& updateContext )
 
 		auto shift = Length( TransformCoord( m_previousOrigin, worldInv ) );
 		m_positionShift = shift;
-		m_positionShiftNormalized = std::min( std::max( ( m_positionShift - m_positionShiftMin ) / ( m_positionShiftMax - m_positionShiftMin ), 0.f ), 1.f );
+		auto positionShiftNormalized = std::min( std::max( ( m_positionShift - m_positionShiftMin ) / ( m_positionShiftMax - m_positionShiftMin ), 0.f ), 1.f );
+		if( positionShiftNormalized < m_positionShiftNormalized )
+		{
+			m_positionShiftNormalized = std::max( positionShiftNormalized, m_positionShiftNormalized - std::max( 0.f, delta * m_positionShiftDecreaseSpeed ) );
+		}
+		else
+		{
+			m_positionShiftNormalized = std::min( positionShiftNormalized, m_positionShiftNormalized + std::max( 0.f, delta * m_positionShiftIncreaseSpeed ) );
+		}
 
 		ApplyConstraint( previousReferencePosition, Normalize( m_egoVelocity ) );
 		AddParticles( previousReferencePosition, Normalize( m_egoVelocity ) );

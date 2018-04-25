@@ -101,6 +101,9 @@ private:
 	float m_positionShiftMin;
 	float m_positionShiftNormalized;
 
+	float m_positionShiftIncreaseSpeed;
+	float m_positionShiftDecreaseSpeed;
+
 	bool m_useSpaceObjectData;
 	bool m_display;
 };
