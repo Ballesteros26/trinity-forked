@@ -232,6 +232,15 @@ void EveChildParticleSphere::Update( const EveUpdateContext& updateContext )
 	}
 
 	m_previousOrigin = m_worldTransform.GetTranslation();
+
+	if( m_particleSystem )
+	{
+		m_particleSystem->Update( ITr2GenericEmitter::UpdateArguments(
+			updateContext.GetTime(),
+			updateContext.GetGpuParticleSystem(),
+			IdentityMatrix(),
+			updateContext.GetOriginShift() ) );
+	}
 }
 
 // -----------------------------------------------------------------------------

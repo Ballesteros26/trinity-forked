@@ -375,13 +375,6 @@ void EveSpaceScene::Update( Be::Time realTime, Be::Time simTime )
 	// every space scene has a reference position
 	Vector3d sceneReferencePoint = m_updateContext.GetOrigin();
 
-	ITr2GenericEmitter::UpdateArguments args( 
-		m_updateContext.GetTime(), 
-		m_updateContext.GetGpuParticleSystem(), 
-		IdentityMatrix(),
-		m_updateContext.GetOriginShift() );
-	Tr2ParticleSystem::UpdateAllSystems( args );
-
 	m_updateTime = simTime;
 }
 

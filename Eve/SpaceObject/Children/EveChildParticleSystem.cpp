@@ -233,6 +233,18 @@ void EveChildParticleSystem::UpdateAsyncronous( EveUpdateContext& updateContext,
 			(*it)->Update( args );
 		}
 	}
+	if( !m_particleSystems.empty() )
+	{
+		ITr2GenericEmitter::UpdateArguments args(
+			updateContext.GetTime(),
+			updateContext.GetGpuParticleSystem(),
+			IdentityMatrix(),
+			updateContext.GetOriginShift() );
+		for( auto it = m_particleSystems.begin(); it != m_particleSystems.end(); ++it )
+		{
+			( *it )->Update( args );
+		}
+	}
 }
 
 // --------------------------------------------------------------------------------

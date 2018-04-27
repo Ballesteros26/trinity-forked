@@ -111,6 +111,7 @@ public:
 	unsigned GetOriginalMaxParticles() { return m_originalMaxParticles; };
 
 	static void UpdateAllSystems( const ITr2GenericEmitter::UpdateArguments& arguments );
+	void Update( const ITr2GenericEmitter::UpdateArguments& arguments );
 
 	template <typename Constraint>
 	void ApplyConstraint( const Constraint& constraint )
@@ -158,7 +159,6 @@ public:
 		return float( r ) / float( 0x7FFFFFFF );
 	}
 private:
-	void Update( const ITr2GenericEmitter::UpdateArguments& arguments );
 	void UpdateSimulation( const ITr2GenericEmitter::UpdateArguments& arguments, float dt );
 	void UpdateSimulationScript( float dt ) { UpdateSimulation( ITr2GenericEmitter::UpdateArguments(), dt ); }
 	void BuildBuffers();
