@@ -173,14 +173,14 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_primaryBatches[TRIBATCHTYPE_OPAQUE] = CCP_NEW( "EveSpaceScene/m_batches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
 	m_primaryBatches[TRIBATCHTYPE_DECAL] = CCP_NEW( "EveSpaceScene/m_decalBatches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
 	m_primaryBatches[TRIBATCHTYPE_ADDITIVE] = CCP_NEW( "EveSpaceScene/m_additiveBatches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
-	m_primaryBatches[TRIBATCHTYPE_DISTORTION] = CCP_NEW( "EveSpaceScene/m_distortionBatches" ) TriRenderBatchAccumulator<>( allocator );
+	m_primaryBatches[TRIBATCHTYPE_DISTORTION] = CCP_NEW( "EveSpaceScene/m_distortionBatches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
 	m_primaryBatches[TRIBATCHTYPE_TRANSPARENT] = CCP_NEW( "EveSpaceScene/m_sortedBatches" ) TriRenderBatchAccumulator<>( allocator );
 	m_primaryBatches[TRIBATCHTYPE_DEPTH] = CCP_NEW( "EveSpaceScene/m_depthBatches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
 
 	m_secondaryBatches[TRIBATCHTYPE_OPAQUE] = CCP_NEW( "EveSpaceScene/m_batches2" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
 	m_secondaryBatches[TRIBATCHTYPE_DECAL] = CCP_NEW( "EveSpaceScene/m_decalBatches2" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
 	m_secondaryBatches[TRIBATCHTYPE_ADDITIVE] = CCP_NEW( "EveSpaceScene/m_additiveBatches2" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
-	m_secondaryBatches[TRIBATCHTYPE_DISTORTION] = CCP_NEW( "EveSpaceScene/m_distortionBatches2" ) TriRenderBatchAccumulator<>( allocator );
+	m_secondaryBatches[TRIBATCHTYPE_DISTORTION] = CCP_NEW( "EveSpaceScene/m_distortionBatches2" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
 	m_secondaryBatches[TRIBATCHTYPE_TRANSPARENT] = CCP_NEW( "EveSpaceScene/m_sortedBatches2" ) TriRenderBatchAccumulator<>( allocator );
 	m_secondaryBatches[TRIBATCHTYPE_DEPTH] = CCP_NEW( "EveSpaceScene/m_depthBatches2" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
 
