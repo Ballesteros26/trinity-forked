@@ -27,6 +27,7 @@
     <Filter Include="Source Files\Particle" />
     <Filter Include="Source Files\RenderJob" />
     <Filter Include="Source Files\Resources" />
+    <Filter Include="Source Files\Resources\TexturePipeline" />
     <Filter Include="Source Files\Shader" />
     <Filter Include="Source Files\Shader\Parameter" />
     <Filter Include="Source Files\Shader\Utils" />
@@ -1247,6 +1248,27 @@
     </ClInclude>
     <ClInclude Include="Resources\TriTextureRes.h">
       <Filter>Source Files\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\TexturePipeline\ITr2TexturePipelineStep.h">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\TexturePipeline\Tr2TexturePipeline.h">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\TexturePipeline\Tr2TexturePipelineStepCompress.h">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\TexturePipeline\Tr2TexturePipelineStepGenerateMips.h">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\TexturePipeline\Tr2TexturePipelineStepLimitSize.h">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\TexturePipeline\Tr2TexturePipelineStepLoad.h">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources\TexturePipeline\Tr2TexturePipelineStepPack.h">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
     </ClInclude>
     <ClInclude Include="Shader\Tr2Effect.h">
       <Filter>Source Files\Shader</Filter>
@@ -3269,6 +3291,42 @@
     </ClCompile>
     <ClCompile Include="Resources\TriTextureRes_Blue.cpp">
       <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipeline.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipelineStepCompress.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipelineStepCompress_Blue.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipelineStepGenerateMips.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipelineStepGenerateMips_Blue.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipelineStepLimitSize.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipelineStepLimitSize_Blue.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipelineStepLoad.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipelineStepLoad_Blue.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipelineStepPack.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipelineStepPack_Blue.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\TexturePipeline\Tr2TexturePipeline_Blue.cpp">
+      <Filter>Source Files\Resources\TexturePipeline</Filter>
     </ClCompile>
     <ClCompile Include="Shader\Tr2Effect.cpp">
       <Filter>Source Files\Shader</Filter>
