@@ -52,6 +52,7 @@ public:
 	virtual Vector3* GetValueDoubleDotAt( Vector3* in, double time );
 	virtual Vector3d* InterpolatedPosition( Vector3d* out, Be::Time time );
 
+	void ResetRandomConstant();
 private:
 	std::string m_name;
 	std::string m_expressions[3];

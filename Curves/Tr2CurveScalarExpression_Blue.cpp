@@ -71,5 +71,13 @@ const Be::ClassInfo* Tr2CurveScalarExpression::ExposeToBlue()
 			":param time: input time"
 		)
 
+		MAP_METHOD_AND_WRAP(
+			"ResetRandomConstant",
+			ResetRandomConstant,
+			"Resets curve random constant to a new random value\n"
+			":jessica-favorite:\n"
+			":jessica-icon: timeline/refreshrandom.png"
+		)
+
 	EXPOSURE_END()
 }

@@ -52,6 +52,7 @@ public:
 	virtual Quaternion* GetValueDoubleDotAt( Quaternion* in, Be::Time time );
 	virtual Quaternion* GetValueDoubleDotAt( Quaternion* in, double time );
 
+	void ResetRandomConstant();
 private:
 	std::string m_name;
 	std::string m_expressions[3];

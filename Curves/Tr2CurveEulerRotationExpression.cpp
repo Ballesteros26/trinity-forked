@@ -303,3 +303,9 @@ Quaternion* Tr2CurveEulerRotationExpression::GetValueDoubleDotAt( Quaternion* in
 {
 	return in;
 }
+
+// --------------------------------------------------------------------------------
+void Tr2CurveEulerRotationExpression::ResetRandomConstant()
+{
+	m_randomConstant = float( rand() ) / RAND_MAX;
+}

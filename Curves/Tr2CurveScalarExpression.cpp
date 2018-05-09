@@ -232,3 +232,9 @@ float Tr2CurveScalarExpression::GetRandomConstant() const
 		return m_randomConstant;
 	}
 }
+
+// --------------------------------------------------------------------------------
+void Tr2CurveScalarExpression::ResetRandomConstant()
+{
+	m_randomConstant = float( rand() ) / RAND_MAX;
+}

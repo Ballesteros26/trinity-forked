@@ -349,3 +349,9 @@ Vector3d* Tr2CurveVector3Expression::InterpolatedPosition( Vector3d* out, Be::Ti
 {
 	return out;
 }
+
+// --------------------------------------------------------------------------------
+void Tr2CurveVector3Expression::ResetRandomConstant()
+{
+	m_randomConstant = float( rand() ) / RAND_MAX;
+}

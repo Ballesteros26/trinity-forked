@@ -36,6 +36,8 @@ public:
 	float GetRandomConstant() const;
 	float GetInputValue( int index ) const;
 	float GetInputValue( int index, float time ) const;
+
+	void ResetRandomConstant();
 private:
 	std::string m_name;
 	std::string m_expression;
