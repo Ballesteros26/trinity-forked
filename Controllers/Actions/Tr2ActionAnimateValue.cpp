@@ -149,6 +149,7 @@ std::vector<Tr2ExpressionTermInfoPtr> Tr2ActionAnimateValue::GetExpressionTermIn
 {
 	std::vector<Tr2ExpressionTermInfoPtr> result;
 	m_evaluator.GetExpressionTermInfo( result );
+	result.push_back( Tr2ExpressionTermInfo::Function( "Controller", "Curve", "x", "action curve value at time x" ) );
 
 	if( m_controller )
 	{
