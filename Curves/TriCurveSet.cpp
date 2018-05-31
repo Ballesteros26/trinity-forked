@@ -179,6 +179,7 @@ void TriCurveSet::PlayTimeRange( const char* name )
 			return;
 		}
 	}
+	Stop();
 }
 
 void TriCurveSet::PlayFrom( double time )

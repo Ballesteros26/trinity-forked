@@ -14,7 +14,7 @@ BLUE_DECLARE_IVECTOR( ITriFunction );
 BLUE_DECLARE_IVECTOR( ITr2ValueBinding );
 
 
-BLUE_CLASS( Tr2CurveSetRange )
+BLUE_CLASS( Tr2CurveSetRange ): public IRoot
 {
 public:
 	EXPOSE_TO_BLUE();
