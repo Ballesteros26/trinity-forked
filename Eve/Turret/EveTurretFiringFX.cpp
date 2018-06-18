@@ -12,6 +12,10 @@
 // invalids
 const unsigned int INVALID_BONE_INDEX = 0xffffffff;
 const unsigned int INVALID_TURRET_INDEX = 0xffffffff;
+namespace
+{
+	const float LOD_ANGLE_FACTOR = 0.002f;
+}
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -457,6 +461,70 @@ void EveTurretFiringFX::UpdateVisibility( const TriFrustum& frustum )
 			if ( m_firingDuration >= m_perMuzzleData[i].elapsedTime || m_isLoopFiring )
 			{
 				m_stretch[i]->UpdateVisibility( frustum, m );
+			}
+		}
+	}
+
+	float totalIntensity = 1.f;
+	bool canMerge = true;
+	Vector3 center( 0, 0, 0 );
+	int count = 0;
+	for( unsigned int i = 0; i < m_stretch.size(); ++i )
+	{
+		if( m_perMuzzleData[i].elapsedTime < m_firingDuration || m_isLoopFiring )
+		{
+			if( m_perMuzzleData[i].started )
+			{
+				if( m_useMuzzleTransform && ( m_perMuzzleData[i].muzzlePositionBoneID != INVALID_BONE_INDEX ) )
+				{
+					canMerge = false;
+					break;
+				}
+				center += m_perMuzzleData[i].muzzleTransform.GetTranslation();
+				++count;
+			}
+		}
+	}
+
+	if( canMerge && count > 1 )
+	{
+		totalIntensity = float( count );
+		center /= float( count );
+		float radius = 0;
+		for( unsigned int i = 0; i < m_stretch.size(); ++i )
+		{
+			if( m_perMuzzleData[i].elapsedTime < m_firingDuration || m_isLoopFiring )
+			{
+				if( m_perMuzzleData[i].started )
+				{
+					radius = std::max( radius, Length( center - m_perMuzzleData[i].muzzleTransform.GetTranslation() ) );
+				}
+			}
+		}
+
+		float distance = Length( frustum.m_viewPos - center );
+		auto angle = atan( radius * 2 / ( distance + 1 ) );
+		auto lodAngle = frustum.m_fov * LOD_ANGLE_FACTOR;
+		float merge;
+		if( angle <= lodAngle )
+		{
+			merge = 0;
+		}
+		else
+		{
+			merge = std::min( ( angle - lodAngle ) / lodAngle, 1.f );
+		}
+		auto lerp = []( float a, float b, float x ) -> float { return a + ( b - a ) * x; };
+		bool first = true;
+		for( unsigned int i = 0; i < m_stretch.size(); ++i )
+		{
+			if( m_perMuzzleData[i].elapsedTime < m_firingDuration || m_isLoopFiring )
+			{
+				if( m_perMuzzleData[i].started )
+				{
+					m_stretch[i]->SetIntensity( first ? lerp( totalIntensity, 1, merge ) : lerp( 0, 1, merge ) );
+					first = false;
+				}
 			}
 		}
 	}

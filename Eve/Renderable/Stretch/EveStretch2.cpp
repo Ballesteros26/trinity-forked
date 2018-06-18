@@ -63,9 +63,10 @@ EveStretch2::EveStretch2( IRoot* lockObj )
 	m_quadCount( 0 ),
 	m_vertexDeclHandle( Tr2EffectStateManager::UNINITIALIZED_DECLARATION ),
 	m_startTime( 0 ),
-	m_effectData( 0, 0, 0, float( rand() ) / RAND_MAX )
+	m_intensity( 1 )
 {
-
+	m_effectData[0] = Vector4( 0, 0, 0, float( rand() ) / RAND_MAX );
+	m_effectData[0] = Vector4( 1, 0, 0, 0 );
 }
 
 bool EveStretch2::Initialize()
@@ -111,7 +112,7 @@ float EveStretch2::GetCurveDuration()
 
 void EveStretch2::StartFiring( float delay )
 {
-	m_effectData.w = float( rand() ) / RAND_MAX;
+	m_effectData[0].w = float( rand() ) / RAND_MAX;
 	if( m_start )
 	{
 		m_start->PlayFrom( -delay );
@@ -159,6 +160,11 @@ void EveStretch2::DisplayEndPoints( bool displaySource, bool displayDest )
 	m_currentDestinationScale = displayDest ? m_destinationScale : 0;
 }
 
+void EveStretch2::SetIntensity( float intensity )
+{
+	m_intensity = intensity;
+}
+
 void EveStretch2::Update(EveUpdateContext& updateContext)
 {
 	Be::Time time = updateContext.GetTime();
@@ -166,21 +172,21 @@ void EveStretch2::Update(EveUpdateContext& updateContext)
 	{
 		m_startTime = time;
 	}
-	m_effectData.x = m_effectData.y = m_effectData.z = 0;
+	m_effectData[0].x = m_effectData[0].y = m_effectData[0].z = 0;
 	if( m_start )
 	{
 		m_start->Update( TimeAsDouble( time - m_startTime ) );
-		m_effectData.x = float( m_start->GetScaledTime() );
+		m_effectData[0].x = float( m_start->GetScaledTime() );
 	}
 	if( m_loop )
 	{
 		m_loop->Update( TimeAsDouble( time - m_startTime ) );
-		m_effectData.y = float( m_loop->GetScaledTime() );
+		m_effectData[0].y = float( m_loop->GetScaledTime() );
 	}
 	if( m_end )
 	{
 		m_end->Update( TimeAsDouble( time - m_startTime ) );
-		m_effectData.z = float( m_end->GetScaledTime() );
+		m_effectData[0].z = float( m_end->GetScaledTime() );
 	}
 
 	Matrix src, dest;
@@ -220,21 +226,21 @@ void EveStretch2::UpdateInactive( EveUpdateContext& updateContext )
 	{
 		m_startTime = time;
 	}
-	m_effectData.x = m_effectData.y = m_effectData.z = 0;
+	m_effectData[0].x = m_effectData[0].y = m_effectData[0].z = 0;
 	if( m_start )
 	{
 		m_start->Update( TimeAsDouble( time - m_startTime ) );
-		m_effectData.x = float( m_start->GetScaledTime() );
+		m_effectData[0].x = float( m_start->GetScaledTime() );
 	}
 	if( m_loop )
 	{
 		m_loop->Update( TimeAsDouble( time - m_startTime ) );
-		m_effectData.y = float( m_loop->GetScaledTime() );
+		m_effectData[0].y = float( m_loop->GetScaledTime() );
 	}
 	if( m_end )
 	{
 		m_end->Update( TimeAsDouble( time - m_startTime ) );
-		m_effectData.z = float( m_end->GetScaledTime() );
+		m_effectData[0].z = float( m_end->GetScaledTime() );
 	}
 
 	Matrix src, dest;
@@ -287,7 +293,7 @@ void EveStretch2::UpdateVisibility( const TriFrustum& frustum, const Matrix& par
 
 void EveStretch2::GetRenderables( std::vector<ITr2Renderable*>& renderables )
 {
-	if( m_visible )
+	if( m_visible && m_intensity > 0 )
 	{
 		renderables.push_back( this );
 	}
@@ -299,8 +305,9 @@ Tr2PerObjectData* EveStretch2::GetPerObjectData( ITriRenderBatchAccumulator* acc
 	auto data = accumulator->Allocate<StretchPerObjectData>();
 	if( data )
 	{
+		m_effectData[1].x = m_intensity;
 		data->m_data = &m_source;
-		data->m_size = 3 * sizeof( Vector4 );
+		data->m_size = 4 * sizeof( Vector4 );
 	}
 	return data;
 }

@@ -49,6 +49,7 @@ public:
 	virtual void SetFiringTransform( const Matrix& source, const Vector3& dest );
 	virtual void SetFiringTransform( const Vector3& source, const Vector3& dest );
 	virtual void DisplayEndPoints( bool displaySource, bool displayDest );
+	virtual void SetIntensity( float intensity );
 
 	virtual void Update( EveUpdateContext& updateContext );
 	virtual void UpdateInactive( EveUpdateContext& updateContext );
@@ -92,11 +93,12 @@ private:
 	float m_currentDestinationScale;
 	Vector3 m_destination;
 	float m_destinationScale;
-	Vector4 m_effectData;
+	Vector4 m_effectData[2];
 
 	uint32_t m_quadCount;
 	Tr2BufferAL m_vb;
 	unsigned int m_vertexDeclHandle;
+	float m_intensity;
 
 	bool m_visible;
 };
