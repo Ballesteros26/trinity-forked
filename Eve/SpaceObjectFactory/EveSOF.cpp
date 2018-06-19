@@ -1843,6 +1843,13 @@ void EveSOF::SetupDecalSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 				std::string shaderPath = dna->GetDecalShaderLocationResPath() + std::string( "/" ) + dna->GetShaderPrefix( false ) + m_decalsEffectName[hdsiit->usage].c_str();
 				shader->SetEffectPathName( shaderPath.c_str() );
 
+				// Set the glow color based on the factional glow colors
+				if( hdsiit->usage == EveSOFDataHullDecal::USAGE_GLOWSTANDARD || hdsiit->usage == EveSOFDataHullDecal::USAGE_GLOWCYLINDRICAL )
+				{
+					Color decalGlowColor = dna->GetColorSet()[hdsiit->glowColorType];
+					shader->AddParameterColor( BlueSharedString( "DecalGlowColor" ), &decalGlowColor );
+				}
+
 				// always set hull parameters & textures for this decal
 				for( auto hdpit = hdsiit->parameters.begin(); hdpit != hdsiit->parameters.end(); ++hdpit )
 				{
