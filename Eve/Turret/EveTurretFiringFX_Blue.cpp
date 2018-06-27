@@ -53,6 +53,23 @@ const Be::ClassInfo* EveTurretFiringFX::ExposeToBlue()
 		MAP_ATTRIBUTE( "minScale", m_minScale, "Used for scaling the firing effect", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "maxScale", m_maxScale, "Used for scaling the firing effect", Be::READWRITE | Be::PERSIST )
 
+		MAP_ATTRIBUTE( "startCurveSet", m_startCurveSet, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "stopCurveSet", m_stopCurveSet, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE
+		(
+			"sourceObserver",
+			m_sourceObserver,
+			"Observer at the source position",
+			Be::READWRITE | Be::PERSIST
+		)
+		MAP_ATTRIBUTE
+		(
+			"destinationObserver",
+			m_destinationObserver,
+			"Observer at the destination position",
+			Be::READWRITE | Be::PERSIST
+		)
+
 		MAP_METHOD_AND_WRAP(
 			"GetPerMuzzleEffectCount",
 			GetPerMuzzleEffectCount,

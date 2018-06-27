@@ -300,7 +300,16 @@ void EveTurretFiringFX::StartMuzzleEffect( int muzzleID )
 {
 	// fire!
 	auto stretchEffect = m_stretch[ muzzleID ];
-	stretchEffect->StartFiring( m_perMuzzleData[muzzleID].currentStartDelay );
+	auto delay = m_perMuzzleData[muzzleID].currentStartDelay;
+	stretchEffect->StartFiring( delay );
+	if( m_startCurveSet )
+	{
+		m_startCurveSet->PlayFrom( -delay );
+	}
+	if( m_stopCurveSet )
+	{
+		m_stopCurveSet->Stop();
+	}
 
 	// set this effect to started
 	m_perMuzzleData[ muzzleID ].started = true;
@@ -330,6 +339,15 @@ void EveTurretFiringFX::StopFiring()
 		m_perMuzzleData[ m ].readyToStart = false;
 		m_perMuzzleData[ m ].currentStartDelay = 0.f;
 		m_perMuzzleData[ m ].elapsedTime = 0.f;
+	}
+
+	if( m_startCurveSet )
+	{
+		m_startCurveSet->Stop();
+	}
+	if( m_stopCurveSet )
+	{
+		m_stopCurveSet->Play();
 	}
 	// no longer firing
 	m_isFiring = false;
@@ -441,6 +459,28 @@ bool EveTurretFiringFX::Update( EveUpdateContext& updateContext )
 				stretchEffect->UpdateInactive( updateContext );
 			}
 		}
+	}
+	if( m_isFiring )
+	{
+		if( m_startCurveSet )
+		{
+			m_startCurveSet->Update( updateContext.GetTime(), updateContext.GetTime() );
+		}
+	}
+	else
+	{
+		if( m_stopCurveSet )
+		{
+			m_stopCurveSet->Update( updateContext.GetTime(), updateContext.GetTime() );
+		}
+	}
+	if( m_sourceObserver )
+	{
+		m_sourceObserver->Update( m_perMuzzleData[0].muzzleTransform );
+	}
+	if( m_destinationObserver )
+	{
+		m_destinationObserver->Update( TranslationMatrix( m_endPosition ) );
 	}
 
 	return retVal;

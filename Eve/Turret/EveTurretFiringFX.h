@@ -13,6 +13,8 @@
 // forwards
 BLUE_DECLARE_INTERFACE( IEveFiringEffectElement );
 BLUE_DECLARE_IVECTOR( IEveFiringEffectElement );
+BLUE_DECLARE( TriCurveSet );
+BLUE_DECLARE( TriObserverLocal );
 class EveUpdateContext;
 class Tr2LightManager;
 
@@ -153,6 +155,10 @@ private:
 
 	// vector of stretch effect
 	PIEveFiringEffectElementVector m_stretch;
+	TriCurveSetPtr m_startCurveSet;
+	TriCurveSetPtr m_stopCurveSet;
+	TriObserverLocalPtr m_sourceObserver;
+	TriObserverLocalPtr m_destinationObserver;
 };
 
 TYPEDEF_BLUECLASS( EveTurretFiringFX );
