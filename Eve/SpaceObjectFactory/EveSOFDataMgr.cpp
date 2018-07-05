@@ -494,6 +494,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 			hbid.hasTrail = boosterItemData->m_hasTrail;
 			hbid.atlasIndex0 = boosterItemData->m_atlasIndex0;
 			hbid.atlasIndex1 = boosterItemData->m_atlasIndex1;
+			hbid.lightScale = boosterItemData->m_lightScale;
 
 			hbd.items.push_back( hbid );
 		}

@@ -472,7 +472,8 @@ const Be::ClassInfo* EveSOFDataHullBoosterItem::ExposeToBlue()
 		MAP_ATTRIBUTE( "hasTrail", m_hasTrail, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "atlasIndex0", m_atlasIndex0, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "atlasIndex1", m_atlasIndex1, "", Be::READWRITE | Be::PERSIST )
-    EXPOSURE_END()
+		MAP_ATTRIBUTE( "lightScale", m_lightScale, "", Be::READWRITE | Be::PERSIST )
+	EXPOSURE_END()
 }
 
 

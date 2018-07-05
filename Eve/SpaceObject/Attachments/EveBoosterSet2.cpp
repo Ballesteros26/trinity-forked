@@ -815,19 +815,7 @@ void EveBoosterSet2::Clear()
 }
 
 // --------------------------------------------------------------------------------
-// Description:
-//   Add a new individual booster to this at a specific position/orientation.
-//   First we add it to the internal booster list and then we must update the
-//   lensflares handled in the EveSpriteSet.
-//   Also add a trail and keep track of the biggest size
-// Arguments:
-//   localMatrix - position/orientation of booster in object-space
-//   parentLocatorName - name of the ship's locator this new booster belongs to
-//   hasTrail - does this new booster have a trail?
-// SeeAlso:
-//   EveSpriteSet
-// --------------------------------------------------------------------------------
-void EveBoosterSet2::Add( const Matrix* localMatrix, const Vector4* functionality, bool hasTrail, uint32_t atlasIndex0, uint32_t atlasIndex1 )
+void EveBoosterSet2::Add( const Matrix* localMatrix, const Vector4* functionality, bool hasTrail, uint32_t atlasIndex0, uint32_t atlasIndex1, float lightScale )
 {
 	// keep it in our list of boosters
 	SingleBoosterData sbd;
@@ -835,7 +823,7 @@ void EveBoosterSet2::Add( const Matrix* localMatrix, const Vector4* functionalit
 	sbd.functionality = *functionality;
 	Vector3 lightOffset( 0.f, 0.f, -m_lightOffset );
 	sbd.lightPosition = TransformCoord( lightOffset, *localMatrix );
-	sbd.lightRadius = std::max( Length( localMatrix->GetX() ), Length( localMatrix->GetY() ) );
+	sbd.lightRadius = std::max( Length( localMatrix->GetX() ), Length( localMatrix->GetY() ) ) * lightScale;
 	sbd.lightPhase = float( g_lightNoiseSize ) * float( rand() ) / float( RAND_MAX );
 	sbd.atlasIndex0 = atlasIndex0;
 	sbd.atlasIndex1 = atlasIndex1;

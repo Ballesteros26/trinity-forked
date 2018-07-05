@@ -1650,7 +1650,7 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 			locator->SetTransform( m );
 
 			ship->AddLocator( locator );
-			set->Add( &m, &biit->functionality, biit->hasTrail, biit->atlasIndex0, biit->atlasIndex1 );
+			set->Add( &m, &biit->functionality, biit->hasTrail, biit->atlasIndex0, biit->atlasIndex1, biit->lightScale );
 		}
 		glow->Rebuild();
 

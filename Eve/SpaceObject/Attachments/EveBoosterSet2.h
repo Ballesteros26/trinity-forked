@@ -225,7 +225,7 @@ public:
 	void UpdateTrails( float deltaT, Be::Time t );
 	// manage individual exhaust points
 	void Clear();
-	void Add( const Matrix* localMatrix, const Vector4* functionality, bool hasTrail, uint32_t atlasIndex0, uint32_t atlasIndex1 );
+	void Add( const Matrix* localMatrix, const Vector4* functionality, bool hasTrail, uint32_t atlasIndex0, uint32_t atlasIndex1, float lightScale = 1 );
 	// set internal visual data
 	void SetData( 
 		float glowScale, 

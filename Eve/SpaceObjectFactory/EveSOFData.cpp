@@ -541,6 +541,7 @@ EveSOFDataHullBoosterItem::EveSOFDataHullBoosterItem( IRoot* lockobj ) :
 	m_hasTrail( true ),
 	m_atlasIndex0( 0 ),
 	m_atlasIndex1( 0 ),
+	m_lightScale( 1 ),
 	m_transform( IdentityMatrix() )
 {
 }

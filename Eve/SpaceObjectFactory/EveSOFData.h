@@ -576,6 +576,7 @@ public:
 	Vector4 m_functionality;
 	uint32_t m_atlasIndex0;
 	uint32_t m_atlasIndex1;
+	float m_lightScale;
 	bool m_hasTrail;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullBoosterItem );

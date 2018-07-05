@@ -85,6 +85,7 @@ public:
 		Vector4 functionality;
 		uint32_t atlasIndex0;
 		uint32_t atlasIndex1;
+		float lightScale;
 		bool hasTrail;
 	};
 
