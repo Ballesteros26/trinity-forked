@@ -1242,6 +1242,9 @@
     <ClInclude Include="Resources\Tr2AsyncSave.h">
       <Filter>Source Files\Resources</Filter>
     </ClInclude>
+    <ClInclude Include="Resources\Tr2CairoScriptSourceRes.h">
+      <Filter>Source Files\Resources</Filter>
+    </ClInclude>
     <ClInclude Include="Resources\Tr2EffectRes.h">
       <Filter>Source Files\Resources</Filter>
     </ClInclude>
@@ -3280,6 +3283,12 @@
       <Filter>Source Files\RenderJob</Filter>
     </ClCompile>
     <ClCompile Include="Resources\Tr2AsyncSave.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\Tr2CairoScriptSourceRes.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\Tr2CairoScriptSourceRes_Blue.cpp">
       <Filter>Source Files\Resources</Filter>
     </ClCompile>
     <ClCompile Include="Resources\Tr2EffectRes.cpp">
