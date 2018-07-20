@@ -178,7 +178,6 @@ cairo_t* ContextCreate( void *closure, cairo_surface_t *surface )
 	{
 		cairo_set_antialias( context, CAIRO_ANTIALIAS_BEST );
 		cairo_translate( context, data->source->translation.x, data->source->translation.y );
-		cairo_translate( context, data->originalWidth / 2, data->originalHeight / 2 );
 		cairo_rotate( context, data->source->rotation );
 		cairo_scale( context, data->source->scale, data->source->scale );
 		cairo_translate( context, -data->originalWidth / 2, -data->originalHeight / 2 );
@@ -227,6 +226,52 @@ const BlueAsyncRes::QueryArgument* FindFirstQueryArgumentByName( const BlueAsync
 		}
 	}
 	return nullptr;
+}
+
+void CopyCairoSurfaceToBitmap( ImageIO::HostBitmap& bitmap, CairoData& data, const Tr2ImageIOHelpers::RasterizationOptions& options )
+{
+	auto src = cairo_image_surface_get_data( data.surface );
+	auto srcStride = cairo_image_surface_get_stride( data.surface );
+	auto dest = reinterpret_cast<uint8_t*>( bitmap.GetRawData() );
+	auto destStride = bitmap.GetPitch();
+
+	if( options.premultipliedAlpha )
+	{
+		for( uint32_t j = 0; j < data.height; ++j )
+		{
+			memcpy( dest, src, 4 * data.width );
+			src += srcStride;
+			dest += destStride;
+		}
+	}
+	else
+	{
+		// we need to convert cairo's premultiplied alpha image to non-premultiplied alpha
+		for( uint32_t j = 0; j < data.height; ++j )
+		{
+			for( uint32_t i = 0; i < data.width; ++i )
+			{
+				float a = float( src[3] ) / 255.f;
+				if( a )
+				{
+					dest[0] = uint8_t( src[0] / a );
+					dest[1] = uint8_t( src[1] / a );
+					dest[2] = uint8_t( src[2] / a );
+				}
+				else
+				{
+					dest[0] = src[0];
+					dest[1] = src[1];
+					dest[2] = src[2];
+				}
+				dest[3] = src[3];
+				dest += 4;
+				src += 4;
+			}
+			src += srcStride - data.width * 4;
+			dest += destStride - data.width * 4;
+		}
+	}
 }
 
 }
@@ -493,7 +538,7 @@ bool IsCairoScriptPath( const wchar_t* path )
         ( ext[3] == L's' || ext[3] == L'S' );
 }
 
-bool RasterizeCairoScripts( const std::vector<CairoScript>& scripts, uint32_t width, uint32_t height, ImageIO::HostBitmap& bitmap )
+bool RasterizeCairoScripts( ImageIO::HostBitmap& bitmap, const std::vector<CairoScript>& scripts, uint32_t width, uint32_t height, const RasterizationOptions& options )
 {
 	std::unique_ptr<CairoData> data( new CairoData );
 	data->surface = nullptr;
@@ -529,36 +574,7 @@ bool RasterizeCairoScripts( const std::vector<CairoScript>& scripts, uint32_t wi
 		if( bitmap.Create( data->width, data->height, 1, Tr2RenderContextEnum::PIXEL_FORMAT_B8G8R8A8_UNORM ) )
 		{
 			cairo_surface_flush( data->surface );
-			auto src = cairo_image_surface_get_data( data->surface );
-			auto srcStride = cairo_image_surface_get_stride( data->surface );
-			auto dest = reinterpret_cast<uint8_t*>( bitmap.GetRawData() );
-			auto destStride = bitmap.GetPitch();
-
-			// we need to convert cairo's premultiplied alpha image to non-premultiplied alpha
-			for( uint32_t j = 0; j < data->height; ++j )
-			{
-				for( uint32_t i = 0; i < data->width; ++i )
-				{
-					float a = float( src[3] ) / 255.f;
-					if( a )
-					{
-						dest[0] = uint8_t( src[0] / a );
-						dest[1] = uint8_t( src[1] / a );
-						dest[2] = uint8_t( src[2] / a );
-					}
-					else
-					{
-						dest[0] = src[0];
-						dest[1] = src[1];
-						dest[2] = src[2];
-					}
-					dest[3] = src[3];
-					dest += 4;
-					src += 4;
-				}
-				src += srcStride - data->width * 4;
-				dest += destStride - data->width * 4;
-			}
+			CopyCairoSurfaceToBitmap( bitmap, *data, options );
 		}
 		else
 		{
@@ -572,7 +588,7 @@ bool RasterizeCairoScripts( const std::vector<CairoScript>& scripts, uint32_t wi
 	return success;
 }
 
-bool RasterizeCairoScript( const char* script, size_t length, uint32_t width, uint32_t height, ImageIO::HostBitmap& bitmap )
+bool RasterizeCairoScript( ImageIO::HostBitmap& bitmap, const char* script, size_t length, uint32_t width, uint32_t height, const RasterizationOptions& options )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
@@ -606,36 +622,7 @@ bool RasterizeCairoScript( const char* script, size_t length, uint32_t width, ui
 		if( bitmap.Create( data->width, data->height, 1, Tr2RenderContextEnum::PIXEL_FORMAT_B8G8R8A8_UNORM ) )
 		{
 			cairo_surface_flush( data->surface );
-			auto src = cairo_image_surface_get_data( data->surface );
-			auto srcStride = cairo_image_surface_get_stride( data->surface );
-			auto dest = reinterpret_cast<uint8_t*>( bitmap.GetRawData() );
-			auto destStride = bitmap.GetPitch();
-
-			// we need to convert cairo's premultiplied alpha image to non-premultiplied alpha
-			for( uint32_t j = 0; j < data->height; ++j )
-			{
-				for( uint32_t i = 0; i < data->width; ++i )
-				{
-					float a = float( src[3] ) / 255.f;
-					if( a )
-					{
-						dest[0] = uint8_t( src[0] / a );
-						dest[1] = uint8_t( src[1] / a );
-						dest[2] = uint8_t( src[2] / a );
-					}
-					else
-					{
-						dest[0] = src[0];
-						dest[1] = src[1];
-						dest[2] = src[2];
-					}
-					dest[3] = src[3];
-					dest += 4;
-					src += 4;
-				}
-				src += srcStride - data->width * 4;
-				dest += destStride - data->width * 4;
-			}
+			CopyCairoSurfaceToBitmap( bitmap, *data, options );
 		}
 		else
 		{
@@ -649,7 +636,7 @@ bool RasterizeCairoScript( const char* script, size_t length, uint32_t width, ui
 	return success;
 }
 
-ImageIO::Result RasterizeCairoScript( IBlueStream* stream, const BlueAsyncRes::QueryArguments& arguments, ImageIO::HostBitmap& bitmap )
+ImageIO::Result RasterizeCairoScript( ImageIO::HostBitmap& bitmap, IBlueStream* stream, const BlueAsyncRes::QueryArguments& arguments, const RasterizationOptions& options )
 {
 	if( !stream )
 	{
@@ -683,7 +670,7 @@ ImageIO::Result RasterizeCairoScript( IBlueStream* stream, const BlueAsyncRes::Q
 		return ImageIO::Result( ImageIO::Result::READ_FAILURE );
 	}
 
-	if( !RasterizeCairoScript( script.get(), script.size(), width, height, bitmap ) )
+	if( !RasterizeCairoScript( bitmap, script.get(), script.size(), width, height, options ) )
 	{
 		return ImageIO::Result( ImageIO::Result::INVALID_DATA );
 	}

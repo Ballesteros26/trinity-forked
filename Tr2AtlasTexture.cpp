@@ -192,7 +192,7 @@ BlueAsyncRes::LoadingResult Tr2AtlasTexture::DoLoad()
 	ImageIO::Result result;
 	if( Tr2ImageIOHelpers::IsCairoScriptPath( GetFilePath().c_str() ) )
 	{
-		result = Tr2ImageIOHelpers::RasterizeCairoScript( m_dataStream, m_queryArguments, *m_loadedBitmap );
+		result = Tr2ImageIOHelpers::RasterizeCairoScript( *m_loadedBitmap, m_dataStream, m_queryArguments );
 	}
 	else
 	{
