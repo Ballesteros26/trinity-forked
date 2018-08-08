@@ -363,28 +363,36 @@ void EveSpotlightSet::GetPickingBatches( ITriRenderBatchAccumulator* batches, ui
 	}
 }
 
-void EveSpotlightSet::RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer )
+void EveSpotlightSet::GetDebugOptions( Tr2DebugRendererOptions& options )
 {
-	for( auto it = m_spotlightItems.begin(); it != m_spotlightItems.end(); ++it )
+	options.insert( "Spotlight Sets" );
+}
+
+void EveSpotlightSet::RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount )
+{
+	if( renderer.HasOption( GetRawRoot(), "Spotlight Sets" ) )
 	{
-		auto& transform = ( *it )->m_transform;
+		for( auto it = m_spotlightItems.begin(); it != m_spotlightItems.end(); ++it )
+		{
+			auto& transform = ( *it )->m_transform;
 
-		renderer.DrawCone( 
-			*it, 
-			Matrix( XMMatrixRotationX( -XM_PI / 2 ) ) * Matrix( XMMatrixTranslation( 0, 0, 0.5f ) ) * transform * worldTransform, 
-			0.5f, 
-			1.f, 
-			10, 
-			Tr2DebugRenderer::Wireframe, 
-			Tr2DebugColor( 0xffaaff00, 0x22aaff00 ) );
+			renderer.DrawCone(
+				*it,
+				Matrix( XMMatrixRotationX( -XM_PI / 2 ) ) * Matrix( XMMatrixTranslation( 0, 0, 0.5f ) ) * transform * parentTransform,
+				0.5f,
+				1.f,
+				10,
+				Tr2DebugRenderer::Wireframe,
+				Tr2DebugColor( 0xffaaff00, 0x22aaff00 ) );
 
-		renderer.DrawCone( 
-			*it, 
-			Matrix( XMMatrixRotationX( -XM_PI / 2 ) ) * Matrix( XMMatrixTranslation( 0, 0, 0.5f ) ) * transform * worldTransform, 
-			0.5f, 
-			1.f, 
-			10, 
-			Tr2DebugRenderer::Solid, 
-			0 );
-	} 
+			renderer.DrawCone(
+				*it,
+				Matrix( XMMatrixRotationX( -XM_PI / 2 ) ) * Matrix( XMMatrixTranslation( 0, 0, 0.5f ) ) * transform * parentTransform,
+				0.5f,
+				1.f,
+				10,
+				Tr2DebugRenderer::Solid,
+				0 );
+		}
+	}
 }

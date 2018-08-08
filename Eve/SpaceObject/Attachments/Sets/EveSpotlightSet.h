@@ -9,6 +9,7 @@
 #define EveSpotlightSet_h
 
 
+#include "IEveSpaceObjectAttachment.h"
 #include "ITr2GeometryProvider.h"
 #include "Tr2DeviceResource.h"
 #include "EveSpriteSet.h"
@@ -29,6 +30,7 @@ BLUE_DECLARE( Tr2DebugRenderer );
 //   EveSpriteSet, EveSpaceObject2
 // --------------------------------------------------------------------------------
 BLUE_CLASS( EveSpotlightSet ):
+	public IEveSpaceObjectAttachment,
 	public IInitialize
 {
 public:
@@ -40,8 +42,12 @@ public:
     EveSpotlightSet( IRoot* lockobj = NULL );
 	~EveSpotlightSet();
 
-	void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
-	void AddToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Matrix& world, float activation, float boosterGain, const granny_matrix_3x4* bones, size_t boneCount );
+	/////////////////////////////////////////////////////////////////////////////////////
+	// IEveSpaceObjectAttachment
+	virtual void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
+	virtual void AddToQuadRenderer( Tr2QuadRenderer& quadRenderer, const Matrix& parentTransform, float activation, float boosterGain, const granny_matrix_3x4* bones, size_t boneCount );
+	virtual void GetDebugOptions( Tr2DebugRendererOptions& options );
+	virtual void RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize
@@ -67,7 +73,6 @@ public:
 
 	void GetPickingBatches( ITriRenderBatchAccumulator* batches, uint16_t& areaIDOffset, const Tr2PerObjectData* perObjectData );
 
-	void RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer );
 private:
 	bool m_display;	
 	bool m_skinned;

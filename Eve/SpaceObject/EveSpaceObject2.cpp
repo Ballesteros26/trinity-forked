@@ -138,7 +138,6 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	PARENTLOCK( m_observers ),
 	PARENTLOCK( m_locatorSets ),
 	PARENTLOCK( m_spriteSets ),
-	PARENTLOCK( m_spotlightSets ),
 	PARENTLOCK( m_attachments ),
 	PARENTLOCK( m_children ),
 	PARENTLOCK( m_curveSets ),
@@ -519,7 +518,6 @@ void EveSpaceObject2::GetDebugOptions( Tr2DebugRendererOptions& options )
 	options.insert( "Children" );
 	options.insert( "Decals" );
 	options.insert( "Sprite Sets" );
-	options.insert( "Spotlight Sets" );
 	options.insert( "Lights" );
 	options.insert( "Locators" );
 	options.insert( "Shield" );
@@ -653,14 +651,6 @@ void EveSpaceObject2::RenderDebugInfo( Tr2DebugRenderer& renderer )
 	if( renderer.HasOption( this, "Sprite Sets" ) )
 	{
 		for( auto it = m_spriteSets.begin(); it != m_spriteSets.end(); ++it )
-		{
-			( *it )->RenderDebugInfo( m_worldTransform, renderer );
-		}
-	}
-
-	if( renderer.HasOption( this, "Spotlight Sets" ) )
-	{
-		for( auto it = m_spotlightSets.begin(); it != m_spotlightSets.end(); ++it )
 		{
 			( *it )->RenderDebugInfo( m_worldTransform, renderer );
 		}
@@ -1401,10 +1391,6 @@ void EveSpaceObject2::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
 	{
 		(*it)->RegisterWithQuadRenderer( quadRenderer );
 	}
-	for( auto it = m_spotlightSets.begin(); it != m_spotlightSets.end(); ++it )
-	{
-		(*it)->RegisterWithQuadRenderer( quadRenderer );
-	}
 	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
 	{
 		( *it )->RegisterWithQuadRenderer( quadRenderer );
@@ -1434,10 +1420,6 @@ void EveSpaceObject2::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2Quad
 	for( auto it = m_spriteSets.begin(); it != m_spriteSets.end(); ++it )
 	{
 		(*it)->AddToQuadRenderer( quadRenderer, m_worldTransform, m_spaceObjectShipData.y, bones, boneCount );
-	}
-	for( auto it = m_spotlightSets.begin(); it != m_spotlightSets.end(); ++it )
-	{
-		(*it)->AddToQuadRenderer( quadRenderer, m_worldTransform, m_spaceObjectShipData.y, m_spaceObjectShipData.x, bones, boneCount );
 	}
 	for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
 	{
@@ -2291,15 +2273,6 @@ void EveSpaceObject2::AddSpriteSet( EveSpriteSetPtr newSpriteSet )
 }
 
 // --------------------------------------------------------------------------------
-// Description:
-//   Add a new spotlightset to this object from the outside
-// --------------------------------------------------------------------------------
-void EveSpaceObject2::AddSpotlightSet( EveSpotlightSetPtr newSpotlightSet )
-{
-	m_spotlightSets.Append( newSpotlightSet->GetRawRoot() );
-}
-
-// --------------------------------------------------------------------------------
 void EveSpaceObject2::AddAttachment( IEveSpaceObjectAttachment* attachment )
 {
 	m_attachments.Append( attachment );
@@ -2914,17 +2887,6 @@ IRoot* EveSpaceObject2::GetID( uint16_t areaID )
 			areaIndex -= int( items->size() );
 		}
 		return GetRawRoot();
-	case ATTACHMENT_TYPE_SPOTLIGHT_SET:
-		for( auto it = std::begin( m_spotlightSets ); it != std::end( m_spotlightSets ); ++it )
-		{
-			auto items = ( *it )->GetSpotlightItems();
-			if( items->size() > size_t( areaIndex ) )
-			{
-				return items->GetAt( areaIndex );
-			}
-			areaIndex -= int( items->size() );
-		}
-		return GetRawRoot();
 	default:
 		return GetRawRoot();
 	}
@@ -2963,11 +2925,6 @@ void EveSpaceObject2::GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr
 	{
 		uint16_t areaIDOffset = ATTACHMENT_TYPE_SPRITE_SET << ATTACHMENT_TYPE_OFFSET;
 		for( auto it = m_spriteSets.begin(); it != m_spriteSets.end(); ++it )
-		{
-			(*it)->GetPickingBatches( batches, areaIDOffset, perObjectData );
-		}
-		areaIDOffset = ATTACHMENT_TYPE_SPOTLIGHT_SET << ATTACHMENT_TYPE_OFFSET;
-		for( auto it = m_spotlightSets.begin(); it != m_spotlightSets.end(); ++it )
 		{
 			(*it)->GetPickingBatches( batches, areaIDOffset, perObjectData );
 		}

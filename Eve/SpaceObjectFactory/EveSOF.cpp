@@ -705,7 +705,7 @@ void EveSOF::SetupSpotlightSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna 
 			// spotlightset needs internal rebuild
 			spotlightSet->Rebuild();
 			// add to ship
-			obj->AddSpotlightSet( spotlightSet );
+			obj->AddAttachment( spotlightSet );
 		}
 
 		// next hull needs offset update from hull's locator

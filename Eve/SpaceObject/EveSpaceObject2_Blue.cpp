@@ -266,14 +266,6 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 
 		MAP_ATTRIBUTE
 		(
-			"spotlightSets",
-			m_spotlightSets,
-			"Spotlight sets attached to the object",
-			Be::READWRITE | Be::PERSIST
-		)
-
-		MAP_ATTRIBUTE
-		(
 			"attachments",
 			m_attachments,
 			"Item sets attached to the object",
