@@ -323,7 +323,7 @@ AxisAlignedBoundingBox EveBannerSet::GetAabb( const granny_matrix_3x4* bones, si
 	auto aabb = m_aabb;
 	for( auto box = begin( m_skinnedBoxes ); box != end( m_skinnedBoxes ); ++box )
 	{
-		if( size_t( box->first ) <= boneCount )
+		if( size_t( box->first ) < boneCount )
 		{
 			Matrix boneTF = IdentityMatrix();
 			TriMatrixCopyFrom3x4( &boneTF, &bones[box->first] );
