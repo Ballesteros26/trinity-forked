@@ -71,6 +71,8 @@ private:
 	AxisAlignedBoundingBox GetAabb( const granny_matrix_3x4* bones, size_t boneCount ) const;
 	void CreateBannerGeometry( std::vector<Vertex>& vertices, std::vector<uint16_t>& indices, const EveBannerItem& item ) const;
 	void CreateFlatBannerGeometry( std::vector<Vertex>& vertices, std::vector<uint16_t>& indices, const EveBannerItem& item ) const;
+	void CreateVerticalCurvedBannerGeometry( std::vector<Vertex>& vertices, std::vector<uint16_t>& indices, const EveBannerItem& item ) const;
+	void CreateHorizontalCurvedBannerGeometry( std::vector<Vertex>& vertices, std::vector<uint16_t>& indices, const EveBannerItem& item ) const;
 	void CreateCurvedBannerGeometry( std::vector<Vertex>& vertices, std::vector<uint16_t>& indices, const EveBannerItem& item ) const;
 
 	std::string m_name;

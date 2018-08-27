@@ -378,9 +378,19 @@ void EveBannerSet::Rebuild()
 
 void EveBannerSet::CreateBannerGeometry( std::vector<Vertex>& vertexBuffer, std::vector<uint16_t>& indexBuffer, const EveBannerItem& item ) const
 {
-	if( item.angleX <= 0 && item.angleY <= 0 )
+	bool flatX = item.angleX <= 0;
+	bool flatY = item.angleY <= 0;
+	if( flatX && flatY )
 	{
 		CreateFlatBannerGeometry( vertexBuffer, indexBuffer, item );
+	}
+	else if( flatX )
+	{
+		CreateVerticalCurvedBannerGeometry( vertexBuffer, indexBuffer, item );
+	}
+	else if( flatY )
+	{
+		CreateHorizontalCurvedBannerGeometry( vertexBuffer, indexBuffer, item );
 	}
 	else
 	{
@@ -408,6 +418,107 @@ void EveBannerSet::CreateFlatBannerGeometry( std::vector<Vertex>& vertexBuffer, 
 	indexBuffer.push_back( startIndex + 3 );
 }
 
+void EveBannerSet::CreateVerticalCurvedBannerGeometry( std::vector<Vertex>& vertexBuffer, std::vector<uint16_t>& indexBuffer, const EveBannerItem& item ) const
+{
+	uint16_t startIndex = uint16_t( vertexBuffer.size() );
+	auto transform = TransformationMatrix( item.scaling, item.rotation, item.position );
+	auto normalTransform = Inverse( Transpose( transform ) );
+
+	float clamppedAngleY = std::max( 0.f, std::min( item.angleY, 180.f ) );
+
+	uint32_t segmentsX = 1;
+	uint32_t segmentsY = 1 + uint32_t( clamppedAngleY / 5 );
+
+	auto halfAngleY = clamppedAngleY / 180.f * XM_PI / 2;
+
+	float scaleY = 0.5f / sin( halfAngleY );
+
+	for( uint32_t j = 0; j <= segmentsY; ++j )
+	{
+		float y = float( j ) / ( segmentsY );
+		float angleY = -halfAngleY + y * 2 * halfAngleY;
+		float sinAngleY = sin( angleY + XM_PIDIV2 );
+		float cosAngleY = cos( angleY + XM_PIDIV2 );
+		for( uint32_t i = 0; i <= segmentsX; ++i )
+		{
+			float x = float( i );
+			float sinAngleX = i == 0 ? -0.5f : 0.5f;
+			float cosAngleX = 1;
+
+			Vector3 normal = Vector3( 0, cosAngleY / scaleY, sinAngleY / scaleY );
+
+			vertexBuffer.push_back( Vertex(
+				TransformCoord( Vector3( sinAngleX, cosAngleY * scaleY, ( cosAngleX * sinAngleY - 1 ) * scaleY ), transform ),
+				Normalize( TransformNormal( normal, normalTransform ) ),
+				Vector2( x, y ),
+				item.bone ) );
+		}
+	}
+
+	auto vertexIndex = [=]( uint32_t x, uint32_t y ) { return x + 2 * y; };
+
+	for( uint32_t j = 0; j < segmentsY; ++j )
+	{
+		indexBuffer.push_back( startIndex + vertexIndex( 0, j ) );
+		indexBuffer.push_back( startIndex + vertexIndex( 1, j ) );
+		indexBuffer.push_back( startIndex + vertexIndex( 0, j + 1 ) );
+		indexBuffer.push_back( startIndex + vertexIndex( 0, j + 1 ) );
+		indexBuffer.push_back( startIndex + vertexIndex( 1, j ) );
+		indexBuffer.push_back( startIndex + vertexIndex( 1, j + 1 ) );
+	}
+}
+
+void EveBannerSet::CreateHorizontalCurvedBannerGeometry( std::vector<Vertex>& vertexBuffer, std::vector<uint16_t>& indexBuffer, const EveBannerItem& item ) const
+{
+	uint16_t startIndex = uint16_t( vertexBuffer.size() );
+	auto transform = TransformationMatrix( item.scaling, item.rotation, item.position );
+	auto normalTransform = Inverse( Transpose( transform ) );
+
+	float clamppedAngleX = std::max( 0.f, std::min( item.angleX, 180.f ) );
+
+	uint32_t segmentsX = 1 + uint32_t( clamppedAngleX / 5 );
+	uint32_t segmentsY = 1;
+
+	auto halfAngleX = clamppedAngleX / 180.f * XM_PI / 2;
+
+	float scaleX = 0.5f / sin( halfAngleX );
+
+	for( uint32_t j = 0; j <= segmentsY; ++j )
+	{
+		float y = float( j ) / ( segmentsY );
+		float sinAngleY = 1;
+		float cosAngleY = j == 0 ? 0.5f : -0.5f;
+
+		for( uint32_t i = 0; i <= segmentsX; ++i )
+		{
+			float x = float( i ) / ( segmentsX );
+			float angleX = -halfAngleX + x * 2 * halfAngleX;
+			float sinAngleX = sin( angleX );
+			float cosAngleX = cos( angleX );
+
+			Vector3 normal = Vector3( sinAngleX / scaleX, 0, cosAngleX / scaleX );
+
+			vertexBuffer.push_back( Vertex(
+				TransformCoord( Vector3( sinAngleX * sinAngleY * scaleX, cosAngleY, ( cosAngleX * sinAngleY - 1 ) * scaleX ), transform ),
+				Normalize( TransformNormal( normal, normalTransform ) ),
+				Vector2( x, y ),
+				item.bone ) );
+		}
+	}
+
+	auto vertexIndex = [=]( uint32_t x, uint32_t y ) { return x + ( segmentsX + 1 ) * y; };
+
+	for( uint32_t i = 0; i < segmentsX; ++i )
+	{
+		indexBuffer.push_back( startIndex + vertexIndex( i, 0 ) );
+		indexBuffer.push_back( startIndex + vertexIndex( i + 1, 0 ) );
+		indexBuffer.push_back( startIndex + vertexIndex( i, 1 ) );
+		indexBuffer.push_back( startIndex + vertexIndex( i, 1 ) );
+		indexBuffer.push_back( startIndex + vertexIndex( i + 1, 0 ) );
+		indexBuffer.push_back( startIndex + vertexIndex( i + 1, 1 ) );
+	}
+}
+
 void EveBannerSet::CreateCurvedBannerGeometry( std::vector<Vertex>& vertexBuffer, std::vector<uint16_t>& indexBuffer, const EveBannerItem& item ) const
 {
 	uint16_t startIndex = uint16_t( vertexBuffer.size() );
@@ -417,76 +528,31 @@ void EveBannerSet::CreateCurvedBannerGeometry( std::vector<Vertex>& vertexBuffer
 	float clamppedAngleX = std::max( 0.f, std::min( item.angleX, 180.f ) );
 	float clamppedAngleY = std::max( 0.f, std::min( item.angleY, 180.f ) );
 
-	bool flatX = clamppedAngleX == 0;
-	bool flatY = clamppedAngleY == 0;
-
 	uint32_t segmentsX = 1 + uint32_t( clamppedAngleX / 5 );
 	uint32_t segmentsY = 1 + uint32_t( clamppedAngleY / 5 );
 
 	auto halfAngleX = clamppedAngleX / 180.f * XM_PI / 2;
 	auto halfAngleY = clamppedAngleY / 180.f * XM_PI / 2;
 
-	float scaleX = flatX ? 1.f : 0.5f / sin( halfAngleX );
-	float scaleY = flatY ? 1.f : 0.5f / sin( halfAngleY );
-	float scaleZ;
-	if( flatX )
-	{
-		scaleZ = scaleY;
-	}
-	else if( flatY )
-	{
-		scaleZ = scaleX;
-	}
-	else
-	{
-		scaleZ = std::min( scaleX, scaleY );
-	}
+	float scaleX = 0.5f / sin( halfAngleX );
+	float scaleY = 0.5f / sin( halfAngleY );
+	float scaleZ = std::min( scaleX, scaleY );
 
 	for( uint32_t j = 0; j <= segmentsY; ++j )
 	{
 		float y = float( j ) / ( segmentsY );
 		float angleY = -halfAngleY + y * 2 * halfAngleY;
-		float sinAngleY, cosAngleY;
-		if( !flatY )
-		{
-			sinAngleY = sin( angleY + XM_PIDIV2 );
-			cosAngleY = cos( angleY + XM_PIDIV2 );
-		}
-		else
-		{
-			sinAngleY = 1;
-			cosAngleY = j == 0 ? 0.5f : -0.5f;
-		}
+		float sinAngleY = sin( angleY + XM_PIDIV2 );
+		float cosAngleY = cos( angleY + XM_PIDIV2 );
 
 		for( uint32_t i = 0; i <= segmentsX; ++i )
 		{
 			float x = float( i ) / ( segmentsX );
 			float angleX = -halfAngleX + x * 2 * halfAngleX;
-			float sinAngleX, cosAngleX;
-			if( !flatX )
-			{
-				sinAngleX = sin( angleX );
-				cosAngleX = cos( angleX );
-			}
-			else
-			{
-				sinAngleX = i == 0 ? -0.5f : 0.5f;
-				cosAngleX = 1;
-			}
+			float sinAngleX = sin( angleX );
+			float cosAngleX = cos( angleX );
 
-			Vector3 normal;
-			if( flatX )
-			{
-				normal = Vector3( 0, cosAngleY / scaleY, sinAngleY / scaleZ );
-			}
-			else if( flatY )
-			{
-				normal = Vector3( sinAngleX / scaleX, 0, cosAngleX / scaleZ );
-			}
-			else
-			{
-				normal = Vector3( sinAngleX * sinAngleY / scaleX, cosAngleY / scaleY, cosAngleX * sinAngleY / scaleZ );
-			}
+			Vector3 normal = Vector3( sinAngleX * sinAngleY / scaleX, cosAngleY / scaleY, cosAngleX * sinAngleY / scaleZ );
 
 			vertexBuffer.push_back( Vertex(
 				TransformCoord( Vector3( sinAngleX * sinAngleY * scaleX, cosAngleY * scaleY, ( cosAngleX * sinAngleY - 1 ) * scaleZ ), transform ),
