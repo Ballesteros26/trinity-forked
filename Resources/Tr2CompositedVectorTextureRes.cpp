@@ -294,6 +294,26 @@ void Tr2CompositedVectorTextureRes::ComposeAsync( uint32_t width, uint32_t heigh
 	}
 }
 
+
+bool IsSVG( const std::wstring& filePath )
+{
+	const auto extension = filePath.substr( filePath.find_last_of('.') + 1 );
+	const auto svgExtension = L"svg";
+	return _wcsicmp( svgExtension, extension.c_str() ) == 0;
+}
+
+void Tr2CompositedVectorTextureRes::ComposeSyncSave( const uint32_t width, const uint32_t height, const bool premultipliedAlpha,
+	const std::vector<Source>& sources, const std::wstring& filePath )
+{
+	if ( IsSVG( filePath ) )
+	{
+		ExtractSourcesAndSaveSvg( width, height, filePath, sources );
+		return;
+	}
+	ComposeSync(width, height, premultipliedAlpha, sources);
+	Save( filePath.c_str() );
+}
+
 Tr2TextureAL* Tr2CompositedVectorTextureRes::GetTexture()
 {
 	return &m_texture;
@@ -318,22 +338,19 @@ void Tr2CompositedVectorTextureRes::StartLoading()
 	Initialize( L" ", L"" );
 }
 
-BlueAsyncRes::LoadingResult Tr2CompositedVectorTextureRes::DoLoad()
+bool Tr2CompositedVectorTextureRes::ExtractModifiedSources( std::vector<Tr2ImageIOHelpers::CairoScript>& sources )
 {
-	m_bitmap.Destroy();
-
 	std::vector<std::unique_ptr<std::string>> modifiedSources;
-	std::vector<Tr2ImageIOHelpers::CairoScript> sources;
 	for( auto it = begin( m_sources ); it != end( m_sources ); ++it )
 	{
 		if( !it->source || !it->source->IsGood() )
 		{
-			return LR_FAILED;
+			return false;
 		}
 
 		std::unique_ptr<std::string> modifiedSource( new std::string() );
 		it->source->ApplyColor( *modifiedSource, it->color );
-
+		
 		Tr2ImageIOHelpers::CairoScript src;
 		src.script = modifiedSource->c_str();
 		src.length = modifiedSource->length();
@@ -343,6 +360,50 @@ BlueAsyncRes::LoadingResult Tr2CompositedVectorTextureRes::DoLoad()
 		sources.push_back( src );
 
 		modifiedSources.push_back( std::move( modifiedSource ) );
+	}
+	return true;
+}
+
+void Tr2CompositedVectorTextureRes::ExtractSourcesAndSaveSvg( const uint32_t width, const uint32_t height, const std::wstring& svgFilePath,
+                                                              const std::vector<Source>& newSources )
+{
+	m_width = width;
+	m_height = height;
+	m_sources.clear();
+	m_sources.insert( begin( m_sources ), begin( newSources ), end( newSources ) );
+	for ( auto it = begin( m_sources ); it != end( m_sources ); ++it )
+	{
+		if ( !it->source )
+		{
+			CCP_LOGERR( "Tr2CompositedVectorTextureRes::ComposeSyncSave called with None source" );
+			m_sources.clear();
+			return;
+		}
+	}
+	std::vector<Tr2ImageIOHelpers::CairoScript> sources;
+	if ( !ExtractModifiedSources( sources ) )
+	{
+		CCP_LOGERR("Error extracting sources for svg image saving");
+		return;
+	}
+	if( sources.empty() )
+	{
+		CCP_LOGERR( "No svg image written out as it's sources were empty" );
+		return;
+	}
+	if ( !ExportCairoScriptsAsSvg( svgFilePath, sources, m_width, m_height ) )
+	{
+		CCP_LOGERR( "Failed to save composited vector image at path '%S'", GetPath() );
+	}
+}
+
+BlueAsyncRes::LoadingResult Tr2CompositedVectorTextureRes::DoLoad()
+{
+	m_bitmap.Destroy();
+	std::vector<Tr2ImageIOHelpers::CairoScript> sources;
+	if ( LR_FAILED == ExtractModifiedSources( sources ) )
+	{
+		return LR_FAILED;
 	}
 	if( sources.empty() )
 	{
@@ -357,7 +418,7 @@ BlueAsyncRes::LoadingResult Tr2CompositedVectorTextureRes::DoLoad()
 	{
 		Tr2ImageIOHelpers::RasterizationOptions options;
 		options.premultipliedAlpha = m_premultipliedAlpha;
-		if( !Tr2ImageIOHelpers::RasterizeCairoScripts( m_bitmap, sources, m_width, m_height, options ) )
+		if( !RasterizeCairoScripts( m_bitmap, sources, m_width, m_height, options ) )
 		{
 			CCP_LOGERR( "Failed to rasterize composited vector image '%S'", GetPath() );
 			m_bitmap.Destroy();

@@ -7,6 +7,7 @@
 #pragma once
 
 #include "ITr2TextureProvider.h"
+#include "Tr2ImageIOHelpers.h"
 
 
 BLUE_DECLARE( Tr2CairoScriptSourceRes );
@@ -35,9 +36,10 @@ public:
 
 	void ComposeSync( uint32_t width, uint32_t height, bool premultipliedAlpha, const std::vector<Source>& sources );
 	void ComposeAsync( uint32_t width, uint32_t height, bool premultipliedAlpha, const std::vector<Source>& sources );
+	void ComposeSyncSave( const uint32_t width, const uint32_t height, const bool premultipliedAlpha, const std::vector<Source>& sources, const
+	                      std::wstring& filePath );
 
 	bool Save( const wchar_t* path );
-
 	virtual bool IsMemoryUsageKnown();
 	virtual size_t GetMemoryUsage();
 
@@ -49,6 +51,8 @@ public:
 protected:
 	virtual bool OnPrepareResources();
 
+
+	void ExtractSourcesAndSaveSvg( const uint32_t width, const uint32_t height, const std::wstring& svgFilePath, const std::vector<Source>& newSources );	
 	virtual LoadingResult DoLoad();
 	virtual bool DoPrepare();
 	virtual bool DoOpenStream();
@@ -56,6 +60,7 @@ private:
 	static void StaticResourceLoadFinished( void* context );
 	static void StaticResourcePrepFinished( void* context );
 	void StartLoading();
+	bool ExtractModifiedSources( std::vector<Tr2ImageIOHelpers::CairoScript>& sources );
 
 	Tr2RenderContextEnum::TextureType GetTextureType() const;
 	Tr2RenderContextEnum::PixelFormat GetFormat() const;

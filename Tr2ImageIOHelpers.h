@@ -61,10 +61,11 @@ struct CairoScript
 	Color color;
 };
 
+bool ExportCairoScriptsAsSvg( const std::wstring& filePath, const std::vector<CairoScript>& scripts, uint32_t width, uint32_t height );
+
 bool RasterizeCairoScripts( ImageIO::HostBitmap& bitmap, const std::vector<CairoScript>& scripts, uint32_t width, uint32_t height, const RasterizationOptions& options = RasterizationOptions() );
 
 ImageIO::Result RasterizeCairoScript( ImageIO::HostBitmap& bitmap, IBlueStream* stream, const BlueAsyncRes::QueryArguments& arguments, const RasterizationOptions& options = RasterizationOptions() );
-
 }
 
 #endif

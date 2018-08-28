@@ -1,7 +1,9 @@
 #include "StdAfx.h"
+#include <functional>
 #include "Tr2ImageIOHelpers.h"
 #include "cairo.h"
 #include "cairo-script-interpreter.h"
+#include "cairo-svg.h"
 
 using namespace Tr2RenderContextEnum;
 
@@ -43,12 +45,8 @@ bool CreateCubeTexture(	ImageIO::HostBitmap& bitmap, Tr2TextureAL &out,
 		}
 	}
 
-	if( FAILED( out.Create( bitmap, Tr2GpuUsage::SHADER_RESOURCE, Tr2CpuUsage::READ, &initData[0], renderContext ) ) )
-	{
-		return false;
-	}
-
-	return true;
+	return !FAILED( out.Create( bitmap, Tr2GpuUsage::SHADER_RESOURCE, Tr2CpuUsage::READ, &initData[0], renderContext )
+	);
 }
 
 bool CreateVolumeTexture( ImageIO::HostBitmap& bitmap, Tr2TextureAL &out, 
@@ -92,12 +90,7 @@ bool CreateVolumeTexture( ImageIO::HostBitmap& bitmap, Tr2TextureAL &out,
 		memoryUse += bitmap.GetMipSize( i );
 	}
 
-	if( FAILED( out.Create( bitmap, Tr2GpuUsage::SHADER_RESOURCE, &initData[0], renderContext ) ) )
-	{
-		return false;
-	}
-
-	return true;
+	return !FAILED( out.Create( bitmap, Tr2GpuUsage::SHADER_RESOURCE, &initData[0], renderContext ) );
 }
 
 
@@ -111,63 +104,82 @@ struct CairoData
 	double originalWidth;
 	double originalHeight;
 	const Tr2ImageIOHelpers::CairoScript* source;
+	IResFile* svgWriteStream;
 };
 
-cairo_surface_t* SurfaceCreate( void *closure, cairo_content_t, double width, double height, long )
+cairo_surface_t* SurfaceCreate( void *closure, double const width, double const height, const std::function<cairo_surface_t*( int, int, CairoData* )>& surfaceCreator )
 {
 	auto data = static_cast<CairoData*>( closure );
-	if( data->surface )
+	if ( data->surface )
 	{
-		if( data->isMainSurface )
+		if ( data->isMainSurface )
 		{
 			data->isMainSurface = false;
 			data->originalWidth = width;
 			data->originalHeight = height;
 			return cairo_surface_reference( data->surface );
 		}
-		else
+		data->isMainSurface = false;
+		if ( data->rescale )
 		{
-			data->isMainSurface = false;
-			if( data->rescale )
-			{
-				double xscale = data->width / data->originalWidth;
-				double yscale = data->height / data->originalHeight;
-				auto surface = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, int( width * xscale ), int( height * yscale ) );
-				cairo_surface_set_device_scale( surface, xscale, yscale );
-				return surface;
-			}
-			else
-			{
-				return cairo_image_surface_create( CAIRO_FORMAT_ARGB32, int( width ), int( height ) );
-			}
+			const double xscale = data->width / data->originalWidth;
+			const double yscale = data->height / data->originalHeight;
+			const auto surface = surfaceCreator( int( width * xscale ), int( height * yscale ), data);
+			cairo_surface_set_device_scale( surface, xscale, yscale );
+			return surface;
 		}
+		return surfaceCreator( int( width ), int( height ), data );
 	}
-	else
+	data->originalWidth = width;
+	data->originalHeight = height;
+	if ( data->width == 0 && data->height == 0 )
 	{
-		data->originalWidth = width;
-		data->originalHeight = height;
-		if( data->width == 0 && data->height == 0 )
-		{
-			data->width = uint32_t( width + 0.5f );
-			data->height = uint32_t( height + 0.5f );
-		}
-		else if( data->width == 0 )
-		{
-			data->width = uint32_t( width * data->height / height + 0.5f );
-		}
-		else if( data->height == 0 )
-		{
-			data->height = uint32_t( width * data->width / height + 0.5f );
-		}
-		data->surface = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, data->width, data->height );
-		if( data->rescale )
-		{
-			double xscale = data->width / data->originalWidth;
-			double yscale = data->height / data->originalHeight;
-			cairo_surface_set_device_scale( data->surface, xscale, yscale );
-		}
-		return cairo_surface_reference( data->surface );
+		data->width = uint32_t( width + 0.5f );
+		data->height = uint32_t( height + 0.5f );
 	}
+	else if ( data->width == 0 )
+	{
+		data->width = uint32_t( width * data->height / height + 0.5f );
+	}
+	else if ( data->height == 0 )
+	{
+		data->height = uint32_t( width * data->width / height + 0.5f );
+	}
+	data->surface = surfaceCreator( data->width, data->height, data );
+	if ( data->rescale )
+	{
+		const double xscale = data->width / data->originalWidth;
+		const double yscale = data->height / data->originalHeight;
+		cairo_surface_set_device_scale( data->surface, xscale, yscale );
+	}
+	return cairo_surface_reference( data->surface );
+}
+
+
+cairo_surface_t* SurfaceCreateRaster( void *closure, cairo_content_t, const double width, const double height, long )
+{
+	const std::function<cairo_surface_t*( int, int, CairoData* )> surfaceCreator = [] ( const int width_, const int height_, CairoData *data ) -> cairo_surface_t*
+	{
+		return cairo_image_surface_create( CAIRO_FORMAT_ARGB32, width_, height_ );
+	};
+	
+	return SurfaceCreate( closure, width, height, surfaceCreator );
+}
+
+cairo_status_t SvgWriteFunc( void *closure, const unsigned char *data, unsigned int length ) {
+	const auto cairoData = static_cast<CairoData*>( closure );
+	cairoData->svgWriteStream->Write(data, length);;
+	return CAIRO_STATUS_SUCCESS;
+}
+
+cairo_surface_t* SurfaceCreateVector( void *closure, cairo_content_t, const double width, const double height, long )
+{
+	auto data = static_cast<CairoData*>(closure);
+	const std::function<cairo_surface_t*( int, int, CairoData* )> surfaceCreator = [] ( const int width_, const int height_, CairoData *data ) -> cairo_surface_t*
+	{
+		return cairo_svg_surface_create_for_stream(&SvgWriteFunc, data, width_, height_);
+	};
+	return SurfaceCreate( closure, width, height, surfaceCreator );
 }
 
 cairo_t* ContextCreate( void *closure, cairo_surface_t *surface )
@@ -189,7 +201,7 @@ bool ProtectedRasterize( const char* script, size_t length, CairoData* data )
 {
 	cairo_script_interpreter_hooks_t hooks = {
 		data,
-		&SurfaceCreate,
+		&SurfaceCreateRaster,
 		nullptr,
 		&ContextCreate,
 	};
@@ -210,6 +222,46 @@ bool ProtectedRasterize( const char* script, size_t length, CairoData* data )
 #ifdef _MSC_VER
 	__except( EXCEPTION_EXECUTE_HANDLER )
 	{ 
+		CCP_LOGERR( "Exception caught while rasterizing cairo script" );
+	}
+#endif
+	return success;
+}
+
+bool WriteSvg( const std::vector<Tr2ImageIOHelpers::CairoScript>& scripts, CairoData* data )
+{	
+	cairo_script_interpreter_hooks_t hooks = {
+		data,
+		&SurfaceCreateVector,
+		nullptr,
+		&ContextCreate,
+	};
+
+	auto success = false;
+
+#ifdef _MSC_VER
+	__try
+#endif
+	{
+		auto interpreter = cairo_script_interpreter_create();
+		cairo_script_interpreter_install_hooks( interpreter, &hooks );
+		for ( auto it = begin(scripts); it != end(scripts); ++it)
+		{
+			data->isMainSurface = true;
+			data->source = &*it;
+			const auto result = cairo_script_interpreter_feed_string( interpreter, it->script, int( it->length ) );
+			success = result == CAIRO_STATUS_SUCCESS;
+			if ( !success )
+			{
+				break;
+			}
+		}
+		cairo_script_interpreter_finish( interpreter );
+		cairo_script_interpreter_destroy( interpreter );
+	}
+#ifdef _MSC_VER
+	__except ( EXCEPTION_EXECUTE_HANDLER )
+	{
 		CCP_LOGERR( "Exception caught while rasterizing cairo script" );
 	}
 #endif
@@ -278,7 +330,6 @@ void CopyCairoSurfaceToBitmap( ImageIO::HostBitmap& bitmap, CairoData& data, con
 
 namespace Tr2ImageIOHelpers
 {
-
 bool Create2DTexture(	ImageIO::HostBitmap& bitmap, Tr2TextureAL &out, 
 										uint32_t &memoryUse, 
 										Tr2PrimaryRenderContext &renderContext, 
@@ -316,11 +367,8 @@ bool Create2DTexture(	ImageIO::HostBitmap& bitmap, Tr2TextureAL &out,
 		}
 	}
 
-	if( FAILED( out.Create( bitmap, Tr2GpuUsage::SHADER_RESOURCE, Tr2CpuUsage::READ, &initData[0], renderContext ) ) )
-	{
-		return false;
-	}
-	return true;
+	return !FAILED( out.Create( bitmap, Tr2GpuUsage::SHADER_RESOURCE, Tr2CpuUsage::READ, &initData[0], renderContext )
+	);
 }
 
 bool CreateTexture(	ImageIO::HostBitmap& bitmap, Tr2TextureAL &out, 
@@ -332,22 +380,15 @@ bool CreateTexture(	ImageIO::HostBitmap& bitmap, Tr2TextureAL &out,
 	{
 		return false;
 	}
-
 	if( bitmap.GetType() == TEX_TYPE_CUBE )
 	{
 		return CreateCubeTexture( bitmap, out, memoryUse, renderContext );
 	}
-	else if( bitmap.GetType() == TEX_TYPE_3D )
+	if( bitmap.GetType() == TEX_TYPE_3D )
 	{
 		return CreateVolumeTexture( bitmap, out, memoryUse, renderContext );
 	}
-	else
-	{
-		return Create2DTexture( bitmap, out, memoryUse, renderContext, usage );
-	}
-	
-
-	return true;
+	return Create2DTexture( bitmap, out, memoryUse, renderContext, usage );
 }
 
 bool CopyToTexture( ImageIO::HostBitmap& bitmap, Tr2TextureAL& texture, unsigned int x, unsigned int y, unsigned int margin, Tr2RenderContext& renderContext )
@@ -538,9 +579,9 @@ bool IsCairoScriptPath( const wchar_t* path )
         ( ext[3] == L's' || ext[3] == L'S' );
 }
 
-bool RasterizeCairoScripts( ImageIO::HostBitmap& bitmap, const std::vector<CairoScript>& scripts, uint32_t width, uint32_t height, const RasterizationOptions& options )
+std::unique_ptr<CairoData> InitCairoDataMultiWrite( const uint32_t width, const uint32_t height)
 {
-	std::unique_ptr<CairoData> data( new CairoData );
+	std::unique_ptr<CairoData> data(new CairoData);
 	data->surface = nullptr;
 	data->width = width;
 	data->height = height;
@@ -548,7 +589,50 @@ bool RasterizeCairoScripts( ImageIO::HostBitmap& bitmap, const std::vector<Cairo
 	data->originalHeight = height;
 	data->source = nullptr;
 	data->rescale = false;
+	return data;
+}
 
+bool ExportCairoScriptsAsSvg( const std::wstring& filePath, const std::vector<CairoScript>& scripts, uint32_t width, uint32_t height )
+{
+	auto data = InitCairoDataMultiWrite( width, height );
+	const Be::Clsid resFileClsid("blue", "ResFile");
+	IResFilePtr svgWriteStream(resFileClsid);
+	const auto pathCstr = filePath.c_str();
+	if (!(svgWriteStream->FileExistsW(pathCstr) ? svgWriteStream->OpenW(pathCstr, false) : svgWriteStream->CreateW(pathCstr)))
+	{
+		CCP_LOGWARN("Tr2HostBitmap::Save failed to open Blue stream (%S)", pathCstr);
+		return false;
+	}
+	ON_BLOCK_EXIT( [&]{svgWriteStream->Close(); } );
+
+	data->svgWriteStream = svgWriteStream;
+
+	auto success = false;
+	{
+		CCP_STATS_ZONE( "Writing SVG to file system" );
+		const auto beginTime = CcpGetTimestamp();
+		success = WriteSvg( scripts, data.get());
+		const auto endTime = CcpGetTimestamp();
+		const auto duration = float( double( endTime - beginTime ) / CcpGetTimestampFrequency() );
+		CCP_LOG( "Writing SVG to filesystem duration: %.1f ms", duration * 1000 );
+	}
+
+	if ( data->surface != nullptr)
+	{
+		cairo_surface_flush(data->surface);
+		cairo_surface_destroy(data->surface);
+	}
+	else
+	{
+		success = false;
+	}
+
+	return success;
+}
+
+bool RasterizeCairoScripts( ImageIO::HostBitmap& bitmap, const std::vector<CairoScript>& scripts, uint32_t width, uint32_t height, const RasterizationOptions& options )
+{
+	auto data = InitCairoDataMultiWrite(width, height);
 	bool success;
 	{
 		CCP_STATS_ZONE( "Cairo rasterizing" );
