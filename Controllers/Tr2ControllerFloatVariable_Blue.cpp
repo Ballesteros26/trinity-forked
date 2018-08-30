@@ -15,6 +15,7 @@ namespace
 		{ "Float", BeCast( Tr2ControllerFloatVariable::FLOAT ), "Floating point value" },
 		{ "Integer", BeCast( Tr2ControllerFloatVariable::INTEGER ), "Integer value" },
 		{ "Boolean", BeCast( Tr2ControllerFloatVariable::BOOLEAN ), "Boolean value" },
+		{ "Enum", BeCast( Tr2ControllerFloatVariable::ENUM ), "Enumerated value" },
 		{ 0 }
 	};
 }
@@ -31,5 +32,6 @@ const Be::ClassInfo* Tr2ControllerFloatVariable::ExposeToBlue()
 		MAP_ATTRIBUTE_WITH_CHOOSER( "variableType", m_type, "Variable type", Be::READWRITE | Be::PERSIST | Be::ENUM, TypeChooser )
 		MAP_ATTRIBUTE( "value", m_value, "Current value", Be::READWRITE )
 		MAP_ATTRIBUTE( "defaultValue", m_defaultValue, "Default variable value", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "enumValues", m_enumValues, "Coma separated value=name pairs for enum variables", Be::READWRITE | Be::PERSIST )
 	EXPOSURE_END()
 }

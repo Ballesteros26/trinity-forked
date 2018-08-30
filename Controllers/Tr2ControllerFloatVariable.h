@@ -15,6 +15,7 @@ public:
 		FLOAT,
 		INTEGER,
 		BOOLEAN,
+		ENUM,
 	};
 
 	Tr2ControllerFloatVariable( IRoot* lockobj = nullptr );
@@ -27,6 +28,7 @@ public:
 	float* GetPointerForParser();
 private:
 	std::string m_name;
+	std::string m_enumValues;
 	Type m_type;
 	float m_value;
 	float m_defaultValue;
