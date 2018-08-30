@@ -299,7 +299,7 @@ bool IsSVG( const std::wstring& filePath )
 {
 	const auto extension = filePath.substr( filePath.find_last_of('.') + 1 );
 	const auto svgExtension = L"svg";
-	return _wcsicmp( svgExtension, extension.c_str() ) == 0;
+	return wcsicmp( svgExtension, extension.c_str() ) == 0;
 }
 
 void Tr2CompositedVectorTextureRes::ComposeSyncSave( const uint32_t width, const uint32_t height, const bool premultipliedAlpha,
