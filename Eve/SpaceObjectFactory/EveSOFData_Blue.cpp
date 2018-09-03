@@ -449,6 +449,26 @@ Be::VarChooser EveSOFDataHullBannerUsageChooser[] =
 	{ "CeoPortrait", BeCast( EveSOFDataHullBanner::CEO_PORTRAIT ), "Ceo portrait" },
 	{ "VerticalBanner", BeCast( EveSOFDataHullBanner::VERTICAL_BANNER ), "Vertical banner" },
 	{ "HorizontalBanner", BeCast( EveSOFDataHullBanner::HORIZONTAL_BANNER ), "Vertical banner" },
+
+	{ "TargetSystemAllianceLogo", BeCast( EveSOFDataHullBanner::TARGET_SYSTEM_ALLIANCE_LOGO ), "Target system alliance logo (gates)" },
+	{ "TargetSystemVerticalBanner", BeCast( EveSOFDataHullBanner::TARGET_SYSTEM_VERTICAL_BANNER ), "Target system vertical banner (gates)" },
+	{ "TargetSystemHorizontalBanner", BeCast( EveSOFDataHullBanner::TARGET_SYSTEM_HORIZONTAL_BANNER ), "Target system horizontal banner (gates)" },
+	{ "TargetSystemInfo0", BeCast( EveSOFDataHullBanner::TARGET_SYSTEM_INFO_0 ), "Target system information (gates)" },
+	{ "TargetSystemInfo1", BeCast( EveSOFDataHullBanner::TARGET_SYSTEM_INFO_1 ), "Target system information (gates)" },
+	{ "TargetSystemInfo2", BeCast( EveSOFDataHullBanner::TARGET_SYSTEM_INFO_2 ), "Target system information (gates)" },
+	{ "TargetSystemInfo3", BeCast( EveSOFDataHullBanner::TARGET_SYSTEM_INFO_3 ), "Target system information (gates)" },
+	{ "TargetSystemInfo4", BeCast( EveSOFDataHullBanner::TARGET_SYSTEM_INFO_4 ), "Target system information (gates)" },
+	{ "TargetSystemStatus", BeCast( EveSOFDataHullBanner::TARGET_SYSTEM_STATUS ), "Target system status (gates)" },
+	{ "CurrentSystemAllianceLogo", BeCast( EveSOFDataHullBanner::CURRENT_SYSTEM_ALLIANCE_LOGO ), "Current system alliance logo (gates)" },
+	{ "CurrentSystemVerticalBanner", BeCast( EveSOFDataHullBanner::CURRENT_SYSTEM_VERTICAL_BANNER ), "Current system vertical banner (gates)" },
+	{ "CurrentSystemHorizontalBanner", BeCast( EveSOFDataHullBanner::CURRENT_SYSTEM_HORIZONTAL_BANNER ), "Current system horizontal banner (gates)" },
+	{ "PublicityPoster", BeCast( EveSOFDataHullBanner::PUBLICITY_POSTER ), "Publicity structure poster" },
+	{ "PublicityPortrait", BeCast( EveSOFDataHullBanner::PUBLICITY_PORTRAIT ), "Publicity structure portrait" },
+	{ "RecruitmentInformation0", BeCast( EveSOFDataHullBanner::RECRUITMENT_INFORMATION_0 ), "Publicity structure recruitment information" },
+	{ "RecruitmentInformation1", BeCast( EveSOFDataHullBanner::RECRUITMENT_INFORMATION_1 ), "Publicity structure recruitment information" },
+	{ "RecruitmentInformation2", BeCast( EveSOFDataHullBanner::RECRUITMENT_INFORMATION_2 ), "Publicity structure recruitment information" },
+	{ "RecruitmentInformation3", BeCast( EveSOFDataHullBanner::RECRUITMENT_INFORMATION_3 ), "Publicity structure recruitment information" },
+	{ "RecruitmentInformation4", BeCast( EveSOFDataHullBanner::RECRUITMENT_INFORMATION_4 ), "Publicity structure recruitment information" },
 	{ 0 }
 };
 BLUE_REGISTER_ENUM_EX( "HullBannerUsage", EveSOFDataHullBanner::Usage, EveSOFDataHullBannerUsageChooser, ENUM_REG_ENUM_OBJECT_ON_MODULE );

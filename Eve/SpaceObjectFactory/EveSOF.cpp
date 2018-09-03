@@ -1057,7 +1057,32 @@ void EveSOF::SetupBannerSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 			bannerSet->Rebuild();
 			obj->AddAttachment( bannerSet );
 
-			static const char* names[] = { "AllianceLogoResPath", "CorpLogoResPath", "CeoPortraitResPath", "VerticalBannerResPath", "HorizontalBannerResPath" };
+			static const char* names[] = { 
+				"AllianceLogoResPath", 
+				"CorpLogoResPath", 
+				"CeoPortraitResPath", 
+				"VerticalBannerResPath", 
+				"HorizontalBannerResPath", 
+				"TargetSystemAllianceLogoResPath",
+				"TargetSystemVerticalBannerResPath",
+				"TargetSystemHorizontalBannerResPath",
+				"TargetSystemInfo0ResPath",
+				"TargetSystemInfo1ResPath",
+				"TargetSystemInfo2ResPath",
+				"TargetSystemInfo3ResPath",
+				"TargetSystemInfo4ResPath",
+				"TargetSystemStatusResPath",
+				"CurrentSystemAllianceLogoResPath",
+				"CurrentSystemVerticalBannerResPath",
+				"CurrentSystemHorizontalBannerResPath",
+				"PublicityPosterResPath",
+				"PublicityPortraitResPath",
+				"RecruitmentInformation0ResPath",
+				"RecruitmentInformation1ResPath",
+				"RecruitmentInformation2ResPath",
+				"RecruitmentInformation3ResPath",
+				"RecruitmentInformation4ResPath",
+			};
 			static_assert( sizeof( names ) / sizeof( names[0] ) == EveSOFDataHullBanner::_USAGE_COUNT, "Banner usage names mismatch" );
 
 			const char* externalParamName = nullptr;

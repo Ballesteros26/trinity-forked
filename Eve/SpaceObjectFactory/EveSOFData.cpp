@@ -513,8 +513,13 @@ float EveSOFDataHullBanner::GetTargetAspectRatio() const
 	switch( m_usage )
 	{
 	case VERTICAL_BANNER:
+	case TARGET_SYSTEM_VERTICAL_BANNER:
+	case CURRENT_SYSTEM_VERTICAL_BANNER:
 		return 0.25f;
 	case HORIZONTAL_BANNER:
+	case TARGET_SYSTEM_HORIZONTAL_BANNER:
+	case CURRENT_SYSTEM_HORIZONTAL_BANNER:
+	case TARGET_SYSTEM_STATUS:
 		return 4.f;
 	default:
 		return 1.f;
