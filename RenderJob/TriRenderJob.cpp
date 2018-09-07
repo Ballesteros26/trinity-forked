@@ -66,7 +66,8 @@ TriRenderJobStatus TriRenderJob::Run( Be::Time realTime, Be::Time simTime, Tr2Re
 				CCP_ASSERT( preDS <= renderContext.GetStackSizeDS() && "Too many Pops (DS)" );
 			}
 
-			if( result != RS_OK )
+			// A step can potentially disable the render job. We musn't continue with the next steps if this happens.
+			if( result != RS_OK || !m_enabled )
 			{
 				break;
 			}
@@ -75,7 +76,7 @@ TriRenderJobStatus TriRenderJob::Run( Be::Time realTime, Be::Time simTime, Tr2Re
 
 	if( m_stackGuard )
 	{
-		if( result == RS_OK )
+		if( result == RS_OK && m_enabled )
 		{
 			CCP_ASSERT( preRT >= renderContext.GetStackSizeRT() && "Push without a Pop (RT)" );	
 			CCP_ASSERT( preDS >= renderContext.GetStackSizeDS() && "Push without a Pop (DS)");
@@ -92,6 +93,11 @@ TriRenderJobStatus TriRenderJob::Run( Be::Time realTime, Be::Time simTime, Tr2Re
 				renderContext.PopDepthStencil();
 			}
 		}
+	}
+
+	if ( !m_enabled )
+	{
+		return RJ_DONE;
 	}
 
 	switch( result )
