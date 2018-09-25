@@ -45,6 +45,7 @@ struct PerFrameData
 	uint32_t lightCount;
 	uint32_t indexBufferSize;
 	uint32_t msaaSamples;
+	// cppcheck-suppress unusedStructMember 
 	uint32_t _padding[1];
 };
 
