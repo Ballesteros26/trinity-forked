@@ -488,20 +488,6 @@ const EveSOFDataMgr::GenericBannerShaderData& EveSOFDNA::GetGenericBannerShaderD
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Return the factional group-decal-data by a given groupindex
-// --------------------------------------------------------------------------------
-const EveSOFDataMgr::FactionDecalData* EveSOFDNA::GetFactionDecalData( int groupIndex ) const
-{
-	auto finder = m_factionData->decalData.find( groupIndex );
-	if( finder != m_factionData->decalData.end() )
-	{
-		return &finder->second;
-	}
-	return nullptr;
-}
-
-// --------------------------------------------------------------------------------
-// Description:
 //   Return the factional group-planeset-data by a given groupindex
 // --------------------------------------------------------------------------------
 const EveSOFDataMgr::FactionPlaneSetColorData* EveSOFDNA::GetFactionPlaneSetData( int groupIndex ) const
@@ -706,15 +692,6 @@ const std::vector<EveSOFDataMgr::HullAnimation>& EveSOFDNA::GetHullAnimations() 
 const std::vector<BlueSharedString>& EveSOFDNA::GetHullControllers() const
 {
 	return m_hullDatas[0]->controllers;
-}
-
-// --------------------------------------------------------------------------------
-// Description:
-//   Return an array of all the decals of this hull
-// --------------------------------------------------------------------------------
-const std::vector<EveSOFDataMgr::HullDecalData>& EveSOFDNA::GetHullDecals( size_t n ) const
-{
-	return m_hullDatas[n]->hullDecals;
 }
 
 // --------------------------------------------------------------------------------

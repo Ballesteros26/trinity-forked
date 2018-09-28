@@ -468,7 +468,6 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 	hd.shapeEllipsoidCenter = srcData->m_shapeEllipsoidCenter;
 	hd.shapeEllipsoidRadius = srcData->m_shapeEllipsoidRadius;
 	hd.isSkinned = srcData->m_isSkinned;
-	hd.isUsingDecalSets = srcData->m_useNewDecalSets;
 	hd.enableDynamicBoundingSphere = srcData->m_enableDynamicBoundingSphere;
 	hd.castShadow = srcData->m_castShadow;
 	hd.audioPosition = srcData->m_audioPosition;
@@ -697,88 +696,46 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 	// only one layer for the default hull one (yet...)
 	EveSOFUtils::GeneratePatternProjectionData( &hd.defaultPattern, defaultPattern ? defaultPattern->m_transformLayer1 : nullptr );
 	
-	if( srcData->m_useNewDecalSets )
+	// hull decal sets
+	hd.hullDecalSets.clear();
+	for( auto hds = srcData->m_decalSets.begin(); hds != srcData->m_decalSets.end(); ++hds )
 	{
-		// hull decal sets
-		hd.hullDecalSets.clear();
-		for( auto hds = srcData->m_decalSets.begin(); hds != srcData->m_decalSets.end(); ++hds )
+		EveSOFDataHullDecalSetPtr hullDecalSet = (*hds);
+		HullDecalSetData decalSetData;
+		decalSetData.visibilityGroup = GetVisibilityGroupHash( hullDecalSet->m_visibilityGroup );
+		decalSetData.items.clear();
+
+		for( auto hdsi = hullDecalSet->m_items.begin(); hdsi != hullDecalSet->m_items.end(); ++hdsi )
 		{
-			EveSOFDataHullDecalSetPtr hullDecalSet = (*hds);
-			HullDecalSetData decalSetData;
-			decalSetData.visibilityGroup = GetVisibilityGroupHash( hullDecalSet->m_visibilityGroup );
-			decalSetData.items.clear();
+			EveSOFDataHullDecalSetItemPtr itemPtr = (*hdsi);
+			HullDecalSetItemData itemData;
+			itemData.boneIndex = itemPtr->m_boneIndex;
+			itemData.glowColorType = itemPtr->m_glowColorType;
+			itemData.indexBuffer.insert( itemData.indexBuffer.begin(), itemPtr->m_indexBuffer.begin(), itemPtr->m_indexBuffer.end() );
+			itemData.meshIndex = itemPtr->m_meshIndex;
+			itemData.position = itemPtr->m_position;
+			itemData.rotation = itemPtr->m_rotation;
+			itemData.scaling = itemPtr->m_scaling;
+			itemData.usage = itemPtr->m_usage;
+			itemData.logoType = itemPtr->m_logoType;
 
-			for( auto hdsi = hullDecalSet->m_items.begin(); hdsi != hullDecalSet->m_items.end(); ++hdsi )
-			{
-				EveSOFDataHullDecalSetItemPtr itemPtr = (*hdsi);
-				HullDecalSetItemData itemData;
-				itemData.boneIndex = itemPtr->m_boneIndex;
-				itemData.glowColorType = itemPtr->m_glowColorType;
-				itemData.indexBuffer.insert( itemData.indexBuffer.begin(), itemPtr->m_indexBuffer.begin(), itemPtr->m_indexBuffer.end() );
-				itemData.meshIndex = itemPtr->m_meshIndex;
-				itemData.position = itemPtr->m_position;
-				itemData.rotation = itemPtr->m_rotation;
-				itemData.scaling = itemPtr->m_scaling;
-				itemData.usage = itemPtr->m_usage;
-				itemData.logoType = itemPtr->m_logoType;
-
-				for( auto hdtit = itemPtr->m_textures.begin(); hdtit != itemPtr->m_textures.end(); ++hdtit )
-				{
-					EveSOFDataTexturePtr textureData = (*hdtit);
-
-					TextureData td;
-					td.resFilePath = textureData->m_resFilePath;
-					itemData.textures[textureData->m_name] = td;
-				}
-				for( auto hdpit = itemPtr->m_parameters.begin(); hdpit != itemPtr->m_parameters.end(); ++hdpit )
-				{
-					EveSOFDataParameterPtr parameterData = (*hdpit);
-
-					itemData.parameters[parameterData->m_name] = parameterData->m_value;
-				}
-				decalSetData.items.push_back( itemData );
-			}
-			hd.hullDecalSets.push_back( decalSetData );
-		}
-	}
-	else
-	{
-		// hulldecals
-		hd.hullDecals.clear();
-		for( auto hdit = srcData->m_hullDecals.begin(); hdit != srcData->m_hullDecals.end(); ++hdit )
-		{
-			EveSOFDataHullDecalPtr hullDecal = (*hdit);
-
-			HullDecalData hdd;
-			hdd.useLegacy = hullDecal->m_useLegacy;
-			hdd.visibilityGroup = GetVisibilityGroupHash( hullDecal->m_visibilityGroup );
-
-			hdd.usage = hullDecal->m_usage;
-			hdd.position = hullDecal->m_position;
-			hdd.rotation = hullDecal->m_rotation;
-			hdd.scaling = hullDecal->m_scaling;
-			hdd.groupIndex = hullDecal->m_groupIndex;
-			hdd.boneIndex = hullDecal->m_boneIndex;
-			hdd.meshIndex = hullDecal->m_meshIndex;
-			hdd.glowColorType = hullDecal->m_glowColorType;
-			hdd.indexBuffer.insert( hdd.indexBuffer.begin(), hullDecal->m_indexBuffer.begin(), hullDecal->m_indexBuffer.end() );
-			hdd.shader = hullDecal->m_shader;
-			for( auto hdtit = hullDecal->m_textures.begin(); hdtit != hullDecal->m_textures.end(); ++hdtit )
+			for( auto hdtit = itemPtr->m_textures.begin(); hdtit != itemPtr->m_textures.end(); ++hdtit )
 			{
 				EveSOFDataTexturePtr textureData = (*hdtit);
 
 				TextureData td;
 				td.resFilePath = textureData->m_resFilePath;
-				hdd.textures[textureData->m_name] = td;
+				itemData.textures[textureData->m_name] = td;
 			}
-			for( auto hdpit = hullDecal->m_parameters.begin(); hdpit != hullDecal->m_parameters.end(); ++hdpit )
+			for( auto hdpit = itemPtr->m_parameters.begin(); hdpit != itemPtr->m_parameters.end(); ++hdpit )
 			{
 				EveSOFDataParameterPtr parameterData = (*hdpit);
 
-				hdd.parameters[parameterData->m_name] = parameterData->m_value;
+				itemData.parameters[parameterData->m_name] = parameterData->m_value;
 			}
-			hd.hullDecals.push_back( hdd );
+			decalSetData.items.push_back( itemData );
 		}
+		hd.hullDecalSets.push_back( decalSetData );
 	}
 
 	// meshareas
@@ -1052,32 +1009,6 @@ void EveSOFDataMgr::GenerateFactionData( FactionData& fd, EveSOFDataFactionPtr s
 		plscd.color = planeSetData->m_color;
 
 		fd.planeSetsColors[planeSetData->m_groupIndex] = plscd;
-	}
-
-	// decal faction data
-	fd.decalData.clear();
-	for( auto ddit = srcData->m_decals.begin(); ddit != srcData->m_decals.end(); ++ddit )
-	{
-		EveSOFDataFactionDecalPtr decalData = (*ddit);
-
-		FactionDecalData fdd;
-		fdd.isVisible = decalData->m_isVisible;
-		fdd.shader = decalData->m_shader;
-		for( auto ddpit = decalData->m_parameters.begin(); ddpit != decalData->m_parameters.end(); ++ddpit )
-		{
-			EveSOFDataParameterPtr parameterData = (*ddpit);
-			fdd.parameters[parameterData->m_name] = parameterData->m_value;
-		}
-		for( auto ddtit = decalData->m_textures.begin(); ddtit != decalData->m_textures.end(); ++ddtit )
-		{
-			EveSOFDataTexturePtr textureData = (*ddtit);
-
-			TextureData td;
-			td.resFilePath = textureData->m_resFilePath;
-			fdd.textures[textureData->m_name] = td;
-		}
-
-		fd.decalData[decalData->m_groupIndex] = fdd;
 	}
 
 	// child faction data

@@ -56,13 +56,13 @@ EveSOF::EveSOF( IRoot* lockobj ) :
 {
 	// hard-coded names
 	m_depthOnlyEffectName = BlueSharedString( "depthonlyv5.fx" );
-	m_decalsEffectName[EveSOFDataHullDecal::USAGE_STANDARD] = BlueSharedString( "decalv5.fx" );
-	m_decalsEffectName[EveSOFDataHullDecal::USAGE_KILLCOUNTER] = BlueSharedString( "decalcounterv5.fx" );
-	m_decalsEffectName[EveSOFDataHullDecal::USAGE_HOLE] = BlueSharedString( "decalholev5.fx" );
-	m_decalsEffectName[EveSOFDataHullDecal::USAGE_CYLINDRICAL] = BlueSharedString( "decalcylindricv5.fx" );
-	m_decalsEffectName[EveSOFDataHullDecal::USAGE_GLOWCYLINDRICAL] = BlueSharedString( "decalglowcylindricv5.fx" );
-	m_decalsEffectName[EveSOFDataHullDecal::USAGE_GLOWSTANDARD] = BlueSharedString( "decalglowv5.fx" );
-	m_decalsEffectName[EveSOFDataHullDecal::USAGE_LOGO] = BlueSharedString( "decalv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecalSetItem::USAGE_STANDARD] = BlueSharedString( "decalv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecalSetItem::USAGE_KILLCOUNTER] = BlueSharedString( "decalcounterv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecalSetItem::USAGE_HOLE] = BlueSharedString( "decalholev5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecalSetItem::USAGE_CYLINDRICAL] = BlueSharedString( "decalcylindricv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecalSetItem::USAGE_GLOWCYLINDRICAL] = BlueSharedString( "decalglowcylindricv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecalSetItem::USAGE_GLOWSTANDARD] = BlueSharedString( "decalglowv5.fx" );
+	m_decalsEffectName[EveSOFDataHullDecalSetItem::USAGE_LOGO] = BlueSharedString( "decalv5.fx" );
 
 	// pre-register some really needed vars in the global variable store
 	Tr2Variable var1( "DepthMap", (ITr2TextureProvider*)nullptr );
@@ -144,14 +144,7 @@ IRootPtr EveSOF::BuildFromDNA( const char* dnaString )
 	SetupCustomMask( newObj, dna );
 
 	// decals
-	if( dna->IsHullUsingDecalSets() )
-	{
 		SetupDecalSets( newObj, dna );
-	}
-	else
-	{
-		SetupDecals( newObj, dna );
-	}
 
 	// effects on ships
 	SetupSpriteSets( newObj, dna );
@@ -1773,132 +1766,6 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 
 // --------------------------------------------------------------------------------
 // Description:
-//   add the hull decals to the new ship
-// --------------------------------------------------------------------------------
-void EveSOF::SetupDecals( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
-{
-	CCP_STATS_ZONE( __FUNCTION__ );
-
-	// cycle over all hulls in the multi-hull list
-	Vector3 hullOffset( 0.f, 0.f, 0.f );
-	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
-	{
-		// create and setup all hull decals
-		const std::vector<EveSOFDataMgr::HullDecalData>& hullDecals = dna->GetHullDecals( hullIdx );
-		for( auto hdit = hullDecals.begin(); hdit != hullDecals.end(); ++hdit )
-		{
-			const EveSOFDataMgr::FactionDecalData* fdd = nullptr;
-
-			// do we have faction data for this decal? comes from groupIndex
-			if( hdit->groupIndex != -1 )
-			{
-				fdd = dna->GetFactionDecalData( hdit->groupIndex );
-				if( !(fdd && fdd->isVisible) )
-				{
-					continue;
-				}
-			}
-
-			// create
-			EveSpaceObjectDecalPtr decal;
-			decal.CreateInstance();
-			// set general datas
-			decal->SetPosition( hdit->position + hullOffset );
-			decal->SetRotation( hdit->rotation );
-			decal->SetScaling( hdit->scaling );
-			decal->SetBoneIndex( hdit->boneIndex );
-
-			// pre-calculated index buffer is only valid for first multi-hull
-			if( hdit->indexBuffer.empty() || hullIdx != 0 )
-			{
-				decal->SetIndices( nullptr, 0 );
-			}
-			else
-			{
-				decal->SetIndices( &hdit->indexBuffer[0], hdit->indexBuffer.size() );
-			}
-
-			// the decal effect
-			Tr2EffectPtr shader;
-			shader.CreateInstance();
-			shader->StartUpdate();
-
-			// shader is hull-only and MUST exist!
-			if( hdit->shader.empty() )
-			{
-				continue;
-			}
-
-			// construct shader path and set it on the Tr2Effect
-			std::string shaderPath = dna->GetDecalShaderLocationResPath() + std::string( "/" ) + dna->GetShaderPrefix( false ) + hdit->shader;
-			shader->SetEffectPathName( shaderPath.c_str() );
-
-			// always set hull parameters & textures for this decal
-			for( auto hdpit = hdit->parameters.begin(); hdpit != hdit->parameters.end(); ++hdpit )
-			{
-				shader->AddParameterVector4( hdpit->first, &hdpit->second );
-			}
-			for( auto hdtit = hdit->textures.begin(); hdtit != hdit->textures.end(); ++hdtit )
-			{
-				shader->AddResourceTexture2D( hdtit->first, hdtit->second.resFilePath.c_str() );
-			}
-
-			// then set the factional
-			if( fdd )
-			{
-				for( auto fdpit = fdd->parameters.begin(); fdpit != fdd->parameters.end(); ++fdpit )
-				{
-					shader->AddParameterVector4( fdpit->first, &fdpit->second );
-				}
-				for( auto fdtit = fdd->textures.begin(); fdtit != fdd->textures.end(); ++fdtit )
-				{
-					shader->AddResourceTexture2D( fdtit->first, fdtit->second.resFilePath.c_str() );
-				}
-			}
-
-			// find data on this shader from generics, we need it!
-			const EveSOFDataMgr::GenericDecalShaderData* shaderData = dna->GetGenericDecalShaderData( BlueSharedString( hdit->shader ) );
-			if( shaderData )
-			{
-				// default shader textures & parameters from the generic data
-				for( auto gtit = shaderData->defaultTextures.begin(); gtit != shaderData->defaultTextures.end(); ++gtit )
-				{
-					shader->AddResourceTexture2D( gtit->first, gtit->second.resFilePath.c_str() );
-				}
-
-				// parent hull textures
-				for( auto ptit = shaderData->parentTextures.begin(); ptit != shaderData->parentTextures.end(); ++ptit )
-				{
-					if( hdit->meshIndex != -1 )
-					{
-						// get the filepath from the hull
-						std::string resFilePath;
-						if( dna->GetHullTextureWithMeshIndex( resFilePath, *ptit, hdit->meshIndex, hullIdx ) )
-						{
-							shader->AddResourceTexture2D( *ptit, resFilePath.c_str() );
-						}
-					}
-				}
-			}
-
-			// init and add
-			shader->EndUpdate();
-			decal->SetEffect( shader );
-			decal->Initialize();
-			obj->AddDecal( decal );
-		}
-
-		// next hull needs offset update from hull's locator
-		const Vector3* nextSubsystemOffset = dna->GetHullNextSubsystemOffset( hullIdx );
-		if( nextSubsystemOffset )
-		{
-			hullOffset += *nextSubsystemOffset;
-		}
-	}
-}
-
-// --------------------------------------------------------------------------------
-// Description:
 //   add the hull decals to the new ship based off the decal sets
 // --------------------------------------------------------------------------------
 void EveSOF::SetupDecalSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
@@ -1921,7 +1788,7 @@ void EveSOF::SetupDecalSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 			for( auto hdsiit = hdsit->items.begin(); hdsiit != hdsit->items.end(); ++hdsiit )
 			{
 				// if we have a logo decal but the faction doesn't have a that logo in the logo set then we can skip this decal
-				if( hdsiit->usage == EveSOFDataHullDecal::USAGE_LOGO && !dna->HasLogoSet( hdsiit->logoType ) )
+				if( hdsiit->usage == EveSOFDataHullDecalSetItem::USAGE_LOGO && !dna->HasLogoSet( hdsiit->logoType ) )
 				{
 					continue;
 				}
@@ -1957,7 +1824,7 @@ void EveSOF::SetupDecalSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 				shader->SetEffectPathName( shaderPath.c_str() );
 				
 				// Set the glow color based on the colors in the colorsetuS
-				if( hdsiit->usage != EveSOFDataHullDecal::USAGE_LOGO && hdsiit->usage != EveSOFDataHullDecal::USAGE_STANDARD )
+				if( hdsiit->usage != EveSOFDataHullDecalSetItem::USAGE_LOGO && hdsiit->usage != EveSOFDataHullDecalSetItem::USAGE_STANDARD )
 				{
 					Color decalGlowColor = dna->GetColorSet()[hdsiit->glowColorType];
 					shader->AddParameterColor( BlueSharedString( "DecalGlowColor" ), &decalGlowColor );
@@ -1999,7 +1866,7 @@ void EveSOF::SetupDecalSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 				}
 				
 				// Set the logo from the logoset
-				if( hdsiit->usage == EveSOFDataHullDecal::USAGE_LOGO )
+				if( hdsiit->usage == EveSOFDataHullDecalSetItem::USAGE_LOGO )
 				{
 					const EveSOFDataMgr::LogoData* logo = dna->GetLogo( hdsiit->logoType );
 					if( logo ) {

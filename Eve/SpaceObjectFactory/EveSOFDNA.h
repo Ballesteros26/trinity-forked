@@ -89,7 +89,6 @@ public:
 	const std::vector<EveSOFDataMgr::HullInstancedMesh>& GetHullInstancedMeshes() const;
 	const std::vector<EveSOFDataMgr::HullAnimation>& GetHullAnimations() const;
 	const std::vector<BlueSharedString>& GetHullControllers() const;
-	const std::vector<EveSOFDataMgr::HullDecalData>& GetHullDecals( size_t n ) const;
 	const std::vector<EveSOFDataMgr::HullDecalSetData>& GetHullDecalSets( size_t n ) const;
 	const std::vector<EveSOFDataMgr::HullPlaneSetData>& GetHullPlaneSets( size_t n ) const;
 	const std::vector<EveSOFDataMgr::HullSpotlightSetData>& GetHullSpotlightSets( size_t n ) const;
@@ -106,7 +105,6 @@ public:
 	// get faction data
 	void ModifyTextureResPath( std::string& resPath, const char* resName ) const;
 	const Vector4* GetFactionTurretParameters( const BlueSharedString& parameterName ) const;
-	const EveSOFDataMgr::FactionDecalData* GetFactionDecalData( int groupIndex ) const;
 	const EveSOFDataMgr::FactionPlaneSetColorData* GetFactionPlaneSetData( int groupIndex ) const;
 	const EveSOFDataMgr::FactionSpotlightSetColorData* GetFactionSpotlightSetData( int groupIndex ) const;
 	const EveSOFDataMgr::FactionChildData* GetFactionChildData( int groupIndex ) const;

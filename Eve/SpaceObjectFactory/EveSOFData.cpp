@@ -60,14 +60,6 @@ EveSOFDataFactionHullArea::EveSOFDataFactionHullArea( IRoot* lockobj ) :
 {}
 
 
-EveSOFDataFactionDecal::EveSOFDataFactionDecal( IRoot* lockobj ) :
-	PARENTLOCK( m_parameters ),
-	PARENTLOCK( m_textures ),
-	m_groupIndex( -1 ),
-	m_isVisible( false )
-{}
-
-
 EveSOFDataFactionChild::EveSOFDataFactionChild( IRoot* lockobj ) :
 	m_groupIndex( -1 ),
 	m_isVisible( false )
@@ -173,7 +165,6 @@ EveSOFDataGenericVariant::EveSOFDataGenericVariant( IRoot* lockobj ) :
 
 
 EveSOFDataFaction::EveSOFDataFaction( IRoot* lockobj ) :
-	PARENTLOCK( m_decals ),
 	PARENTLOCK( m_spotlightSets ),
 	PARENTLOCK( m_planeSets ),
 	PARENTLOCK( m_children ),
@@ -258,7 +249,6 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 	PARENTLOCK( m_hazeSets ),
 	PARENTLOCK( m_banners ),
 	PARENTLOCK( m_decalSets ),
-	PARENTLOCK( m_hullDecals ),
 	PARENTLOCK( m_opaqueAreas ),
 	PARENTLOCK( m_decalAreas ),
 	PARENTLOCK( m_transparentAreas ),
@@ -277,7 +267,6 @@ EveSOFDataHull::EveSOFDataHull( IRoot* lockobj ) :
 	m_isSkinned( false ),
 	m_enableDynamicBoundingSphere( false ),
 	m_castShadow( true ),
-	m_useNewDecalSets( true ),
 	m_impactEffectType( IMPACTEFFECT_NONE ),
 	m_audioPosition( 0.f, 0.f, 0.f )
 {}
@@ -337,24 +326,6 @@ static BlueStructureDefinition s_eveSOFDecalIndexDef[] =
 	{ "index",	Be::UINT32_1,	0 }, 
 	{0} 
 };
-
-EveSOFDataHullDecal::EveSOFDataHullDecal( IRoot* lockobj ) :
-	m_useLegacy( true ),
-	m_usage( USAGE_STANDARD ),
-	m_position( 0.f, 0.f, 0.f ),
-	m_rotation( 0.f, 0.f, 0.f, 1.f ),
-	m_scaling( 1.f, 1.f, 1.f ),
-	m_groupIndex( -1 ),
-	m_visibilityGroup( "primary"),
-	m_boneIndex( -1 ),
-	m_meshIndex( -1 ),
-	m_glowColorType( EveSOFDataFactionColorSet::TYPE_PRIMARY ),
-	PARENTLOCK( m_textures ),
-	PARENTLOCK( m_parameters ),
-	PARENTLOCK( m_indexBuffer )
-{
-	m_indexBuffer.SetStructureDefinition( s_eveSOFDecalIndexDef );
-}
 
 
 EveSOFDataHullLocator::EveSOFDataHullLocator( IRoot* lockobj )
@@ -598,7 +569,7 @@ EveSOFDataHullDecalSet::EveSOFDataHullDecalSet( IRoot* lockobj ):
 {}
 
 EveSOFDataHullDecalSetItem::EveSOFDataHullDecalSetItem( IRoot* lockobj ) :
-	m_usage( EveSOFDataHullDecal::USAGE_STANDARD ),
+	m_usage( USAGE_STANDARD ),
 	m_position( 0.f, 0.f, 0.f ),
 	m_rotation( 0.f, 0.f, 0.f, 1.f ),
 	m_scaling( 1.f, 1.f, 1.f ),

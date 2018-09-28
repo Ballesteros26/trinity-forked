@@ -720,8 +720,6 @@ const Be::ClassInfo* EveSOFDataHull::ExposeToBlue()
 		MAP_ATTRIBUTE( "enableDynamicBoundingSphere", m_enableDynamicBoundingSphere, "Used to toggle dynamic bounding sphere.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "castShadow", m_castShadow, "Used to toggle shadow casting.", Be::READWRITE | Be::PERSIST )
 		
-		MAP_ATTRIBUTE( "useNewDecalSets", m_useNewDecalSets, "WIP uses the new decal sets.", Be::READWRITE | Be::PERSIST )
-
 		MAP_ATTRIBUTE( "opaqueAreas", m_opaqueAreas, "The opaque areas on this mesh", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "decalAreas", m_decalAreas, "The decal aSOFDatareas on this mesh", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "transparentAreas", m_transparentAreas, "The transparent areas on this mesh", Be::READWRITE | Be::PERSIST )
@@ -738,8 +736,6 @@ const Be::ClassInfo* EveSOFDataHull::ExposeToBlue()
 		MAP_ATTRIBUTE( "banners", m_banners, "", Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( "decalSets", m_decalSets, "The decalsets", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE_WITH_CHOOSER( "impactEffectType", m_impactEffectType, "Type of impact effect on this hull", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFImpactEffectTypeChooser )
-
-		MAP_ATTRIBUTE( "hullDecals", m_hullDecals, "The hull decals", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "booster", m_booster, "The booster", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "audioPosition", m_audioPosition, "The audio position", Be::READWRITE | Be::PERSIST )
@@ -786,23 +782,6 @@ const Be::ClassInfo* EveSOFDataFactionHullArea::ExposeToBlue()
 
 
 
-BLUE_DEFINE( EveSOFDataFactionDecal );
-const Be::ClassInfo* EveSOFDataFactionDecal::ExposeToBlue()
-{
-    EXPOSURE_BEGIN( EveSOFDataFactionDecal, "" )
-        MAP_INTERFACE( EveSOFDataFactionDecal )
-
-		MAP_ATTRIBUTE( "groupIndex", m_groupIndex, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "isVisible", m_isVisible, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "shader", m_shader, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "textures", m_textures, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "parameters", m_parameters, "", Be::READWRITE | Be::PERSIST )
-    EXPOSURE_END()
-}
-
-
-
 BLUE_DEFINE( EveSOFDataFactionChild );
 const Be::ClassInfo* EveSOFDataFactionChild::ExposeToBlue()
 {
@@ -817,46 +796,21 @@ const Be::ClassInfo* EveSOFDataFactionChild::ExposeToBlue()
 
 
 
-BLUE_DEFINE( EveSOFDataHullDecal );
+BLUE_DEFINE( EveSOFDataHullDecalSetItem );
 
 Be::VarChooser EveSOFDecalUsageChooser[] =
 {
-	{ "Standard", BeCast( EveSOFDataHullDecal::USAGE_STANDARD ), "Standard decal" },
-	{ "KillCounter", BeCast( EveSOFDataHullDecal::USAGE_KILLCOUNTER ), "The killcounter decal" },
-	{ "Hole", BeCast( EveSOFDataHullDecal::USAGE_HOLE ), "Hole decal" },
-	{ "Cylindrical", BeCast( EveSOFDataHullDecal::USAGE_CYLINDRICAL ), "Cylindrical decal" },
-	{ "GlowCylindrical", BeCast( EveSOFDataHullDecal::USAGE_GLOWCYLINDRICAL ), "Glow cylindrical decal" },
-	{ "Glow", BeCast( EveSOFDataHullDecal::USAGE_GLOWSTANDARD ), "Glow decal" },
-	{ "Logo", BeCast( EveSOFDataHullDecal::USAGE_LOGO), "Logo decal" },
+	{ "Standard", BeCast( EveSOFDataHullDecalSetItem::USAGE_STANDARD ), "Standard decal" },
+	{ "KillCounter", BeCast( EveSOFDataHullDecalSetItem::USAGE_KILLCOUNTER ), "The killcounter decal" },
+	{ "Hole", BeCast( EveSOFDataHullDecalSetItem::USAGE_HOLE ), "Hole decal" },
+	{ "Cylindrical", BeCast( EveSOFDataHullDecalSetItem::USAGE_CYLINDRICAL ), "Cylindrical decal" },
+	{ "GlowCylindrical", BeCast( EveSOFDataHullDecalSetItem::USAGE_GLOWCYLINDRICAL ), "Glow cylindrical decal" },
+	{ "Glow", BeCast( EveSOFDataHullDecalSetItem::USAGE_GLOWSTANDARD ), "Glow decal" },
+	{ "Logo", BeCast( EveSOFDataHullDecalSetItem::USAGE_LOGO), "Logo decal" },
 	{ 0 }
 };
-BLUE_REGISTER_ENUM_EX( "DecalUsage", EveSOFDataHullDecal::Usage, EveSOFDecalUsageChooser, ENUM_REG_ENUM_OBJECT_ON_MODULE );
+BLUE_REGISTER_ENUM_EX( "DecalUsage", EveSOFDataHullDecalSetItem::Usage, EveSOFDecalUsageChooser, ENUM_REG_ENUM_OBJECT_ON_MODULE );
 
-
-const Be::ClassInfo* EveSOFDataHullDecal::ExposeToBlue()
-{
-    EXPOSURE_BEGIN( EveSOFDataHullDecal, "" )
-        MAP_INTERFACE( EveSOFDataHullDecal )
-
-		MAP_ATTRIBUTE( "useLegacy", m_useLegacy, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE_WITH_CHOOSER("usage", m_usage, "Choose the usage of this decal", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDecalUsageChooser )
-		MAP_ATTRIBUTE( "position", m_position, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "rotation", m_rotation, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "scaling", m_scaling, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "shader", m_shader, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "groupIndex", m_groupIndex, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "visibilityGroup", m_visibilityGroup, "Name for visibility group to toggle visibility", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "boneIndex", m_boneIndex, ":jessica-widget: boneindex", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "meshIndex", m_meshIndex, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE_WITH_CHOOSER( "glowColorType", m_glowColorType, "", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFDataFactionColorSetTypeChooser )
-		MAP_ATTRIBUTE( "parameters", m_parameters, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "textures", m_textures, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "indexBuffer", m_indexBuffer, "", Be::READWRITE | Be::PERSIST )
-    EXPOSURE_END()
-}
-
-BLUE_DEFINE( EveSOFDataHullDecalSetItem );
 const Be::ClassInfo* EveSOFDataHullDecalSetItem::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( EveSOFDataHullDecalSetItem, "" )
@@ -928,7 +882,6 @@ const Be::ClassInfo* EveSOFDataFaction::ExposeToBlue()
 		MAP_ATTRIBUTE( "areaTypes", m_areaTypes, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "colorSet", m_colorSet, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "logoSet", m_logoSet, "", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "decals", m_decals, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "spotlightSets", m_spotlightSets, "All the groups of spotlight sets.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "planeSets", m_planeSets, "All the groups of plane sets.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "children", m_children, "All the groups of children.", Be::READWRITE | Be::PERSIST )

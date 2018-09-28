@@ -206,27 +206,9 @@ public:
 		std::map<BlueSharedString, Vector4> parameters;
 	};
 
-	struct HullDecalData
-	{
-		bool useLegacy;
-		EveSOFDataHullDecal::Usage usage;
-		Vector3 position;
-		Quaternion rotation;
-		Vector3 scaling;
-		uint32_t visibilityGroup;
-		int groupIndex;
-		int boneIndex;
-		int meshIndex;
-		uint32_t glowColorType;
-		std::string shader;
-		std::map<BlueSharedString, TextureData> textures;
-		std::map<BlueSharedString, Vector4> parameters;
-		std::vector<uint32_t> indexBuffer;
-	};
-
 	struct HullDecalSetItemData
 	{
-		EveSOFDataHullDecal::Usage usage;
+		EveSOFDataHullDecalSetItem::Usage usage;
 		Vector3 position;
 		Quaternion rotation;
 		Vector3 scaling;
@@ -319,7 +301,6 @@ public:
 		std::vector<HullAreas> transparentAreas;
 		std::vector<HullAreas> additiveAreas;
 		std::vector<HullAreas> distortionAreas;
-		std::vector<HullDecalData> hullDecals;
 		HullBoosterData boosters;
 		std::vector<LocatorData> locatorTurrets;
 		std::map<BlueSharedString, std::vector<LocatorDirectionData>> locatorSets;
@@ -369,14 +350,6 @@ public:
 		Color color;
 	};
 
-	struct FactionDecalData
-	{
-		bool isVisible;
-		std::string shader;
-		std::map<BlueSharedString, TextureData> textures;
-		std::map<BlueSharedString, Vector4> parameters;
-	};
-
 	struct FactionChildData
 	{
 		bool isVisible;
@@ -406,8 +379,6 @@ public:
 		std::map<int, FactionSpotlightSetColorData> spotlightSetsColors;
 		// plane sets
 		std::map<int, FactionPlaneSetColorData> planeSetsColors;
-		// decals
-		std::map<int, FactionDecalData> decalData;
 		// children
 		std::map<int, FactionChildData> childData;
 	};

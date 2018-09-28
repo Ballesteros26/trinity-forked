@@ -66,7 +66,6 @@ private:
 	void SetupBannerSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupInstancedMeshes( EveSpaceObject2Ptr newObj, EveSOFDNAPtr dna ) const;
-	void SetupDecals( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupDecalSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupModelCurves( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupLocators( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
@@ -88,7 +87,7 @@ private:
 	Tr2EffectPtr m_hazeSetEffectSpherical, m_hazeSetEffectHalfSpherical;
 	Tr2EffectPtr m_spriteSetEffect;
 	Tr2EffectPtr m_shadowEffect, m_shadowEffectSkinned;
-	BlueSharedString m_depthOnlyEffectName, m_decalsEffectName[EveSOFDataHullDecal::USAGE_MAX];
+	BlueSharedString m_depthOnlyEffectName, m_decalsEffectName[EveSOFDataHullDecalSetItem::USAGE_MAX];
 };
 
 TYPEDEF_BLUECLASS( EveSOF );
