@@ -17,6 +17,35 @@ public:
 #endif
 
 
+BLUE_CLASS( Tr2GrannyIntersectionResult ): public IRoot
+{
+public:
+	Tr2GrannyIntersectionResult( IRoot* lockobj = nullptr );
+
+	EXPOSE_TO_BLUE();
+
+	struct Result
+	{
+		Result();
+
+		Vector3 position;
+		Vector3 normal;
+		Vector2 uv;
+		int32_t meshIndex;
+		int32_t areaIndex;
+		int32_t boneIndex;
+		bool hasPosition;
+		bool hasNormal;
+		bool hasUv;
+		bool hasBoneIndex;
+	};
+
+	Result m_result;
+};
+
+TYPEDEF_BLUECLASS( Tr2GrannyIntersectionResult );
+
+
 
 BLUE_DECLARE( TriGeometryRes );
 BLUE_DECLARE( TriGrannyRes );

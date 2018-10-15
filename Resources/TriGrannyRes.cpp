@@ -14,6 +14,26 @@ IBlueResource* CreateGrannyResource( const wchar_t* name )
 
 BLUE_REGISTER_RESOURCE_EXTENSION( L"gr2raw", CreateGrannyResource );
 
+
+Tr2GrannyIntersectionResult::Tr2GrannyIntersectionResult( IRoot* )
+{
+}
+
+Tr2GrannyIntersectionResult::Result::Result()
+	:position( 0, 0, 0 ),
+	normal( 0, 0, 0 ),
+	uv( 0, 0 ),
+	meshIndex( -1 ),
+	areaIndex( -1 ),
+	boneIndex( -1 ),
+	hasPosition( false ),
+	hasNormal( false ),
+	hasUv( false ),
+	hasBoneIndex( false )
+{
+}
+
+
 TriGrannyRes::TriGrannyRes( IRoot* lockobj ) : 
 	m_grannyFile( NULL ),
 	m_data( NULL ),
@@ -1216,3 +1236,4 @@ Be::Result<std::string> TriGrannyRes::BakeBlendshapeFromScript( unsigned int mes
 
 	return success ? Be::Result<std::string>() : Be::Result<std::string>( " TriGrannyRes::BakeBlendshape encountered problems. ");
 }
+
