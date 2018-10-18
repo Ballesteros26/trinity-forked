@@ -8,12 +8,25 @@
 #include "Tr2RuntimeTextureParameter.h"
 #include "ITr2TextureProvider.h"
 #include "Shader/Tr2Shader.h"
+#include "Shader/Tr2Material.h"
 #include "Tr2Renderer.h"
 
 // --------------------------------------------------------------------------------------
 Tr2RuntimeTextureParameter::Tr2RuntimeTextureParameter( IRoot* lockobj )
 	:m_resourceType( Tr2EffectResource::TEXTURE_TYPELESS )
 {
+}
+
+bool Tr2RuntimeTextureParameter::OnModified( Be::Var* value )
+{
+	if( IsMatch( value, m_texture ) )
+	{
+		for( auto it = begin( m_materials ); it != end( m_materials ); ++it )
+		{
+			( *it )->InvalidateResourceSets();
+		}
+	}
+	return true;
 }
 
 // --------------------------------------------------------------------------------------
@@ -92,4 +105,22 @@ void Tr2RuntimeTextureParameter::Create( const BlueSharedString& name, ITr2Textu
 void Tr2RuntimeTextureParameter::SetTextureProvider( ITr2TextureProvider* texture )
 {
 	m_texture = texture;
+	for( auto it = begin( m_materials ); it != end( m_materials ); ++it )
+	{
+		( *it )->InvalidateResourceSets();
+	}
+}
+
+void Tr2RuntimeTextureParameter::OnAddedToMaterial( Tr2Material* material )
+{
+	m_materials.push_back( material );
+}
+
+void Tr2RuntimeTextureParameter::OnRemovedFromMaterial( Tr2Material* material )
+{
+	auto found = find( begin( m_materials ), end( m_materials ), material );
+	if( found != end( m_materials ) )
+	{
+		m_materials.erase( found );
+	}
 }

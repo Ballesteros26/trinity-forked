@@ -9,12 +9,14 @@
 
 BLUE_DECLARE_INTERFACE( ITr2TextureProvider );
 
-BLUE_CLASS( Tr2RuntimeTextureParameter ): public ITriEffectResourceParameter
+BLUE_CLASS( Tr2RuntimeTextureParameter ): public ITriEffectResourceParameter, public INotify
 {
 public:
 	Tr2RuntimeTextureParameter( IRoot* lockobj = nullptr );
 
 	EXPOSE_TO_BLUE();
+
+	bool OnModified( Be::Var* value ) override;
 
 	virtual bool CopyToResourceSet(
 		Tr2ResourceSetDescriptionAL& resourceDesc,
@@ -34,8 +36,12 @@ public:
 
 	void SetTextureProvider( ITr2TextureProvider* texture );
 private:
+	void OnAddedToMaterial( Tr2Material* material ) override;
+	void OnRemovedFromMaterial( Tr2Material* material ) override;
+
 	BlueSharedString m_name;
 	ITr2TextureProviderPtr m_texture;
+	std::vector<Tr2Material*> m_materials;
 	Tr2EffectResource::Type m_resourceType;
 };
 
