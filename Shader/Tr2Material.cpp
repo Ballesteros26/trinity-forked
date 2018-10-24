@@ -167,7 +167,7 @@ void Tr2Material::InvalidateResourceSets()
 		{
 			auto params = pit->get();
 			params->m_resourceSet = Tr2ResourceSetAL();
-			params->m_resourceSetDesc = Tr2ResourceSetDescriptionAL();
+			params->m_resourceSetDesc.ClearResources();
 			params->m_resourceSetDirty = true;
 		}
 	}
