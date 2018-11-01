@@ -80,8 +80,8 @@ void EveCustomMask::FillPerObjectData( size_t n, EveSpaceObjectVSData* vsData, E
 	// pattern targets go into PS data
 	psData->customMaskTargets[n] = m_targetMaterials;
 
-	psData->customMaskClamps[n * 2] = m_clampU ? 1.f : 0.f;
-	psData->customMaskClamps[n * 2 + 1] = m_clampV ? 1.f : 0.f;
+	psData->customMaskClamps[int32_t( n * 2 )] = m_clampU ? 1.f : 0.f;
+	psData->customMaskClamps[int32_t( n * 2 + 1 )] = m_clampV ? 1.f : 0.f;
 }
 
 // --------------------------------------------------------------------------------
