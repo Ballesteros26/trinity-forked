@@ -1943,7 +1943,7 @@ Tr2Sprite2dDisplayList* Tr2Sprite2dScene::EndCapture( Tr2Sprite2dDisplayList* pr
 		{
 			if( SUCCEEDED( previousDisplayList->vertexBuffer.UpdateBuffer( 0, vbSize, m_captureVertexData.get(), renderContext ) ) )
 				{
-					m_captureDisplayList->vertexBuffer = std::move( previousDisplayList->vertexBuffer );
+					m_captureDisplayList->vertexBuffer = previousDisplayList->vertexBuffer;
 					reusedVb = true;
 				}
 
@@ -1973,7 +1973,7 @@ Tr2Sprite2dDisplayList* Tr2Sprite2dScene::EndCapture( Tr2Sprite2dDisplayList* pr
 		{
 			if( SUCCEEDED( previousDisplayList->indexBuffer.UpdateBuffer( 0, ibSize, m_captureIndexData.get(), renderContext ) ) )
 				{
-					m_captureDisplayList->indexBuffer = std::move( previousDisplayList->indexBuffer );
+					m_captureDisplayList->indexBuffer = previousDisplayList->indexBuffer;
 					reusedIb = true;
 				}
 
