@@ -529,14 +529,6 @@ const Be::ClassInfo* Tr2RuntimeInstanceData::ExposeToBlue()
 			":param path: path to the granny file"
 		)
 
-		MAP_ATTRIBUTE
-		( 
-			"updateBoundingBox", 
-			m_updateBoundingBox, 
-			"Does the system need to update aabbMin and aabbMax attributes", 
-			Be::READWRITE | Be::PERSIST 
-		)
-
 		MAP_ATTRIBUTE( "aabbMin", m_aabbMin, "Minimum of the AABB", Be::READ )
 
 		MAP_ATTRIBUTE( "aabbMax", m_aabbMax, "Maximum of the AABB", Be::READ )

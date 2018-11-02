@@ -20,7 +20,6 @@ Tr2RuntimeInstanceData::Tr2RuntimeInstanceData( IRoot* lockobj )
 	:m_count( 0 ),
 	m_stride( 0 ),
 	m_vertexDeclaration( Tr2EffectStateManager::UNINITIALIZED_DECLARATION ),
-	m_updateBoundingBox( true ),
 	m_aabbMin( 0.f, 0.f, 0.f ),
 	m_aabbMax( 0.f, 0.f, 0.f )
 {
@@ -226,6 +225,13 @@ void Tr2RuntimeInstanceData::GetVertexBuffer( unsigned int bufferIndex, Tr2Buffe
 	stride = m_stride;
 }
 
+bool Tr2RuntimeInstanceData::GetInstanceBufferBoundingBox( unsigned int, Vector3& minBounds, Vector3& maxBounds ) const
+{
+	minBounds = m_aabbMin;
+	maxBounds = m_aabbMax;
+	return true;
+}
+
 // --------------------------------------------------------------------------------------
 // Description:
 //   Implements ITr2GpuBuffer interface. Returns GPU buffer with particle data.
@@ -427,28 +433,25 @@ void Tr2RuntimeInstanceData::UpdateData()
 // --------------------------------------------------------------------------------------
 void Tr2RuntimeInstanceData::UpdateBoundingBox()
 {
-	if( m_updateBoundingBox )
+	unsigned positionOffset = -1;
+	for( auto it = m_layout.m_items.begin(); it != m_layout.m_items.end(); ++it )
 	{
-		unsigned positionOffset = -1;
-		for( auto it = m_layout.m_items.begin(); it != m_layout.m_items.end(); ++it )
+		if( it->m_usage == Tr2VertexDefinition::POSITION && 
+			it->m_usageIndex == 0 && 
+			Tr2VertexDefinition::GetDataTypeSizeInMembers( it->m_dataType ) >= 3 )
 		{
-			if( it->m_usage == Tr2VertexDefinition::POSITION && 
-				it->m_usageIndex == 0 && 
-				Tr2VertexDefinition::GetDataTypeSizeInMembers( it->m_dataType ) >= 3 )
-			{
-				positionOffset = it->m_offset;
-				break;
-			}
+			positionOffset = it->m_offset;
+			break;
 		}
-		BoundingBoxInitialize( m_aabbMin, m_aabbMax );
-		if( positionOffset != -1 )
+	}
+	BoundingBoxInitialize( m_aabbMin, m_aabbMax );
+	if( positionOffset != -1 )
+	{
+		for( unsigned i = 0; i < m_count; ++i )
 		{
-			for( unsigned i = 0; i < m_count; ++i )
-			{
-				const Vector3* pos = 
-					reinterpret_cast<Vector3*>( m_data.get() + positionOffset + m_stride * i );
-				BoundingBoxUpdate( m_aabbMin, m_aabbMax, *pos );
-			}
+			const Vector3* pos = 
+				reinterpret_cast<Vector3*>( m_data.get() + positionOffset + m_stride * i );
+			BoundingBoxUpdate( m_aabbMin, m_aabbMax, *pos );
 		}
 	}
 }

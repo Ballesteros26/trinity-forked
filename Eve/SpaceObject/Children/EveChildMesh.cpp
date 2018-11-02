@@ -9,6 +9,7 @@
 #include "Eve/EveTransform.h"
 #include "Resources/TriGeometryRes.h"
 #include "Utilities/BoundingSphere.h"
+#include "Tr2InstancedMesh.h"
 
 
 extern float g_eveSpaceSceneLODFactor;
@@ -272,3 +273,18 @@ void EveChildMesh::SetShaderOption( const BlueSharedString& name, const BlueShar
 	}
 }
 
+void EveChildMesh::GetDebugOptions( Tr2DebugRendererOptions& options )
+{
+	if( m_mesh )
+	{
+		m_mesh->GetDebugOptions( options );
+	}
+}
+
+void EveChildMesh::RenderDebugInfo( Tr2DebugRenderer& renderer )
+{
+	if( m_display && m_mesh )
+	{
+		m_mesh->RenderDebugInfo( m_worldTransform, renderer );
+	}
+}

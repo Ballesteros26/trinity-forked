@@ -358,6 +358,13 @@ void Tr2ParticleSystem::GetVertexBuffer( unsigned int bufferIndex, Tr2BufferAL& 
 	stride = m_vertexSizes[Tr2ParticleElementData::GPU] * sizeof( float );
 }
 
+bool Tr2ParticleSystem::GetInstanceBufferBoundingBox( unsigned int, Vector3& minBounds, Vector3& maxBounds ) const
+{
+	minBounds = m_AabbMin;
+	maxBounds = m_AabbMax;
+	return m_aliveCount > 0;
+}
+
 // --------------------------------------------------------------------------------------
 // Description:
 //   Implements ITr2GpuBuffer interface. Returns GPU buffer with particle data.
@@ -731,7 +738,7 @@ void Tr2ParticleSystem::UpdateSimulation( const ITr2GenericEmitter::UpdateArgume
 	}
 
 	// Update bounding box
-	if( m_updateBoundingBox )
+	if( m_bufferDirty )
 	{
 		if( m_aliveCount > 0 && HasElement( Tr2ParticleElementDeclarationName::POSITION ) ) 
 		{
@@ -1485,7 +1492,7 @@ void Tr2ParticleSystem::SaveToGranny( const char* resPath ) const
 // --------------------------------------------------------------------------------------
 bool Tr2ParticleSystem::GetBoundingBox( Vector3 &minBounds, Vector3 &maxBounds ) const
 {
-	if( m_aliveCount > 0 && m_updateBoundingBox )
+	if( m_aliveCount > 0 )
 	{
 		minBounds = m_AabbMin;
 		maxBounds = m_AabbMax;

@@ -1962,6 +1962,18 @@ void TriGeometryRes::GetVertexBuffer( unsigned int bufferIndex, Tr2BufferAL& buf
 	}
 }
 
+bool TriGeometryRes::GetInstanceBufferBoundingBox( unsigned int bufferIndex, Vector3& minBounds, Vector3& maxBounds ) const
+{
+	if( bufferIndex >= m_meshes.size() )
+	{
+		return false;
+	}
+	auto mesh = m_meshes[bufferIndex];
+	minBounds = mesh->m_minBounds;
+	maxBounds = mesh->m_maxBounds;
+	return true;
+}
+
 // --------------------------------------------------------------------------------------
 // Description:
 //   Implements ITr2GpuBuffer interface. Returns GPU buffer with instance data.

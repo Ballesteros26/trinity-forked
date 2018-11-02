@@ -80,6 +80,7 @@ public:
 	unsigned int GetInstanceBufferVertexDeclaration( unsigned int bufferIndex ) const;
 	unsigned int GetInstanceBufferVertexCount( unsigned int bufferIndex ) const;
 	void GetVertexBuffer( unsigned int bufferIndex, Tr2BufferAL& buffer, unsigned& stride );
+	bool GetInstanceBufferBoundingBox( unsigned int bufferIndex, Vector3& minBounds, Vector3& maxBounds ) const override;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2GpuBuffer

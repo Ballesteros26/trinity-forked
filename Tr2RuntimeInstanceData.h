@@ -50,6 +50,7 @@ public:
 	unsigned int GetInstanceBufferVertexDeclaration( unsigned int bufferIndex ) const;
 	unsigned int GetInstanceBufferVertexCount( unsigned int bufferIndex ) const;
 	void GetVertexBuffer( unsigned int bufferIndex, Tr2BufferAL& buffer, unsigned& stride );
+	bool GetInstanceBufferBoundingBox( unsigned int bufferIndex, Vector3& minBounds, Vector3& maxBounds ) const;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2GpuBuffer
@@ -102,8 +103,6 @@ private:
 	// Instance data as vertex buffer
 	Tr2BufferAL m_vb;
 
-	// Flag to update bounding box for instance data
-	bool m_updateBoundingBox;
 	// Bounding box
 	Vector3 m_aabbMin;
 	Vector3 m_aabbMax;

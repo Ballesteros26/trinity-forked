@@ -30,6 +30,12 @@ BLUE_CLASS( Tr2InstancedMesh ):
 public:
 	EXPOSE_TO_BLUE();
 
+	enum BoundsMethod
+	{
+		STATIC,
+		DYNAMIC,
+	};
+
 	Tr2InstancedMesh( IRoot* lockobj = NULL );
 	~Tr2InstancedMesh();
 
@@ -78,6 +84,10 @@ public:
 	bool GetAreaBoundingBox( unsigned int areaIx, Vector3& min, Vector3& max ) const;
 	bool GetBoundingSphere( Vector4& sphere );
 	bool IsLoading() const;
+
+	void GetDebugOptions( Tr2DebugRendererOptions& options ) override;
+	void RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer ) override;
+
 protected:
 	class Batch;
 
@@ -128,10 +138,14 @@ private:
 	// Exposed instance count buffer pointer
 	ITr2GpuBufferPtr m_instanceCount;
 
+	BoundsMethod m_boundsMethod;
+
 	// Min bounds
 	Vector3 m_minBounds;
 	// Max bounds
 	Vector3 m_maxBounds;
+
+	float m_maxInstanceSize;
 };
 
 TYPEDEF_BLUECLASS( Tr2InstancedMesh );

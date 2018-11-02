@@ -15,6 +15,8 @@
 #include "ITr2GeometryProvider.h"
 #include "Resources/Tr2LodResource.h"
 #include "TransformModifiers/IEveChildTransformModifier.h"
+#include "Tr2DebugRenderer.h"
+
 
 BLUE_DECLARE( TriFrustum );
 BLUE_DECLARE( Tr2MeshBase );
@@ -25,7 +27,8 @@ BLUE_CLASS( EveChildMesh ) :
 	public IEveSpaceObjectChild,
 	public EveChildTransform,
 	public ITr2Renderable,
-	public IInitialize
+	public IInitialize,
+	public ITr2DebugRenderable
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -60,6 +63,9 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize
 	virtual bool Initialize();
+
+	void GetDebugOptions( Tr2DebugRendererOptions& options ) override;
+	void RenderDebugInfo( Tr2DebugRenderer& renderer ) override;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// PerObjectData

@@ -11,6 +11,8 @@
 #include "Tr2MeshArea.h"
 #include "ITr2Renderable.h"
 #include "TriRenderBatch.h"
+#include "Tr2DebugRenderer.h"
+
 
 BLUE_DECLARE( TriGeometryRes );
 
@@ -91,6 +93,9 @@ public:
 		IRoot* value,
 		const IList* theList
 		);
+
+	virtual void GetDebugOptions( Tr2DebugRendererOptions& options ) {}
+	virtual void RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer ) {}
 
 protected:
 	unsigned int FindJoint( const std::string* boneList, const int numBones, const char* name ) const;

@@ -70,6 +70,9 @@ BLUE_INTERFACE( ITr2InstanceData ) : public IRoot
 	//   stride - (out) vertex stride for the vertex buffer
 	// --------------------------------------------------------------------------------------
 	virtual void GetVertexBuffer( unsigned int bufferIndex, Tr2BufferAL& buffer, unsigned& stride ) = 0;
+
+
+	virtual bool GetInstanceBufferBoundingBox( unsigned int bufferIndex, Vector3& minBounds, Vector3& maxBounds ) const = 0;
 };
 
 #endif // ITr2InstanceData_H

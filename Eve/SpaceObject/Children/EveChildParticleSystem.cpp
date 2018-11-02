@@ -300,3 +300,19 @@ void EveChildParticleSystem::ChangeLOD( Tr2Lod lod )
 		(*it)->SetMaxParticleCount( particleCount );
 	}
 }
+
+void EveChildParticleSystem::GetDebugOptions( Tr2DebugRendererOptions& options )
+{
+	if( m_mesh )
+	{
+		m_mesh->GetDebugOptions( options );
+	}
+}
+
+void EveChildParticleSystem::RenderDebugInfo( Tr2DebugRenderer& renderer )
+{
+	if( m_display && m_mesh )
+	{
+		m_mesh->RenderDebugInfo( m_worldTransform, renderer );
+	}
+}

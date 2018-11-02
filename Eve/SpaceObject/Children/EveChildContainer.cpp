@@ -453,6 +453,10 @@ void EveChildContainer::GetDebugOptions( Tr2DebugRendererOptions& options )
 
 void EveChildContainer::RenderDebugInfo( Tr2DebugRenderer& renderer )
 {
+	if( !m_display )
+	{
+		return;
+	}
 	for( auto it = begin( m_objects ); it != end( m_objects ); ++it )
 	{
 		if( auto renderable = dynamic_cast<ITr2DebugRenderable*>( *it ) )

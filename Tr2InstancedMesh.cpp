@@ -110,8 +110,10 @@ Tr2InstancedMesh::Tr2InstancedMesh( IRoot* lockobj )
 	m_instanceMeshIndex( 0 ),
 	m_vertexDeclaration( Tr2EffectStateManager::UNINITIALIZED_DECLARATION ),
 	m_instanceDeclaration( Tr2EffectStateManager::UNINITIALIZED_DECLARATION ),
+	m_boundsMethod( STATIC ),
 	m_minBounds( 0.0f, 0.0f, 0.0f ),
-	m_maxBounds( 0.0f, 0.0f, 0.0f )
+	m_maxBounds( 0.0f, 0.0f, 0.0f ),
+	m_maxInstanceSize( 0 )
 {
 }
 
@@ -506,9 +508,27 @@ float Tr2InstancedMesh::CalcMeshSortValue( const Matrix& worldTransform )
 // --------------------------------------------------------------------------------------
 bool Tr2InstancedMesh::GetBoundingBox( Vector3& min, Vector3& max ) const
 {
-	min = m_minBounds;
-	max = m_maxBounds;
-	return true;
+	if( m_boundsMethod == STATIC )
+	{
+		min = m_minBounds;
+		max = m_maxBounds;
+		return true;
+	}
+	else
+	{
+		if( !m_instanceGeometryResource )
+		{
+			return false;
+		}
+		if( !m_instanceGeometryResource->GetInstanceBufferBoundingBox( m_instanceMeshIndex, min, max ) )
+		{
+			return false;
+		}
+		Vector3 margin( m_maxInstanceSize, m_maxInstanceSize, m_maxInstanceSize );
+		min -= margin;
+		max += margin;
+		return true;
+	}
 }
 
 // --------------------------------------------------------------------------------------
@@ -534,11 +554,9 @@ void Tr2InstancedMesh::SetBoundingBox( const Vector3& min, const Vector3& max )
 // Return value:
 //   true always
 // --------------------------------------------------------------------------------------
-bool Tr2InstancedMesh::GetAreaBoundingBox( unsigned int areaIx, Vector3& min, Vector3& max ) const
+bool Tr2InstancedMesh::GetAreaBoundingBox( unsigned int, Vector3& min, Vector3& max ) const
 {
-	min = m_minBounds;
-	max = m_maxBounds;
-	return true;
+	return GetBoundingBox( min, max );
 }
 
 // --------------------------------------------------------------------------------------
@@ -551,8 +569,13 @@ bool Tr2InstancedMesh::GetAreaBoundingBox( unsigned int areaIx, Vector3& min, Ve
 // --------------------------------------------------------------------------------------
 bool Tr2InstancedMesh::GetBoundingSphere( Vector4& sphere )
 {
-	Vector3 center = ( m_minBounds + m_maxBounds ) * 0.5f;
-	Vector3 extent( m_minBounds - m_maxBounds );
+	Vector3 min, max;
+	if( !GetBoundingBox( min, max ) )
+	{
+		return false;
+	}
+	Vector3 center = ( min + max ) * 0.5f;
+	Vector3 extent( min - max );
 	sphere = Vector4( center.x, center.y, center.z, Length( extent ) * 0.5f );
 	return true;
 }
@@ -827,6 +850,34 @@ void Tr2InstancedMesh::CreateVertexDeclaration() const
 		if( GetMeshVertexDeclaration( m_geometryResource, m_meshIndex, meshVD ) )
 		{
 			m_vertexDeclaration = MergeVertexDeclarations( meshVD, instanceVD );
+		}
+	}
+}
+
+void Tr2InstancedMesh::GetDebugOptions( Tr2DebugRendererOptions& options )
+{
+	options.insert( "Instance Mesh Bounds" );
+}
+
+void Tr2InstancedMesh::RenderDebugInfo( const Matrix& worldTransform, Tr2DebugRenderer& renderer )
+{
+	if( renderer.HasOption( this, "Instance Mesh Bounds" ) )
+	{
+		if( m_boundsMethod == STATIC )
+		{
+			renderer.DrawBox( this, worldTransform, m_minBounds, m_maxBounds, Tr2DebugRenderer::Wireframe, Tr2DebugColor( 0xffaa8800, 0x22aa8800 ) );
+		}
+		else
+		{
+			Vector3 min, max;
+			if( m_instanceGeometryResource && m_instanceGeometryResource->GetInstanceBufferBoundingBox( m_instanceMeshIndex, min, max ) )
+			{
+				renderer.DrawBox( this, worldTransform, min, max, Tr2DebugRenderer::Wireframe, Tr2DebugColor( 0xff008888, 0x22008888 ) );
+				Vector3 margin( m_maxInstanceSize, m_maxInstanceSize, m_maxInstanceSize );
+				min -= margin;
+				max += margin;
+				renderer.DrawBox( this, worldTransform, min, max, Tr2DebugRenderer::Wireframe, Tr2DebugColor( 0xff888888, 0x22888888 ) );
+			}
 		}
 	}
 }
