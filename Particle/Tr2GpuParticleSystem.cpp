@@ -741,6 +741,10 @@ void Tr2GpuParticleSystem::UpdateGpuEmitterParams( Tr2RenderContext& renderConte
 		return;
 	}
 
+	if( !m_emitterParamsBuffer->IsValid() )
+	{
+		return;
+	}
 	m_emitterParamsBuffer->GetGpuBuffer( 0 )->UpdateBuffer( 0, uint32_t( m_emitterParams.size() * sizeof( m_emitterParams[0] ) ), &m_emitterParams[0], renderContext );
 }
 
@@ -1055,6 +1059,10 @@ void Tr2GpuParticleSystem::Emit( const Emitter& emitter, uintptr_t id, uintptr_t
 	request.emitter.count = std::min( request.emitter.count, m_maxParticles );
 	request.emitter.emitterSeed = rand() << 16;
 #else
+	if( !m_positions[0] || !m_positions[0]->IsValid() )
+	{
+		return;
+	}
 	auto start = ( m_emitIndex += emitter.count ) - emitter.count;
 	request.emitter.positionCount = Vector4( emitter.position, float( std::min( emitter.count, m_maxParticles ) ) );
 	request.emitter.positionPreviousRadius = Vector4( emitter.positionPrevious, emitter.radius );
