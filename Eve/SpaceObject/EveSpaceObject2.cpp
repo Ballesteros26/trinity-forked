@@ -524,7 +524,7 @@ void EveSpaceObject2::PrepareShaderData( EveUpdateContext& updateContext )
 	float insideSpherePercentage = std::min( 1.f, Length( m_clipSphereCenter ) / normalizedBoundingRadius );
 	float disolveRadius = nearDist + m_clipSphereFactor * normalizedBoundingRadius * (1.f + insideSpherePercentage);
 	m_psData.clipData = m_vsData.clipData = Vector4( m_clipSphereCenter + GetBoundingSphereCenter(), TriFloatSign( disolveRadius ) * disolveRadius * disolveRadius );
-	m_psData.miscData.x = m_clipSphereFactor;
+	m_psData.miscData.w = m_clipSphereFactor;
 }
 
 void EveSpaceObject2::GetDebugOptions( Tr2DebugRendererOptions& options )
