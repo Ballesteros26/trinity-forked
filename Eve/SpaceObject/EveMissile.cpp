@@ -286,7 +286,7 @@ void EveMissile::RenderDebugInfo( Tr2DebugRenderer& renderer )
 		renderer.DrawSphere( this, m_worldTransform, 50, 10, Tr2DebugRenderer::Wireframe, 0xff4444ff );
 		for( auto it = begin( m_warheads ); it != end( m_warheads ); ++it )
 		{
-			renderer.DrawLine( this, m_worldTransform.GetTranslation(), *( *it )->GetWorldPosition(), 0xff4444ff );
+			( *it )->RenderDebugInfoFromParent( renderer, m_worldTransform );
 		}
 	}
 	if( renderer.HasOption( GetRawRoot(), "Children" ) )

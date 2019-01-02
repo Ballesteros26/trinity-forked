@@ -44,6 +44,8 @@ public:
 	void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
 	void AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer );
 
+	void RenderDebugInfoFromParent( Tr2DebugRenderer& renderer, Matrix transform );
+
 
 	// access to relative data
 	const Matrix& GetCurrentOffsetTransform() const;

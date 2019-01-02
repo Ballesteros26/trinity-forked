@@ -652,6 +652,47 @@ void EveMissileWarhead::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType 
 	}
 }
 
+
+void EveMissileWarhead::RenderDebugInfoFromParent( Tr2DebugRenderer& renderer, Matrix transform )
+{
+	srand( (uint32_t) this );
+	uint32_t color = 0xff000000 + rand() % 0x00ffffff;
+	renderer.DrawLine( this, transform.GetTranslation(), *this->GetWorldPosition(), color );
+	renderer.DrawLine( this, *this->GetWorldPosition(), TransformCoord( m_currentEndOffset, transform ), 0xff999999 );
+
+	std::string message = "";
+	switch( m_state )
+	{
+	case STATE_DELAYED:
+		message = "STATE_DELAYED";
+		break;
+	case STATE_LAUNCH:
+		message = "STATE_LAUNCH";
+		break;
+	case STATE_EJECTING:
+		message = "STATE_EJECTING";
+		break;
+	case STATE_START_TRACKING:
+		message = "STATE_START_TRACKING";
+		break;
+	case STATE_TRACKING_SPREAD:
+		message = "STATE_TRACKING_SPREAD";
+		break;
+	case STATE_TRACKING_FINAL:
+		message = "STATE_TRACKING_FINAL";
+		break;
+	case STATE_EXPLODED:
+		message = "STATE_EXPLODED";
+		break;
+	default:
+		message = "UNKNOWN";
+		break;
+	};
+
+	renderer.DrawText( TRI_DBG_FONT_MEDIUM, *this->GetWorldPosition(), color, message.c_str() );
+}
+
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Copy all the matrices to HW
@@ -660,3 +701,4 @@ void EveMissileWarheadPerObjectData::SetPerObjectDataToDevice( Tr2ConstantBuffer
 {
 	Tr2PerObjectDataWithPersistentBuffers<EveMissileWarhead>::SetPerObjectDataToDevice( buffers, constantTypeMask, renderContext );
 }
+
