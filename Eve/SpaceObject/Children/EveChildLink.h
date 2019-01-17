@@ -41,7 +41,6 @@ private:
 	float m_linkStrength;
 	// where is the barrier
 	float m_linkBarrier;
-	float m_linkBarrierZone;
 
 	// this is the target
 	ITriVectorFunctionPtr m_target;
