@@ -12,10 +12,12 @@
 #include "Shader/Tr2Effect.h"
 #include "Effects/Tr2PPSignalLossEffect.h"
 #include "Effects/Tr2PPGodRaysEffect.h"
+#include "Effects/Tr2PPBloomEffect.h"
 
 BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE( Tr2PPSignalLossEffect );
 BLUE_DECLARE( Tr2PPGodRaysEffect );
+BLUE_DECLARE( Tr2PPBloomEffect );
 
 BLUE_CLASS( Tr2PostProcess2 ) :
 	public IRoot
@@ -31,6 +33,7 @@ public:
 private:
 	Tr2PPSignalLossEffectPtr m_signalLoss;
 	Tr2PPGodRaysEffectPtr m_godRays;
+	Tr2PPBloomEffectPtr m_bloom;
 
 	Tr2EffectPtr m_tonemappingEffect;
 

@@ -81,8 +81,15 @@ void Tr2PostProcess2::Render( Tr2RenderContext& renderContext, Tr2PostProcessRen
 	if( m_godRays && m_godRays->IsActive() )
 	{
 		m_godRays->Render( renderContext, renderInfo );
-	}	
+	}
 	
+	if( m_bloom && m_bloom->IsActive() )
+	{
+		renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_ALPHA_ADDITIVE );
+		m_bloom->Render( renderContext, renderInfo );
+		blitCurrent = renderInfo->GetRt1Buffer();
+	}
+
 	m_tonemappingEffect->StartUpdate();
 	m_tonemappingEffect->SetParameter( BlueSharedString( "BlitOriginal" ), renderInfo->GetSourceBufferCopy() );
 	m_tonemappingEffect->SetParameter( BlueSharedString( "BlitCurrent" ), blitCurrent );
@@ -98,4 +105,5 @@ void Tr2PostProcess2::Render( Tr2RenderContext& renderContext, Tr2PostProcessRen
 	Tr2Renderer::PopDepthStencilBuffer( renderContext );
 	Tr2Renderer::PopRenderTarget( renderContext );
 }
+
 
