@@ -658,9 +658,9 @@ const Be::ClassInfo* EveSpaceScene::ExposeToBlue()
 
 		MAP_ATTRIBUTE
 		(
-			"postProcessManager",
-			m_postProcessManager,
-			"Post Process Manager",
+			"postprocess",
+			m_postProcess,
+			"The post process",
 			Be::READWRITE
 		)
     EXPOSURE_END()

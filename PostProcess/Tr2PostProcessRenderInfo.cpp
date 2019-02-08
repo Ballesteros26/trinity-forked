@@ -78,17 +78,33 @@ bool Tr2PostProcessRenderInfo::OnModified( Be::Var* value )
 {
 	if( IsMatch( value, m_sourceBuffer ) )
 	{
-		CopySourceTo( m_rt1, 0.5f );
-		CopySourceTo( m_rt2, 0.5f );
-		m_sourceBufferCopy->Create(
-			uint32_t( float( m_sourceBuffer->GetWidth() ) ),
-			uint32_t( float( m_sourceBuffer->GetHeight() ) ),
-			1,
-			m_sourceBuffer->GetFormat(),
-			1,
-			0 );
+		SetSourceBuffer( m_sourceBuffer );
 	}
 	return true;
+}
+
+void Tr2PostProcessRenderInfo::SetSourceBuffer( Tr2RenderTarget* sourceBuffer )
+{
+	m_sourceBuffer = sourceBuffer;
+	CopySourceTo( m_rt1, 0.5f );
+	CopySourceTo( m_rt2, 0.5f );
+
+	if( m_sourceBufferCopy->IsValid() )
+	{
+		m_sourceBufferCopy->Destroy();
+	}
+
+	m_sourceBufferCopy->Create(
+		uint32_t( float( m_sourceBuffer->GetWidth() ) ),
+		uint32_t( float( m_sourceBuffer->GetHeight() ) ),
+		1,
+		m_sourceBuffer->GetFormat(),
+		1,
+		0 );
+
+	CreateBuffers( m_sourceBuffer->GetWidth(), m_sourceBuffer->GetHeight() );
+	CreateHistogram( m_sourceBuffer->GetWidth(), m_sourceBuffer->GetHeight() );
+
 }
 
 
@@ -114,7 +130,6 @@ void Tr2PostProcessRenderInfo::CopySourceTo( Tr2RenderTarget* renderTarget, floa
 
 void Tr2PostProcessRenderInfo::CreateBuffers( uint32_t width, uint32_t height )
 {
-
 	if( m_accumulationBuffer->IsValid() )
 	{
 		m_accumulationBuffer->Destroy();
@@ -132,6 +147,11 @@ void Tr2PostProcessRenderInfo::CreateBuffers( uint32_t width, uint32_t height )
 	m_accumulationBuffer->Create( width, height, 1, Tr2RenderContextEnum::PIXEL_FORMAT_R11G11B10_FLOAT );
 	m_velocityBuffer->Create( width, height, 1, Tr2RenderContextEnum::PIXEL_FORMAT_R16G16_FLOAT, 8U, 0U );
 	m_distortionBuffer->Create( width, height, 1, Tr2RenderContextEnum::PIXEL_FORMAT_B8G8R8A8_UNORM, 1 );
+}
+
+void Tr2PostProcessRenderInfo::CreateHistogram( uint32_t width, uint32_t height )
+{
+
 }
 
 void Tr2PostProcessRenderInfo::SetPerFrameData( Tr2ShaderBuffer* shaderBuffer )

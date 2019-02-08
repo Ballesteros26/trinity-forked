@@ -19,7 +19,5 @@ const Be::ClassInfo* Tr2PostProcess2::ExposeToBlue()
 		MAP_ATTRIBUTE( "godRays", m_godRays, "Accesses the God Rays effect", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "bloom", m_bloom, "Accesses the bloom effect", Be::READWRITE | Be::PERSIST )
 
-		MAP_ATTRIBUTE( "toneMappingEffect", m_tonemappingEffect, "Accesses the tone mapping effect", Be::READWRITE )
-
     EXPOSURE_END()
 }

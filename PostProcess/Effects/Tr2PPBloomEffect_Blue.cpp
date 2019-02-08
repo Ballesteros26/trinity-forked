@@ -12,11 +12,7 @@ BLUE_DEFINE( Tr2PPBloomEffect );
 const Be::ClassInfo* Tr2PPBloomEffect::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( Tr2PPBloomEffect, "" )
-		MAP_INTERFACE( INotify )
-
-		MAP_ATTRIBUTE( "horizontalBlur", m_horizontalBlur, "", Be::READWRITE )
-		MAP_ATTRIBUTE( "verticalBlur", m_verticalBlur, "", Be::READWRITE )
-		MAP_ATTRIBUTE( "highPassFilter", m_highPassFilter, "", Be::READWRITE )
+		MAP_INTERFACE( Tr2PPEffect )
 
 		MAP_ATTRIBUTE( "luminanceThreshold", m_luminanceThreshold, "The threshold of the luminance", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "luminanceScale", m_luminanceScale, "The scale of the luminance", Be::READWRITE | Be::PERSIST | Be::NOTIFY )

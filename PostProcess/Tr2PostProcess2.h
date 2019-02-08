@@ -28,15 +28,14 @@ public:
 	Tr2PostProcess2( IRoot* lockobj = NULL );
 	~Tr2PostProcess2();
 
-	void Render( Tr2RenderContext& renderContext, Tr2PostProcessRenderInfo* renderInfo );
+	Tr2PPSignalLossEffectPtr GetSignalLoss() { return m_signalLoss; }
+	Tr2PPGodRaysEffectPtr GetGodRays() { return m_godRays; }
+	Tr2PPBloomEffectPtr GetBloom() { return m_bloom; }
 
 private:
 	Tr2PPSignalLossEffectPtr m_signalLoss;
 	Tr2PPGodRaysEffectPtr m_godRays;
 	Tr2PPBloomEffectPtr m_bloom;
-
-	Tr2EffectPtr m_tonemappingEffect;
-
 };
 TYPEDEF_BLUECLASS( Tr2PostProcess2 );
 

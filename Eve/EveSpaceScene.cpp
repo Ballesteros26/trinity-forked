@@ -375,10 +375,6 @@ void EveSpaceScene::Update( Be::Time realTime, Be::Time simTime )
 	// every space scene has a reference position
 	Vector3d sceneReferencePoint = m_updateContext.GetOrigin();
 
-	if( m_postProcessManager ) {
-		m_postProcessManager->Update();
-	}
-
 	m_updateTime = simTime;
 }
 
@@ -1982,11 +1978,6 @@ void EveSpaceScene::EndRender( Tr2RenderContext& renderContext )
 
 	m_viewProjectLast = Tr2Renderer::GetViewTransform() * currentProj; 
 	ClearVariableStore();
-
-	if( m_postProcessManager )
-	{
-		m_postProcessManager->Render( renderContext, m_postProcessPSBuffer );
-	}
 
 	if( m_visualizerEffects[m_visualizeMethod].type == VisualizerEffect::FULL_SCREEN_QUAD_OVERLAY )
 	{

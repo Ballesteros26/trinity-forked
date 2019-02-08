@@ -18,7 +18,7 @@
 #include "EveUpdateContext.h"
 #include "Tr2QuadRenderer.h"
 #include "Tr2LightManager.h"
-#include "PostProcess/Tr2PostProcessManager.h"
+#include "PostProcess/Tr2PostProcess2.h"
 
 class TriProjection;
 class TriView;
@@ -148,6 +148,8 @@ public:
 	void SetShLightingManager( Tr2ShLightingManager* manager );
 
 	IEveSpaceObject2Vector& Objects() { return m_objects; }
+	Tr2PostProcess2Ptr GetPostProcess() { return m_postProcess; }
+
 
 protected:
 	// Data shared between the different rendering method chunks
@@ -539,7 +541,7 @@ private:
 
 	IRoot* GetCameraAttachments() const;
 
-	Tr2PostProcessManagerPtr m_postProcessManager;
+	Tr2PostProcess2Ptr m_postProcess;
 };
 
 TYPEDEF_BLUECLASS( EveSpaceScene );
