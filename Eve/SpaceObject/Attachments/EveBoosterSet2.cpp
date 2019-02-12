@@ -383,7 +383,7 @@ void EveBoosterSet2Renderable::UpdateTrails( float deltaT, Be::Time t )
 	else if( ( m_trailsTotalLength > g_eveSpaceObjectTrailsMaxLength - g_eveSpaceObjectTrailsMaxLengthFade ) && ( m_trailsTotalLength < g_eveSpaceObjectTrailsMaxLength ) )
 	{
 		// fading
-		m_trailIntensity = SinSmooth( ( g_eveSpaceObjectTrailsMaxLength - m_trailsTotalLength ) / g_eveSpaceObjectTrailsMaxLength );
+		m_trailIntensity = SinSmooth( ( g_eveSpaceObjectTrailsMaxLength - m_trailsTotalLength ) / g_eveSpaceObjectTrailsMaxLengthFade );
 	}
 	else if( ( m_trailsTotalLength < g_eveSpaceObjectTrailsMinLength ) || ( m_trailsTotalLength > g_eveSpaceObjectTrailsMaxLength ) )
 	{
