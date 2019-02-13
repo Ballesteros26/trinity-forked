@@ -116,6 +116,7 @@ TriStepResult TriStepRenderPostProcess::Execute( Be::Time realTime, Be::Time sim
 	Tr2PPDesaturateEffectPtr desaturate = nullptr;
 	Tr2PPFadeEffectPtr fade = nullptr;
 	Tr2PPLutEffectPtr lut= nullptr;
+	Tr2PPVignetteEffectPtr vignette = nullptr;
 
 	if( postProcess != nullptr )
 	{
@@ -132,6 +133,7 @@ TriStepResult TriStepRenderPostProcess::Execute( Be::Time realTime, Be::Time sim
 			bloom = postProcess->GetBloom();
 			desaturate = postProcess->GetDesaturate();
 			lut = postProcess->GetLut();
+			vignette = postProcess->GetVignette();
 		case LOW:
 			signalLoss = postProcess->GetSignalLoss();
 			fade = postProcess->GetFade();
@@ -171,6 +173,7 @@ TriStepResult TriStepRenderPostProcess::Execute( Be::Time realTime, Be::Time sim
 	ProcessDesaturate( desaturate );
 	ProcessFade( fade );
 	ProcessLut( lut );
+	ProcessVignette( vignette );
 
 	Tr2Renderer::DrawTexture( m_tonemappingEffect, Vector2( 0, 0 ), Vector2( 1, 1 ) );
 	
@@ -669,6 +672,57 @@ void TriStepRenderPostProcess::ProcessLut( Tr2PPLutEffect* lut )
 		// TODO replace with an option
 		m_tonemappingEffect->StartUpdate();
 		m_tonemappingEffect->SetParameter( BlueSharedString( "LUTEnabled" ), 0.0f );
+		m_tonemappingEffect->EndUpdate();
+	}
+}
+
+void TriStepRenderPostProcess::ProcessVignette( Tr2PPVignetteEffect* vignette )
+{
+	if( vignette && vignette->IsActive() )
+	{
+		if( vignette->IsDirty() )
+		{
+			// we only need to update the tonemapping buffer
+			m_tonemappingEffect->StartUpdate();
+			
+			auto shapeResource = m_tonemappingEffect->GetResourceByName( "VignetteShape" );
+			if( !shapeResource )
+			{
+				m_tonemappingEffect->AddResourceTexture2D( BlueSharedString( "VignetteShape" ), vignette->m_shapePath.c_str() );
+			}
+			else
+			{
+				dynamic_cast< TriTextureParameter* >( shapeResource )->SetResourcePath( vignette->m_shapePath.c_str() );
+			}
+
+			auto detailResource = m_tonemappingEffect->GetResourceByName( "VignetteDetail" );
+			if( !detailResource )
+			{
+				m_tonemappingEffect->AddResourceTexture2D( BlueSharedString( "VignetteDetail" ), vignette->m_detailPath.c_str() );
+			}
+			else
+			{
+				dynamic_cast< TriTextureParameter* >( detailResource )->SetResourcePath( vignette->m_detailPath.c_str() );
+			}
+
+			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteDetailSize" ), Vector4( vignette->m_detail1Size[0], vignette->m_detail1Size[1], vignette->m_detail2Size[0], vignette->m_detail2Size[1] ) );
+			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteDetailScroll" ), Vector4( vignette->m_detail1Scroll[0], vignette->m_detail1Scroll[1], vignette->m_detail2Scroll[0], vignette->m_detail2Scroll[1] ) );
+			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteColor" ), vignette->m_color );
+			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteIntensity" ), Vector2( vignette->m_intensity, vignette->m_opacity ) );
+			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteSineFrequency" ), vignette->m_sineFrequency );
+			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteSineRange" ), Vector2( vignette->m_sineMinimum, vignette->m_sineMaximum) );
+
+			// TODO replace with an option
+			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteEnabled" ), 1.0f );
+			m_tonemappingEffect->EndUpdate();
+
+			vignette->SetDirty( false );
+		}
+	}
+	else {
+		// TODO replace with an option
+		m_tonemappingEffect->StartUpdate();
+		m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteEnabled" ), 0.0f );
 		m_tonemappingEffect->EndUpdate();
 	}
 }

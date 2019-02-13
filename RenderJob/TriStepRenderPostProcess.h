@@ -86,12 +86,15 @@ private:
 	// LUT
 	void ProcessLut( Tr2PPLutEffect* lut );
 
+	// vignette
+	void ProcessVignette( Tr2PPVignetteEffect* vignette);
+
 	// tonemapping
 	Tr2EffectPtr m_tonemappingEffect;
 	EveSpaceScenePtr m_scene;
 	Tr2PostProcessRenderInfoPtr m_renderInfo;
 
-        // General
+    // General
 	PostProcessingQuality m_quality;
 };
 

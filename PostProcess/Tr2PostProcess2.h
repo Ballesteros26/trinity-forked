@@ -18,6 +18,7 @@
 #include "Effects/Tr2PPDesaturateEffect.h"
 #include "Effects/Tr2PPFadeEffect.h"
 #include "Effects/Tr2PPLutEffect.h"
+#include "Effects/Tr2PPVignetteEffect.h"
 
 BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE( Tr2PPSignalLossEffect );
@@ -28,6 +29,7 @@ BLUE_DECLARE( Tr2PPFilmGrainEffect );
 BLUE_DECLARE( Tr2PPDesaturateEffect );
 BLUE_DECLARE( Tr2PPFadeEffect );
 BLUE_DECLARE( Tr2PPLutEffect );
+BLUE_DECLARE( Tr2PPVignetteEffect );
 
 BLUE_CLASS( Tr2PostProcess2 ) :
 	public IRoot
@@ -46,6 +48,7 @@ public:
 	Tr2PPDesaturateEffectPtr GetDesaturate() { return m_desaturate; }
 	Tr2PPFadeEffectPtr GetFade() { return m_fade; }
 	Tr2PPLutEffectPtr GetLut() { return m_lut; }
+	Tr2PPVignetteEffectPtr GetVignette() { return m_vignette; }
 
 private:
 	Tr2PPSignalLossEffectPtr m_signalLoss;
@@ -56,9 +59,12 @@ private:
 	Tr2PPDesaturateEffectPtr m_desaturate;
 	Tr2PPFadeEffectPtr m_fade;
 	Tr2PPLutEffectPtr m_lut;
+	Tr2PPVignetteEffectPtr m_vignette;
 };
 TYPEDEF_BLUECLASS( Tr2PostProcess2 );
 
 #endif // Tr2PostProcess_H
+
+
 
 
