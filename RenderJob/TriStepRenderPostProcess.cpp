@@ -117,6 +117,7 @@ TriStepResult TriStepRenderPostProcess::Execute( Be::Time realTime, Be::Time sim
 	Tr2PPFadeEffectPtr fade = nullptr;
 	Tr2PPLutEffectPtr lut= nullptr;
 	Tr2PPVignetteEffectPtr vignette = nullptr;
+	Tr2PPFogEffectPtr fog = nullptr;
 
 	if( postProcess != nullptr )
 	{
@@ -126,6 +127,7 @@ TriStepResult TriStepRenderPostProcess::Execute( Be::Time realTime, Be::Time sim
 		case HIGH:
 			godrays = postProcess->GetGodRays();
 			filmGrain = postProcess->GetFilmGrain();
+			fog = postProcess->GetFog();
 #if TRINITY_PLATFORM != TRINITY_DIRECTX9
 			dynamicExposure = postProcess->GetDynamicExposure();
 #endif
@@ -145,6 +147,11 @@ TriStepResult TriStepRenderPostProcess::Execute( Be::Time realTime, Be::Time sim
 	
 	PushRenderTarget( renderContext );
 	Tr2Renderer::PushDepthStencilBuffer( nullDS, renderContext );
+
+	if( ProcessFog( fog ) )
+	{
+		RenderFog( renderContext, fog );
+	}
 
 	if( ProcessGodRays( godrays ) )
 	{
@@ -587,7 +594,8 @@ void TriStepRenderPostProcess::ProcessFilmGrain( Tr2PPFilmGrainEffect* filmGrain
 			filmGrain->SetDirty( false );
 		}
 	}
-	else {
+	else 
+	{
 		// TODO replace with an option
 		m_tonemappingEffect->StartUpdate();
 		m_tonemappingEffect->SetParameter( BlueSharedString( "FilmGrain" ), 0.0f );
@@ -611,7 +619,8 @@ void TriStepRenderPostProcess::ProcessDesaturate( Tr2PPDesaturateEffect* desatur
 			desaturate->SetDirty( false );
 		}
 	}
-	else {
+	else
+	{
 		// TODO replace with an option
 		m_tonemappingEffect->StartUpdate();
 		m_tonemappingEffect->SetParameter( BlueSharedString( "Desaturate" ), 0.0f );
@@ -635,7 +644,8 @@ void TriStepRenderPostProcess::ProcessFade( Tr2PPFadeEffect* fade )
 			fade->SetDirty( false );
 		}
 	}
-	else {
+	else 
+	{
 		// TODO replace with an option
 		m_tonemappingEffect->StartUpdate();
 		m_tonemappingEffect->SetParameter( BlueSharedString( "FadeAmount" ), 0.0f );
@@ -668,7 +678,8 @@ void TriStepRenderPostProcess::ProcessLut( Tr2PPLutEffect* lut )
 			lut->SetDirty( false );
 		}
 	}
-	else {
+	else 
+	{
 		// TODO replace with an option
 		m_tonemappingEffect->StartUpdate();
 		m_tonemappingEffect->SetParameter( BlueSharedString( "LUTEnabled" ), 0.0f );
@@ -719,10 +730,116 @@ void TriStepRenderPostProcess::ProcessVignette( Tr2PPVignetteEffect* vignette )
 			vignette->SetDirty( false );
 		}
 	}
-	else {
+	else 
+	{
 		// TODO replace with an option
 		m_tonemappingEffect->StartUpdate();
 		m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteEnabled" ), 0.0f );
 		m_tonemappingEffect->EndUpdate();
 	}
+}
+
+bool TriStepRenderPostProcess::ProcessFog( Tr2PPFogEffect* fog )
+{
+	if( fog && fog->IsActive() )
+	{
+		if( m_fogColorEffect == nullptr || m_fogCompositeEffect == nullptr || m_fogHorizontalBlurEffect == nullptr || m_fogVerticalBlurEffect == nullptr )
+		{
+			m_fogColorEffect.CreateInstance();
+			m_fogColorEffect->StartUpdate();
+			m_fogColorEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/PostProcess/EnvironmentFogColor.fx" );
+			m_fogColorEffect->SetParameter( BlueSharedString( "BlitCurrent" ), m_renderInfo->GetSourceBufferCopy() );
+			m_fogColorEffect->SetParameter( BlueSharedString( "Params" ), Vector4( fog->m_nebulaInfluence, fog->m_nebulaBlur, fog->m_originalBrightenOnly, fog->m_colorInfluence ) );
+			m_fogColorEffect->SetParameter( BlueSharedString( "Color" ), fog->m_color );
+			m_fogColorEffect->EndUpdate();
+
+			m_fogHorizontalBlurEffect.CreateInstance();
+			m_fogHorizontalBlurEffect->StartUpdate();
+			m_fogHorizontalBlurEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/PostProcess/BlurBig.fx" );
+			m_fogHorizontalBlurEffect->SetParameter( BlueSharedString( "BlitCurrent" ), m_renderInfo->GetRt1Buffer() );
+			m_fogHorizontalBlurEffect->EndUpdate();
+
+			m_fogVerticalBlurEffect.CreateInstance();
+			m_fogVerticalBlurEffect->StartUpdate();
+			m_fogVerticalBlurEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/PostProcess/BlurBig.fx" );
+			m_fogVerticalBlurEffect->SetParameter( BlueSharedString( "BlitCurrent" ), m_renderInfo->GetRt2Buffer() );
+			m_fogVerticalBlurEffect->SetParameter( BlueSharedString( "Direction" ), Vector2( 0.0f, 1.0f ) );
+			m_fogVerticalBlurEffect->EndUpdate();
+
+			m_fogCompositeEffect.CreateInstance();
+			m_fogCompositeEffect->StartUpdate();
+			m_fogCompositeEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/PostProcess/EnvironmentFogComposit.fx" );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlitCurrent" ), m_renderInfo->GetRt1Buffer() );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlitOriginal" ), m_renderInfo->GetSourceBufferCopy() ); // this used _fogsource in eve.yaml, but I'm trying _source here
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "FogParameters" ), Vector4( fog->m_totalAmount, fog->m_totalPower, fog->m_backgroundOcclusion, fog->m_overallIntensity ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "BrightnessAdjustment" ), Vector4( fog->m_brightnessThreshold0, fog->m_brightnessThreshold1, fog->m_brightnessAdjustmentAmount, 0.0f ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlendFunction0" ), Vector4( fog->m_blendDistance0, fog->m_blendBias0, fog->m_blendAmount0, fog->m_blendPower0 ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlendFunction1" ), Vector4( fog->m_blendDistance1, fog->m_blendBias1, fog->m_blendAmount1, fog->m_blendPower1 ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlendFunction2" ), Vector4( fog->m_blendDistance2, fog->m_blendBias2, fog->m_blendAmount2, fog->m_blendPower2 ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "AreaSize" ), Vector4( fog->m_areaSize, fog->m_areaScale.x ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "AreaCenter" ), Vector4( fog->m_areaCenter, fog->m_areaScale.y ) );
+			m_fogCompositeEffect->EndUpdate();
+			
+			fog->SetDirty( false );
+		}
+		if( fog->IsDirty() )
+		{
+			m_fogColorEffect->StartUpdate();
+			m_fogColorEffect->SetParameter( BlueSharedString( "Params" ), Vector4( fog->m_nebulaBlur, fog->m_nebulaBlur, fog->m_originalBrightenOnly, fog->m_colorInfluence ) );
+			m_fogColorEffect->SetParameter( BlueSharedString( "Color" ), fog->m_color );
+			m_fogColorEffect->EndUpdate();
+
+			m_fogCompositeEffect->StartUpdate();
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "FogParameters" ), Vector4( fog->m_totalAmount, fog->m_totalPower, fog->m_backgroundOcclusion, fog->m_overallIntensity ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "BrightnessAdjustment" ), Vector4( fog->m_brightnessThreshold0, fog->m_brightnessThreshold1, fog->m_brightnessAdjustmentAmount, 0.0f ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlendFunction0" ), Vector4( fog->m_blendDistance0, fog->m_blendBias0, fog->m_blendAmount0, fog->m_blendPower0 ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlendFunction1" ), Vector4( fog->m_blendDistance1, fog->m_blendBias1, fog->m_blendAmount1, fog->m_blendPower1 ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "BlendFunction2" ), Vector4( fog->m_blendDistance2, fog->m_blendBias2, fog->m_blendAmount2, fog->m_blendPower2 ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "AreaSize" ), Vector4( fog->m_areaSize, fog->m_areaScale.x ) );
+			m_fogCompositeEffect->SetParameter( BlueSharedString( "AreaCenter" ), Vector4( fog->m_areaCenter, fog->m_areaScale.y ) );
+			m_fogCompositeEffect->EndUpdate();
+
+			fog->SetDirty( false );
+		}
+	}
+	else 
+	{
+		m_fogColorEffect = nullptr;
+		m_fogCompositeEffect = nullptr;
+		m_fogHorizontalBlurEffect = nullptr;
+		m_fogVerticalBlurEffect = nullptr;
+	}
+	return fog && fog->IsActive();
+}
+
+void TriStepRenderPostProcess::RenderFog( Tr2RenderContext& renderContext, Tr2PPFogEffect* fog )
+{
+	auto sourceBuffer = m_renderInfo->GetSourceBuffer();
+	if( sourceBuffer->GetMsaaType() > 1 )
+	{
+		sourceBuffer->GetRenderTarget().Resolve( *m_renderInfo->GetSourceBufferCopy(), renderContext );
+		Tr2Renderer::PushRenderTarget( *m_renderInfo->GetSourceBufferCopy(), renderContext );
+		Tr2Renderer::DrawTexture( *sourceBuffer );
+		renderContext.PopRenderTarget( );
+	}
+
+	// render fog color
+	Tr2Renderer::PushRenderTarget( *m_renderInfo->GetRt1Buffer(), renderContext );
+	Tr2Renderer::DrawScreenQuad( m_fogColorEffect );
+	Tr2Renderer::PopRenderTarget( renderContext );
+
+	// horizontal blur
+	Tr2Renderer::PushRenderTarget( *m_renderInfo->GetRt2Buffer(), renderContext );
+	Tr2Renderer::DrawScreenQuad( m_fogHorizontalBlurEffect);
+	Tr2Renderer::PopRenderTarget( renderContext );
+
+	// vertical blur
+	Tr2Renderer::PushRenderTarget( *m_renderInfo->GetRt1Buffer(), renderContext );
+	Tr2Renderer::DrawScreenQuad( m_fogVerticalBlurEffect );
+	Tr2Renderer::PopRenderTarget( renderContext );
+
+	// final composite
+	Tr2Renderer::PushRenderTarget( *m_renderInfo->GetSourceBuffer(), renderContext );
+	Tr2Renderer::DrawScreenQuad( m_fogCompositeEffect );
+	Tr2Renderer::PopRenderTarget( renderContext );
 }

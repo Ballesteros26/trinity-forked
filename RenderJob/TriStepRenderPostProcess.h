@@ -74,6 +74,14 @@ private:
 	Tr2EffectPtr m_dynamicExposureMergeHistogramShader;
 	Tr2EffectPtr m_dynamicExposureMeasureExposureShader;
 
+	// fog
+	bool ProcessFog( Tr2PPFogEffect* fog );
+	void RenderFog( Tr2RenderContext& renderContext, Tr2PPFogEffect* fog );
+	Tr2EffectPtr m_fogColorEffect;
+	Tr2EffectPtr m_fogHorizontalBlurEffect;
+	Tr2EffectPtr m_fogVerticalBlurEffect;
+	Tr2EffectPtr m_fogCompositeEffect;
+
 	// film grain
 	void ProcessFilmGrain( Tr2PPFilmGrainEffect* filmGrain );
 

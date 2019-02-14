@@ -32,6 +32,10 @@ const Be::ClassInfo* TriStepRenderPostProcess::ExposeToBlue()
 		MAP_ATTRIBUTE( "dynamicExposureCreateHistogramShader", m_dynamicExposureCreateHistogramShader, "The create histogram effect", Be::READWRITE )
 		MAP_ATTRIBUTE( "dynamicExposureMergeHistogramShader", m_dynamicExposureMergeHistogramShader, "The merge histogram effect", Be::READWRITE )
 		MAP_ATTRIBUTE( "dynamicExposureMeasureExposureShader", m_dynamicExposureMeasureExposureShader, "The measure exposure effect", Be::READWRITE )
+		MAP_ATTRIBUTE( "fogColorEffect", m_fogColorEffect, "The fog color effect", Be::READWRITE )
+		MAP_ATTRIBUTE( "fogHorizontalBlurEffect", m_fogHorizontalBlurEffect, "The fog horizontal blur effect", Be::READWRITE )
+		MAP_ATTRIBUTE( "fogVerticalBlurEffect", m_fogVerticalBlurEffect, "The fog vertical blur effect", Be::READWRITE )
+		MAP_ATTRIBUTE( "fogCompositeEffect", m_fogCompositeEffect, "The fog composite effect", Be::READWRITE )
 
 		MAP_ATTRIBUTE_WITH_CHOOSER( "quality", m_quality, "The quality of the post process", Be::READWRITE | Be::ENUM, PostProcessQualityChooser )
 
