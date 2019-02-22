@@ -67,6 +67,8 @@ TriStepRenderPostProcess::~TriStepRenderPostProcess( void )
 void TriStepRenderPostProcess::py__init__( EveSpaceScene* scene, Tr2RenderTarget* source  )
 {
 	m_scene = scene;
+	m_scene->SetupTAA( m_velocityBuffer, 0, TAA_NONE );
+
 	m_renderInfo->SetSourceBuffer( source );
 	
 	if( source != nullptr )
@@ -261,16 +263,16 @@ bool TriStepRenderPostProcess::ProcessBloom( Tr2PPBloomEffect* bloom )
 	else
 	{
 		if( m_bloomHighPassFilter != nullptr || m_bloomHorizontalBlur != nullptr || m_bloomVerticalBlur != nullptr )
-	{
-		m_bloomHighPassFilter = nullptr;
-		m_bloomHorizontalBlur = nullptr;
-		m_bloomVerticalBlur = nullptr;
+		{
+			m_bloomHighPassFilter = nullptr;
+			m_bloomHorizontalBlur = nullptr;
+			m_bloomVerticalBlur = nullptr;
 
-		m_tonemappingEffect->StartUpdate();
-		m_tonemappingEffect->SetParameter( BlueSharedString( "BlitCurrent" ), m_renderInfo->GetBlackBuffer() );
-		m_tonemappingEffect->EndUpdate();
-		}		
-	}
+			m_tonemappingEffect->StartUpdate();
+			m_tonemappingEffect->SetParameter( BlueSharedString( "BlitCurrent" ), m_renderInfo->GetBlackBuffer() );
+			m_tonemappingEffect->EndUpdate();
+			}		
+		}
 
 	return bloom != nullptr && bloom->IsActive();
 }
@@ -538,19 +540,19 @@ bool TriStepRenderPostProcess::ProcessDynamicExposure( Tr2PPDynamicExposureEffec
 	{
 		if( m_dynamicExposureCreateHistogramShader != nullptr || m_dynamicExposureMeasureExposureShader != nullptr || m_dynamicExposureMergeHistogramShader != nullptr ||
 			m_localHistograms != nullptr || m_histogram != nullptr || m_exposure != nullptr )
-	{
-		m_dynamicExposureCreateHistogramShader = nullptr;
-		m_dynamicExposureMeasureExposureShader = nullptr;
-		m_dynamicExposureMergeHistogramShader = nullptr;
-		m_localHistograms = nullptr;
-		m_histogram = nullptr;
-		m_exposure = nullptr;
+		{
+			m_dynamicExposureCreateHistogramShader = nullptr;
+			m_dynamicExposureMeasureExposureShader = nullptr;
+			m_dynamicExposureMergeHistogramShader = nullptr;
+			m_localHistograms = nullptr;
+			m_histogram = nullptr;
+			m_exposure = nullptr;
 
-		// TODO replace with an option
-		m_tonemappingEffect->StartUpdate();
-		m_tonemappingEffect->SetParameter( BlueSharedString( "DynamicExposure" ), 0.0f );
-		m_tonemappingEffect->EndUpdate();
-	}
+			// TODO replace with an option
+			m_tonemappingEffect->StartUpdate();
+			m_tonemappingEffect->SetParameter( BlueSharedString( "DynamicExposure" ), 0.0f );
+			m_tonemappingEffect->EndUpdate();
+		}
 		
 	}
 
@@ -915,7 +917,6 @@ bool TriStepRenderPostProcess::ProcessTaa( Tr2PPTaaEffect* taa )
 			m_accumulationBuffer = nullptr;
 			m_velocityBuffer = nullptr;
 			m_scene->SetupTAA( m_velocityBuffer, 0, TAA_NONE );
-			taa->SetDirty( false );
 		}
 	}
 	return taa && taa->IsActive();
