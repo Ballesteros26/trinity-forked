@@ -100,6 +100,13 @@ void EvePlanet::Update( EveUpdateContext& updateContext )
 	{
 		(*it)->Update( time, time );
 	}
+
+	// Used for audio for suns.
+	TriObserverLocalVector::iterator observersEnd = m_observers.end();
+	for( TriObserverLocalVector::iterator it = m_observers.begin(); it != observersEnd; ++it )
+	{
+		(*it)->Update( m_worldTransform );
+	}
 }
 
 Matrix EvePlanet::CalculatePlanetScaleTransform( const Matrix& worldTransform ) const
