@@ -307,7 +307,7 @@ bool Tr2HostBitmap::CopyFromTextureRes ( TriTextureRes& res, Tr2RenderContext& r
 
 			if( res.m_wrappedRenderTarget )
 			{
-				hr = res.m_wrappedRenderTarget->GetRenderTarget().MapForReading( Tr2TextureSubresource( mipLevel ), srcData, srcPitch, renderContext );
+				hr = res.m_wrappedRenderTarget->GetRenderTarget().MapForReading( Tr2TextureSubresource( face, mipLevel ), srcData, srcPitch, renderContext );
 			}
 			else if( res.GetTexture() )
 			{
