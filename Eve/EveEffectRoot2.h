@@ -126,6 +126,9 @@ public:
 	void SetControllerVariable( const char* name, float value );
 	void HandleControllerEvent( const char* name );
 	void StartControllers();
+
+	void FreezeHighDetailMesh();
+
 private:
 	// general
 	std::string m_name;

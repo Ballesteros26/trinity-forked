@@ -169,6 +169,12 @@ const Be::ClassInfo* EveEffectRoot2::ExposeToBlue()
 			StartControllers,
 			"Start all controllers"
 		)
+		MAP_METHOD_AND_WRAP
+		(
+			"FreezeHighDetailMesh",
+			FreezeHighDetailMesh,
+			""
+		)
 
     EXPOSURE_END();
 }

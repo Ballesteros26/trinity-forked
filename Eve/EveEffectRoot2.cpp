@@ -754,3 +754,12 @@ ITr2SoundEmitter* EveEffectRoot2::FindSoundEmitter( const char* name )
 	}
 	return nullptr;
 }
+
+void EveEffectRoot2::FreezeHighDetailMesh()
+{
+	m_lodLevel = TR2_LOD_HIGH;
+	for (auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt)
+	{
+		(*ecIt)->ChangeLOD(m_lodLevel);
+	}
+}
