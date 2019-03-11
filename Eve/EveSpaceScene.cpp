@@ -1613,7 +1613,7 @@ Tr2QuadRenderer* EveSpaceScene::GetQuadRenderer() const
 // Returns:
 //   boolean indicating weather background distortion is required.
 // --------------------------------------------------------------------------------------
-bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
+bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext, bool runOcclusionQueries )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
@@ -1698,9 +1698,12 @@ bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 		// have their own view/projection and so their own z-depth, BUT before
 		// clear, we must render the lensfalre occlusion queries, so we don't lose
 		// the z info we have so far
-		for( EveLensflareVector::const_iterator it = m_lensflares.begin(); it != m_lensflares.end(); ++it )
+		if( runOcclusionQueries )
 		{
-			(*it)->RunBackgroundOcclusionQueries( renderContext, frustum );
+			for( EveLensflareVector::const_iterator it = m_lensflares.begin(); it != m_lensflares.end(); ++it )
+			{
+				(*it)->RunBackgroundOcclusionQueries( renderContext, frustum );
+			}
 		}
 
 		// now it's ok to clear z-buffer
@@ -1821,7 +1824,7 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 			PopulatePerFrameVSData( m_perFrameVS );
 			ApplyPerFrameData( renderContext );
 
-			RenderBackgroundPass( renderContext );
+			RenderBackgroundPass( renderContext, false );
 
 			m_reflectionProbe->EndRenderFace( i, renderContext );
 		}

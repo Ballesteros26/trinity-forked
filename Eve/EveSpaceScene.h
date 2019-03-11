@@ -97,7 +97,7 @@ public:
 	RenderPassResult RenderPass( PassType pass, Tr2RenderContext& renderContext );
 	void RenderMainPass( Tr2RenderContext& renderContext );
 	void RenderDepthPass( Tr2RenderContext& renderContext );
-	bool RenderBackgroundPass( Tr2RenderContext& renderContext );
+	bool RenderBackgroundPass( Tr2RenderContext& renderContext, bool runOcclusionQueries = true );
 	void BeginRender( Tr2RenderContext& renderContext );
 	void EndRender( Tr2RenderContext& renderContext );
 	void Render3DUI( Tr2RenderContext& renderContext );
