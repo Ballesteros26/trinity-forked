@@ -271,6 +271,9 @@
     <ClInclude Include="Tr2QuadRenderer.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Tr2ReflectionProbe.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="Tr2RenderContext.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -1841,6 +1844,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2QuadRenderer_Blue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tr2ReflectionProbe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Tr2ReflectionProbe_Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tr2RenderContext.cpp">
