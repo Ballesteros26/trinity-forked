@@ -30,7 +30,8 @@ public:
 		Tr2RenderContextEnum::PixelFormat format,
 		unsigned msaaType, 
 		unsigned msaaQuality,
-		Tr2RenderContextEnum::ExFlag flags );
+		Tr2RenderContextEnum::ExFlag flags,
+		Tr2RenderContextEnum::TextureType type );
 
 	long Create( 
 		unsigned width, 
@@ -39,7 +40,8 @@ public:
 		Tr2RenderContextEnum::PixelFormat format,
 		unsigned msaaType = 1, 
 		unsigned msaaQuality = 0,
-		Tr2RenderContextEnum::ExFlag flags = Tr2RenderContextEnum::EX_NONE );
+		Tr2RenderContextEnum::ExFlag flags = Tr2RenderContextEnum::EX_NONE,
+		Tr2RenderContextEnum::TextureType type = Tr2RenderContextEnum::TEX_TYPE_2D );
 
 	virtual Tr2TextureAL* GetTexture();
 
@@ -56,6 +58,7 @@ public:
 	uint32_t GetMsaaType() const;
 	uint32_t GetMsaaQuality() const;
 	Tr2RenderContextEnum::PixelFormat GetFormat() const;
+	Tr2RenderContextEnum::TextureType GetType() const;
 
 	long GenerateMipMaps();
 	long Resolve( Tr2RenderTarget* destination );
@@ -83,6 +86,7 @@ private:
 	Tr2RenderContextEnum::PixelFormat m_format;
 	Tr2MsaaDesc m_msaa;
 	Tr2RenderContextEnum::ExFlag m_flags;
+	Tr2RenderContextEnum::TextureType m_type;
 
 	bool HasALObject( int type, size_t object );
 };

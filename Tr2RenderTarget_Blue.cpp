@@ -16,9 +16,9 @@ const Be::ClassInfo* Tr2RenderTarget::ExposeToBlue()
 		MAP_METHOD_AND_WRAP_OPTIONAL_ARGS(
 			"__init__",
 			py__init__,
-			7,
+			8,
 			"Provide no arguments, and call Create/CreateMsaa later, or provide\n"
-			"width, height, mipCount, trinity.PIXEL_FORMAT, msaaType=0, msaaQuality=0, flags=0.\n"
+			"width, height, mipCount, trinity.PIXEL_FORMAT, msaaType=0, msaaQuality=0, flags=0, type=0.\n"
 			":param width: render target width\n"
 			":param height: render target height\n"
 			":param mipCount: number of mip levels (0 = full pyramid)\n"
@@ -26,6 +26,7 @@ const Be::ClassInfo* Tr2RenderTarget::ExposeToBlue()
 			":param msaaType: number of samples\n"
 			":param msaaQuality: MSAA quality\n"
 			":param flags: trinity.EX_FLAG"
+			":param type: texture type (2D or CUBE)"
 		)
 
 
@@ -33,7 +34,7 @@ const Be::ClassInfo* Tr2RenderTarget::ExposeToBlue()
 		(
 			"Create",
 			Create,
-			3,
+			4,
 			"Creates a new render target\n"
 			":jessica-deprecated:\n"
 			":param width: render target width\n"
@@ -43,6 +44,7 @@ const Be::ClassInfo* Tr2RenderTarget::ExposeToBlue()
 			":param msaaType: number of samples\n"
 			":param msaaQuality: MSAA quality\n"
 			":param flags: trinity.EX_FLAG"
+			":param type: texture type (2D or CUBE)"
 		)
 
 		MAP_METHOD_AND_WRAP

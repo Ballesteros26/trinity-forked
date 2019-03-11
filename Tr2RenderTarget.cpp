@@ -39,7 +39,8 @@ Tr2RenderTarget::Tr2RenderTarget( IRoot* )
 	m_height( 0 ),
 	m_mipCount( 0 ),
 	m_format( PIXEL_FORMAT_UNKNOWN ),
-	m_flags( EX_NONE )
+	m_flags( EX_NONE ),
+	m_type( TEX_TYPE_INVALID )
 {	
 }
 
@@ -58,12 +59,13 @@ void Tr2RenderTarget::py__init__(
 	Tr2RenderContextEnum::PixelFormat format,
 	unsigned msaaType, 
 	unsigned msaaQuality,
-	Tr2RenderContextEnum::ExFlag flags )
+	Tr2RenderContextEnum::ExFlag flags,
+	Tr2RenderContextEnum::TextureType type )
 {
 	if( width && height && format )
 	{
 		CCP_ASSERT( msaaType <= 1 || mipCount <= 1 );	// can't have msaa and mips at the same time.
-		Create( width, height, mipCount, format, msaaType, msaaQuality, flags );
+		Create( width, height, mipCount, format, msaaType, msaaQuality, flags, type );
 	}		
 }
 
@@ -74,7 +76,8 @@ long Tr2RenderTarget::Create(
 	Tr2RenderContextEnum::PixelFormat format,
 	unsigned msaaType,
 	unsigned msaaQuality,
-	Tr2RenderContextEnum::ExFlag flags )
+	Tr2RenderContextEnum::ExFlag flags,
+	Tr2RenderContextEnum::TextureType type )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 	USE_MAIN_THREAD_RENDER_CONTEXT();
@@ -86,9 +89,13 @@ long Tr2RenderTarget::Create(
 	auto gpuUsage = Tr2GpuUsage::NONE;
 	auto cpuUsage = Tr2CpuUsage::NONE;
 	GetUsage( uint32_t( msaaType ), flags, gpuUsage, cpuUsage );
+	if( !type )
+	{
+		type = TEX_TYPE_2D;
+	}
 
 	auto hr = m_renderTarget.Create(
-		Tr2BitmapDimensions( width, height, mipLevelCount, format ),
+		Tr2BitmapDimensions( type, format, width, height, 1, mipLevelCount ),
 		Tr2MsaaDesc( msaaType, msaaQuality ),
 		gpuUsage,
 		cpuUsage,
@@ -102,6 +109,7 @@ long Tr2RenderTarget::Create(
 		m_format = format;
 		m_msaa = Tr2MsaaDesc( msaaType, msaaQuality );
 		m_flags = ExFlag( flags );
+		m_type = type;
 	}
 	else
 	{
@@ -196,6 +204,7 @@ void Tr2RenderTarget::Destroy()
 	m_format = PIXEL_FORMAT_UNKNOWN;
 	m_msaa = Tr2MsaaDesc();
 	m_flags = EX_NONE;
+	m_type = TEX_TYPE_INVALID;
 }
 
 bool Tr2RenderTarget::IsReadable() const
@@ -314,6 +323,11 @@ Tr2RenderContextEnum::PixelFormat Tr2RenderTarget::GetFormat() const
 	return GetRenderTarget().GetFormat();
 }
 
+Tr2RenderContextEnum::TextureType Tr2RenderTarget::GetType() const
+{
+	return GetRenderTarget().GetType();
+}
+
 // --------------------------------------------------------------------------------------
 void Tr2RenderTarget::ReleaseResources( TriStorage s )
 {
@@ -334,7 +348,7 @@ bool Tr2RenderTarget::OnPrepareResources()
 		auto cpuUsage = Tr2CpuUsage::NONE;
 		GetUsage( m_msaa.samples, m_flags, gpuUsage, cpuUsage );
 
-		m_renderTarget.Create( Tr2BitmapDimensions( m_width, m_height, m_mipCount, m_format ),m_msaa, gpuUsage, cpuUsage, nullptr, renderContext );
+		m_renderTarget.Create( Tr2BitmapDimensions( m_type, m_format, m_width, m_height, 1, m_mipCount ), m_msaa, gpuUsage, cpuUsage, nullptr, renderContext );
 	}
 	return true;
 }
