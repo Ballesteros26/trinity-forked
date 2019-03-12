@@ -32,7 +32,7 @@ public:
 	void EndRenderFace( unsigned face, Tr2RenderContext &renderContext );
 	void EndRenderPass( Tr2RenderContext &renderContext );
 
-	TriTextureResPtr GetReflection();
+	Tr2RenderTargetPtr GetReflection();
 	void SetPosition( Vector3 position );
 
 	bool OnModified( Be::Var* value );
@@ -44,7 +44,6 @@ private:
 	Vector3 m_position;
 	int m_intermediateSize;
 
-	TriTextureResPtr m_outputTexture;
 	Tr2RenderTargetPtr m_renderTarget;
 	Tr2RenderTargetPtr m_renderTargetCube;
 	Tr2TextureAL m_stencilMap;

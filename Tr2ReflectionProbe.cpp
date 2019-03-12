@@ -28,7 +28,6 @@ Tr2ReflectionProbe::Tr2ReflectionProbe( IRoot* lockobj )
 {
 	m_renderTarget.CreateInstance();
 	m_renderTargetCube.CreateInstance();
-	m_outputTexture.CreateInstance();
 	m_preFilterEffect.CreateInstance();
 	m_filterEffect.CreateInstance();
 	m_preFilterTarget.CreateInstance();
@@ -117,9 +116,9 @@ void Tr2ReflectionProbe::EndRenderPass( Tr2RenderContext &renderContext )
 	Filter( renderContext );
 }
 
-TriTextureResPtr Tr2ReflectionProbe::GetReflection()
+Tr2RenderTargetPtr Tr2ReflectionProbe::GetReflection()
 {
-	return m_outputTexture;
+	return m_postFilterTarget;
 }
 
 void Tr2ReflectionProbe::SetPosition( Vector3 position )
@@ -164,15 +163,14 @@ bool Tr2ReflectionProbe::OnPrepareResources()
 	if( !m_postFilterTarget->IsValid() )
 	{
 		CR_RETURN_VAL( m_postFilterTarget->Create( FILTER_SIZE, FILTER_SIZE, MIP_COUNT, PIXEL_FORMAT_R8G8B8A8_UNORM, 0, 0, EX_BIND_UNORDERED_ACCESS, TEX_TYPE_CUBE ), false );
-		m_outputTexture->SetTextureFromRT( m_postFilterTarget );
 	}
 
 	if( !m_initialized )
 	{
 		m_filterEffect->SetEffectPathName( "res:/graphics/effect/managed/space/System/Reflection/ReflectionFilterActivision128.fx" );
 		m_preFilterEffect->SetEffectPathName( "res:/graphics/effect/managed/space/System/Reflection/ReflectionFilterActivisionPre.fx" );
-		m_preFilterEffect->SetParameter( BlueSharedString("tex_hi_res"), m_renderTargetCube );
-		m_preFilterEffect->SetParameter( BlueSharedString("tex_lo_res"), m_preFilterTarget );
+		m_preFilterEffect->SetParameter( BlueSharedString( "tex_hi_res" ), m_renderTargetCube );
+		m_preFilterEffect->SetParameter( BlueSharedString( "tex_lo_res" ), m_preFilterTarget );
 
 		for( int i = 0; i < MIP_COUNT; i++ )
 		{

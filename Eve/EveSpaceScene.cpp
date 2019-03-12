@@ -29,7 +29,7 @@
 #include "Shader/Utils/Tr2DataTextureManager.h"
 #include "Shader/Tr2ShaderBuffer.h"
 #include "Particle/Tr2GpuParticleSystem.h"
-#include "Resources/TriTextureRes.h"
+#include "ITr2TextureProvider.h"
 #include "Tr2ImpostorManager.h"
 #include "Tr2DebugRenderer.h"
 #include "EveEffectRoot2.h"
@@ -188,7 +188,7 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_shadowBatches = CCP_NEW( "EveSpaceScene/m_shadowBatches" ) TriRenderBatchAccumulator<EffectKeyGenerator>( allocator );
 
 	// global textures
-	m_envMapHandle = GlobalStore().RegisterVariable( "EveSpaceSceneEnvMap", (TriTextureRes*)nullptr );
+	m_envMapHandle = GlobalStore().RegisterVariable( "EveSpaceSceneEnvMap", (ITr2TextureProvider*)nullptr );
 	
 	// Picking batches
 	m_pickingBatches = CCP_NEW( "EveSpaceScene/m_pickingBatches" ) TriRenderBatchAccumulator<>( allocator );
@@ -2309,20 +2309,20 @@ bool EveSpaceScene::Initialize()
 	}
 	else if( m_envMapHandle )
 	{
-		BeResMan->GetResource( m_envMapResPath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_envMapTextureRes );
+		BeResMan->GetResource( m_envMapResPath.c_str(), "", BlueInterfaceIID<ITr2TextureProvider>(), (void**)&m_envMapTextureRes );
 	}
 
 	if( !m_envMap1ResPath.empty() )
 	{
-		BeResMan->GetResource( m_envMap1ResPath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_envMap1 );
+		BeResMan->GetResource( m_envMap1ResPath.c_str(), "", BlueInterfaceIID<ITr2TextureProvider>(), (void**)&m_envMap1 );
 	}
 	if( !m_envMap2ResPath.empty() )
 	{
-		BeResMan->GetResource( m_envMap2ResPath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_envMap2 );
+		BeResMan->GetResource( m_envMap2ResPath.c_str(), "", BlueInterfaceIID<ITr2TextureProvider>(), (void**)&m_envMap2 );
 	}
 	if( !m_envMap3ResPath.empty() )
 	{
-		BeResMan->GetResource( m_envMap3ResPath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_envMap3 );
+		BeResMan->GetResource( m_envMap3ResPath.c_str(), "", BlueInterfaceIID<ITr2TextureProvider>(), (void**)&m_envMap3 );
 	}
 
 	if( m_shLightingManager )
@@ -2358,7 +2358,7 @@ bool EveSpaceScene::OnModified( Be::Var* value )
 		}
 		else if( !m_envMapResPath.empty() )
 		{
-			BeResMan->GetResource( m_envMapResPath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_envMapTextureRes );
+			BeResMan->GetResource( m_envMapResPath.c_str(), "", BlueInterfaceIID<ITr2TextureProvider>(), (void**)&m_envMapTextureRes );
 		}
 	}
 	if( IsMatch( value, m_envMap1ResPath ) )
@@ -2366,7 +2366,7 @@ bool EveSpaceScene::OnModified( Be::Var* value )
 		m_envMap1.Unlock();
 		if( !m_envMap1ResPath.empty() )
 		{
-			BeResMan->GetResource( m_envMap1ResPath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_envMap1 );
+			BeResMan->GetResource( m_envMap1ResPath.c_str(), "", BlueInterfaceIID<ITr2TextureProvider>(), (void**)&m_envMap1 );
 		}
 	}
 	if( IsMatch( value, m_envMap2ResPath ) )
@@ -2374,7 +2374,7 @@ bool EveSpaceScene::OnModified( Be::Var* value )
 		m_envMap2.Unlock();
 		if( !m_envMap2ResPath.empty() )
 		{
-			BeResMan->GetResource( m_envMap2ResPath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_envMap2 );
+			BeResMan->GetResource( m_envMap2ResPath.c_str(), "", BlueInterfaceIID<ITr2TextureProvider>(), (void**)&m_envMap2 );
 		}
 	}
 	if( IsMatch( value, m_envMap3ResPath ) )
@@ -2382,7 +2382,7 @@ bool EveSpaceScene::OnModified( Be::Var* value )
 		m_envMap3.Unlock();
 		if( !m_envMap3ResPath.empty() )
 		{
-			BeResMan->GetResource( m_envMap3ResPath.c_str(), "", BlueInterfaceIID<TriTextureRes>(), (void**)&m_envMap3 );
+			BeResMan->GetResource( m_envMap3ResPath.c_str(), "", BlueInterfaceIID<ITr2TextureProvider>(), (void**)&m_envMap3 );
 		}
 	}
 

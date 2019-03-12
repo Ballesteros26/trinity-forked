@@ -14,8 +14,9 @@ const Be::ClassInfo* Tr2ReflectionProbe::ExposeToBlue()
 	EXPOSURE_BEGIN( Tr2ReflectionProbe, "" )
 		MAP_INTERFACE( Tr2ReflectionProbe )
 		MAP_INTERFACE( INotify )
-		
-		MAP_ATTRIBUTE( "reflectionTexture", m_outputTexture, "Filtered reflection texture, with different roughness levels in mips", Be::READ )
+
+		MAP_ATTRIBUTE( "unfilteredTexture", m_renderTargetCube, "Unfiltered reflection texture", Be::READ )
+		MAP_ATTRIBUTE( "reflectionTexture", m_postFilterTarget, "Filtered reflection texture, with different roughness levels in mips", Be::READ )
 		MAP_ATTRIBUTE( "position", m_position, "Origin for the reflection", Be::READWRITE )
 		MAP_ATTRIBUTE( "reflectionSize", m_intermediateSize, "Size for the unfiltered reflection map", Be::READWRITE | Be::NOTIFY )
 	EXPOSURE_END()

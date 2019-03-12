@@ -44,7 +44,7 @@ extern float g_eveSpaceSceneHighDetailThreshold;
 
 BLUE_DECLARE( TriFrustum );
 BLUE_DECLARE( Tr2Effect );
-BLUE_DECLARE( TriTextureRes );
+BLUE_DECLARE_INTERFACE( ITr2TextureProvider );
 BLUE_DECLARE( EveLensflare );
 BLUE_DECLARE_VECTOR( EveLensflare );
 BLUE_DECLARE( TriShadowMap );
@@ -380,16 +380,16 @@ protected:
 
 	std::string m_envMapResPath;
 	TriVariable* m_envMapHandle;
-	TriTextureResPtr m_envMapTextureRes;
+	ITr2TextureProviderPtr m_envMapTextureRes;
 
 	std::string m_envMap1ResPath;
-	TriTextureResPtr m_envMap1;
+	ITr2TextureProviderPtr m_envMap1;
 
 	std::string m_envMap2ResPath;
-	TriTextureResPtr m_envMap2;
+	ITr2TextureProviderPtr m_envMap2;
 
 	std::string m_envMap3ResPath;
-	TriTextureResPtr m_envMap3;
+	ITr2TextureProviderPtr m_envMap3;
 
 	Tr2Variable m_shadowLightnessVar;
 	Tr2Variable m_envMap1Var;
