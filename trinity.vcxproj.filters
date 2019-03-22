@@ -1357,6 +1357,9 @@
     <ClInclude Include="Resources\Tr2EffectRes.h">
       <Filter>Source Files\Resources</Filter>
     </ClInclude>
+    <ClInclude Include="Resources\Tr2GrannyStateRes.h">
+      <Filter>Source Files\Resources</Filter>
+    </ClInclude>
     <ClInclude Include="Resources\Tr2ImageRes.h">
       <Filter>Source Files\Resources</Filter>
     </ClInclude>
@@ -3590,6 +3593,12 @@
       <Filter>Source Files\Resources</Filter>
     </ClCompile>
     <ClCompile Include="Resources\Tr2EffectRes_Blue.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\Tr2GrannyStateRes.cpp">
+      <Filter>Source Files\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources\Tr2GrannyStateRes_Blue.cpp">
       <Filter>Source Files\Resources</Filter>
     </ClCompile>
     <ClCompile Include="Resources\Tr2ImageRes.cpp">

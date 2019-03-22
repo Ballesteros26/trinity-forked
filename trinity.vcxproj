@@ -2919,6 +2919,7 @@
     <ClInclude Include="Resources\Tr2CairoScriptSourceRes.h" />
     <ClInclude Include="Resources\Tr2CompositedVectorTextureRes.h" />
     <ClInclude Include="Resources\Tr2EffectRes.h" />
+    <ClInclude Include="Resources\Tr2GrannyStateRes.h" />
     <ClInclude Include="Resources\Tr2ImageRes.h" />
     <ClInclude Include="Resources\Tr2LodResource.h" />
     <ClInclude Include="Resources\Tr2LodResourceCache.h" />
@@ -3668,6 +3669,8 @@
     <ClCompile Include="Resources\Tr2CompositedVectorTextureRes_Blue.cpp" />
     <ClCompile Include="Resources\Tr2EffectRes.cpp" />
     <ClCompile Include="Resources\Tr2EffectRes_Blue.cpp" />
+    <ClCompile Include="Resources\Tr2GrannyStateRes.cpp" />
+    <ClCompile Include="Resources\Tr2GrannyStateRes_Blue.cpp" />
     <ClCompile Include="Resources\Tr2ImageRes.cpp" />
     <ClCompile Include="Resources\Tr2ImageRes_Blue.cpp" />
     <ClCompile Include="Resources\Tr2LodResource.cpp" />
