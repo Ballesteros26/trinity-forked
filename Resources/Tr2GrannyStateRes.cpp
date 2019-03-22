@@ -3,10 +3,12 @@
 #include "Utilities/GeometryUtils.h"
 
 
-Tr2GrannyStateRes::Tr2GrannyStateRes( IRoot* lockobj )
+Tr2GrannyStateRes::Tr2GrannyStateRes( IRoot* lockobj ):
+	m_characterFile( nullptr ),
+	m_data( nullptr ),
+	m_dataSize( 0 ),
+	m_memoryUsage( 0 )
 {
-	m_characterFile = NULL;
-	m_data = NULL;
 }
 
 
