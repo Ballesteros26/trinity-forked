@@ -10,7 +10,7 @@
 #define Tr2PostProcessRenderInfo_H
 
 #include "StdAfx.h"
-#include "Shader\Tr2ShaderBuffer.h"
+#include "Shader/Tr2ShaderBuffer.h"
 #include "Tr2RenderTarget.h"
 #include "Tr2RenderContext.h"
 #include "Tr2GpuBuffer.h"
