@@ -96,7 +96,7 @@ void EveChildEnvironment::UpdateAsyncronous( EveUpdateContext& updateContext, co
 		m_environmentIntensity = 0.0f;
 
 		Matrix inverseWorldTransform = Inverse( m_worldTransform );
-		Vector3 cameraInObjectSpace = Transform( Tr2Renderer::GetViewPosition(), inverseWorldTransform );
+		Vector3 cameraInObjectSpace = Transform( Tr2Renderer::GetViewPosition(), inverseWorldTransform ).GetXYZ();
 
 		// check first if the camera position is within the environment bounding box
 		if( LengthSq( cameraInObjectSpace - m_boundingSphere.GetXYZ() ) <= m_boundingSphere.w * m_boundingSphere.w )
