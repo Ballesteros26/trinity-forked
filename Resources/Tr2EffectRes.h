@@ -85,7 +85,7 @@ protected:
 	uint32_t m_offsetCount;
 
 	TrackableStdVector<Tr2ShaderPermutation> m_permutations;
-	TrackableStdUnorderedMap<uint32_t, BlueWeakRef<Tr2Shader> > m_shaders;
+	TrackableStdUnorderedMap<uint32_t, Tr2ShaderPtr> m_shaders;
 
 	friend class Tr2EffectStateManager;
 };

@@ -86,10 +86,9 @@ Tr2ShaderPtr Tr2EffectRes::GetShader( const Tr2ShaderOption* options, size_t cou
 	}
 
 	auto found = m_shaders.find( index );
-	if( found != m_shaders.end() && static_cast<Tr2Shader*>( found->second ) != nullptr)
+	if( found != m_shaders.end() )
 	{
-		Tr2Shader* ss = found->second;
-		return ss;
+		return found->second;
 	}
 
 	CCP_ASSERT( index < m_offsetCount );
@@ -105,7 +104,7 @@ Tr2ShaderPtr Tr2EffectRes::GetShader( const Tr2ShaderOption* options, size_t cou
 	}
 	shader->ProcessEffect();
 
-	m_shaders[index] = shader.p;
+	m_shaders[index] = shader;
 	return shader;
 }
 
@@ -120,7 +119,6 @@ BlueAsyncRes::LoadingResult Tr2EffectRes::DoLoad()
 	m_offsets = nullptr;
 	m_offsetCount = 0;
 	m_permutations.clear();
-	m_shaders.clear();
 
 	uint8_t* data = nullptr;
 	if( !m_dataStream->LockData( reinterpret_cast<void**>( &data ), 0 ) )
@@ -282,6 +280,8 @@ BlueAsyncRes::LoadingResult Tr2EffectRes::DoLoad()
 
 bool Tr2EffectRes::DoPrepare()
 {
+	m_shaders.clear();
+
 	if( !Tr2Renderer::IsResourceCreationAllowed() )
 	{
 		return false;
