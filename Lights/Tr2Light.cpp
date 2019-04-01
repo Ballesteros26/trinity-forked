@@ -63,7 +63,8 @@ void Tr2Light::AddLight( Tr2LightManager& lightManager, CXMMATRIX transform, flo
 	switch( m_type )
 	{
 	case SPOT_LIGHT:
-		data.direction = Transform( Vector3( 0.0, 0.0, -outerAngle ), RotationMatrix( m_lightData.rotation ) ).GetXYZ();
+		// rotate the direction
+		data.direction = Transform( Vector4( 0.0, 0.0, -outerAngle, 0.0 ), RotationMatrix( m_lightData.rotation ) * transform ).GetXYZ();
 		data.innerAngle = cos(TRI_2PI * m_lightData.innerAngle / 360.0f);
 		break;
 	default:

@@ -347,6 +347,17 @@ void EveSpaceObject2::UpdateSyncronous( EveUpdateContext& updateContext )
 		m_animationUpdater->PrePhysicsAnimation( 0, IdentityMatrix() );
 	}
 
+	if( EveLODHelper::ShouldUpdate( m_lodLevelWithChildren, float( TimeAsDouble( time - m_lastCurveUpdateTime ) ) ) )
+	{
+		// overlay effect curves need to be updated on game thread because they may have references to this object's 
+		// attributes, particularly to clipSphereFactor, which is not thread safe at the moment
+		m_lastCurveUpdateTime = time;
+		for( auto it = m_overlayEffects.begin(); it != m_overlayEffects.end(); ++it )
+		{
+			( *it )->Update( time, time );
+		}
+	}
+
 	TriObserverLocalVector::iterator observersEnd = m_observers.end();
 	Matrix observerTransform = GetObserverTransform();
 	for( TriObserverLocalVector::iterator it = m_observers.begin(); it != observersEnd; ++it )
@@ -448,22 +459,11 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 		}
 	}
 
-	if( !m_curveSets.empty() || !m_overlayEffects.empty() )
+	if( m_lastCurveUpdateTime == time )
 	{
-		float delta = (float)TimeAsDouble( time - m_lastCurveUpdateTime );
-
-		if( EveLODHelper::ShouldUpdate( m_lodLevelWithChildren, delta ) )
+		for( TriCurveSetVector::const_iterator it = m_curveSets.begin(); it != m_curveSets.end(); ++it )
 		{
-			m_lastCurveUpdateTime = time;
-			for( TriCurveSetVector::const_iterator it = m_curveSets.begin(); it != m_curveSets.end(); ++it )
-			{
-				(*it)->Update( time, time );
-			}
-
-			for( auto it = m_overlayEffects.begin(); it != m_overlayEffects.end(); ++it )
-			{
-				(*it)->Update( time, time );
-			}
+			(*it)->Update( time, time );
 		}
 	}
 
