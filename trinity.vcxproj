@@ -164,6 +164,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{BEB47D8C-1734-4A73-91CE-D405F5468B08}</ProjectGuid>
+    <ProjectName>trinity</ProjectName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_27|x64'" Label="Configuration">
     <PlatformToolset>v100</PlatformToolset>
