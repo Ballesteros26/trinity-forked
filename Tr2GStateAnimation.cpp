@@ -71,9 +71,8 @@ void Tr2GStateAnimation::SetSharedGeometryRes( TriGeometryResPtr res )
 }
 
 
-bool Tr2GStateAnimation::Initialize()
+void Tr2GStateAnimation::LoadGrannyRes()
 {
-	Cleanup();
 
 	if( m_grannyRes )
 	{
@@ -92,8 +91,7 @@ bool Tr2GStateAnimation::Initialize()
 	}
 
 	m_boneBounds.clear();
-	
-	return true;
+
 }
 
 
@@ -164,21 +162,24 @@ granny_file_info* GStateAnimationBindingCallback(gstate_character_info *BindingI
 	return nullptr;
 }
 
-void Tr2GStateAnimation::LoadGStateResPath( const std::string& val )
+bool Tr2GStateAnimation::Initialize()
 {
+	Cleanup();
+
 	if ( m_gStateRes )
 	{
 		m_gStateRes->RemoveNotifyTarget( this );
 		m_gStateRes.Unlock();
 	}
 
-	BeResMan->GetResource( val.c_str(), "raw", BlueInterfaceIID<Tr2GrannyStateRes>(), (void**)&m_gStateRes );
+	BeResMan->GetResource( m_gStateResPath.c_str(), "raw", BlueInterfaceIID<Tr2GrannyStateRes>(), (void**)&m_gStateRes );
 
 	if ( m_gStateRes )
 	{
 		m_gStateRes->AddNotifyTarget( this );
 	}
 
+	return true;
 }
 
 void Tr2GStateAnimation::LoadAnimResPath( const std::string& val )
@@ -252,14 +253,13 @@ void Tr2GStateAnimation::RebuildCachedData( BlueAsyncRes* p )
 			if ( m_gStateRes && !m_gStateRes->GetCharacterInfo() )
 			{
 				CCP_LOGERR("'%s' not found or not a valid GState file", m_gStateResPath.c_str());
+				return;
 			}
 
-			auto file_list = GetGStateAnimFileRefPaths();
-			for ( auto it = file_list.begin(); it != file_list.end(); ++it )
-			{
-				std::string anim_res_path = GetFullAnimPath(*it, m_gStateResPath);
-				LoadAnimResPath(anim_res_path);
-			}
+			LoadModelFromGstate();
+			LoadAnimResources();
+
+			return;
 		}
 	}
 
@@ -271,12 +271,6 @@ void Tr2GStateAnimation::RebuildCachedData( BlueAsyncRes* p )
 	if( m_grannyRes && !m_grannyRes->GetGrannyFile() )
 	{
 		CCP_LOGERR( "'%s' not found or not a valid Granny file", m_resPath.c_str() );
-		return;
-	}
-
-	if ( m_gStateRes && !m_gStateRes->GetCharacterFile() )
-	{
-		CCP_LOGERR("'%s' not found or not a valid GState file", m_gStateResPath.c_str());
 		return;
 	}
 
@@ -389,6 +383,35 @@ void Tr2GStateAnimation::RebuildCachedData( BlueAsyncRes* p )
 	}
 }
 
+void Tr2GStateAnimation::LoadModelFromGstate()
+{
+	if ( m_resPath.empty() )
+	{
+		gstate_character_info *info = m_gStateRes->GetCharacterInfo();
+
+		std::string model_name_hint = info->ModelNameHint;
+		if (model_name_hint[model_name_hint.length() - 1] == ';')
+		{
+			model_name_hint = model_name_hint.substr(0, model_name_hint.length() - 1);
+		}
+		m_resPath = GetFullAnimPath(model_name_hint, m_gStateResPath);
+		LoadGrannyRes();
+	}
+}
+
+
+void Tr2GStateAnimation::LoadAnimResources()
+{
+	auto file_list = GetGStateAnimFileRefPaths();
+	for ( auto it = file_list.begin(); it != file_list.end(); ++it )
+	{
+		std::string anim_res_path = GetFullAnimPath(*it, m_gStateResPath);
+		LoadAnimResPath(anim_res_path);
+	}
+}
+
+
+
 
 void Tr2GStateAnimation::BindAnimation()
 {
@@ -486,6 +509,102 @@ bool Tr2GStateAnimation::InitializeBoundingInfo()
 	}
 	return true;
 }
+
+std::vector<std::string> Tr2GStateAnimation::GetTopLevelNodeNames()
+{
+	std::vector<std::string> name_list;
+	auto num_children = m_state_machine->GetNumChildren();
+	for ( auto child = 0; child < num_children; child++ )
+	{
+		auto child_node_name = m_state_machine->GetChild( child )->GetName();
+		name_list.push_back( child_node_name );
+	}
+
+	return name_list;
+}
+
+
+std::vector<std::string> Tr2GStateAnimation::GetTopLevelParameterNodeNames()
+{
+	std::vector<std::string> name_list;
+	auto num_children = m_state_machine->GetNumChildren();
+	for ( auto child = 0; child < num_children; child++ )
+	{
+		auto curr_node = m_state_machine->GetChild( child );
+		parameters *curr_params = GSTATE_DYNCAST(curr_node, parameters);
+		if ( curr_params ) 
+		{
+			auto child_node_name = curr_node->GetName();
+			name_list.push_back( child_node_name );
+		}
+	}
+
+	return name_list;
+}
+
+
+std::vector<std::string> Tr2GStateAnimation::GetTopLevelStateNodeNames()
+{
+	std::vector<std::string> name_list;
+	auto num_children = m_state_machine->GetNumChildren();
+	for ( auto child = 0; child < num_children; child++ )
+	{
+		auto curr_node = m_state_machine->GetChild( child );
+		if ( m_state_machine->IsStateNode(curr_node) )
+		{
+			auto child_node_name = curr_node->GetName();
+			name_list.push_back( child_node_name );
+		}
+	}
+
+	return name_list;
+}
+
+
+
+std::vector<std::string> Tr2GStateAnimation::GetParameters( const std::string &param_node )
+{
+	std::vector<std::string> name_list;
+	node *curr_param = m_state_machine->FindChildByName(param_node.c_str());
+	parameters* param_set = GSTATE_DYNCAST(curr_param, parameters);
+
+	auto num_params = param_set->GetNumOutputs();
+	for ( auto curr_idx = 0; curr_idx < num_params; curr_idx++ )
+	{
+		name_list.push_back(param_set->GetOutputName(curr_idx));
+	}
+
+	return name_list;
+}
+
+
+
+std::vector<float> Tr2GStateAnimation::GetParameterRange( const std::string &param_node, const std::string &param_name )
+{
+	std::vector<float> return_list;
+	node *curr_param = m_state_machine->FindChildByName(param_node.c_str());
+	parameters* param_set = GSTATE_DYNCAST(curr_param, parameters);
+
+	auto num_params = param_set->GetNumOutputs();
+	for ( auto curr_idx = 0; curr_idx < num_params; curr_idx++ )
+	{
+		std::string curr_name = param_set->GetOutputName(curr_idx);
+		if ( curr_name == param_name )
+		{
+			granny_real32 out_min;
+			granny_real32 out_max;
+			auto it_worked = param_set->GetScalarOutputRange(curr_idx, &out_min, &out_max);
+			if ( it_worked )
+			{
+				return_list.push_back(out_min);
+				return_list.push_back(out_max);
+			}
+		}
+	}
+
+	return return_list;
+}
+
 
 tokenized* Tr2GStateAnimation::GetActiveMachineElement()
 {
@@ -724,7 +843,7 @@ const std::string& Tr2GStateAnimation::GetResPath() const
 void Tr2GStateAnimation::SetResPath( const std::string& val )
 {
 	m_resPath = val;
-	Initialize();
+	LoadGrannyRes();
 }
 
 const std::string& Tr2GStateAnimation::GetGStateResPath() const
@@ -735,7 +854,7 @@ const std::string& Tr2GStateAnimation::GetGStateResPath() const
 void Tr2GStateAnimation::SetGStateResPath(const std::string& val)
 {
 	m_gStateResPath = val;
-	LoadGStateResPath(val);
+	Initialize();
 }
 
 
@@ -888,7 +1007,7 @@ granny_model* Tr2GStateAnimation::GetGrannyModel() const
 void Tr2GStateAnimation::SetModel( const std::string& val )
 {
 	m_model = val;
-	Initialize();
+	LoadGrannyRes();
 }
 
 

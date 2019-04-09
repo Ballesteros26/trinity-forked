@@ -76,6 +76,22 @@ const Be::ClassInfo* Tr2GStateAnimation::ExposeToBlue()
 
 		MAP_METHOD_AND_WRAP
 		(
+			"LoadModelFromGstate",
+			LoadModelFromGstate,
+			"LoadModelFromGstate()\n\n"
+			"Loads model resource file."
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
+			"LoadAnimResources",
+			LoadAnimResources,
+			"LoadAnimResPath()\n\n"
+			"Preloads all animation .gr2 resource files."
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
 			"GetGStateAnimFileRefPaths",
 			GetGStateAnimFileRefPaths,
 			"GetGStateAnimFileRefPaths( )\n\n"
@@ -88,6 +104,46 @@ const Be::ClassInfo* Tr2GStateAnimation::ExposeToBlue()
 			BindAnimation,
 			"BindAnimation( )\n\n"
 			"Binds animation for GState file (call after all resources have loaded.)"
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
+			"GetTopLevelNodeNames",
+			GetTopLevelNodeNames,
+			"GetTopLevelNodeNames()\n\n"
+			"Returns a list of names of top-level nodes in the state machine."
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
+			"GetTopLevelParameterNodeNames",
+			GetTopLevelParameterNodeNames,
+			"GetTopLevelParameterNodeNames()\n\n"
+			"Returns a list of names of top-level parameter nodes in the state machine."
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
+			"GetTopLevelStateNodeNames",
+			GetTopLevelStateNodeNames,
+			"GetTopLevelStateNodeNames()\n\n"
+			"Returns a list of names of top-level state nodes in the state machine."
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
+			"GetParameters",
+			GetParameters,
+			"GetParameters( param_node )\n\n"
+			"Returns a list of names of parameters on a parameter node."
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
+			"GetParameterRange",
+			GetParameterRange,
+			"GetParameterRange( param_node, param_name )\n\n"
+			"Returns a list containing minimum and maximum values for a parameter."
 		)
 
 		MAP_METHOD_AND_WRAP

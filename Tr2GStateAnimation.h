@@ -46,6 +46,9 @@ public:
 	void BindAnimation();
 
 	void LoadAnimResPath( const std::string& val );
+	void LoadModelFromGstate();
+	void LoadAnimResources();
+
 
 	bool IsAnimationEnabled() const;
 	void SetAnimationEnabled( bool enabled );
@@ -59,6 +62,11 @@ public:
 	
 	bool IsInitialized() const;
 
+	std::vector<std::string> GetTopLevelNodeNames();
+	std::vector<std::string> GetTopLevelParameterNodeNames();
+	std::vector<std::string> GetTopLevelStateNodeNames();
+	std::vector<std::string> GetParameters( const std::string &param_node );
+	std::vector<float> GetParameterRange( const std::string &param_node, const std::string &param_name );
 	gstate::tokenized* GetActiveMachineElement();
 	const std::string GetActiveMachineElementName();
 	int GetStartStateIdx();
@@ -153,7 +161,7 @@ private:
 	float m_totalPauseOffset;
 
 	granny_file_info* GetFileInfo() const;
-	void LoadGStateResPath(const std::string& val);
+	void Tr2GStateAnimation::LoadGrannyRes();
 
 	GStateBindingCallbackData m_callbackData;
 
