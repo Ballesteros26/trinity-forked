@@ -648,6 +648,12 @@ void Tr2GStateAnimation::SetStartStateIdx(int StartState)
 	m_state_machine->SetStartStateIdx(StartState);
 }
 
+
+void Tr2GStateAnimation::SetStartStateByName( const std::string& name)
+{
+	m_state_machine->SetStartState(m_state_machine->GetStateByName(name.c_str()));
+}
+
 bool Tr2GStateAnimation::RequestChangeToState( const std::string& name )
 {
 	return m_state_machine->RequestChangeToState(GStateInstanceTime(m_gStateCharacterInstance), 

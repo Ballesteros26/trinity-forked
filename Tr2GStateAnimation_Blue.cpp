@@ -167,8 +167,17 @@ const Be::ClassInfo* Tr2GStateAnimation::ExposeToBlue()
 			"SetStartStateIdx",
 			SetStartStateIdx,
 			"SetStartStateIdx( index )\n\n"
-			"Returns the index of the starting state."
+			"Sets the starting state by index."
 			":param int: index for starting state"
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
+			"SetStartStateByName",
+			SetStartStateByName,
+			"SetStartStateByName( name )\n\n"
+			"Sets the starting state by name."
+			":param string: name for starting state"
 		)
 
 		MAP_METHOD_AND_WRAP
