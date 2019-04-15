@@ -4,7 +4,6 @@
 // Copyright:	CCP 2019
 //
 
-#pragma once
 #include "StdAfx.h"
 #include "Tr2PPGodRaysEffect.h"
 
