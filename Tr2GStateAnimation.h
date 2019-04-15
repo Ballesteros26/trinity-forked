@@ -161,7 +161,7 @@ private:
 	float m_totalPauseOffset;
 
 	granny_file_info* GetFileInfo() const;
-	void Tr2GStateAnimation::LoadGrannyRes();
+	void LoadGrannyRes();
 
 	GStateBindingCallbackData m_callbackData;
 
