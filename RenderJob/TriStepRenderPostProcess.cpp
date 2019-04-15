@@ -327,7 +327,7 @@ bool TriStepRenderPostProcess::ProcessGodRays( Tr2PPGodRaysEffect* godrays )
 			m_godrayEffect.CreateInstance();
 			m_godrayEffect->StartUpdate();
 			m_godrayEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/PostProcess/Godrays.fx" );
-			m_godrayEffect->SetParameter( BlueSharedString( "Color" ), godrays->m_godRayColor );
+			m_godrayEffect->SetParameter( BlueSharedString( "Color" ), Vector4( godrays->m_godRayColor ) );
 			m_godrayEffect->SetParameter( BlueSharedString( "Intensity" ), Vector4(godrays->m_intensity, 0.0f, 1.0f, 1.0f ) );
 			m_godrayEffect->SetParameter( BlueSharedString( "grFactors" ), godrays->grFactors );
 			m_godrayEffect->AddResourceTexture2D( BlueSharedString( "NoiseTexMap" ), godrays->m_noiseTexturePath.c_str() );
@@ -338,7 +338,7 @@ bool TriStepRenderPostProcess::ProcessGodRays( Tr2PPGodRaysEffect* godrays )
 		else if( godrays->IsDirty() )
 		{
 			m_godrayEffect->StartUpdate();
-			m_godrayEffect->SetParameter( BlueSharedString( "Color" ), godrays->m_godRayColor );
+			m_godrayEffect->SetParameter( BlueSharedString( "Color" ), Vector4( godrays->m_godRayColor ) );
 			m_godrayEffect->SetParameter( BlueSharedString( "Intensity" ), Vector4( godrays->m_intensity, 0.0f, 1.0f, 1.0f ) );
 			m_godrayEffect->SetParameter( BlueSharedString( "grFactors" ), godrays->grFactors );
 
@@ -648,7 +648,7 @@ void TriStepRenderPostProcess::ProcessFade( Tr2PPFadeEffect* fade )
 		{
 			// we only need to update the tonemapping buffer
 			m_tonemappingEffect->StartUpdate();
-			m_tonemappingEffect->SetParameter( BlueSharedString( "FadeColor" ), fade->m_color );
+			m_tonemappingEffect->SetParameter( BlueSharedString( "FadeColor" ), Vector4( fade->m_color ) );
 			// TODO replace with an option
 			m_tonemappingEffect->SetParameter( BlueSharedString( "FadeAmount" ), fade->m_intensity );
 			m_tonemappingEffect->EndUpdate();
@@ -734,7 +734,7 @@ void TriStepRenderPostProcess::ProcessVignette( Tr2PPVignetteEffect* vignette )
 
 			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteDetailSize" ), Vector4( vignette->m_detail1Size[0], vignette->m_detail1Size[1], vignette->m_detail2Size[0], vignette->m_detail2Size[1] ) );
 			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteDetailScroll" ), Vector4( vignette->m_detail1Scroll[0], vignette->m_detail1Scroll[1], vignette->m_detail2Scroll[0], vignette->m_detail2Scroll[1] ) );
-			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteColor" ), vignette->m_color );
+			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteColor" ), Vector4( vignette->m_color ) );
 			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteIntensity" ), Vector2( vignette->m_intensity, vignette->m_opacity ) );
 			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteSineFrequency" ), vignette->m_sineFrequency );
 			m_tonemappingEffect->SetParameter( BlueSharedString( "VignetteSineRange" ), Vector2( vignette->m_sineMinimum, vignette->m_sineMaximum) );
@@ -768,7 +768,7 @@ bool TriStepRenderPostProcess::ProcessFog( Tr2PPFogEffect* fog )
 			m_fogColorEffect->SetEffectPathName( "res:/Graphics/Effect/Managed/Space/PostProcess/EnvironmentFogColor.fx" );
 			m_fogColorEffect->SetParameter( BlueSharedString( "BlitCurrent" ), m_renderInfo->GetSourceBufferCopy() );
 			m_fogColorEffect->SetParameter( BlueSharedString( "Params" ), Vector4( fog->m_nebulaInfluence, fog->m_nebulaBlur, fog->m_originalBrightenOnly, fog->m_colorInfluence ) );
-			m_fogColorEffect->SetParameter( BlueSharedString( "Color" ), fog->m_color );
+			m_fogColorEffect->SetParameter( BlueSharedString( "Color" ), Vector4( fog->m_color ) );
 			m_fogColorEffect->EndUpdate();
 
 			m_fogHorizontalBlurEffect.CreateInstance();
@@ -804,7 +804,7 @@ bool TriStepRenderPostProcess::ProcessFog( Tr2PPFogEffect* fog )
 		{
 			m_fogColorEffect->StartUpdate();
 			m_fogColorEffect->SetParameter( BlueSharedString( "Params" ), Vector4( fog->m_nebulaInfluence, fog->m_nebulaBlur, fog->m_originalBrightenOnly, fog->m_colorInfluence ) );
-			m_fogColorEffect->SetParameter( BlueSharedString( "Color" ), fog->m_color );
+			m_fogColorEffect->SetParameter( BlueSharedString( "Color" ), Vector4( fog->m_color ) );
 			m_fogColorEffect->EndUpdate();
 
 			m_fogCompositeEffect->StartUpdate();
