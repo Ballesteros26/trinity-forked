@@ -241,6 +241,16 @@ const Be::ClassInfo* Tr2GStateAnimation::ExposeToBlue()
 
 		MAP_METHOD_AND_WRAP
 		(
+			"GetParameterByName",
+			GetParameterByName,
+			"GetParameterByName( parameter_node_name, param_name )\n\n"
+			"Returns the value of a parameter specified by name on a param node"
+			":param string: name for parameter node"
+			":param string: name for parameter"
+		)
+
+		MAP_METHOD_AND_WRAP
+		(
 			"GetParameterIndexByName",
 			GetParameterIndexByName,
 			"GetParameterIndexByName( parameter_node_name, param_name )\n\n"
