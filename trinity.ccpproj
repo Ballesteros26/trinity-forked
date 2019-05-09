@@ -66,7 +66,7 @@ BaseConfigurations:
       - TBB_ENABLED=1
 
     Link:
-      IgnoreAllDefaultLibraries: true
+      IgnoreAllDefaultLibraries: false
       AdditionalDependencies: 
       - dbghelp.lib
       - oldnames.lib
@@ -138,22 +138,6 @@ BaseConfigurations:
     Link:
       LinkTimeCodeGeneration: UseLinkTimeCodeGeneration
 
-  DebugRuntime:
-    # Due to the ignore all default libraries, we need to add in the c runtime libs
-    Link:
-      AdditionalDependencies:
-      - msvcrtD.lib
-      - msvcprtD.lib
-      - atlsD.lib
-
-  ReleaseRuntime:
-    # Due to the ignore all default libraries, we need to add in the c runtime libs
-    Link:
-      AdditionalDependencies:
-      - msvcrt.lib
-      - msvcprt.lib
-      - atls.lib
-
   D3D9:
     # These are settings that apply to all variants of Trinity that use D3D9
     Imports:
@@ -190,7 +174,6 @@ Configurations:
     BaseConfigurations:
     - Windows
     - DebugBase
-    - DebugRuntime
     - D3D9
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -204,7 +187,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - DebugBase
-    - DebugRuntime
     - D3D11
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -218,7 +200,6 @@ Configurations:
     BaseConfigurations:
     - Windows
     - DevBase
-    - ReleaseRuntime
     - D3D9
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -229,7 +210,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - DevBase
-    - ReleaseRuntime
     - D3D11
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -241,7 +221,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - DevBase
-    - ReleaseRuntime
     - GLES2
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -252,7 +231,6 @@ Configurations:
     BaseConfigurations:
     - Windows
     - DevBase
-    - ReleaseRuntime
     - STUB
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -264,7 +242,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - DevBase
-    - ReleaseRuntime
     - D3D9
     Imports:
     - ../blue/Include/uses_blue_26.yaml
@@ -275,7 +252,6 @@ Configurations:
     BaseConfigurations:
     - Windows
     - ReleaseBase
-    - ReleaseRuntime
     - D3D9
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -286,7 +262,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - ReleaseBase
-    - ReleaseRuntime
     - D3D9
     Imports:
     - ../blue/Include/uses_blue_26.yaml
@@ -297,7 +272,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - ReleaseBase
-    - ReleaseRuntime
     - D3D9
     Imports:
     - ../blue/Include/uses_blue_27.yaml
@@ -308,7 +282,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - ReleaseBase
-    - ReleaseRuntime
     - D3D11
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -319,7 +292,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - ReleaseBase
-    - ReleaseRuntime
     - GLES2
     # Note that we only have a 32bit version here - don't have glew in 64 bit
     Imports:
@@ -331,7 +303,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - ReleaseBase
-    - ReleaseRuntime
     - D3D11
     Imports:
     - ../blue/Include/uses_blue_26.yaml
@@ -342,7 +313,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - ReleaseBase
-    - ReleaseRuntime
     - D3D11
     Imports:
     - ../blue/Include/uses_blue_27.yaml
@@ -353,7 +323,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - ReleaseBase
-    - ReleaseRuntime
     - GLES2
     Imports:
     - ../blue/Include/uses_blue_27.yaml
@@ -446,7 +415,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - DeployBase
-    - ReleaseRuntime
     - D3D9
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -457,7 +425,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - DeployBase
-    - ReleaseRuntime
     - D3D11
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -468,7 +435,6 @@ Configurations:
     BaseConfigurations:
     - Windows
     - DebugBase
-    - DebugRuntime
     - STUB
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -483,7 +449,6 @@ Configurations:
     BaseConfigurations:
     - Windows
     - ReleaseBase
-    - ReleaseRuntime
     - STUB
     Imports:
     - ../blue/Include/uses_blue.yaml
@@ -498,7 +463,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - ReleaseBase
-    - ReleaseRuntime
     - STUB
     Imports:
     - ../blue/Include/uses_blue_26.yaml
@@ -510,7 +474,6 @@ Configurations:
     BaseConfigurations:
     - Windows    
     - ReleaseBase
-    - ReleaseRuntime
     - STUB
     Imports:
     - ../blue/Include/uses_blue_27.yaml
