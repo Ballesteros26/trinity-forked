@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Release_27|x64">
       <Configuration>Release_27</Configuration>
@@ -2528,6 +2528,7 @@
     <ClInclude Include="Tr2GrannyAnimationLayer.h" />
     <ClInclude Include="Tr2GrannyPrimitiveSet.h" />
     <ClInclude Include="Tr2GRNMemoryPersist.h" />
+    <ClInclude Include="Tr2GStateAnimation.h" />
     <ClInclude Include="Tr2HostBitmap.h" />
     <ClInclude Include="Tr2ImageIOHelpers.h" />
     <ClInclude Include="Tr2ImpostorManager.h" />
@@ -2921,6 +2922,7 @@
     <ClInclude Include="Resources\Tr2CairoScriptSourceRes.h" />
     <ClInclude Include="Resources\Tr2CompositedVectorTextureRes.h" />
     <ClInclude Include="Resources\Tr2EffectRes.h" />
+    <ClInclude Include="Resources\Tr2GrannyStateRes.h" />
     <ClInclude Include="Resources\Tr2ImageRes.h" />
     <ClInclude Include="Resources\Tr2LodResource.h" />
     <ClInclude Include="Resources\Tr2LodResourceCache.h" />
@@ -3040,6 +3042,8 @@
     <ClCompile Include="Tr2GrannyPrimitiveSet.cpp" />
     <ClCompile Include="Tr2GrannyPrimitiveSet_Blue.cpp" />
     <ClCompile Include="Tr2GRNMemoryPersist.cpp" />
+    <ClCompile Include="Tr2GStateAnimation.cpp" />
+    <ClCompile Include="Tr2GStateAnimation_Blue.cpp" />
     <ClCompile Include="Tr2HostBitmap.cpp" />
     <ClCompile Include="Tr2HostBitmap_Blue.cpp" />
     <ClCompile Include="Tr2ImageIOHelpers.cpp" />
@@ -3670,6 +3674,8 @@
     <ClCompile Include="Resources\Tr2CompositedVectorTextureRes_Blue.cpp" />
     <ClCompile Include="Resources\Tr2EffectRes.cpp" />
     <ClCompile Include="Resources\Tr2EffectRes_Blue.cpp" />
+    <ClCompile Include="Resources\Tr2GrannyStateRes.cpp" />
+    <ClCompile Include="Resources\Tr2GrannyStateRes_Blue.cpp" />
     <ClCompile Include="Resources\Tr2ImageRes.cpp" />
     <ClCompile Include="Resources\Tr2ImageRes_Blue.cpp" />
     <ClCompile Include="Resources\Tr2LodResource.cpp" />
