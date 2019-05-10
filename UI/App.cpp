@@ -131,31 +131,16 @@ App::App()
 #ifdef _WIN32
 	if (!mWndClassAtom)
 	{
-		//on NT and later, use unicode window registration
-		OSVERSIONINFO osinfo;
-		osinfo.dwOSVersionInfoSize = sizeof osinfo;
-		isWinNT = (GetVersionEx(&osinfo) && osinfo.dwPlatformId == VER_PLATFORM_WIN32_NT);
-
 		HICON hIcon = GetWindowIcon();
 
-		if (isWinNT) {
-			//We need to use the wide char version here, so that we get Unicode key input.
-			WNDCLASSEXW wclass = {sizeof(wclass)};
-			wclass.lpfnWndProc = _WndProc;
-			wclass.hInstance = gInstance;
-			wclass.lpszClassName = L"triuiScreen";
-			wclass.hIcon = hIcon;
-			// Register the windows class
-			mWndClassAtom = RegisterClassExW(&wclass);
-		} else {
-			//ascii version
-			WNDCLASSEXA wclass = {sizeof(wclass)};
-			wclass.lpfnWndProc = _WndProc;
-			wclass.hInstance = gInstance;
-			wclass.lpszClassName = "triuiScreen";
-			wclass.hIcon = hIcon;
-			mWndClassAtom = RegisterClassExA(&wclass);
-		}
+		//We need to use the wide char version here, so that we get Unicode key input.
+		WNDCLASSEXW wclass = {sizeof(wclass)};
+		wclass.lpfnWndProc = _WndProc;
+		wclass.hInstance = gInstance;
+		wclass.lpszClassName = L"triuiScreen";
+		wclass.hIcon = hIcon;
+		// Register the windows class
+		mWndClassAtom = RegisterClassExW(&wclass);
 	}
 #elif defined( __ORBIS__ )
 #elif defined( __ANDROID__ )
