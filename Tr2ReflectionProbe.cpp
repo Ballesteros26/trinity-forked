@@ -206,6 +206,9 @@ bool Tr2ReflectionProbe::OnModified( Be::Var* value )
 
 void Tr2ReflectionProbe::Filter( Tr2RenderContext &renderContext )
 {
+	if( !IsValid() )
+		return;
+
 	Tr2Renderer::RunComputeShader( m_preFilterEffect, FILTER_SIZE, FILTER_SIZE, 6, renderContext );
 	m_preFilterTarget->GenerateMipMaps();
 	Tr2Renderer::RunComputeShader( m_filterEffect, FILTER_GROUP_DIM, 6, 1, renderContext );
@@ -214,5 +217,6 @@ void Tr2ReflectionProbe::Filter( Tr2RenderContext &renderContext )
 void Tr2ReflectionProbe::RunFilter()
 {
 	USE_MAIN_THREAD_RENDER_CONTEXT();
+	OnPrepareResources();
 	Filter( renderContext );
 }
