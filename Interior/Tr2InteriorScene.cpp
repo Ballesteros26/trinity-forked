@@ -234,7 +234,7 @@ void Tr2InteriorScene::OnListModified( long event, ssize_t key, ssize_t key2, IR
 		SetupShadowMaps();
 	}
 
-	else if (theList = &m_dynamics)
+	else if (theList == &m_dynamics)
 	{
 		if( ( event & BELIST_LOADING ) == 0 )
 		{
