@@ -117,7 +117,7 @@ Tr2InteriorScene::Tr2InteriorScene( IRoot* lockobj /*= NULL */ ):
 	PARENTLOCK( m_dynamicsPendingLoad ),
 	PARENTLOCK( m_curveSets ),
 	PARENTLOCK( m_lightRenderTargets ),
-	m_shadowSize( 2048 ),
+	m_shadowSize( 1024 ),
 	m_sunDirection( 0.0f, 0.0f, 1.0f ),
 	m_sunDiffuseColor( 0.0f, 0.0f, 0.0f, 1.0f ),
 	m_sunSpecularColor( 0.8f, 0.8f, 0.8f, 1.0f ),
