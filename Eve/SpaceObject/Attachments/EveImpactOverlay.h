@@ -97,6 +97,7 @@ public:
 	// getters
 	int32_t GetDataTextureOffset() const;
 	ImpactConfiguration GetImpactConfiguration() const;
+	bool HasShieldEllipsoid() const;
 	float GetActivationStrength( EveUpdateContext& updateContext ) const;
 
 	// control animation

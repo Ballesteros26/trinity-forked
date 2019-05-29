@@ -442,6 +442,17 @@ EveImpactOverlay::ImpactConfiguration EveImpactOverlay::GetImpactConfiguration()
 	return m_configuration;
 }
 
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Check if a certain type of defense is there
+// --------------------------------------------------------------------------------
+bool EveImpactOverlay::HasShieldEllipsoid() const
+{
+	return m_shieldIsEllipsoid;
+}
+
+
 // --------------------------------------------------------------------------------
 // Description:
 //   EveImpact overlays can modulate the activation strenth, to let the lights

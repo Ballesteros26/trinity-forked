@@ -1928,7 +1928,7 @@ bool EveSpaceObject2::GetDamageLocatorPosition( Vector3* out, int index, bool in
 // --------------------------------------------------------------------------------
 bool EveSpaceObject2::HasImpactConfigurationShield() const
 {
-	return m_impactOverlay && ( m_impactOverlay->GetImpactConfiguration() == EveImpactOverlay::IMPACT_SHIELD );
+	return m_impactOverlay && m_impactOverlay->HasShieldEllipsoid() && ( m_impactOverlay->GetImpactConfiguration() == EveImpactOverlay::IMPACT_SHIELD ) ;
 }
 
 // --------------------------------------------------------------------------------
