@@ -97,7 +97,7 @@ public:
 	RenderPassResult RenderPass( PassType pass, Tr2RenderContext& renderContext );
 	void RenderMainPass( Tr2RenderContext& renderContext );
 	void RenderDepthPass( Tr2RenderContext& renderContext );
-	bool RenderBackgroundPass( Tr2RenderContext& renderContext, bool runOcclusionQueries = true );
+	bool RenderBackgroundPass( Tr2RenderContext& renderContext );
 	void BeginRender( Tr2RenderContext& renderContext );
 	void EndRender( Tr2RenderContext& renderContext );
 	void Render3DUI( Tr2RenderContext& renderContext );
@@ -519,6 +519,8 @@ private:
 	Tr2QuadRenderer* GetQuadRenderer() const;
 
 	void UpdateImpostors();
+
+	bool RenderBackgroundPassObjects( Tr2RenderContext& renderContext, bool runOcclusionQueries = true );
 
 	Tr2ShLightingManagerPtr m_shLightingManager;
 

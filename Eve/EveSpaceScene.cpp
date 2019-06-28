@@ -1610,15 +1610,13 @@ Tr2QuadRenderer* EveSpaceScene::GetQuadRenderer() const
 
 // --------------------------------------------------------------------------------------
 // Description:
-//   Render all background objects, nebula, stars, planets etc.
+//   Render the background scene with all objects, and generate reflection map
 // Returns:
-//   boolean indicating weather background distortion is required.
+//   boolean indicating whether background distortion is required.
 // --------------------------------------------------------------------------------------
-bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext, bool runOcclusionQueries )
+bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
-
-	bool doBackgroundDistortion = false;
 
 	// "background" rendering
 	if( !m_backgroundRenderingEnabled )
@@ -1636,6 +1634,52 @@ bool EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext, bool 
 	{
 		return false;
 	}
+
+	renderContext.AddGpuMarker( __FUNCTION__ );
+
+	bool doBackgroundDistortion = RenderBackgroundPassObjects( renderContext );
+
+	// Render background reflection cubemap
+	if( m_reflectionProbe && m_reflectionProbe->IsValid() )
+	{
+		m_reflectionProbe->SetPosition( Tr2Renderer::GetViewPosition() );
+		m_reflectionProbe->InitRenderPass( renderContext );
+
+		for( unsigned i = 0; i < 6; i++ )
+		{
+			m_reflectionProbe->StartRenderFace( i, renderContext );
+
+			PopulatePerFramePSData( m_perFramePS );
+			PopulatePerFrameVSData( m_perFrameVS );
+			ApplyPerFrameData( renderContext );
+
+			RenderBackgroundPassObjects( renderContext, false );
+
+			m_reflectionProbe->EndRenderFace( i, renderContext );
+		}
+
+		m_reflectionProbe->EndRenderPass( renderContext );
+		PopulatePerFramePSData( m_perFramePS );
+		PopulatePerFrameVSData( m_perFrameVS );
+		ApplyPerFrameData( renderContext );
+	}
+
+	renderContext.m_esm.EndManagedRendering();
+
+	return doBackgroundDistortion;
+}
+
+// --------------------------------------------------------------------------------------
+// Description:
+//   Render all background objects, nebula, stars, planets etc.
+// Returns:
+//   boolean indicating whether background distortion is required.
+// --------------------------------------------------------------------------------------
+bool EveSpaceScene::RenderBackgroundPassObjects( Tr2RenderContext& renderContext, bool runOcclusionQueries )
+{
+	CCP_STATS_ZONE( __FUNCTION__ );
+
+	bool doBackgroundDistortion = false;
 
 	renderContext.AddGpuMarker( __FUNCTION__ );
 
@@ -1811,30 +1855,6 @@ void EveSpaceScene::RenderMainPass( Tr2RenderContext& renderContext )
 	}
 
 	renderContext.AddGpuMarker( __FUNCTION__ );
-
-	if( m_reflectionProbe && m_reflectionProbe->IsValid() )
-	{
-		m_reflectionProbe->SetPosition( Tr2Renderer::GetViewPosition() );
-		m_reflectionProbe->InitRenderPass( renderContext );
-
-		for( unsigned i = 0; i < 6; i++ )
-		{
-			m_reflectionProbe->StartRenderFace( i, renderContext );
-
-			PopulatePerFramePSData( m_perFramePS );
-			PopulatePerFrameVSData( m_perFrameVS );
-			ApplyPerFrameData( renderContext );
-
-			RenderBackgroundPass( renderContext, false );
-
-			m_reflectionProbe->EndRenderFace( i, renderContext );
-		}
-
-		m_reflectionProbe->EndRenderPass( renderContext );
-		PopulatePerFramePSData( m_perFramePS );
-		PopulatePerFrameVSData( m_perFrameVS );
-		ApplyPerFrameData( renderContext );
-	}
 
 	if( m_hasDepthPass )
 	{
