@@ -158,7 +158,6 @@ void ReportErrorV(
 		GetErrorDescription(hr, edsc, 1024);
 #else
 		estr = "unknown error";
-		edsc = "unknown description";
 #endif
 	}
 	sprintf_s(buff, "HRES:%X - %s(%s)\n", unsigned( hr ), estr, edsc);
