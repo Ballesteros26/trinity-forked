@@ -5,6 +5,7 @@
 #include "ITr2EffectValue.h"
 #include "Tr2DeviceResource.h"
 #include "ITriReroutable.h"
+#include "Shader/Tr2EffectDescription.h"
 
 class TriVariable;
 struct ITriEffectResourceParameter;
@@ -19,12 +20,6 @@ struct Tr2ShaderPermutation
 	size_t defaultOption;
 	std::string description;
 	uint8_t type;
-};
-
-struct Tr2ShaderOption
-{
-	BlueSharedString name;
-	BlueSharedString value;
 };
 
 BLUE_CLASS( Tr2EffectRes ): 

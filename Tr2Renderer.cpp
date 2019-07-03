@@ -90,6 +90,10 @@ namespace
 	// keep an array of directories which are to exclude from texture-sizing
 	std::vector<std::string> s_dirsToExclude;
 
+	// ShaderOptions, only GEOMETRY_SHADER_SUPPORT at the moment
+	const size_t s_shaderOptionCount = 1;
+	Tr2ShaderOption s_shaderOptions[ s_shaderOptionCount ];
+
 	PROJECTION_TYPE s_currentProjectionType = PT_PERSPECTIVE;
 
     Matrix s_projectionTransform;
@@ -361,6 +365,11 @@ bool Tr2Renderer::Initialize()
 	renderContext.m_esm.Initialize();
 
 	s_viewport2projectionAdjustment = IdentityMatrix();
+
+	Tr2ShaderOption option;
+	option.name = BlueSharedString( "GEOMETRY_SHADER_SUPPORT" );
+	option.value = BlueSharedString( GetGeometryShaderSupport() ? "SUPPORTED" : "UNSUPPORTED" );
+	s_shaderOptions[0] = option;
 
 	return true;
 }
@@ -1743,4 +1752,20 @@ const Tr2TextureAL& Tr2Renderer::GetFallbackTexture( Tr2EffectResource::Type tex
 	default:
 		return nullTX;
 	}
+}
+
+bool Tr2Renderer::GetSystemShaderOptions( Tr2ShaderOption** options, int* count )
+{
+	*options = &s_shaderOptions[0];
+	*count = s_shaderOptionCount;
+	return true;
+}
+
+bool Tr2Renderer::GetGeometryShaderSupport()
+{
+#if defined( TRINITY_DIRECTX11 ) || defined( TRINITY_DIRECTX12 ) || defined( TRINITY_VULKAN )
+	return true; // TODO: Implement probing through shader creation or API
+#else
+	return false;
+#endif
 }

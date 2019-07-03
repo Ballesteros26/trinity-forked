@@ -58,6 +58,36 @@ Tr2ShaderPtr Tr2EffectRes::GetShader( const Tr2ShaderOption* options, size_t cou
 	for( size_t i = 0; i < m_permutations.size(); ++i )
 	{
 		auto value = m_permutations[i].defaultOption;
+
+		Tr2ShaderOption* systemOptions;
+		int systemCount;
+		if( Tr2Renderer::GetSystemShaderOptions( &systemOptions, &systemCount ) )
+		{
+			for( size_t k = 0; k < systemCount; ++k )
+			{
+				if( systemOptions[k].name == m_permutations[i].name )
+				{
+					size_t val = -1;
+					for( size_t j = 0; j < m_permutations[i].options.size(); ++j )
+					{
+						if( m_permutations[i].options[j] == systemOptions[k].value )
+						{
+							val = j;
+							break;
+						}
+					}
+					if( val == -1 )
+					{
+						CCP_LOGWARN( "Invalid situation value %s for permutation %s in effect %S", systemOptions[k].value.c_str(), m_permutations[i].name.c_str(), GetPath() );
+					}
+					else
+					{
+						value = val;
+					}
+				}
+			}
+		}
+
 		for( size_t k = 0; k < count; ++k )
 		{
 			if( options[k].name == m_permutations[i].name )

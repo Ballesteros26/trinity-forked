@@ -234,4 +234,15 @@ struct Tr2EffectDescription
 	Tr2EffectAnnotationMap annotations;
 };
 
+
+// --------------------------------------------------------------------------------------
+// Description:
+//   Shader permutation option: options to select from different shader permutations.
+// --------------------------------------------------------------------------------------
+struct Tr2ShaderOption
+{
+	BlueSharedString name;
+	BlueSharedString value;
+};
+
 #endif //Tr2EffectDescription_H
