@@ -1754,7 +1754,7 @@ const Tr2TextureAL& Tr2Renderer::GetFallbackTexture( Tr2EffectResource::Type tex
 	}
 }
 
-bool Tr2Renderer::GetSystemShaderOptions( Tr2ShaderOption** options, int* count )
+bool Tr2Renderer::GetSystemShaderOptions( Tr2ShaderOption** options, size_t* count )
 {
 	*options = &s_shaderOptions[0];
 	*count = s_shaderOptionCount;

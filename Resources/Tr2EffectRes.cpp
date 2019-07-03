@@ -60,7 +60,7 @@ Tr2ShaderPtr Tr2EffectRes::GetShader( const Tr2ShaderOption* options, size_t cou
 		auto value = m_permutations[i].defaultOption;
 
 		Tr2ShaderOption* systemOptions;
-		int systemCount;
+		size_t systemCount;
 		if( Tr2Renderer::GetSystemShaderOptions( &systemOptions, &systemCount ) )
 		{
 			for( size_t k = 0; k < systemCount; ++k )

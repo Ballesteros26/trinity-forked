@@ -260,7 +260,7 @@ public:
 	static void EnableFallbackTextureDebugging();
 	static void DisableFallbackTextureDebugging();
 	static const Tr2TextureAL& GetFallbackTexture( Tr2EffectResource::Type textureType, const char* debugContext );
-	static bool GetSystemShaderOptions( Tr2ShaderOption** options, int* count );
+	static bool GetSystemShaderOptions( Tr2ShaderOption** options, size_t* count );
 
 	static bool GetGeometryShaderSupport();
 private:
