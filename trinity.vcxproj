@@ -3095,7 +3095,10 @@
     <ClInclude Include="Eve\SpaceObject\Children\EveChildMesh.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveChildParticleSphere.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveChildParticleSystem.h" />
+    <ClInclude Include="Eve\SpaceObject\Children\EveChildPlug.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveChildQuad.h" />
+    <ClInclude Include="Eve\SpaceObject\Children\EveChildRef.h" />
+    <ClInclude Include="Eve\SpaceObject\Children\EveChildSocket.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveChildSpherePin.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveChildTransform.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveCloudEditableVolume.h" />
@@ -3104,6 +3107,8 @@
     <ClInclude Include="Eve\SpaceObject\Children\Behaviors\BehaviorGroup.h" />
     <ClInclude Include="Eve\SpaceObject\Children\Behaviors\IBehavior.h" />
     <ClInclude Include="Eve\SpaceObject\Children\Behaviors\Wander.h" />
+    <ClInclude Include="Eve\SpaceObject\Children\SocketParameters\EveSocketParameter.h" />
+    <ClInclude Include="Eve\SpaceObject\Children\SocketParameters\IEveSocketParameter.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierAttachToBone.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard2D.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard3D.h" />
@@ -3770,8 +3775,14 @@
     <ClCompile Include="Eve\SpaceObject\Children\EveChildParticleSphere_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildParticleSystem.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildParticleSystem_Blue.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildPlug.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildPlug_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildQuad.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildQuad_Blue.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildRef.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildRef_Blue.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildSocket.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildSocket_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildSpherePin.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildSpherePin_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildTransform.cpp" />
@@ -3781,6 +3792,8 @@
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\BehaviorGroup_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\Wander.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\Behaviors\Wander_Blue.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\SocketParameters\EveSocketParameter.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\SocketParameters\EveSocketParameter_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierAttachToBone.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierAttachToBone_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierBillboard2D.cpp" />
