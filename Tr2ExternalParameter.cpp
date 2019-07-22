@@ -7,6 +7,7 @@
 #include "StdAfx.h"
 #include "Tr2ExternalParameter.h"
 #include "BlueExposure/BlueVariable.h"
+#include "TriValueBinding.h"
 
 namespace
 {
@@ -117,6 +118,11 @@ bool Tr2ExternalParameter::OnModified( Be::Var* )
 	return true;
 }
 
+const char* Tr2ExternalParameter::GetName() const
+{
+	return m_name.c_str();
+}
+
 void Tr2ExternalParameter::SetName( const std::string& name )
 {
 	m_name = name;
@@ -188,4 +194,22 @@ BlueStdResult Tr2ExternalParameter::GetValue( BlueScriptValue& value )
 #else
 	return BlueStdResult( BLUE_STD_RESULT_RUNTIME_ERROR, "not implemented in this language" );
 #endif
+}
+
+Be::Var* Tr2ExternalParameter::GetDestination() const
+{
+	return m_destination;
+}
+
+bool Tr2ExternalParameter::IsValid() const
+{
+	return m_valid;
+}
+
+TriValueBindingPtr Tr2ExternalParameter::CreateBinding() const
+{
+	TriValueBindingPtr ptr;
+	ptr.CreateInstance();
+	ptr->SetDestination( m_destinationAttribute, m_destinationObject );
+	return ptr;
 }

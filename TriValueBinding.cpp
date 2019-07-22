@@ -794,3 +794,8 @@ void TriValueBinding::SetDestination( const std::string& destinationAttribute, I
 	m_destinationAttribute = destinationAttribute;
 	m_destinationObject = destinationObject;
 }
+
+bool TriValueBinding::IsValid() const
+{
+	return m_isValid;
+}

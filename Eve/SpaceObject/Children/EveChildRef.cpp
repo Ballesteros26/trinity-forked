@@ -1,0 +1,252 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   June 2019
+//    Copyright: CCP 2019
+//
+#include "StdAfx.h"
+#include "EveChildRef.h"
+
+#include "Utilities/BoundingSphere.h"
+#include "Eve/EveUpdateContext.h"
+
+
+EveChildRef::EveChildRef( IRoot* lockobj ) :
+	EveChildTransform(),
+	m_display( true )
+{
+}
+
+EveChildRef::~EveChildRef()
+{
+}
+
+const char* EveChildRef::GetResPath() const
+{
+	return m_resPath.c_str();
+}
+
+void EveChildRef::SetResPath( const char* resPath )
+{
+	if ( m_resPath != resPath )
+	{
+		m_resPath = resPath;
+		LoadChild();
+	}
+}
+
+void EveChildRef::Reload()
+{
+	LoadChild();
+}
+
+bool EveChildRef::Initialize()
+{
+	LoadChild();
+	return true;
+}
+
+bool EveChildRef::OnModified( Be::Var* value )
+{
+	if ( IsMatch( value, m_resPath ) )
+	{
+		LoadChild();
+	}
+	return true;
+}
+
+const char* EveChildRef::GetName() const
+{
+	return m_name.c_str();
+}
+
+void EveChildRef::SetName( const char* name )
+{
+	m_name = BlueSharedString( name );
+}
+
+void EveChildRef::UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform, Tr2Lod parentLod )
+{
+	if ( !m_display )
+	{
+		return;
+	}
+	if ( m_child )
+	{
+		m_child->UpdateVisibility( frustum, parentTransform, parentLod );
+	}
+}
+
+void EveChildRef::GetRenderables( std::vector<ITr2Renderable*>& renderables )
+{
+	if ( m_display && m_child )
+	{
+		m_child->GetRenderables( renderables );
+	}
+}
+
+bool EveChildRef::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) const
+{
+	bool success = false;
+	Vector4 bSphere( 0.f, 0.f, 0.f, -1.f );
+	if ( m_child && m_child->GetBoundingSphere( bSphere ) )
+	{
+		BoundingSphereSetOrUpdate( bSphere, sphere, success );
+		success = true;
+	}
+	return success;
+}
+
+void EveChildRef::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
+{
+	if ( m_child )
+	{
+		m_child->RegisterWithQuadRenderer( quadRenderer );
+	}
+}
+
+void EveChildRef::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer ) const
+{
+	if ( m_display && m_child )
+	{
+		m_child->AddQuadsToQuadRenderer( frustum, quadRenderer );
+	}
+}
+
+void EveChildRef::UpdateSyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params )
+{
+	if ( m_child )
+	{
+		EveChildUpdateParams newParams = params;
+		newParams.isVisible &= m_display;
+		newParams.childParent = this;
+
+		m_child->UpdateSyncronous( updateContext, newParams );
+	}
+}
+
+void EveChildRef::UpdateAsyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params )
+{
+	Matrix localToWorldTransform = params.localToWorldTransform;
+	if ( params.childParent )
+	{
+		params.childParent->GetLocalToWorldTransform( localToWorldTransform );
+	}
+	else if ( params.spaceObjectParent )
+	{
+		params.spaceObjectParent->GetLocalToWorldTransform( localToWorldTransform );
+	}
+
+	UpdateTransform( localToWorldTransform );
+
+	EveChildUpdateParams newParams = params;
+	newParams.isVisible &= m_display;
+	newParams.childParent = this;
+
+	if ( m_child )
+	{
+		m_child->UpdateAsyncronous( updateContext, newParams );
+	}
+}
+
+void EveChildRef::GetLocalToWorldTransform( Matrix& transform ) const
+{
+	transform = m_worldTransform;
+}
+
+bool EveChildRef::IsAlwaysOn() const
+{
+	if ( m_child )
+	{
+		return m_child->IsAlwaysOn();
+	}
+	return false;
+};
+
+void EveChildRef::Setup( const Vector3* scale, const Quaternion* rotation, const Vector3* translation, Tr2Lod lowestLodVisible )
+{
+	EveChildTransform::Setup( scale, rotation, translation, lowestLodVisible );
+}
+
+void EveChildRef::ChangeLOD( Tr2Lod lod ) 
+{
+	if ( m_child )
+	{
+		m_child->ChangeLOD( lod );
+	}
+};
+
+void EveChildRef::GetLights( Tr2LightManager& lightManager ) const 
+{
+	if ( m_child )
+	{
+		return m_child->GetLights( lightManager );
+	}
+};
+
+void EveChildRef::SetControllerVariable( const char* name, float value ) 
+{
+	if ( m_child )
+	{
+		m_child->SetControllerVariable( name, value );
+	}
+};
+
+void EveChildRef::HandleControllerEvent( const char* name ) 
+{
+	if ( m_child )
+	{
+		m_child->HandleControllerEvent( name );
+	}
+};
+
+void EveChildRef::SetInheritProperties( const Color* colorSet ) 
+{
+	if ( m_child )
+	{
+		m_child->SetInheritProperties( colorSet ); 
+	}
+};
+
+void EveChildRef::StartControllers()
+{
+	if ( m_child )
+	{
+		m_child->StartControllers();
+	}
+};
+
+void EveChildRef::GetDebugOptions( Tr2DebugRendererOptions& options )
+{
+	if ( !m_child )
+	{
+		return;
+	}
+	if ( auto renderable = dynamic_cast<ITr2DebugRenderable*>( &*m_child ) )
+	{
+		renderable->GetDebugOptions( options );
+	}
+}
+
+void EveChildRef::RenderDebugInfo( Tr2DebugRenderer& renderer )
+{
+	if ( !m_display || !m_child)
+	{
+		return;
+	}
+	if ( auto renderable = dynamic_cast<ITr2DebugRenderable*>( &*m_child ) )
+	{
+		renderable->RenderDebugInfo( renderer );
+	}
+}
+
+bool EveChildRef::LoadChild()
+{
+	CCP_LOG( "Loading child red file...", m_resPath.c_str() );
+	m_child = BlueCastPtr( BeResMan->LoadObject( m_resPath.c_str() ) );
+	if ( !m_child )
+	{
+		CCP_LOGERR( "Red file %s is invalid or not an Eve Child type.", m_resPath.c_str() );
+		return false;
+	}
+	return true;
+}

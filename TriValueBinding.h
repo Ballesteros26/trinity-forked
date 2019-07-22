@@ -18,17 +18,17 @@ public:
     TriValueBinding( IRoot* lockobj = NULL );
 	~TriValueBinding();
 
-	void Initialize();
+	virtual void Initialize();
 
 	void RerouteDestination( void* dest );
 
 	//////////////////////////////////////////////////////////////////////////
 	// INotify
-	bool OnModified( Be::Var* val );
+	virtual bool OnModified( Be::Var* val );
 
 	//////////////////////////////////////////////////////////////////////////
 	// ITr2ValueBinding
-	void CopyValue();
+	virtual void CopyValue();
 
 	static const Be::VarEntry* FindEntry( const char* name, const Be::ClassInfo* type, ssize_t& offs );
 
@@ -40,7 +40,9 @@ public:
 	void SetSource( const std::string& sourceAttribute, IRootPtr sourceObject );
 	void SetDestination( const std::string& destAttribute, IRootPtr destination );
 
-private:
+	bool IsValid() const;
+
+protected:
 	std::string m_name;
 	bool m_isValid;
 	bool m_isEnabled;
@@ -69,7 +71,7 @@ private:
 
 	BlueScriptCallback m_copyValueCallable;
 
-	size_t DetermineCopyFunc( const Be::VarEntry* srcEntry, const Be::VarEntry* dstEntry, size_t dataSize, bool sourceFloatArrayAsFloat, bool destFloatArrayAsFloat );
+	virtual	size_t DetermineCopyFunc( const Be::VarEntry* srcEntry, const Be::VarEntry* dstEntry, size_t dataSize, bool sourceFloatArrayAsFloat, bool destFloatArrayAsFloat );
 };
 
 TYPEDEF_BLUECLASS( TriValueBinding );

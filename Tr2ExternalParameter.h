@@ -9,6 +9,9 @@
 #define Tr2ExternalParameter_H
 
 
+BLUE_DECLARE( TriValueBinding );
+
+
 // --------------------------------------------------------------------------------------
 // Description:
 //   Tr2ExternalParameter is a special binding that doesn't have a source, but only a
@@ -31,12 +34,19 @@ public:
 	virtual bool Initialize();
 	virtual bool OnModified( Be::Var* value );
 	
+	const char* GetName() const;
 	void SetName( const std::string& name );
 	void SetDestinationObject( IRoot* destination );
 	void SetDestinationAttribute( const std::string& attributeName );
 
 	BlueStdResult SetValue( BlueScriptValue value );
 	BlueStdResult GetValue( BlueScriptValue& value );
+	Be::Var* GetDestination() const;
+
+	bool IsValid() const;
+
+	// Creates a binding from this Tr2ExternalParameter. The new binding has the same destination object/attribute.
+	TriValueBindingPtr CreateBinding() const;
 private:
 	// parameter name
 	std::string m_name;
