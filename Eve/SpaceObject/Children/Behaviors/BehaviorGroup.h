@@ -3,6 +3,7 @@
 #include "Tr2DebugRenderer.h"
 #include "Eve/Volume/IEveVolume.h"
 #include <functional>
+#include "TriFrustum.h"
 
 struct DroneAgent
 {
@@ -14,8 +15,9 @@ struct DroneAgent
 		velocity(0, 0, 0),
 		target(0, 0, 0),
 		lifetime( 0.f ),
-		cameraDistance( 0 ),
-		id( 0 )
+		xfade( 0.0 ),
+		id( 0 ),
+		isVisible( false )
 	{}
 
 	float mass;
@@ -25,8 +27,9 @@ struct DroneAgent
 	Vector3 velocity;
 	Vector3 target;
 	float lifetime;
-	float cameraDistance;
+	float xfade; // Crossfade between mesh and sprite. 1.0 = mesh, 0.0 = sprite
 	int id;
+	bool isVisible; // Don't render agents off-screen
 };
 
 struct ITr2Renderable;
@@ -53,6 +56,8 @@ public:
 	virtual void GetDebugOptions( Tr2DebugRendererOptions& options );
 	virtual void RenderDebugInfo( Tr2DebugRenderer& renderer, Matrix& parentWorldLocation );
 	
+	void UpdateVisibility(const TriFrustum& frustum, const Matrix& parentTransform);
+
 	// geom res
 	void InitializeGeometryResource();
 	Tr2MeshPtr GetMesh() const;
@@ -80,7 +85,6 @@ public:
 	void CreateSpriteVertexDeclaration();
 
 	bool m_display;
-	float m_estimatedPixelDiameter;
 	
 private:
 	void ToggleMesh();
@@ -108,10 +112,14 @@ private:
 	//Steering behavior characteristics, this could actually go under the vehicle struct
 	float m_maxVelocity;
 
-	// Blend range
-	float m_blendRangeMax; // Effectively the distance threshold
-	float m_blendRangeMin; // The distance where a drone should stop having a mesh and be fully rendered as a light.
-	float m_blendRangeValue; // Normalized 0.0 - 1.0 from blendRangeMin to blendRangeMax;
+	// Crossfade blend range
+	float m_screenSizeMin; // If mesh screen size (in pixels) is smaller than this, it will be drawn as a sprite
+	float m_screenSizeMax; // If mesh screen size exceeds this, it will be drawn as mesh
+	float m_xfadeValue; // Normalized 0.0 - 1.0 from m_pixelSizeMin to m_pixelSizeMax;
+
+	// Bounding sphere
+	Vector3 m_boundingSphereCenter;
+	float m_boundingSphereRadius;
 };
 
 TYPEDEF_BLUECLASS( BehaviorGroup );

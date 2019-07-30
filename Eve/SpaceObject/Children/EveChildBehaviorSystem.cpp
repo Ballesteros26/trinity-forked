@@ -526,6 +526,11 @@ void EveChildBehaviorSystem::ChangeBufferVertexCount( )
 
 	unsigned int numAgents = static_cast<unsigned int>(temp);
 	m_vertexCount = numAgents;
+
+	// TODO: Review m_vertexCount
+	// Prevent the vertex count from being 0 (it creates an exception and prevents us from debugging)
+	if (m_vertexCount == 0) { m_vertexCount++; }
+
 	auto b = m_vertexBuffer.Create(
 		m_stride*2,				// 12 * sizeof( float )
 		m_vertexCount,			// Number of instances
@@ -581,8 +586,12 @@ void EveChildBehaviorSystem::SetName( const char* name )
 {
 }
 
-void EveChildBehaviorSystem::UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform, Tr2Lod parentLod )
+void EveChildBehaviorSystem::UpdateVisibility(const TriFrustum& frustum, const Matrix& parentTransform, Tr2Lod parentLod)
 {
+	for (auto it = begin(m_behaviorGroups); it != end(m_behaviorGroups); ++it)
+	{
+		(*it)->UpdateVisibility(frustum, parentTransform);
+	}
 }
 
 bool EveChildBehaviorSystem::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query  ) const 

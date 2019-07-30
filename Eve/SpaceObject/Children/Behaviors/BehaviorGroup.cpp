@@ -8,7 +8,6 @@
 #include "Eve/SpaceObject/Children/TransformModifiers/EveChildModifierTransformCommon.h" 
 #include "Resources/TriGeometryRes.h"
 
-
 BehaviorGroup::BehaviorGroup( IRoot* lockobj ) :
 	m_vertexDeclarationHandle( Tr2EffectStateManager::UNINITIALIZED_DECLARATION ),
 	m_count( 0 ),
@@ -21,9 +20,11 @@ BehaviorGroup::BehaviorGroup( IRoot* lockobj ) :
 	PARENTLOCK( m_behaviors ),
 	PARENTLOCK( m_volumes ),
 	PARENTLOCK( m_exclusionVolumes ),
-	m_blendRangeMax( 1000 ), // LOD system
-	m_blendRangeMin( 500 ),
-	m_blendRangeValue( 1.0 )
+	m_screenSizeMin( 15 ),
+	m_screenSizeMax(50),
+	m_xfadeValue( 1.0 ),
+	m_boundingSphereCenter(0.f, 0.f, 0.f),
+	m_boundingSphereRadius(5.f)
 {
 }
 
@@ -112,8 +113,8 @@ void BehaviorGroup::AddAgent()
 void BehaviorGroup::AddAgentPrivate()
 {
 	DroneAgent agent;
-	agent.position = Vector3( 0, 0, 0 ); // Later we might want to find a 'smart' spawn location
-	agent.id = TriRandInt( 500 ); //TODO look better into parameter
+	agent.position = Vector3( 0, 0, 0 ); // TODO: We might want to find a 'smart' spawn location
+	agent.id = TriRandInt( 500 ); //TODO: look better into parameter, could the same ID be generate more than once?
 	m_agents.push_back( agent );
 	m_count++;
 	if (m_changeBufferVertexCount == nullptr)
@@ -162,8 +163,8 @@ float BehaviorGroup::AllTheSame()
 	// if none of the agents need either of the meshes we let the system know
 	for (auto agent = m_agents.begin(); agent != m_agents.end(); ++agent)
 	{
-		if (same == -1) same = (agent->cameraDistance);
-		if (same != (agent->cameraDistance)) return -1;
+		if (same == -1) same = (agent->xfade);
+		if (same != (agent->xfade)) return -1;
 	}
 	return same;
 }
@@ -217,28 +218,32 @@ void BehaviorGroup::UpdateAgents(const float dt)
 
 		static const Vector3 zAxis(0.f, 0.f, 1.f);
 		TriQuaternionRotationArc( &agent->rotation, &zAxis, &agent->velocity );
-		ProcessLOD( *agent );
 	}
 }
 
-void BehaviorGroup::ProcessLOD( DroneAgent& agent )
+void BehaviorGroup::UpdateVisibility(const TriFrustum & frustum, const Matrix & parentTransform)
 {
-	// Calculate agent distance from camera and normalize it within the blend range
-	// so that dist <= m_blendRangeMin = 0.0 and dist >= m_blendRangeMax = 1.0
-	Vector3 camPos = Tr2Renderer::GetViewPosition();
+	// Check if an agent is visible and calculate the xfade value
+	for (auto agent = m_agents.begin(); agent != m_agents.end(); ++agent)
+	{
+		if (frustum.IsSphereVisible(agent->position, m_boundingSphereRadius)) {
+			float pixelSize = frustum.GetPixelSizeAccross(agent->position, m_boundingSphereRadius);
 
-	Vector3 aPos = agent.position;
-	Vector3 diff = Vector3( (camPos.x - aPos.x), (camPos.y - aPos.y), (camPos.z - aPos.z) );
-	float dist = std::sqrt( std::pow( diff.x, 2 ) + std::pow( diff.y, 2 ) + std::pow( diff.z, 2 ) );
-
-	if (dist >= m_blendRangeMax) {
-		agent.cameraDistance = 1.0;
-	}
-	else if (dist <= m_blendRangeMin) {
-		agent.cameraDistance = 0.0;
-	}
-	else {
-		agent.cameraDistance = (dist - m_blendRangeMin) / (m_blendRangeMax - m_blendRangeMin);
+			if (pixelSize >= m_screenSizeMax) {
+				agent->xfade = 0.0; // Render as mesh
+			}
+			else if (pixelSize <= m_screenSizeMin) {
+				agent->xfade = 1.0; // Render as sprite
+			}
+			else {
+				float s = 1.0;
+				agent->xfade = s - (pixelSize - m_screenSizeMin) / (m_screenSizeMax - m_screenSizeMin);
+			}
+			agent->isVisible = true;
+		}
+		else {
+			agent->isVisible = false;
+		}
 	}
 }
 
@@ -246,9 +251,9 @@ void BehaviorGroup::GetInfoForBuffer(uint8_t* data, Matrix& parentWorldLocation 
 {
 	for ( auto agent = m_agents.begin(); agent != m_agents.end(); ++agent )
 	{
-		float LOD = (*agent).cameraDistance;
+		float LOD = (*agent).xfade;
 		float LODmod;
-		if (LOD != 1)
+		if (LOD != 1 && agent->isVisible)
 		{
 			LODmod = (1 - LOD) *( 0.5f + (1 - LOD) * 0.5f);
 			Vector3 meshScale = m_scale * Vector3( LODmod, LODmod, LODmod );
@@ -270,7 +275,7 @@ void BehaviorGroup::GetInfoForBuffer(uint8_t* data, Matrix& parentWorldLocation 
 		data += 12 * sizeof( float );
 
 		// sprite
-		if (LOD != 0)
+		if (LOD != 0 && agent->isVisible)
 		{
 			LODmod = ( 1.0f - LOD) * (LOD * 0.3f) +  (LOD * 1.0f);
 			Matrix agentMatrix = TransformationMatrix( m_scale * m_spriteScale * Vector3( LODmod, LODmod, LODmod ),
@@ -319,7 +324,6 @@ void BehaviorGroup::CreateSpriteVertexDeclaration()
 	m_spriteVertexDeclarationHandle = 0;
 }
 
-
 void BehaviorGroup::CreateVertexDeclaration()
 {
 	Tr2MeshPtr meshPtr = GetMesh();
@@ -363,6 +367,7 @@ void BehaviorGroup::GetDebugOptions( Tr2DebugRendererOptions& options)
 	options.insert( "Agents" );
 	options.insert( "Volumes" );
 	options.insert( "ExclusionVolumes" );
+	options.insert( "Bounding Sphere" );
 }
 
 void BehaviorGroup::RenderDebugInfo( Tr2DebugRenderer& renderer, Matrix& parentWorldLocation )
@@ -390,5 +395,12 @@ void BehaviorGroup::RenderDebugInfo( Tr2DebugRenderer& renderer, Matrix& parentW
 			(*volume)->RenderDebugInfo( renderer, parentWorldLocation );
 		}
 	}
-}
+	
+	if (renderer.HasOption(this, "Bounding Sphere"))
+	{
+		for (auto agent = m_agents.begin(); agent != m_agents.end(); ++agent) {
+			renderer.DrawSphere(this, TranslationMatrix(agent->position) * parentWorldLocation, m_boundingSphereRadius, 8, Tr2DebugRenderer::Wireframe, 0xffff00ff);
+		}
+	}
 
+}
