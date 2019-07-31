@@ -25,6 +25,7 @@ const Be::ClassInfo* EveSocketParameterBindingBase::ExposeToBlue()
 			MAP_INTERFACE( IEveSocketParameter )\
 			MAP_ATTRIBUTE( "name", m_name, "Attribute name.", Be::READWRITE | Be::PERSIST )\
 			MAP_ATTRIBUTE( "value", m_value, _valueDescription, Be::READWRITE | Be::PERSIST )\
+			MAP_METHOD_AND_WRAP( "Used", Used, "")\
 			MAP_METHOD_AND_WRAP(\
 				"SetValueToDefault",\
 				SetValueToDefault,\

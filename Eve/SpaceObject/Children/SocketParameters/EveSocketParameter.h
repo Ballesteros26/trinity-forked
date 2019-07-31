@@ -30,6 +30,7 @@ public:
 
 	virtual void ClearBindings();
 	virtual bool BindToExternalParameter( Tr2ExternalParameter& externalParameter );
+	bool Used() const;
 
 	virtual void Propagate();
 
@@ -86,6 +87,7 @@ public:
 	void ClearBindings();
 	bool BindToExternalParameter( Tr2ExternalParameter& externalParameter );
 	void SetValueToDefault();
+	bool Used() const;
 
 	void Propagate();
 

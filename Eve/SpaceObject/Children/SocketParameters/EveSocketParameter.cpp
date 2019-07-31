@@ -50,6 +50,11 @@ bool EveSocketParameterBindingBase::BindToExternalParameter( Tr2ExternalParamete
 	return true;
 }
 
+bool EveSocketParameterBindingBase::Used() const
+{
+	return !m_bindings.empty();
+}
+
 void EveSocketParameterBindingBase::Propagate()
 {
 	for ( auto it = begin( m_bindings ); it != end( m_bindings ); ++it )
@@ -152,19 +157,6 @@ bool EveSocketParameterString::BindToExternalParameter( Tr2ExternalParameter& ex
 	return true;
 }
 
-void EveSocketParameterString::Propagate()
-{
-	if ( m_valueExposure && m_valueExposure->IsValid() )
-	{
-		BlueScriptValue v;
-		m_valueExposure->GetValue( v );
-		for ( auto it = begin( m_externalParameters ); it != end( m_externalParameters ); ++it )
-		{
-			( *it )->SetValue( v );
-		}
-	}
-}
-
 bool EveSocketParameterString::ExtractDefault( const Tr2ExternalParameter& externalParameter )
 {
 	std::string value; 
@@ -186,5 +178,23 @@ void EveSocketParameterString::SetValueToDefault()
 	if (!m_defaults.empty())
 	{
 		m_value = m_defaults[0];
+	}
+}
+
+bool EveSocketParameterString::Used() const
+{
+	return !m_externalParameters.empty();
+}
+
+void EveSocketParameterString::Propagate()
+{
+	if ( m_valueExposure && m_valueExposure->IsValid() )
+	{
+		BlueScriptValue v;
+		m_valueExposure->GetValue( v );
+		for ( auto it = begin( m_externalParameters ); it != end( m_externalParameters ); ++it )
+		{
+			( *it )->SetValue( v );
+		}
 	}
 }

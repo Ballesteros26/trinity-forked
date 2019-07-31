@@ -22,6 +22,7 @@ BLUE_INTERFACE( IEveSocketParameter ) :
 	virtual bool BindToExternalParameter( Tr2ExternalParameter& externalParameter ) { return true; };
 	virtual void Reset() {};
 	virtual void SetValueToDefault() {};
+	virtual bool Used() const { return true; }
 	virtual void Propagate() {};
 };
 
