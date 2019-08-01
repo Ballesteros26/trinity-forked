@@ -107,6 +107,12 @@ const Be::ClassInfo* Tr2CurveEulerRotationExpression::ExposeToBlue()
 			GetExpressionTermInfo,
 			"Returns information on addional functions and variables available to the expression"
 		)
+		MAP_METHOD_AND_WRAP(
+			"EvaluateExpression",
+			EvaluateExpression,
+			"Evaluates an expression against this object\n"
+			":param expression: expression to evaluate" 
+		)
 
 	EXPOSURE_END()
 }

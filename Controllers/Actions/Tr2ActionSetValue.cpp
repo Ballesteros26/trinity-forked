@@ -120,3 +120,24 @@ bool Tr2ActionSetValue::HasDelayedBinding() const
 {
 	return m_delayBinding && !m_destination.m_path.empty();
 }
+
+BlueStdResult Tr2ActionSetValue::EvaluateExpression( const char* expression, float& value ) const
+{
+	if( !m_controller )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_RUNTIME_ERROR, "controller needs to be running when evaluating expressions" );
+	}
+	Tr2ControllerExpression expr;
+	auto error = expr.SetExpr( expression, *m_controller );
+	if( !error.empty() )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, error.c_str() );
+	}
+	auto result = expr.Eval();
+	if( !result.first )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_RUNTIME_ERROR, "error evaluating expression" );
+	}
+	value = result.second;
+	return BlueStdResult();
+}

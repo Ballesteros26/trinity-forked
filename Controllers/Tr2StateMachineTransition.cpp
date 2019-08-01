@@ -114,3 +114,24 @@ std::vector<Tr2ExpressionTermInfoPtr> Tr2StateMachineTransition::GetExpressionTe
 	}
 	return result;
 }
+
+BlueStdResult Tr2StateMachineTransition::EvaluateExpression( const char* expression, float& value ) const
+{
+	if( !m_source )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_RUNTIME_ERROR, "controller needs to be running when evaluating expressions" );
+	}
+	Tr2ControllerExpression expr;
+	auto error = expr.SetExpr( expression, *m_source->GetStateMachine() );
+	if( !error.empty() )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, error.c_str() );
+	}
+	auto result = expr.Eval();
+	if( !result.first )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_RUNTIME_ERROR, "error evaluating expression" );
+	}
+	value = result.second;
+	return BlueStdResult();
+}

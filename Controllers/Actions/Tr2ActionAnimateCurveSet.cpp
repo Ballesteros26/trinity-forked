@@ -31,7 +31,8 @@ namespace
 Tr2ActionAnimateCurveSet::Tr2ActionAnimateCurveSet( IRoot* )
 	:m_controller( nullptr ),
 	m_value( "StateTime()" ),
-	m_startTime( 0 )
+	m_startTime( 0 ),
+	m_lastSimTime( 0 )
 {
 }
 
@@ -66,6 +67,7 @@ void Tr2ActionAnimateCurveSet::Stop( Tr2Controller& controller )
 
 void Tr2ActionAnimateCurveSet::Update( Be::Time realTime, Be::Time simTime )
 {
+	m_lastSimTime = simTime;
 	if( !m_curveSet )
 	{
 		return;
@@ -115,4 +117,26 @@ std::vector<Tr2ExpressionTermInfoPtr> Tr2ActionAnimateCurveSet::GetExpressionTer
 		}
 	}
 	return result;
+}
+
+BlueStdResult Tr2ActionAnimateCurveSet::EvaluateExpression( const char* expression, float& value ) const
+{
+	if( !m_controller )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_RUNTIME_ERROR, "controller needs to be running when evaluating expressions" );
+	}
+	Tr2ControllerExpression expr;
+	auto error = expr.SetExpr( expression, *m_controller, ModifyParser );
+	if( !error.empty() )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, error.c_str() );
+	}
+	s_stateTime = TimeAsFloat( m_lastSimTime - m_startTime );
+	auto result = expr.Eval();
+	if( !result.first )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_RUNTIME_ERROR, "error evaluating expression" );
+	}
+	value = result.second;
+	return BlueStdResult();
 }

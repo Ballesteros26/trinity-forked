@@ -35,6 +35,8 @@ public:
 	bool IsExpressionValid() const;
 
 	std::vector<Tr2ExpressionTermInfoPtr> GetExpressionTermInfo() const;
+
+	BlueStdResult EvaluateExpression( const char* expression, float& value ) const;
 private:
 	bool IsAttrExpressionValid( const char* attributeName ) const;
 
@@ -44,6 +46,7 @@ private:
 	Tr2ControllerExpression m_evaluator;
 
 	Be::Time m_startTime;
+	Be::Time m_lastSimTime;
 	const Tr2Controller* m_controller;
 };
 

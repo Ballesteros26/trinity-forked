@@ -394,3 +394,24 @@ std::vector<Tr2ExpressionTermInfoPtr> Tr2CurveVector3Expression::GetExpressionTe
 	result.push_back( Tr2ExpressionTermInfo::Variable( "Math", "pi2", "Pi x 2 value" ) );
 	return result;
 }
+
+BlueStdResult Tr2CurveVector3Expression::EvaluateExpression( const char* expression, float& value ) const
+{
+	mu::Parser parser;
+	parser.SetExpr( expression );
+
+	CcpAutoMutex lock( s_mutex );
+	s_currentCurve.push_back( this );
+
+	try
+	{
+		value = parser.Eval();
+	}
+	catch( const mu::Parser::exception_type& e )
+	{
+		s_currentCurve.pop_back();
+		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, e.GetMsg().c_str() );
+	}
+	s_currentCurve.pop_back();
+	return BlueStdResult();
+}

@@ -34,6 +34,7 @@ public:
 
 	IRootPtr GetDestination() const;
 	std::vector<Tr2ExpressionTermInfoPtr> GetExpressionTermInfo() const;
+	BlueStdResult EvaluateExpression( const char* expression, float& value ) const;
 private:
 	bool IsAttrExpressionValid( const char* attributeName ) const;
 	void LinkDestination( const Tr2Controller& controller );

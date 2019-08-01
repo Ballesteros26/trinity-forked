@@ -33,6 +33,7 @@ public:
 	bool IsConditionValid() const;
 
 	std::vector<Tr2ExpressionTermInfoPtr> GetExpressionTermInfo() const;
+	BlueStdResult EvaluateExpression( const char* expression, float& value ) const;
 private:
 	void UpdateDestination();
 	bool IsExpressionValid( const char* attributeName ) const;

@@ -43,6 +43,12 @@ const Be::ClassInfo* Tr2ActionSetValue::ExposeToBlue()
 		MAP_METHOD_AND_WRAP(
 			"IsExpressionValid",
 			IsAttrExpressionValid,
-			"Checks if the expression is valid" )
+			"Checks if the expression is valid\n"
+			":param attrName: name of the attribute containing the expression" )
+		MAP_METHOD_AND_WRAP(
+			"EvaluateExpression",
+			EvaluateExpression,
+			"Evaluates an expression against this object\n"
+			":param expression: expression to evaluate" )
 	EXPOSURE_END()
 }
