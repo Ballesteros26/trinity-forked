@@ -86,26 +86,7 @@ Tr2CurveScalarExpression::Tr2CurveScalarExpression( IRoot* lockobj )
 	m_input3( 0 ),
 	m_input4( 0 )
 {
-	m_expressionParser.DefineFun( "fractal", &Fractal, false );
-	m_expressionParser.DefineFun( "noise", &Noise, false );
-	m_expressionParser.DefineFun( "randomConstant", &RandomConstant, false );
-	m_expressionParser.DefineFun( "randconst", &RandomConstant, false );
-	m_expressionParser.DefineFun( "random", &Random, false );
-	m_expressionParser.DefineFun( "randhash", &RandomHash, false );
-	m_expressionParser.DefineFun( "input", &Input, false );
-	m_expressionParser.DefineFun( "inputAt", &InputAt, false );
-	m_expressionParser.DefineFun( "clamp", &TriClamp, false );
-
-	m_expressionParser.DefineVar( "input1", &m_input1 );
-	m_expressionParser.DefineVar( "input2", &m_input2 );
-	m_expressionParser.DefineVar( "input3", &m_input3 );
-	m_expressionParser.DefineVar( "input4", &m_input4 );
-
-	m_expressionParser.DefineVar( "time", &m_time );
-
-	m_expressionParser.DefineConst( "pi", 3.1415926f );
-	m_expressionParser.DefineConst( "pi2", 2.0f * 3.1415926f );
-
+	SetupParser( m_expressionParser );
 }
 
 // --------------------------------------------------------------------------------
@@ -118,6 +99,29 @@ bool Tr2CurveScalarExpression::Initialize()
 		SetExpression( expression );
 	}
 	return true;
+}
+
+void Tr2CurveScalarExpression::SetupParser( mu::Parser& parser )
+{
+	parser.DefineFun( "fractal", &Fractal, false );
+	parser.DefineFun( "noise", &Noise, false );
+	parser.DefineFun( "randomConstant", &RandomConstant, false );
+	parser.DefineFun( "randconst", &RandomConstant, false );
+	parser.DefineFun( "random", &Random, false );
+	parser.DefineFun( "randhash", &RandomHash, false );
+	parser.DefineFun( "input", &Input, false );
+	parser.DefineFun( "inputAt", &InputAt, false );
+	parser.DefineFun( "clamp", &TriClamp, false );
+
+	parser.DefineVar( "input1", &m_input1 );
+	parser.DefineVar( "input2", &m_input2 );
+	parser.DefineVar( "input3", &m_input3 );
+	parser.DefineVar( "input4", &m_input4 );
+
+	parser.DefineVar( "time", &m_time );
+
+	parser.DefineConst( "pi", 3.1415926f );
+	parser.DefineConst( "pi2", 2.0f * 3.1415926f );
 }
 
 // --------------------------------------------------------------------------------
@@ -280,6 +284,7 @@ std::vector<Tr2ExpressionTermInfoPtr> Tr2CurveScalarExpression::GetExpressionTer
 BlueStdResult Tr2CurveScalarExpression::EvaluateExpression( const char* expression, float& value ) const
 {
 	mu::Parser parser;
+	const_cast<Tr2CurveScalarExpression*>( this )->SetupParser( parser );
 	parser.SetExpr( expression );
 
 	CcpAutoMutex lock( s_mutex );

@@ -42,6 +42,8 @@ public:
 	std::vector<Tr2ExpressionTermInfoPtr> GetExpressionTermInfo() const;
 	BlueStdResult EvaluateExpression( const char* expression, float& value ) const;
 private:
+	void SetupParser( mu::Parser& parser );
+
 	std::string m_name;
 	std::string m_expression;
 

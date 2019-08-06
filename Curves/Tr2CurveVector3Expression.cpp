@@ -79,28 +79,7 @@ Tr2CurveVector3Expression::Tr2CurveVector3Expression( IRoot* lockobj )
 {
 	for( size_t i = 0; i < 3; ++i )
 	{
-		auto& parser = m_expressionParsers[i];
-
-		parser.DefineFun( "fractal", &Fractal, false );
-		parser.DefineFun( "noise", &Noise, false );
-		parser.DefineFun( "randomConstant", &RandomConstant, false );
-		parser.DefineFun( "randconst", &RandomConstant, false );
-		parser.DefineFun( "random", &Random, false );
-		parser.DefineFun( "randconst", &RandomConstant, false );
-		parser.DefineFun( "randhash", &RandomHash, false );
-		parser.DefineFun( "input", &Input, false );
-		parser.DefineFun( "inputAt", &InputAt, false );
-		parser.DefineFun( "clamp", &TriClamp, false );
-
-		parser.DefineVar( "input1", &m_input1 );
-		parser.DefineVar( "input2", &m_input2 );
-		parser.DefineVar( "input3", &m_input3 );
-		parser.DefineVar( "input4", &m_input4 );
-
-		parser.DefineVar( "time", &m_time );
-
-		parser.DefineConst( "pi", 3.1415926f );
-		parser.DefineConst( "pi2", 2.0f * 3.1415926f );
+		SetupParser( m_expressionParsers[i] );
 	}
 }
 
@@ -118,6 +97,30 @@ bool Tr2CurveVector3Expression::Initialize()
 	}
 	return true;
 
+}
+
+void Tr2CurveVector3Expression::SetupParser( mu::Parser& parser )
+{
+	parser.DefineFun( "fractal", &Fractal, false );
+	parser.DefineFun( "noise", &Noise, false );
+	parser.DefineFun( "randomConstant", &RandomConstant, false );
+	parser.DefineFun( "randconst", &RandomConstant, false );
+	parser.DefineFun( "random", &Random, false );
+	parser.DefineFun( "randconst", &RandomConstant, false );
+	parser.DefineFun( "randhash", &RandomHash, false );
+	parser.DefineFun( "input", &Input, false );
+	parser.DefineFun( "inputAt", &InputAt, false );
+	parser.DefineFun( "clamp", &TriClamp, false );
+
+	parser.DefineVar( "input1", &m_input1 );
+	parser.DefineVar( "input2", &m_input2 );
+	parser.DefineVar( "input3", &m_input3 );
+	parser.DefineVar( "input4", &m_input4 );
+
+	parser.DefineVar( "time", &m_time );
+
+	parser.DefineConst( "pi", 3.1415926f );
+	parser.DefineConst( "pi2", 2.0f * 3.1415926f );
 }
 
 // --------------------------------------------------------------------------------
@@ -398,6 +401,7 @@ std::vector<Tr2ExpressionTermInfoPtr> Tr2CurveVector3Expression::GetExpressionTe
 BlueStdResult Tr2CurveVector3Expression::EvaluateExpression( const char* expression, float& value ) const
 {
 	mu::Parser parser;
+	const_cast<Tr2CurveVector3Expression*>( this )->SetupParser( parser );
 	parser.SetExpr( expression );
 
 	CcpAutoMutex lock( s_mutex );

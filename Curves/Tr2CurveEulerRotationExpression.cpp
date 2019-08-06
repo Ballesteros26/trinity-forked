@@ -85,29 +85,8 @@ Tr2CurveEulerRotationExpression::Tr2CurveEulerRotationExpression( IRoot* lockobj
 {
 	for( size_t i = 0; i < 3; ++i )
 	{
-		auto& parser = m_expressionParsers[i];
+		SetupParser( m_expressionParsers[i] );
 
-		parser.DefineFun( "fractal", &Fractal, false );
-		parser.DefineFun( "noise", &Noise, false );
-		parser.DefineFun( "randomConstant", &RandomConstant, false );
-		parser.DefineFun( "randconst", &RandomConstant, false );
-		parser.DefineFun( "random", &Random, false );
-		parser.DefineFun( "randconst", &RandomConstant, false );
-		parser.DefineFun( "randhash", &RandomHash, false );
-		parser.DefineFun( "input", &Input, false );
-		parser.DefineFun( "inputAt", &InputAt, false );
-		parser.DefineFun( "clamp", &TriClamp, false );
-		parser.DefineFun( "radians", &XMConvertToRadians, true );
-
-		parser.DefineVar( "input1", &m_input1 );
-		parser.DefineVar( "input2", &m_input2 );
-		parser.DefineVar( "input3", &m_input3 );
-		parser.DefineVar( "input4", &m_input4 );
-
-		parser.DefineVar( "time", &m_time );
-
-		parser.DefineConst( "pi", 3.1415926f );
-		parser.DefineConst( "pi2", 2.0f * 3.1415926f );
 	}
 }
 
@@ -125,6 +104,31 @@ bool Tr2CurveEulerRotationExpression::Initialize()
 	}
 	return true;
 
+}
+
+void Tr2CurveEulerRotationExpression::SetupParser( mu::Parser& parser )
+{
+	parser.DefineFun( "fractal", &Fractal, false );
+	parser.DefineFun( "noise", &Noise, false );
+	parser.DefineFun( "randomConstant", &RandomConstant, false );
+	parser.DefineFun( "randconst", &RandomConstant, false );
+	parser.DefineFun( "random", &Random, false );
+	parser.DefineFun( "randconst", &RandomConstant, false );
+	parser.DefineFun( "randhash", &RandomHash, false );
+	parser.DefineFun( "input", &Input, false );
+	parser.DefineFun( "inputAt", &InputAt, false );
+	parser.DefineFun( "clamp", &TriClamp, false );
+	parser.DefineFun( "radians", &XMConvertToRadians, true );
+
+	parser.DefineVar( "input1", &m_input1 );
+	parser.DefineVar( "input2", &m_input2 );
+	parser.DefineVar( "input3", &m_input3 );
+	parser.DefineVar( "input4", &m_input4 );
+
+	parser.DefineVar( "time", &m_time );
+
+	parser.DefineConst( "pi", 3.1415926f );
+	parser.DefineConst( "pi2", 2.0f * 3.1415926f );
 }
 
 // --------------------------------------------------------------------------------
@@ -353,6 +357,7 @@ std::vector<Tr2ExpressionTermInfoPtr> Tr2CurveEulerRotationExpression::GetExpres
 BlueStdResult Tr2CurveEulerRotationExpression::EvaluateExpression( const char* expression, float& value ) const
 {
 	mu::Parser parser;
+	const_cast<Tr2CurveEulerRotationExpression*>( this )->SetupParser( parser );
 	parser.SetExpr( expression );
 
 	CcpAutoMutex lock( s_mutex );
