@@ -58,6 +58,24 @@ void BehaviorGroup::OnListModified(
 		case BELIST_REMOVED:
 			m_scratchData.erase( m_scratchData.begin() + key );
 			break;
+		case BELIST_SWAPPED:
+			std::swap( ( m_scratchData.begin() + key ), ( m_scratchData.begin() + key2 ) );
+			break;
+		case BELIST_MOVED:
+		{
+			ssize_t i = key;
+			auto tmp = m_scratchData.begin() + key;
+			for( ; i < key2; i++ )
+			{
+				m_scratchData.begin() + i = m_scratchData.begin() + ( i + 1 );
+			}
+			for( ; i > key2; i-- )
+			{
+				m_scratchData.begin() + i = m_scratchData.begin() + ( i - 1 );
+			}
+			m_scratchData.begin() + key2 = tmp;
+		}
+			break;
 		default:
 			break;
 		}
