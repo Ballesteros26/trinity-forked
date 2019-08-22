@@ -14,10 +14,10 @@ public:
 	ProcessLifetime( IRoot* lockobj = nullptr );
 	~ProcessLifetime();
 	
-	virtual std::vector<Vector3> CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-													BehaviorGroup& sys, EveChildBehaviorSystem& system );
+	virtual std::vector<Vector3> CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
+	                                               BehaviorGroup& sys, EveChildBehaviorSystem& system, std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius);
 	void RenderDebugInfo(Tr2DebugRenderer& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation);
-
+	float GetBehaviorSearchRadius();
 private:
 	float m_firstAgentLifetime; // debug visualization 
 	TunnelGroupType m_tunnelGroupType;

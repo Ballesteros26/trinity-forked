@@ -1,0 +1,73 @@
+#include "StdAfx.h"
+#include "InclusionVolume.h"
+
+
+InclusionVolume::InclusionVolume( IRoot* lockobj ):
+	PARENTLOCK( m_inclusionVolumes ),
+	m_behaviorWeight( 1 ),
+	m_frameCounter( 0 ),
+	m_framesBetweenUpdates( 11 )
+{
+}
+
+InclusionVolume::~InclusionVolume()
+{
+}
+
+
+std::vector<Vector3> InclusionVolume::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
+	BehaviorGroup& group, EveChildBehaviorSystem& system, std::vector < std::vector<DroneAgent*>>& dronesInSearchRadius )
+{
+	std::vector<Vector3> returnForces;
+	for ( auto agent = agents.begin(); agent != agents.end(); ++agent)
+	{
+		Vector3 force( 0, 0, 0 );
+		Vector3 Nforce( 0, 0, 0 );
+		float status;
+		Vector3 boxPos;
+
+		for ( auto volume = m_inclusionVolumes.begin(); volume != m_inclusionVolumes.end(); ++volume )
+		{
+			boxPos = ( *volume )->GetBoundingSphere().GetXYZ();
+			status = ( *volume )->GetIntensity( agent->position );
+			
+			
+			if ( status == 1 )
+			{
+				force = Vector3( 0, 0, 0 );
+				Nforce = Vector3( 0, 0, 0 );
+				break;
+			}
+			else if ( status > 0 )
+			{
+				Nforce = Normalize( boxPos - agent->position );
+				
+				force = Nforce * m_behaviorWeight;
+				
+			}
+		}
+
+		agent->acceleration += force;
+
+		Vector3 forceOffset = Nforce * group.GetBoundingSphereRadius();
+		returnForces.push_back( agent->position + forceOffset );
+		returnForces.push_back( force );
+	}
+	return returnForces;
+}
+
+float InclusionVolume::GetBehaviorSearchRadius()
+{
+		return -1;
+}
+
+void InclusionVolume::RenderDebugInfo(Tr2DebugRenderer& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation)
+{
+	if ( renderer.HasOption( this, "ExclusionVolumes" ) )
+	{
+		for ( auto volume = m_inclusionVolumes.begin(); volume != m_inclusionVolumes.end(); ++volume )
+		{
+			( *volume )->RenderDebugInfo( renderer, parentWorldLocation );
+		}
+	}
+}

@@ -16,7 +16,7 @@ ProcessLifetime::~ProcessLifetime()
 
 
 std::vector<Vector3> ProcessLifetime::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-														BehaviorGroup& sys, EveChildBehaviorSystem& system )
+														BehaviorGroup& sys, EveChildBehaviorSystem& system, std::vector < std::vector<DroneAgent*>>& dronesInSearchRadius )
 {
 	auto tunnels = system.GetTunnels();
 
@@ -29,6 +29,10 @@ std::vector<Vector3> ProcessLifetime::CalculateBehavior( std::vector<DroneAgent>
 	return forceVectors;
 }
 
+float ProcessLifetime::GetBehaviorSearchRadius()
+{
+	return -1;
+}
 
 void ProcessLifetime::RenderDebugInfo( Tr2DebugRenderer& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation )
 {

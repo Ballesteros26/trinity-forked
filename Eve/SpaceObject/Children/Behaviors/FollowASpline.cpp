@@ -6,7 +6,9 @@ FollowASpline::FollowASpline( IRoot* lockobj ) :
 	m_behaviorWeight( 10.f ),
 	m_smoothPullFactor( 0.8 ),
 	m_cornerSmoothener( 0.8 ),
-	m_tunnelGroupType( OTHER_TUNNELS )
+	m_tunnelGroupType( OTHER_TUNNELS ),
+	m_frameCounter( 0 ),
+	m_framesBetweenUpdates( 11 )
 {
 }
 
@@ -113,7 +115,7 @@ void FollowASpline::ProcessAssignedTunnel( DroneAgent& agent, std::vector<Spline
 			m_desiredVector = targetVector;
 		}
 
-		if ((lengthFromShip - group.GetBoundingSphereRadius()) < (t.cylWidth)/2)
+		if ((lengthFromShip - group.GetBoundingSphereRadius()) < (t.cylWidth)/1.5)
 		{
 			data->tunnelPoint++;
 		}
@@ -138,84 +140,124 @@ void FollowASpline::InitializeScratch( const DroneAgent& drone, void* scratchMem
 }
 
 std::vector<Vector3> FollowASpline::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-														BehaviorGroup& group, EveChildBehaviorSystem& system )
+														BehaviorGroup& group, EveChildBehaviorSystem& system, std::vector < std::vector<DroneAgent*>>& dronesInSearchRadius )
 {
-	auto tunnels = system.GetTunnels();
-	m_targetPointVector.clear();
 	std::vector<Vector3> forceVectors;
-
-	// additional appending in case people want to add tunnels for specific BehaviorGroups
-	if ( !m_splineTunnels.empty() )
+	if ( m_frameCounter == 0 )
 	{
-		int id = 0;
-		if ( !tunnels.empty() )
+		m_lastPullForces.clear();
+		auto tunnels = system.GetTunnels();
+		m_targetPointVector.clear();
+		
+		// additional appending in case people want to add tunnels for specific BehaviorGroups
+		if ( !m_splineTunnels.empty() )
 		{
-			id = tunnels.back().tunnelID;
-		}
-
-		for ( auto it = begin( m_splineTunnels ); it != end( m_splineTunnels ); ++it )
-		{
-			auto group = ( *it )->GetTunnels();
-
-			for ( auto tunnel = begin( group ); tunnel != end( group ); ++tunnel )
+			int id = 0;
+			if ( !tunnels.empty() )
 			{
-				( *tunnel ).tunnelID = id;
-				id++;
-				tunnels.push_back( *tunnel );
+				id = tunnels.back().tunnelID;
+			}
+
+			for ( auto it = begin( m_splineTunnels ); it != end( m_splineTunnels ); ++it )
+			{
+				auto group = ( *it )->GetTunnels();
+
+				for ( auto tunnel = begin( group ); tunnel != end( group ); ++tunnel )
+				{
+					( *tunnel ).tunnelID = id;
+					id++;
+					tunnels.push_back( *tunnel );
+				}
 			}
 		}
+
+
+		if ( tunnels.empty() )
+		{
+			return forceVectors;
+		}
+
+		auto data = static_cast< FollowASplineData* >( scratchData );
+		for ( auto drone = agents.begin(); drone != agents.end(); ++drone, data++ )
+		{
+			m_desiredVector = Vector3( 0, 0, 0 );
+			float rampingForce = 1;
+
+			if ( data->tunnelLock == -1 )
+			{
+				rampingForce = ProcessTunnelEntrances( *drone, tunnels, data );
+			}
+
+			// tunnelLock can change in ProcessTunnelEntrances so if/else is not equivalent
+			if ( data->tunnelLock != -1 )
+			{
+				ProcessAssignedTunnel( *drone, tunnels, group, data );
+			}
+
+			if ( m_desiredVector == Vector3( 0, 0, 0 ) )
+			{
+				m_lastPullForces.push_back( Vector3( 0, 0, 0 ) );
+				continue;
+			}
+
+			Vector3 pullForce = Normalize( m_desiredVector );
+			Vector3 forceOffset = pullForce * group.GetBoundingSphereRadius();
+			forceVectors.push_back( drone->position + forceOffset );
+			pullForce *= m_behaviorWeight * rampingForce;
+			forceVectors.push_back( pullForce );
+			drone->acceleration += pullForce;
+			m_lastPullForces.push_back( pullForce );
+		}
 	}
-
-
-	if ( tunnels.empty() )
+	else
 	{
-		return forceVectors;
-	}
-
-	auto data = static_cast<FollowASplineData*>( scratchData );
-	for ( auto drone = agents.begin(); drone != agents.end(); ++drone, data++ )
-	{
-		m_desiredVector = Vector3( 0, 0, 0 );
-		float rampingForce = 1;
-
-		if ( data->tunnelLock == -1 )
+		if ( m_lastPullForces.empty() )
 		{
-			rampingForce = ProcessTunnelEntrances( *drone, tunnels, data );
+			return forceVectors;
 		}
-
-		// tunnelLock can change in ProcessTunnelEntrances so if/else is not equivalent
-		if ( data->tunnelLock != -1 )
+		int c = 0;
+		for ( auto agent = agents.begin(); agent != agents.end(); ++agent, c++ )
 		{
-			ProcessAssignedTunnel( *drone, tunnels, group, data );
-		}
+			agent->acceleration += m_lastPullForces[ c ];
 
-		if ( m_desiredVector == Vector3( 0, 0, 0 ) )
-		{
-			continue;
+			if ( group.m_collectForces )
+			{
+				Vector3 forceOffset = Normalize( m_lastPullForces[ c ] ) * group.GetBoundingSphereRadius();
+				forceVectors.push_back( agent->position + forceOffset );
+				forceVectors.push_back( m_lastPullForces[ c ] );
+			}
 		}
-
-		Vector3 pullForce = Normalize( m_desiredVector );
-		Vector3 forceOffset = pullForce * group.GetBoundingSphereRadius();
-		forceVectors.push_back( drone->position + forceOffset );
-		pullForce *= m_behaviorWeight * rampingForce;
-		forceVectors.push_back( pullForce );
-		drone->acceleration += pullForce;
 	}
 	return forceVectors;
 }
 
+float FollowASpline::GetBehaviorSearchRadius()
+{
+	if ( m_frameCounter >= m_framesBetweenUpdates )
+	{
+		m_frameCounter = 0;
+	}
+	else
+	{
+		m_frameCounter++;
+	}
+	return -1;
+}
 
 void FollowASpline::RenderDebugInfo( Tr2DebugRenderer& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation )
 {
-	for ( auto tPoint = m_targetPointVector.begin(); tPoint != m_targetPointVector.end(); ++tPoint )
+	if ( renderer.HasOption( this, "splineTunnels" ) )
 	{
-		renderer.DrawSphere( this, TranslationMatrix( ( *tPoint ) ) * parentWorldLocation,
-			2, 6, Tr2DebugRenderer::Wireframe, 0xff114444 );
-	}
+		for ( auto tPoint = m_targetPointVector.begin(); tPoint != m_targetPointVector.end(); ++tPoint )
+		{
+			renderer.DrawSphere( this, TranslationMatrix( ( *tPoint ) ) * parentWorldLocation,
+				2, 6, Tr2DebugRenderer::Wireframe, 0xff114444 );
+		}
 
-	for ( auto t = m_splineTunnels.begin(); t != m_splineTunnels.end(); ++t )
-	{
-		( *t )->RenderDebugInfo( renderer, parentWorldLocation );
+		for ( auto t = m_splineTunnels.begin(); t != m_splineTunnels.end(); ++t )
+		{
+			( *t )->RenderDebugInfo( renderer, parentWorldLocation );
+		}
+		return;
 	}
-	return;
 }

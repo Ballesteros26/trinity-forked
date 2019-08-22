@@ -17,7 +17,7 @@ Wander::~Wander()
 }
 
 std::vector<Vector3> Wander::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-												BehaviorGroup& group, EveChildBehaviorSystem& system )
+												BehaviorGroup& group, EveChildBehaviorSystem& system, std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius )
 {	
 	std::vector<Vector3> forceVectors;
 
@@ -28,16 +28,26 @@ std::vector<Vector3> Wander::CalculateBehavior( std::vector<DroneAgent>& agents,
 		Vector3 p = Vector3( seed * rand1, seed * rand2, seed * rand3 ) * m_freq;
 
 		Vector3 force( float( PerlinNoise1D( p.x, 2, 1, 1 ) ), float( PerlinNoise1D( p.y, 2, 1, 1 ) ), float( PerlinNoise1D( p.z, 2, 1, 1 ) ) );
-		Vector3 forceOffset = Normalize(force) * group.GetBoundingSphereRadius();
-		forceVectors.push_back( agent->position + forceOffset );
+
 		force *= m_weightWander;
-		forceVectors.push_back( force );
 		agent->acceleration += force;
+
+		if( group.m_collectForces )
+		{
+			Vector3 forceOffset = Normalize( force ) * group.GetBoundingSphereRadius();
+			forceVectors.push_back( agent->position + forceOffset );
+			forceVectors.push_back( force );
+		}
 	}
 	
 	return forceVectors;
 }
 
-void Wander::RenderDebugInfo(Tr2DebugRenderer& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation)
+float Wander::GetBehaviorSearchRadius()
+{
+	return -1;
+}
+
+void Wander::RenderDebugInfo( Tr2DebugRenderer& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation )
 {
 }

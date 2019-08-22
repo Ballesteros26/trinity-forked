@@ -31,10 +31,10 @@ public:
 
 	virtual size_t GetScratchMemorySize() const;
 	virtual void InitializeScratch( const DroneAgent& drone, void* scratchMemory );
-	virtual std::vector<Vector3> CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-													BehaviorGroup& group, EveChildBehaviorSystem& system );
+	virtual std::vector<Vector3> CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
+	                                               BehaviorGroup& group, EveChildBehaviorSystem& system, std::vector < std::vector<DroneAgent*>>& dronesInSearchRadius);
 	void RenderDebugInfo(Tr2DebugRenderer& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation);
-
+	float GetBehaviorSearchRadius();
 private:
 	float ProcessTunnelEntrances(DroneAgent& agent, std::vector<SplineTunnel>& tunnels, FollowASplineData* data);
 	void ProcessAssignedTunnel(DroneAgent& agent, std::vector<SplineTunnel>& tunnels, BehaviorGroup& group, FollowASplineData* data);
@@ -46,6 +46,10 @@ private:
 	float m_cornerSmoothener;
 	Vector3 m_desiredVector;
 	std::vector <Vector3> m_targetPointVector;
+
+	int m_framesBetweenUpdates;
+	int m_frameCounter;
+	std::vector<Vector3> m_lastPullForces;
 };
 
 TYPEDEF_BLUECLASS( FollowASpline );

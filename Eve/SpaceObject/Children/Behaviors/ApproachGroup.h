@@ -1,16 +1,17 @@
 #pragma once
-#ifndef Wander_H
-#define Wander_H
+#ifndef ApproachGroup_H
+#define ApproachGroup_H
 #include "Eve/SpaceObject/Children/EveChildBehaviorSystem.h"
 #include "IBehavior.h"
 
-BLUE_CLASS( Wander ) :
+
+BLUE_CLASS( ApproachGroup ) :
 	public IBehavior
 {
 public:
 	EXPOSE_TO_BLUE();
-	Wander( IRoot* lockobj = nullptr );
-	~Wander();
+	ApproachGroup( IRoot* lockobj = nullptr );
+	~ApproachGroup();
 
 	virtual std::vector<Vector3> CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
 	                                               BehaviorGroup& group, EveChildBehaviorSystem& system, std::vector < std::vector<DroneAgent*>>& dronesInSearchRadius);
@@ -18,13 +19,12 @@ public:
 	float GetBehaviorSearchRadius();
 
 private:
-	float m_freq;
-	float m_weightWander;	//priority of behavior
-
-	//debugging purposes
-	float rand1, rand2, rand3;
+	int m_framesBetweenUpdates;
+	int m_frameCounter;
+	std::vector<Vector3> m_lastPullForces;
+	float m_behaviorWeight;
+	float m_visionRange;
 };
-
-TYPEDEF_BLUECLASS( Wander );
+TYPEDEF_BLUECLASS( ApproachGroup );
 
 #endif

@@ -12,7 +12,7 @@ CollisionAvoidance::~CollisionAvoidance()
 }
 
 std::vector<Vector3> CollisionAvoidance::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-															BehaviorGroup& group, EveChildBehaviorSystem& system )
+	BehaviorGroup& group, EveChildBehaviorSystem& system, std::vector < std::vector<DroneAgent*>>& dronesInSearchRadius )
 {
 	std::vector<Vector3> forceVectors;
 	for( auto agent = agents.begin(); agent != agents.end(); ++agent )
@@ -48,6 +48,11 @@ std::vector<Vector3> CollisionAvoidance::CalculateBehavior( std::vector<DroneAge
 		}
 	}
 	return forceVectors;
+}
+
+float CollisionAvoidance::GetBehaviorSearchRadius()
+{
+	return -1;
 }
 
 void CollisionAvoidance::RenderDebugInfo( Tr2DebugRenderer& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation )

@@ -27,7 +27,10 @@ const Be::ClassInfo* BehaviorGroup::ExposeToBlue()
 		MAP_ATTRIBUTE( "blendScreenSizeMax", m_blendScreenSizeMax, "Agent will be drawn as a mesh if screeen-size is greater than this value.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "boundingSphereCenter", m_boundingSphereCenter, "The center of the bounding sphere relative to each agent. Can be used as an offset.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "boundingSphereRadius", m_boundingSphereRadius, "The radius of the bounding sphere, applied to each agent.", Be::READWRITE | Be::PERSIST )
+		
+		MAP_ATTRIBUTE( "TEMPDEBUGVECTORTOFINDCLOSEDRONES", m_TEMPDEBUGVECTORTOFINDCLOSEDRONES, "The radius of the bounding sphere, applied to each agent.", Be::READWRITE | Be::PERSIST )
 
+		
 		MAP_METHOD_AND_WRAP( "AddAgent", AddAgent, "Adds a drone to the swarm \n:jessica-placement: TOOLBAR\n:jessica-icon: far-drone-alt\n" )
 		MAP_METHOD_AND_WRAP( "RemoveAgent", RemoveAgent, "removes a random drone from the swarm \n:jessica-placement: TOOLBAR\n:jessica-icon: far-dumpster\n" )
 		MAP_METHOD_AND_WRAP( "SetCount", SetCount, "Specify a desired number of agents for the system \n:param count: number of agents\n:jessica-placement: TOOLBAR\n:jessica-icon: far-ball-pile\n" )

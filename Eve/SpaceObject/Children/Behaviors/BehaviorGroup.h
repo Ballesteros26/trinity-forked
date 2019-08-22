@@ -7,35 +7,7 @@
 #include "TriFrustum.h"
 #include "KDdroneManagementTree.h"
 
-
-struct DroneAgent
-{	
-	DroneAgent() :					
-		rotation( 0, 0, 0, 1 ),		
-		position( 0, 0, 0 ),		
-		acceleration( 0, 0, 0 ),
-		velocity( 0, 0, 0 ),		
-		target( 0, 0, 0 ),			
-		lifetime( 0.f ),
-		id( 0 ),
-		// LOD
-		xfade( 0.f ),				
-		screenSize( 0.f ),			
-		isVisible( false )			
-	{}						
-	
-	Quaternion rotation;
-	Vector3 position;
-	Vector3 acceleration;
-	Vector3 velocity;
-	Vector3 target;
-	float lifetime;
-	int id;
-
-	float xfade; // Crossfade between mesh and sprite. 1.0 = mesh, 0.0 = sprite
-	bool isVisible; // Don't render agents off-screen
-	float screenSize;
-};
+#include "DroneAgent.h"
 
 struct ITr2Renderable;
 
@@ -110,6 +82,7 @@ public:
 	bool m_display;
 	bool IsGroupVisible();
 	float m_estimatedPixelDiameter;
+	bool m_collectForces; // Bool toggle to skip bunch of calculations when debug is not being used
 
 	PIEveVolumeVector m_exclusionVolumes;
 
@@ -121,7 +94,6 @@ private:
 	int m_count; // Number of agents
 	Vector3 m_scale; // Size Multiplier for the agent mesh
 	Vector3 m_spriteScale; // Size Multiplier for the sprite mesh
-	bool m_collectForces; // Bool toggle to skip bunch of calculations when debug is not being used
 	int m_groupIndex; // ID
 	bool m_meshToggle; // To configure sprite during development
 	Tr2MeshPtr m_mesh;
@@ -168,6 +140,8 @@ private:
 
 	// Spatial partitioning manager/tree
 	KDdroneManagementTreePtr m_tree;
+
+	Vector3 m_TEMPDEBUGVECTORTOFINDCLOSEDRONES;
 
 };
 

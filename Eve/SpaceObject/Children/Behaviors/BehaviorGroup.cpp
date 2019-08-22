@@ -29,9 +29,13 @@ BehaviorGroup::BehaviorGroup( IRoot* lockobj ) :
 	m_boundingSphereRadius( 5.f ),
 	m_blendRangeMax( 1000 ), // LOD system
 	m_blendRangeMin( 500 ),
-	m_blendRangeValue( 1.0 )
+	m_blendRangeValue( 1.0 ),
+
+	m_TEMPDEBUGVECTORTOFINDCLOSEDRONES( Vector3( 0, 0, 0 ) )
 {
 	m_behaviors.SetNotify( this );
+	m_tree = nullptr;
+	m_tree.CreateInstance();
 }
 
 bool BehaviorGroup::Initialize()
@@ -92,6 +96,7 @@ void BehaviorGroup::InitializeGeometryResource()
 {
 	//to make resource load correctly they must be regenerated for this instance
 	m_agents.clear();
+	m_scratchData.clear();
 	for( auto it = begin( m_scratchData ); it != end( m_scratchData ); ++it )
 	{
 		it->clear();
@@ -176,6 +181,7 @@ void BehaviorGroup::AddAgent()
 	{
 		(m_changeBufferVertexCount)();
 	}
+	CreateAgentTree();
 }
 
 
@@ -192,6 +198,10 @@ void BehaviorGroup::AddAgentPrivate()
 	for( size_t i = 0; i < m_behaviors.size(); ++i )
 	{
 		auto size = m_behaviors[i]->GetScratchMemorySize();
+		if( m_scratchData.size() <= i )
+		{
+			m_scratchData.push_back( CcpMallocBuffer() );
+		}
 		if( size > 0)
 		{
 			m_scratchData[i].resize( "BehaviorGroup::m_scratchData", m_agents.size() * size );
@@ -233,6 +243,7 @@ void BehaviorGroup::SetCount( int count )
 		return;
 	}
 	(m_changeBufferVertexCount)();
+	CreateAgentTree();
 }
 
 float BehaviorGroup::AllTheSame()
@@ -259,6 +270,7 @@ void BehaviorGroup::RemoveAgent()
 	{
 		(m_changeBufferVertexCount)();
 	}
+	CreateAgentTree();
 }
 
 // returns a vector so we can do something with the location. explosion etc
@@ -293,6 +305,30 @@ Vector3 BehaviorGroup::RemoveAgentPrivate()
 
 void BehaviorGroup::UpdateAgents(const float dt, EveChildBehaviorSystem& system )
 {
+	if ( m_agents.empty() )
+	{
+		return;
+	}
+
+	std::vector<float> ranges;
+
+	float searchRad = 0;
+	for ( auto behavior = m_behaviors.begin(); behavior != m_behaviors.end(); ++behavior )
+	{
+		searchRad = ( *behavior )->GetBehaviorSearchRadius();
+		if( searchRad == -1.f)
+		{
+			ranges.push_back( -1.f );
+		}
+		else
+		{
+			ranges.push_back( searchRad + m_boundingSphereRadius );
+		}
+	}
+
+	std::vector < std::vector<std::vector<DroneAgent*>>> dronesInRange = m_tree->FindDronesInRange( m_agents, ranges, m_boundingSphereRadius );
+	int groupIndex = 0;
+
 	//Calculate the behaviors
 	if( m_collectForces )
 	{
@@ -301,8 +337,9 @@ void BehaviorGroup::UpdateAgents(const float dt, EveChildBehaviorSystem& system 
 		auto scratch = m_scratchData.begin();
 		for ( auto behavior = m_behaviors.begin(); behavior != m_behaviors.end(); ++behavior, scratch++ )
 		{
-			std::vector<Vector3> forces = ( *behavior )->CalculateBehavior( m_agents, scratch->get(), dt, *this, system );
 			
+			std::vector<Vector3> forces = ( *behavior )->CalculateBehavior( m_agents, scratch->get(), dt, *this, system, dronesInRange[groupIndex] );
+			groupIndex++;
 			for ( auto force = forces.begin(); force != forces.end(); ++force )
 			{
 				m_forces.push_back( *force );
@@ -314,7 +351,8 @@ void BehaviorGroup::UpdateAgents(const float dt, EveChildBehaviorSystem& system 
 		auto scratch = m_scratchData.begin();
 		for( auto behavior = m_behaviors.begin(); behavior != m_behaviors.end(); ++behavior, scratch++ )
 		{
-			( *behavior )->CalculateBehavior( m_agents, scratch->get(), dt, *this, system );
+			( *behavior )->CalculateBehavior( m_agents, scratch->get(), dt, *this, system, dronesInRange[ groupIndex ] );
+			groupIndex++;
 		}
 	}
 
@@ -329,24 +367,24 @@ void BehaviorGroup::UpdateAgents(const float dt, EveChildBehaviorSystem& system 
 		// only apply force if boosters are facing the correct direction
 		//float angle = Dot( Normalize( Vector3( agent->acceleration ) ), Normalize( agent->target ) );
 		
-		/*
-		if( angle > 0.7 )
-		{
-			angle = ( angle - 0.7f)*10.f / 3.f;
-			// TODO Here we can enable booster effect 
-			agent->velocity += agent->acceleration * angle;
-		}
-		*/
-		agent->velocity += agent->acceleration;// *angle;
-	
-		Vector3 temp =  agent->velocity;
-		TriQuaternionRotationArc( &agent->rotation, &zAxis, &temp);
+		//if( angle > 0.7 )
+		//{
+		//	angle = ( angle - 0.7f) * 10.f / 3.f;
+		//	// TODO Here we can enable booster effect 
+		//	agent->velocity += agent->acceleration * angle * angle;
+		//} 
+		// Vector3 facingDir =  agent->acceleration;
+
+		agent->velocity += agent->acceleration;
+		Vector3 facingDir = agent->velocity;
+		TriQuaternionRotationArc( &agent->rotation, &zAxis, &facingDir );
 
 		agent->velocity = ClampLength( agent->velocity, m_maxVelocity );
 		agent->position = agent->position + agent->velocity * dt;
 		agent->acceleration = Vector3( 0, 0, 0 );
 		agent->target = Vector3( 0, 0, 0 );
 	}
+	m_tree->UpdateTree( dt );
 }
 
 void BehaviorGroup::UpdateVisibility( const TriFrustum & frustum, const Matrix & parentTransform )
@@ -529,6 +567,7 @@ void BehaviorGroup::GetDebugOptions( Tr2DebugRendererOptions& options )
 	options.insert( "Bounding Sphere" );
 	options.insert( "Locators" );
 	options.insert( "DebugBehaviors" );
+	options.insert( "BehaviorVisionRanges" );
 }
 
 float BehaviorGroup::GetBoundingSphereRadius()
@@ -539,17 +578,17 @@ float BehaviorGroup::GetBoundingSphereRadius()
 
 void BehaviorGroup::RenderDebugInfo( Tr2DebugRenderer& renderer, Matrix& parentWorldLocation )
 {
+	for ( auto group = m_behaviors.begin(); group != m_behaviors.end(); ++group )
+	{
+		( *group )->RenderDebugInfo( renderer, m_agents, parentWorldLocation );
+	}
+
 	if ( renderer.HasOption( this, "AgentsKDTree" ) )
 	{
-		for ( auto agent = m_agents.begin(); agent != m_agents.end(); ++agent )
-		{
-			renderer.DrawSphere( this, TranslationMatrix( agent->position ) * parentWorldLocation, m_scale.z * 5, 6, Tr2DebugRenderer::Wireframe, 0xff555555 );
-		}
-
-		if( m_tree != nullptr )
+		if ( m_tree != nullptr )
 		{
 			m_tree->RenderDebugInfo( renderer, 1000, parentWorldLocation );
-		} 
+		}
 		else
 		{
 			CreateAgentTree();
@@ -560,8 +599,16 @@ void BehaviorGroup::RenderDebugInfo( Tr2DebugRenderer& renderer, Matrix& parentW
 	{
 		for ( auto volume = m_volumes.begin(); volume != m_volumes.end(); ++volume )
 		{
-			(*volume)->RenderDebugInfo( renderer, parentWorldLocation );
+			( *volume )->RenderDebugInfo( renderer, parentWorldLocation );
 		}
+	}
+
+	if( m_TEMPDEBUGVECTORTOFINDCLOSEDRONES != Vector3(0,0,0)) // TODO remove, gona leave it here for a while to debug interaction with BHgroups
+	{
+		DroneAgent* p = m_tree->findClosestAgent( m_TEMPDEBUGVECTORTOFINDCLOSEDRONES );
+		if( p != nullptr )
+			renderer.DrawSphere( this, TranslationMatrix( ( p->position ) ) * parentWorldLocation,
+													72, 6, Tr2DebugRenderer::Wireframe, 0xffcc11ff );
 	}
 
 	if ( renderer.HasOption( this, "ExclusionVolumes" ) )
@@ -590,11 +637,6 @@ void BehaviorGroup::RenderDebugInfo( Tr2DebugRenderer& renderer, Matrix& parentW
 
 	if ( renderer.HasOption( this, "DebugBehaviors" ) )
 	{
-		for ( auto group = m_behaviors.begin(); group != m_behaviors.end(); ++group )
-		{
-			( *group )->RenderDebugInfo(renderer, m_agents, parentWorldLocation );
-		}
-
 		if( m_collectForces )
 		{
 			bool loopToggle = true;
@@ -603,7 +645,7 @@ void BehaviorGroup::RenderDebugInfo( Tr2DebugRenderer& renderer, Matrix& parentW
 			{
 				if(loopToggle)
 				{
-					point = ( *force );
+					point = ( *force ) + parentWorldLocation.GetTranslation();
 					loopToggle = false;
 				}
 				else

@@ -32,9 +32,9 @@ public:
 	virtual void InitializeScratch( const DroneAgent& drone, void* scratchMemory );
 
 	virtual std::vector<Vector3> CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-	                                               BehaviorGroup& group, EveChildBehaviorSystem& system );
+	                                               BehaviorGroup& group, EveChildBehaviorSystem& system, std::vector < std::vector<DroneAgent*>>& dronesInSearchRadius);
 	void RenderDebugInfo(Tr2DebugRenderer& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation);
-
+	float GetBehaviorSearchRadius();
 private:
 	float m_arrivedRadius;
 	float m_slowDownRadius;

@@ -28,7 +28,7 @@ void BackAndForth::InitializeScratch( const DroneAgent& drone, void* scratchMemo
 }
 
 std::vector<Vector3> BackAndForth::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-														BehaviorGroup& group, EveChildBehaviorSystem& system )
+														BehaviorGroup& group, EveChildBehaviorSystem& system, std::vector < std::vector<DroneAgent*>>& dronesInSearchRadius )
 {	
 	auto data = static_cast<BackAndForthData*>( scratchData );
 
@@ -129,6 +129,10 @@ const LocatorStructureList* BackAndForth::GetLocatorsForSet( const BlueSharedStr
 	return nullptr;
 }
 
+float BackAndForth::GetBehaviorSearchRadius()
+{
+	return -1;
+}
 
 void BackAndForth::AddLocatorSet()
 {

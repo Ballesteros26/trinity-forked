@@ -25,7 +25,7 @@ void Inertia::InitializeScratch( const DroneAgent& drone, void* scratchMemory )
 }
 
 std::vector<Vector3> Inertia::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-													BehaviorGroup& group, EveChildBehaviorSystem& system )
+													BehaviorGroup& group, EveChildBehaviorSystem& system, std::vector < std::vector<DroneAgent*>>& dronesInSearchRadius )
 {
 	auto data = static_cast<Vector3*>( scratchData );
 
@@ -67,6 +67,11 @@ std::vector<Vector3> Inertia::CalculateBehavior( std::vector<DroneAgent>& agents
 	}
 	std::vector<Vector3> noNeedToReturnForces;
 	return noNeedToReturnForces;
+}
+
+float Inertia::GetBehaviorSearchRadius()
+{
+	return -1;
 }
 
 void Inertia::RenderDebugInfo(Tr2DebugRenderer& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation)
