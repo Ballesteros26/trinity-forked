@@ -387,10 +387,10 @@ std::vector<std::vector<std::vector<DroneAgent*>>> KDdroneManagementTree::FindDr
 
 	std::vector< std::vector < std::vector <DroneAgent*>>> returnInfoBlock;
 
-	for ( int i = 0; i < BNbr; i++ )
+	for ( int j = 0; j < BNbr; j++ )
 	{
 		std::vector < std::vector <DroneAgent*>> perAgentData;
-		for ( int i = 0; i < agents.size(); i++ )
+		for ( unsigned int i = 0; i < agents.size(); i++ )
 		{
 			perAgentData.push_back( std::vector <DroneAgent*>() );
 		}
@@ -441,7 +441,7 @@ void KDdroneManagementTree::searchThroughTreeHelperFunction( std::vector<std::ve
 
 	if ( dist < range * range )
 	{
-		if ( activeRange > ( ranges.size() - 1 ) )
+		if ( activeRange > ( static_cast< int >( ranges.size() ) - 1 ) )
 		{
 			return;
 		}
