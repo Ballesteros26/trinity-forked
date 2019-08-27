@@ -18,11 +18,10 @@ public:
 	float GetBehaviorSearchRadius();
 
 private:
-	float m_freq;
+	float m_circleDistance;
+	float m_circleRadius;
 	float m_weightWander;	//priority of behavior
 
-	//debugging purposes
-	float rand1, rand2, rand3;
 };
 
 TYPEDEF_BLUECLASS( Wander );
