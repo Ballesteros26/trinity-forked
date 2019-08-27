@@ -91,6 +91,7 @@ private:
 	void AddAgentPrivate();
 	Vector3 RemoveAgentPrivate();
 
+	BlueSharedString m_behaviorGroupName; 	// name to identify group
 	int m_count; // Number of agents
 	Vector3 m_scale; // Size Multiplier for the agent mesh
 	Vector3 m_spriteScale; // Size Multiplier for the sprite mesh

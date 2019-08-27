@@ -11,6 +11,7 @@ const Be::ClassInfo* BehaviorGroup::ExposeToBlue()
 		MAP_INTERFACE( IInitialize )
 		MAP_INTERFACE( IListNotify )
 
+		MAP_ATTRIBUTE( "name", m_behaviorGroupName, "The name of this behavior group", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "display", m_display, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "count", m_count, "Number of ships", Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( "maxVelocity", m_maxVelocity, "", Be::READWRITE | Be::PERSIST )
