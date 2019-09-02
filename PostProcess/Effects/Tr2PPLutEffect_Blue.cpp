@@ -15,7 +15,7 @@ const Be::ClassInfo* Tr2PPLutEffect::ExposeToBlue()
 		MAP_INTERFACE( Tr2PPEffect )
 
 		MAP_ATTRIBUTE( "influence", m_influence, "The influence of the LUT", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
-		MAP_ATTRIBUTE( "path", m_path, "The path of the LUT", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
+		MAP_ATTRIBUTE( "path", m_path, "The path of the LUT\n:jessica-widget: texturepath", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 
 		EXPOSURE_CHAINTO( Tr2PPEffect )
 
