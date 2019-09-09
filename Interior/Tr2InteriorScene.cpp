@@ -894,11 +894,18 @@ void Tr2InteriorScene::RenderDebugInfo( Tr2RenderContext& renderContext )
 	Tr2Renderer::SetProjectionTransform(Tr2Renderer::GetProjectionTransform());
 	ON_BLOCK_EXIT([&] { Tr2Renderer::SetProjectionTransform(bkProjection); });
 
-	for (auto it = m_lights.begin(); it != m_lights.end(); ++it)
+	for( auto it = m_lights.begin(); it != m_lights.end(); ++it )
 	{
-		if (auto renderable = dynamic_cast<ITr2DebugRenderable*>(*it))
+		if( auto renderable = dynamic_cast<ITr2DebugRenderable*>( *it ) )
 		{
-			renderable->RenderDebugInfo(*m_debugRenderer);
+			renderable->RenderDebugInfo( *m_debugRenderer );
+		}
+	}
+	for( auto it = m_dynamics.begin(); it != m_dynamics.end(); ++it )
+	{
+		if( auto renderable = dynamic_cast<ITr2DebugRenderable*>( *it ) )
+		{
+			renderable->RenderDebugInfo( *m_debugRenderer );
 		}
 	}
 	renderContext.m_esm.ApplyStandardStates(Tr2EffectStateManager::RM_FULLSCREEN);

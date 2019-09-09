@@ -170,7 +170,7 @@ void Tr2IntSkinnedObject::RemoveFromApexScene( void )
 
 Tr2PerObjectData* Tr2IntSkinnedObject::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )
 {
-	if( m_visualModel )
+	if( m_visualModel && DoDisplay() )
 	{
 		return GetPerObjectDataGpuSkinning( accumulator, &m_lightSet, GetSkinningTransform() );
 	}
@@ -183,6 +183,10 @@ void Tr2IntSkinnedObject::GetBatches( ITriRenderBatchAccumulator* batches,
 								   TriBatchType batchType,
 								   const Tr2PerObjectData* perObjectData )
 {
+	if( !DoDisplay() )
+	{
+		return;
+	}
 	unsigned int depth = 0xFFFFFFFF;
 	if( batchType == TRIBATCHTYPE_TRANSPARENT )
 	{

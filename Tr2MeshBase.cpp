@@ -204,7 +204,7 @@ bool Tr2MeshBase::GetDynamicBoundingBox( const Matrix* boneTransforms, Vector3& 
 
 	BoundingBoxInitialize( min, max );
 
-	for( int i = 0; i < m_jointMappingAnimRig.size(); ++i )
+	for( size_t i = 0; i < m_jointMappingAnimRig.size(); ++i )
 	{
 		auto& joint = meshData->m_jointBindings[i];
 		const Matrix& m = boneTransforms[m_jointMappingAnimRig[i]];

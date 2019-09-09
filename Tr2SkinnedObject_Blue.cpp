@@ -50,42 +50,6 @@ const Be::ClassInfo* Tr2SkinnedObject::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "name", m_name, "Name of this object", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "display", m_display, "Whether or not to display the object", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "displayMarker", m_displayMarker, "Whether or not to display the object marker", Be::READWRITE )
-		MAP_ATTRIBUTE( "displayName", m_displayName, "If set, the name is displayed in the 3D view (debug feature)", Be::READWRITE )
-		MAP_PROPERTY(
-			"debugSkeletonTrailLength",
-			GetDebugSkeletonTrailLength,
-			SetDebugSkeletonTrailLength,
-			"Length of skeleton trail to capture. The skeleton trail can be rendered by"
-			"\nsetting 'debugRenderSkeletonTrail' to True."
-		)
-		MAP_PROPERTY(
-			"debugRenderSkeletonTrail",
-			GetDebugRenderSkeletonTrail,
-			SetDebugRenderSkeletonTrail,
-			"If set, and a debug renderer is set for Trinity, the full trail of skeletons is rendered."
-			"\nThis is useful for debugging frame delay issues with skinning."
-		)
-		MAP_ATTRIBUTE(
-			"debugRenderSkeletonTrailIx",
-			m_debugRenderSkeletonTrailIx,
-			"Adds the frame index to the rendering of skeleton trail (see debugRenderSkeletonTrail)."
-			"\nThis is useful for debugging frame delay issues with skinning.",
-			Be::READWRITE
-		)
-		MAP_ATTRIBUTE(
-			"debugRenderSkeletonJointIndices",
-			m_debugRenderSkeletonJointIndices,
-			"Renders skeleton joint indices",
-			Be::READWRITE
-		)
-		MAP_ATTRIBUTE(
-			"debugFreezeSkeletonTrail",
-			m_debugFreezeSkeletonTrail,
-			"If set, the skeleton trail is frozen."
-			"\nThis is useful for debugging frame delay issues with skinning.",
-			Be::READWRITE
-		)
 
 		MAP_ATTRIBUTE
 		(
@@ -125,13 +89,19 @@ const Be::ClassInfo* Tr2SkinnedObject::ExposeToBlue()
 		MAP_ATTRIBUTE( "mediumDetailModel",	m_lod.m_mediumDetailProxy,	"Proxy for a skinned model used for rendering in medium detail.",	Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "highDetailModel",	m_lod.m_highDetailProxy,	"Proxy for a skinned model used for rendering in high detail.",		Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 
-		MAP_ATTRIBUTE( 
-			"useExplicitBounds",	
-			m_useExplicitBounds,	
-			"Use explicitely specified bounding box or the one coming from visualModel.",		
-			Be::READWRITE | Be::PERSIST | Be::NOTIFY 
+		MAP_ATTRIBUTE(
+			"useDynamicBounds",
+			m_useDynamicBounds,
+			"Use bounds from animated bones rather than bouds of meshes in binding pose.",
+			Be::READWRITE
 		)
-		MAP_ATTRIBUTE( 
+		MAP_ATTRIBUTE(
+			"useExplicitBounds",
+			m_useExplicitBounds,
+			"Use explicitely specified bounding box or the one coming from visualModel.",
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY
+		)
+		MAP_ATTRIBUTE(
 			"explicitMinBounds",	
 			m_minBounds,	
 			"Explicitely set min bounds of an object in local space (only used when useExplicitBounds is True).",		

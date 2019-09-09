@@ -9,6 +9,7 @@
 #include "Tr2SkinnedObjectLOD.h"
 #include "Utilities/BoundingBox.h"
 #include "include/TriMatrix.h"
+#include "Tr2DebugRenderer.h"
 
 BLUE_DECLARE( Tr2SkinnedObject );
 BLUE_DECLARE( TriCurveSet );
@@ -26,7 +27,8 @@ class Tr2SkinnedObject:
     public ITr2SkinnedObject,
     public IWorldPosition,
 	public IListNotify,
-	public INotify
+	public INotify,
+	public ITr2DebugRenderable
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -46,7 +48,8 @@ public:
 	// Get the world transform to use for skinning, subject to frame delay to match up with cloth simulation
 	const Matrix& GetSkinningTransform() const;
 
-	void RenderDebugInfo( Tr2RenderContext& renderContext );
+	void GetDebugOptions( Tr2DebugRendererOptions& options ) override;
+	void RenderDebugInfo( Tr2DebugRenderer& renderer ) override;
 
 	void ResetAnimationBindings();
 
@@ -66,12 +69,6 @@ public:
 
 	unsigned int GetSkinningMatrixFrameDelay() const;
 	void SetSkinningMatrixFrameDelay(unsigned int val);
-
-	bool GetDebugRenderSkeletonTrail() const;
-	void SetDebugRenderSkeletonTrail( bool val );
-
-	unsigned int GetDebugSkeletonTrailLength() const;
-	void SetDebugSkeletonTrailLength(unsigned int val);
 
 	// lod
 	virtual void SetLOD( const TriFrustum* frustum );
@@ -140,8 +137,6 @@ protected:
 	// as a 4x4 matrix.
     PTriMatrix m_transform;
 
-	TriLineSetPtr m_lineSet;
-
 	Tr2SkinnedModelPtr m_visualModel;
 	unsigned	m_skeletonTag;
 
@@ -184,8 +179,6 @@ protected:
 	bool m_skinningMatrixQueueNeedsPriming;
 
 	bool m_display;
-	bool m_displayMarker;
-	bool m_displayName;
 
 	Vector3 m_lastTranslation;
 
@@ -194,15 +187,16 @@ protected:
 	float m_estimatedPixelDiameter;
 	// remember the time from the last Update call
 	Be::Time m_lastUpdateTime;
-	bool m_debugRenderSkeletonTrail;
-	bool m_debugRenderSkeletonTrailIx;
-	bool m_debugRenderSkeletonJointIndices;
-	bool m_debugFreezeSkeletonTrail;
-	unsigned int m_debugSkeletonTrailLength;
 
 	PTriCurveSetVector m_curveSets;
 
+	bool m_useDynamicBounds;
 	bool m_useExplicitBounds;
+	bool m_hasDynamicBounds;
+
+	Vector3 m_minDynamicBounds;
+	Vector3 m_maxDynamicBounds;
+
 	Vector3 m_minBounds;
 	Vector3 m_maxBounds;
 

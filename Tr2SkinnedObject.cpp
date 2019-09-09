@@ -23,29 +23,25 @@ Tr2SkinnedObject::Tr2SkinnedObject(IRoot* lockobj) :
 	m_accumulatedTransformsQueue( "Tr2SkinnedObject/m_accumulatedTransformQueue"),
 	m_skinningMatrixQueueNeedsPriming( true ),
 	m_display( true ),
-	m_displayMarker( false ),
-	m_displayName( false ),
 	m_animRigToRenderRigMapping( NULL ),
 	m_renderRigToAnimRigMapping( NULL ),
 	m_animationUpdater( (ITr2AnimationUpdater*)NULL ),
 	m_worldTransformUpdater( (ITr2WorldTransformUpdater*)NULL ),
 	m_renderRigBoneList( "Tr2SkinnedObject/m_renderRigBoneList" ),
 	m_numRenderRigBones( 0 ),
-	m_debugRenderSkeletonTrail( false ),
-	m_debugRenderSkeletonTrailIx( false ),
-	m_debugFreezeSkeletonTrail( false ),
-	m_debugSkeletonTrailLength( 0 ),
-	m_debugRenderSkeletonJointIndices( false ),
 	m_lastUpdateTime( 0 ),
 	m_lastTranslation( 0.0f, 0.0f, 0.0f ),
 	m_estimatedPixelDiameter( 0.0f ),
 	m_skeletonTag( 0 ),
+	m_useDynamicBounds( true ),
 	m_useExplicitBounds( false ),
+	m_hasDynamicBounds( false ),
 	m_minBounds( 0.0f, 0.0f, 0.0f ),
 	m_maxBounds( 0.0f, 0.0f, 0.0f ),
+	m_minDynamicBounds( 0, 0, 0 ),
+	m_maxDynamicBounds( 0, 0, 0 ),
 	m_updatePeriod( 0.0f )
 {
-	m_lineSet.CreateInstance();
 }
 
 Tr2SkinnedObject::~Tr2SkinnedObject()
@@ -67,8 +63,6 @@ void Tr2SkinnedObject::PrePhysicsUpdate( Be::Time time )
 	{
 		return;
 	}
-	
-	m_lineSet->Clear();
 
 	if( m_visualModel == NULL || m_visualModel->GetSkeleton() == NULL )
     {
@@ -133,6 +127,8 @@ void Tr2SkinnedObject::PostPhysicsUpdate( Be::Time time, Tr2ApexScene* apexScene
 void Tr2SkinnedObject::UpdateBones( Be::Time time, Tr2ApexScene* apexScene )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
+
+	m_hasDynamicBounds = false;
 
     if( m_visualModel == NULL || m_visualModel->GetSkeleton() == NULL )
     {
@@ -236,7 +232,7 @@ void Tr2SkinnedObject::UpdateBones( Be::Time time, Tr2ApexScene* apexScene )
 		}
 	}
 
-	if( !m_debugFreezeSkeletonTrail && skel != NULL )
+	if( skel != NULL )
 	{
 		CCP_STATS_ZONE( "UpdateBones_MatrixUpdate" );
 
@@ -260,6 +256,14 @@ void Tr2SkinnedObject::UpdateBones( Be::Time time, Tr2ApexScene* apexScene )
 				if( dest )
 				{
 					memcpy( dest, accumulatedTransforms, sizeof( Matrix ) * m_skinningMatrixCount );
+				}
+			}
+
+			if( accumulatedTransforms )
+			{
+				if( m_visualModel->GetDynamicBoundingBox( m_animationUpdater->GetAnimationTransforms(), m_minDynamicBounds, m_maxDynamicBounds ) )
+				{
+					m_hasDynamicBounds = true;
 				}
 			}
 		}
@@ -323,61 +327,6 @@ void Tr2SkinnedObject::UpdateBones( Be::Time time, Tr2ApexScene* apexScene )
 			}
 
 			m_skinningMatrixQueueNeedsPriming = false;
-		}
-	}
-
-	// Render debug info
-	extern ITr2DebugRendererPtr g_debugRenderer;
-	if( g_debugRenderer )
-	{
-		if( m_debugRenderSkeletonTrail && skel != NULL )
-		{
-			CCP_STATS_ZONE( "UpdateBones_DebugRender" );
-
-			unsigned int n = (unsigned int)m_accumulatedTransformsQueue.size();
-			for( unsigned int frameIx = 0; frameIx < n; ++frameIx )
-			{
-				unsigned int ix = (m_skinningMatrixQueueIndex + n - frameIx) % n;
-				const Matrix& worldTransform = m_worldTransformsQueue[ix];
-
-				for( unsigned int animRigIx = 0; animRigIx < m_skinningMatrixCount; ++animRigIx )
-				{
-					unsigned int renderRigIx = m_animRigToRenderRigMapping[animRigIx];
-					if( renderRigIx != -1 )
-					{
-						unsigned int renderParentIx = skel->m_joints[renderRigIx].m_parentJoint;
-						if( renderParentIx != -1 )
-						{
-							unsigned int parentIx = m_renderRigToAnimRigMapping[renderParentIx];
-							if( parentIx != -1 )
-							{
-								Matrix fromTransform = m_accumulatedTransformsQueue[ix][animRigIx];
-								Matrix toTransform = m_accumulatedTransformsQueue[ix][parentIx];
-								Vector3 from = fromTransform.GetTranslation();
-								Vector3 to = toTransform.GetTranslation();
-
-								XMMATRIX mat = GetTransform();
-								from = XMVector3TransformCoord(from, mat);
-								to = XMVector3TransformCoord(to, mat);
-
-								g_debugRenderer->DrawLine( from, to, 0xffff0000 );
-
-								if( m_debugRenderSkeletonJointIndices )
-								{
-									g_debugRenderer->Printf( from, 0xffffffff, "%d (%d)", animRigIx, renderRigIx );
-								}
-							}
-						}
-						else if( m_debugRenderSkeletonTrailIx )
-						{
-							Matrix transform = m_accumulatedTransformsQueue[ix][animRigIx] * worldTransform;
-							const Vector3& pos = transform.GetTranslation();
-
-							g_debugRenderer->Printf( pos, 0xffffffff, "%d", frameIx );
-						}
-					}
-				}
-			}
 		}
 	}
 }
@@ -530,48 +479,114 @@ void Tr2SkinnedObject::ResetAnimationBindings()
 	}
 }
 
-void Tr2SkinnedObject::RenderDebugInfo( Tr2RenderContext& renderContext )
+void Tr2SkinnedObject::GetDebugOptions( Tr2DebugRendererOptions& options )
+{
+	options.insert( "Names" );
+	options.insert( "Transforms" );
+	options.insert( "Bounds" );
+	if( m_visualModel && m_visualModel->GetSkeleton() )
+	{
+		options.insert( "Bones" );
+		options.insert( "Bones Names" );
+	}
+}
+
+void Tr2SkinnedObject::RenderDebugInfo( Tr2DebugRenderer& renderer )
 {
 	if( !DoDisplay() )
 	{
 		return;
 	}
 
-	const Vector3& position = GetPosition();
-
-	if( m_displayMarker && m_lineSet != NULL )
+	if( renderer.HasOption( GetRawRoot(), "Names" ) )
 	{
-		const uint32_t colorRed  ( 0xffff0000 );
-		const uint32_t colorGreen( 0xff00ff00 );
-		const uint32_t colorBlue ( 0xff0000ff );
-		const uint32_t colorWhite( 0xffffffff );
+		Vector3 pos = GetPosition();
+		Vector3 boxMin, boxMax;
+		if( GetLocalBoundingBox( boxMin, boxMax ) )
+		{
+			pos = Vector3( 0, boxMax.y, 0 );
+		}
+		renderer.DrawText( TRI_DBG_FONT_MEDIUM, TransformCoord( pos, GetTransform() ), 0xffff00ff, "%s", m_name.c_str() );
+	}
+	if( renderer.HasOption( GetRawRoot(), "Transforms" ) )
+	{
+		renderer.DrawAxis( this, m_transform, Tr2DebugRenderer::Lit );
+	}
+	if( renderer.HasOption( GetRawRoot(), "Bounds" ) )
+	{
+		Vector3 boxMin, boxMax;
+		if( GetLocalBoundingBox( boxMin, boxMax ) )
+		{
+			if( m_useExplicitBounds )
+			{
+				renderer.DrawBox( GetRawRoot(), m_transform, boxMin, boxMax, Tr2DebugRenderer::Wireframe, 0xffff8800 );
+			}
+			else
+			{
+				renderer.DrawBox( GetRawRoot(), m_transform, boxMin, boxMax, Tr2DebugRenderer::Wireframe, 0xffffff00 );
+			}
+		}
+	}
+	if( renderer.HasOption( GetRawRoot(), "Bones" ) && m_visualModel && m_visualModel->GetSkeleton() )
+	{
+		TriGeometryResSkeletonData* skel = m_visualModel->GetSkeleton();
+		unsigned int n = (unsigned int)m_accumulatedTransformsQueue.size();
+		for( unsigned int frameIx = 0; frameIx < n; ++frameIx )
+		{
+			unsigned int ix = ( m_skinningMatrixQueueIndex + n - frameIx ) % n;
+			const Matrix& worldTransform = m_worldTransformsQueue[ix];
 
-		m_lineSet->Add( position, colorRed  , position + Vector3( 1.0f, 0.0f, 0.0f ), colorRed   );
-		m_lineSet->Add( position, colorGreen, position + Vector3( 0.0f, 1.0f, 0.0f ), colorGreen );
-		m_lineSet->Add( position, colorBlue , position + Vector3( 0.0f, 0.0f, 1.0f ), colorBlue  );
+			for( unsigned int animRigIx = 0; animRigIx < m_skinningMatrixCount; ++animRigIx )
+			{
+				unsigned int renderRigIx = m_animRigToRenderRigMapping[animRigIx];
+				if( renderRigIx != -1 )
+				{
+					unsigned int renderParentIx = skel->m_joints[renderRigIx].m_parentJoint;
+					if( renderParentIx != -1 )
+					{
+						unsigned int parentIx = m_renderRigToAnimRigMapping[renderParentIx];
+						if( parentIx != -1 )
+						{
+							Matrix fromTransform = m_accumulatedTransformsQueue[ix][animRigIx];
+							Matrix toTransform = m_accumulatedTransformsQueue[ix][parentIx];
+							Vector3 from = fromTransform.GetTranslation();
+							Vector3 to = toTransform.GetTranslation();
 
-		Vector3 vDirectionPlus(0.5f,1.4f,0.0f);
-		Vector3 vDirectionNeg(-0.5f,1.4f,0.0f);
+							XMMATRIX mat = GetTransform();
+							from = XMVector3TransformCoord( from, mat );
+							to = XMVector3TransformCoord( to, mat );
 
-		Vector3 vPlus = TransformCoord( vDirectionPlus, m_transform );
-		Vector3 vNeg = TransformCoord( vDirectionNeg, m_transform );
+							renderer.DrawLine( GetRawRoot(), from, to, Tr2DebugColor( 0xffff0000, 0x44ff0000 ) );
+						}
+					}
+				}
+			}
+		}
+	}
+	if( renderer.HasOption( GetRawRoot(), "Bones Names" ) && m_visualModel && m_visualModel->GetSkeleton() )
+	{
+		TriGeometryResSkeletonData* skel = m_visualModel->GetSkeleton();
+		unsigned int n = (unsigned int)m_accumulatedTransformsQueue.size();
+		for( unsigned int frameIx = 0; frameIx < n; ++frameIx )
+		{
+			unsigned int ix = ( m_skinningMatrixQueueIndex + n - frameIx ) % n;
+			const Matrix& worldTransform = m_worldTransformsQueue[ix];
 
-		m_lineSet->Add( vNeg , colorWhite, vPlus, colorWhite );
-		m_lineSet->Add( position + Vector3(0.0f,1.0f,0.0f)  , colorWhite, position + Vector3(0.0f,1.8f,0.0f) , colorWhite );
-
-		Vector3 vTravel(0.0f,0.0f,-1.0f);
-		vTravel = TransformCoord( vTravel, m_transform );
-		m_lineSet->Add( position , colorWhite, vTravel, colorWhite );
+			for( unsigned int animRigIx = 0; animRigIx < m_skinningMatrixCount; ++animRigIx )
+			{
+				unsigned int renderRigIx = m_animRigToRenderRigMapping[animRigIx];
+				if( renderRigIx != -1 )
+				{
+					if( renderer.HasOption( GetRawRoot(), "Bones Names" ) )
+					{
+						Vector3 from = TransformCoord( m_accumulatedTransformsQueue[ix][animRigIx].GetTranslation(), GetTransform() );
+						renderer.DrawText( TRI_DBG_FONT_SMALL, from, 0x99ffffff, "%s", skel->m_joints[renderRigIx].m_name.c_str() );
+					}
+				}
+			}
+		}
 	}
 
-	if( m_displayName )
-	{
-		Vector3 pos = position;
-		pos.y += 1.6f;
-		Tr2Renderer::Printf( TRI_DBG_FONT_MEDIUM, pos, 0xffff00ff, m_name.c_str() );
-	}
-
-	m_lineSet->Render( renderContext );
 }
 
 void Tr2SkinnedObject::GetBatches( ITriRenderBatchAccumulator* batches,
@@ -603,6 +618,13 @@ bool Tr2SkinnedObject::GetLocalBoundingBox( Vector3& min, Vector3& max ) const
 	{
 		min = m_minBounds;
 		max = m_maxBounds;
+		return true;
+	}
+
+	if( m_useDynamicBounds && m_hasDynamicBounds )
+	{
+		min = m_minDynamicBounds;
+		max = m_maxDynamicBounds;
 		return true;
 	}
 
@@ -674,26 +696,15 @@ void Tr2SkinnedObject::AllocateSkinningMatrices( unsigned int numBones )
 
 	m_skinningMatrixCount = numBones;
 
-	unsigned int numToAllocate = m_debugSkeletonTrailLength;
-	if( numToAllocate < m_skinningMatrixFrameDelay + 1 )
-	{
-		numToAllocate = m_skinningMatrixFrameDelay + 1;
-	}
+	unsigned int numToAllocate = m_skinningMatrixFrameDelay + 1;
 
-	for( unsigned int i = 0; i < numToAllocate; ++i )
-	{
-		float* p = CCP_NEW( "Tr2SkinnedObject/m_skinningMatrices" ) float[numBones * 3*4];
-		m_skinningMatrixQueue.push_back( p );
-		m_worldTransformsQueue.push_back( IdentityMatrix() );
+	float* p = CCP_NEW( "Tr2SkinnedObject/m_skinningMatrices" ) float[numBones * 3*4];
+	m_skinningMatrixQueue.push_back( p );
+	m_worldTransformsQueue.push_back( IdentityMatrix() );
 
-		Matrix* m = CCP_NEW( "Tr2SkinnedObject/m_accumulatedTransformsQueue" ) Matrix[numBones];
-		m_accumulatedTransformsQueue.push_back( m );
-
-		if( m_debugRenderSkeletonTrail )
-		{
-			std::fill_n( m, m_skinningMatrixCount, IdentityMatrix() );
-		}
-	}
+	Matrix* m = CCP_NEW( "Tr2SkinnedObject/m_accumulatedTransformsQueue" ) Matrix[numBones];
+	m_accumulatedTransformsQueue.push_back( m );
+	std::fill_n( m, m_skinningMatrixCount, IdentityMatrix() );
 
 	m_skinningMatrixQueueNeedsPriming = true;
 }
@@ -743,20 +754,6 @@ const Matrix& Tr2SkinnedObject::GetSkinningTransform() const
 
 	unsigned int ix = (m_skinningMatrixQueueIndex - m_skinningMatrixFrameDelay + (unsigned int)m_worldTransformsQueue.size()) % m_worldTransformsQueue.size();
 	return m_worldTransformsQueue[ix];
-}
-
-unsigned int Tr2SkinnedObject::GetSkinningMatrixFrameDelay() const
-{
-	return m_skinningMatrixFrameDelay;
-}
-
-void Tr2SkinnedObject::SetSkinningMatrixFrameDelay( unsigned int val )
-{
-	if( val != m_skinningMatrixFrameDelay )
-	{
-		m_skinningMatrixFrameDelay = val;
-		ResetSkinningMatrices();
-	}
 }
 
 void Tr2SkinnedObject::OnListModified( long event, ssize_t key, ssize_t key2, IRoot* value, const IList* theList )
@@ -823,28 +820,6 @@ void Tr2SkinnedObject::SetLOD( const TriFrustum* frustum )
 		// restpose, by posing it right now.
 		UpdateBones( m_lastUpdateTime, NULL );
 	}
-}
-
-bool Tr2SkinnedObject::GetDebugRenderSkeletonTrail() const
-{
-	return m_debugRenderSkeletonTrail;
-}
-
-void Tr2SkinnedObject::SetDebugRenderSkeletonTrail( bool val )
-{
-	m_debugRenderSkeletonTrail = val;
-	ResetSkinningMatrices();
-}
-
-unsigned int Tr2SkinnedObject::GetDebugSkeletonTrailLength() const
-{
-	return m_debugSkeletonTrailLength;
-}
-
-void Tr2SkinnedObject::SetDebugSkeletonTrailLength( unsigned int val )
-{
-	m_debugSkeletonTrailLength = val;
-	ResetSkinningMatrices();
 }
 
 AxisAlignedBoundingBox Tr2SkinnedObject::GetBoundingBoxInLocalSpace() const
