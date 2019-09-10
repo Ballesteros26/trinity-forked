@@ -51,10 +51,7 @@ static Tr2VertexDefinition s_vertexDesc;
 static const int SPRITE_COUNT_MAX = 65535 / 4;
 
 static const char* EFFECT_UBERSHADER_RESPATH =        "res:/Graphics/Effect/UI/UberShader.fx";
-static const char* EFFECT_RENDER_BLUR_RESPATH =        "res:/Graphics/Effect/UI/Blur.fx";
-
 static const char* EFFECT_RENDER_UBERSHADER_RESPATH_3D =     "res:/Graphics/Effect/UI/UberShader3d.fx";
-static const char* EFFECT_RENDER_BLUR_RESPATH_3D =     "res:/Graphics/Effect/UI/Blur3d.fx";
 
 static const unsigned int VB_ALIGNMENT = 16;
 static const unsigned int IB_ALIGNMENT = 16;

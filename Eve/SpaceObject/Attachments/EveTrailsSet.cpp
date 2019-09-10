@@ -15,7 +15,6 @@ using namespace Tr2RenderContextEnum;
 // --------------------------------------------------------------------------------
 EveTrailsSet::EveTrailsSet( IRoot* lockobj ) :
 	m_display( true ),
-	m_geometryResPath( "res:/model/global/treeshapetess20.gr2" ),
 	m_trailVertexDeclElementCount( 0 ),
 	m_vertexDeclHandle( Tr2EffectStateManager::UNINITIALIZED_DECLARATION ),	
 	m_fadeSpeed( 1.f )
@@ -68,8 +67,11 @@ void EveTrailsSet::InitializeGeometryResource()
 	// old geometry resource is gone, do some cleanup
 	Cleanup();
 
-	// get new geometry resource
-	BeResMan->GetResource( m_geometryResPath, "", BlueInterfaceIID<TriGeometryRes>(), (void**)&m_geometryResource );
+	if( !m_geometryResPath.empty() )
+	{
+		// get new geometry resource
+		BeResMan->GetResource( m_geometryResPath, "", BlueInterfaceIID<TriGeometryRes>(), (void**)& m_geometryResource );
+	}
 
 	// attach callback, so ::RebuildCachedData() will be called when it finished loading
 	if( m_geometryResource )
