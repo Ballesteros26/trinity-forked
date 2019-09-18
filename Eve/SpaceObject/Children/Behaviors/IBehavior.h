@@ -15,9 +15,10 @@ public:
 	enum ProcessPriority
 	{
 		PROCESS_FIRST = 0,	// This should be the default and is for all behavior-decisions the 'ship's pilot' is making
-		PROCESS_NEXT = 1,	// Inertia and other effects that are affected by the first group
-		PROCESS_LATER = 2,	// This group is for behaviors that want to override the earlier categories and directly control movement (animations etc)
-		PROCESS_LAST = 3,	// things that should have more priority than direct control (ships pushing each other away, wind, or similar effects)
+		PROCESS_NEXT = 1,	// other effects that are affected by or effecting the first group
+		PROCESS_INERTIA = 2, // Inertia
+		PROCESS_LATER = 3,	// This group is for behaviors that want to override the earlier categories and directly control movement (animations etc)
+		PROCESS_LAST = 4,	// things that should have more priority than direct control (ships pushing each other away, wind, or similar effects)
 	};
 
 	virtual size_t GetScratchMemorySize() const // per-agent

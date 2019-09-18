@@ -15,7 +15,7 @@ Inertia::~Inertia()
 
 int Inertia::GetProcessPriority()
 {
-	return PROCESS_NEXT;
+	return PROCESS_INERTIA;
 }
 
 size_t Inertia::GetScratchMemorySize() const

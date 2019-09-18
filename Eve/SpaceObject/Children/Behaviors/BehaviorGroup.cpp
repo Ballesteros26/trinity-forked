@@ -145,7 +145,7 @@ void BehaviorGroup::SortBehaviorIndexes()
 {
 	m_sortedBehaviorIndexes.clear();
 
-	for ( int i = 0; i < 4; i++ )
+	for ( int i = 0; i < 5; i++ )
 	{
 		int p = 0;
 		for ( auto behavior = m_behaviors.begin(); behavior != m_behaviors.end(); ++behavior )
