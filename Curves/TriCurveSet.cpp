@@ -175,17 +175,23 @@ void TriCurveSet::Play()
 
 void TriCurveSet::PlayTimeRange( const char* name )
 {
+	bool rangeFound = false;
 	for( auto it = begin( m_ranges ); it != end( m_ranges ); ++it )
 	{
 		auto range = *it;
 		if( range->m_name == name )
 		{
+			rangeFound = true;
 			SetTimeRange( range->m_startTime, range->m_endTime, range->m_looped );
 			Play();
 			return;
 		}
 	}
-	Stop();
+	
+	if ( rangeFound )
+	{
+		Stop();
+	}
 }
 
 void TriCurveSet::PlayFrom( double time )
