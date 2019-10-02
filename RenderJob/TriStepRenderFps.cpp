@@ -3,6 +3,7 @@
 #include "TriStepRenderFps.h"
 #include "Tr2Renderer.h"
 #include "TriViewport.h"
+#include "blue/Include/Wine.h"
 
 TriStepRenderFps::TriStepRenderFps( IRoot* lockobj ) : 
 	m_averageFPS( 0 ),
@@ -104,7 +105,7 @@ TriStepResult TriStepRenderFps::Execute( Be::Time realTime, Be::Time simTime, Tr
 	auto toolset = GetPlatformToolset();
 	uint64_t counter = Tr2Renderer::GetCurrentFrameCounter();
 	int dpCount = m_dpCount ? int( m_dpCount->GetValue() ) : 0;
-	auto str = 
+	std::string str = 
 		"trinity: %10s\n"
 		"bitness: %10s\n"
 		"toolset: %10s\n"
@@ -113,10 +114,15 @@ TriStepResult TriStepRenderFps::Execute( Be::Time realTime, Be::Time simTime, Tr
 		"ms:      %10.2f\n"
 		"dp:      %10.0d";
 
+	if( Wine::IsWine() )
+	{
+		str += "\nwine:    %10s";
+	}
+
 	const int bufferSize = 256; // Make sure to increase this as necessary
 	char fpsBuffer[bufferSize];
 
-	sprintf_s( fpsBuffer, str, TRINITY_PLATFORM_NAME, bitcount, toolset, counter, m_averageFPS, m_averageMSPerFrame, dpCount );
+	sprintf_s( fpsBuffer, str.c_str(), TRINITY_PLATFORM_NAME, bitcount, toolset, counter, m_averageFPS, m_averageMSPerFrame, dpCount, Wine::GetWineVersion() );
 
 	uint32_t flags = 0;
 	if( m_alignRight )
