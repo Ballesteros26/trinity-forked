@@ -80,18 +80,18 @@ void Tr2ActionBindRTPC::Stop( Tr2Controller& controller )
 
 void Tr2ActionBindRTPC::Update( Be::Time realTime, Be::Time simTime )
 {
-	if ( m_emitter && IsExpressionValid() )
-	{
-		float value = std::get<1>( m_evaluator.Eval() );
-		m_emitter->SetRTPC( m_rtpcName.c_str(), value );
-	}
-
 	// Handle logic necessary in order to use simulated time in the expression.
 	m_lastSimTime = simTime;
 	s_stateTime = TimeAsFloat( simTime - m_startTime );
 	s_action = this;
+	auto value = m_evaluator.Eval();
 	s_stateTime = 0;
 	s_action = nullptr;
+
+	if ( value.first && m_emitter )
+	{
+		m_emitter->SetRTPC( m_rtpcName.c_str(), value.second );
+	}
 }
 
 bool Tr2ActionBindRTPC::OnModified( Be::Var* value )
