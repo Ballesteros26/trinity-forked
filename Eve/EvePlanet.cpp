@@ -228,13 +228,13 @@ void EvePlanet::GetRenderables( std::vector<ITr2Renderable*>& renderables)
 	}
 }
 
-void EvePlanet::UpdateLOD( TriFrustum frustum )
+void EvePlanet::UpdateLOD()
 {
-	// TODO: Fix m_estimatedPixelDiameter (it's misbehaving)
-	if ( m_lodLevel != TR2_LOD_HIGH )
+	if ( !m_display )
 	{
-		SetLod( TR2_LOD_HIGH );
+		return;
 	}
+
 	// visible at all?
 	if ( m_estimatedPixelDiameter > m_minScreenSize )
 	{
@@ -254,13 +254,11 @@ void EvePlanet::UpdateLOD( TriFrustum frustum )
 
 void EvePlanet::SetLod( Tr2Lod lod )
 {
-	//if ( m_lodLevel == lod )
-	//{
-	//	return;
-	//}
-	// TODO: Why is m_lodLevel randomly being set to LOW in here?
-	//m_lodLevel = lod;
-	m_lodLevel = TR2_LOD_HIGH; // TODO: this is a hotfix, forcing LOD to high to avoid rapid switching.
+	if ( m_lodLevel == lod )
+	{
+		return;
+	}
+	m_lodLevel = lod;
 
 	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
 	{

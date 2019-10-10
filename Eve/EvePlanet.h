@@ -35,7 +35,7 @@ public:
 	void GetRenderables( std::vector<ITr2Renderable*>& renderables);
 	void GetZOnlyRenderables( std::vector<ITr2Renderable*>& renderables );
 
-	void UpdateLOD( TriFrustum frustum );
+	void UpdateLOD();
 	void SetRenderScale( float value );
 	
 	static const float SCALE;

@@ -46,5 +46,10 @@ const Be::ClassInfo* EvePlanet::ExposeToBlue()
 			m_emissiveColor,
 			"Color of the secondary light source",
 			Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE(
+			"estimatedPixelDiameter",
+			m_estimatedPixelDiameter,
+			"Planet size in pixels as it appears from the camera perspective. ",
+			Be::READ | Be::PERSIST )
 	EXPOSURE_CHAINTO(EveEffectRoot2)
 }

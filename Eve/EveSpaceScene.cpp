@@ -1659,7 +1659,25 @@ void EveSpaceScene::RenderBackgroundPass( Tr2RenderContext& renderContext )
 
 	renderContext.AddGpuMarker( __FUNCTION__ );
 
-	
+	// Update planet LODs and render planets
+	TriFrustum frustum;
+	frustum.DeriveFrustum( &Tr2Renderer::GetViewTransform(), &Tr2Renderer::GetViewPosition(), &Tr2Renderer::GetProjectionTransform(), gTriDev->mViewport );
+
+	Matrix orgViewMatrix = SetupPlanetViewMatrix();
+
+	for ( auto it = m_planets.begin(); it != m_planets.end(); ++it )
+	{
+		EvePlanet* obj = *it;
+		obj->SetRenderScale( m_planetScale );
+		obj->UpdateLOD();
+	}
+
+	Tr2ParallelDo( m_planets.begin(), m_planets.end(), [&]( EvePlanet* obj )
+	{
+		obj->UpdatePlanetVisibility( frustum, m_planetScale );
+	} );
+
+	Tr2Renderer::SetViewTransform( orgViewMatrix );
 	
 	RenderBackgroundPassObjects( renderContext, BACKGROUND_RENDER_COLOR );
 
@@ -2776,26 +2794,6 @@ void EveSpaceScene::UpdatePlanets( EveUpdateContext& updateContext )
 
 void EveSpaceScene::RenderPlanets( Tr2RenderContext& renderContext )
 {
-	// Update planet LODs and render planets
-	TriFrustum frustum;
-	frustum.DeriveFrustum( &Tr2Renderer::GetViewTransform(), &Tr2Renderer::GetViewPosition(), &Tr2Renderer::GetProjectionTransform(), gTriDev->mViewport );
-
-	Matrix orgViewMatrix = SetupPlanetViewMatrix();
-
-	for ( auto it = m_planets.begin(); it != m_planets.end(); ++it )
-	{
-		EvePlanet* obj = *it;
-		obj->SetRenderScale( m_planetScale );
-		obj->UpdateLOD( frustum );
-	}
-
-	Tr2ParallelDo( m_planets.begin(), m_planets.end(), [&]( EvePlanet* obj )
-	{
-		obj->UpdatePlanetVisibility( frustum, m_planetScale );
-	} );
-
-	Tr2Renderer::SetViewTransform( orgViewMatrix );
-	
 	// Backup current state
 	Tr2Renderer::PushProjection();
 	ScopeGuard guardPopProjection = MakeGuard( Tr2Renderer::PopProjection );
