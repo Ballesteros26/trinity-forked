@@ -53,14 +53,6 @@ const Be::ClassInfo* App::ExposeToBlue()
 			"An event listener for handling when the client has been resized",
 			Be::READWRITE
 		)
-		
-		MAP_ATTRIBUTE
-		(
-			"tgToggleEventListener",
-			mTGToggleEventListener,
-			"An event listener for handling notifications of fullscreen toggling from the TransGaming api",
-			Be::READWRITE
-		)
 #endif
 		
 		MAP_ATTRIBUTE

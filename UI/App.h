@@ -102,9 +102,6 @@ public:
 	
 	bool IsHidden() const { return mIsHidden; }
 private:
-#ifdef _WIN32
-	friend void TGNotificationCallback( TG_NOTIFY_TYPE type, DWORD state, int data, void *context );
-#endif
 
 #if BLUE_WITH_PYTHON
 	// Python callable for handling Windows events
@@ -123,10 +120,6 @@ private:
 
 	long mMinimumWidth;
 	long mMinimumHeight;
-
-	bool mIsTransgaming;
-	IBlueEventListenerPtr mTGToggleEventListener;
-	bool mSendToggleEvent;
 
 	Point GetMinBounds();
 	Point GetMaxBounds();

@@ -42,61 +42,6 @@ public:
 
 static SetupActiveFrameTimeStats s_setupActiveFrameTimeStats;
 
-#ifdef _WIN32
-// --------------------------------------------------------------------------------
-// Description:
-//   A callback function that handles event notifications from TransGaming
-// Arguments:
-//   type - type of notification
-//   state - state describing what exactly happened
-//   data - additional data
-//   context - app defined context
-// --------------------------------------------------------------------------------
-static void TGNotificationCallback( TG_NOTIFY_TYPE type, DWORD state, int data, void *context )
-{
-	if( type != TGNOTIFY_ACTIVATION )
-	{
-		return;
-	}
-
-	switch( state )
-	{
-	case TGAS_MINIMIZE:
-		g_app->mIsHidden = TRUE;
-		if( gTriDev )
-		{
-			gTriDev->SetTickInterval( 10 );
-		}
-		break;
-	case TGAS_GAINFOCUS:
-		g_app->mIsHidden = FALSE;
-		if( gTriDev )
-		{
-			gTriDev->SetTickInterval( 0 );
-		}
-		break;
-	case TGAS_NONE:
-		break;
-	case TGAS_LOSEFOCUS:
-		break;
-	case TGAS_TOGGLE_WINDOWED:
-		if( g_app->mTGToggleEventListener )
-		{
-			g_app->mSendToggleEvent = true;
-		}
-		break;
-	case TGAS_TOGGLE_FULLSCREEN:
-		if( g_app->mTGToggleEventListener )
-		{
-			g_app->mSendToggleEvent = true;
-		}
-		break;
-	default:
-		break;
-	}
-}
-#endif
-
 App::App()
 	:mWindowTitle( L"CCP 3D Application" ),
 	mHwnd( 0 ),
@@ -114,13 +59,11 @@ App::App()
 	mIsResizing( false ),
 	mMinimumHeight( 100 ),
 	mMinimumWidth( 100 ),
-	mIsTransgaming( IsTransgaming() ),
     mFixedWindow( false ),
 	mIsMaximized( false ),
 	mIsHidden( false ),
 	mWindowStyle( 0xffffffff ),
-	mWindowClient(),
-	mSendToggleEvent( false )
+	mWindowClient()
 #if BLUE_WITH_PYTHON
 	, m_eventHandler( NULL ),
 	m_sessionChangeHandler( NULL )
@@ -185,14 +128,6 @@ bool App::Create()
 	}
 
 	CreateImpl();
-
-#ifdef _WIN32
-    // Register for event notifications from cider
-	if( mIsTransgaming )
-	{
-		TGRegisterForNotifications( (TGNotifyCallback_Func)TGNotificationCallback, (void*)this );
-	}
-#endif
     
 	return true;
 }
@@ -325,14 +260,6 @@ void App::OnTick(
 			mResizeEventListener->HandleEvent( NULL );
 		}
 		mSendResizeEvent = false;
-	}
-	if( mSendToggleEvent && !gTriDev->IsDeviceLost() )
-	{
-		if( mTGToggleEventListener )
-		{
-			mTGToggleEventListener->HandleEvent( NULL );
-		}
-		mSendToggleEvent = false;
 	}
 
 	CCP_STATS_DECLARED_ELSEWHERE( frameTime );
@@ -663,10 +590,6 @@ bool App::AdjustWindowForChange(bool windowed, bool fixedWindow)
         if (!mHideTitle)
         {
 			windowStyle = windowStyle | WS_CAPTION;
-            if( !mIsTransgaming )
-            {
-                windowStyle |= WS_THICKFRAME | WS_MAXIMIZEBOX;
-            }
         }
 	}
 

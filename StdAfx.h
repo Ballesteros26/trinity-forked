@@ -55,7 +55,6 @@ using std::max;
 #include "Blue/include/BlueAsyncRes.h"
 #include "blue/include/ICacheable.h"
 #include "blue/include/IBluePlacementObserver.h"
-#include <blue/include/TransGaming.h>
 #include <blue/include/IBlueEventListener.h>
 #include "blue/include/IBlueObjectProxy.h"
 #include "blue/include/BluePySwrap.h" //simple wrapping
