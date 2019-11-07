@@ -457,6 +457,6 @@ void Tr2ControllerExpression::GetExpressionTermInfo( std::vector<Tr2ExpressionTe
 	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "ServerSecond", "returns a second (0-60) for current server time" ) );
 	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "ServerTimePhase", "period", "returns seconds phase in a server time period of the given length" ) );
 	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "ServerTimeGreaterThan", "year", "month", "day", "hour","minute", "second","args are: ( yyyy, mm, dd, hh, mm, ss )  use '-1' to ignore specific args" ) );
-	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "ServerTimeLessThan", "year", "month", "day", "hour", "minute", "second", "args are: ( yyyy, mm, dd, hh, mm, ss )  use '-1' to ignore specific args" ) );
+	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "ServerTimeLessThanOrEqual", "year", "month", "day", "hour", "minute", "second", "args are: ( yyyy, mm, dd, hh, mm, ss )  use '-1' to ignore specific args" ) );
 }
 
