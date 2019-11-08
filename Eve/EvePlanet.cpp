@@ -360,3 +360,36 @@ bool EvePlanet::HasImpactConfigurationShield() const
 {
 	return false;
 }
+
+
+void EvePlanet::GetDebugOptions( Tr2DebugRendererOptions& options )
+{
+	for ( auto it = m_observers.begin(); it != m_observers.end(); ++it )
+	{
+		( *it )->GetDebugOptions( options );
+	}
+
+	for ( auto it = begin( m_effectChildren ); it != end( m_effectChildren ); ++it )
+	{
+		if ( auto renderable = dynamic_cast< ITr2DebugRenderable* >( *it ) )
+		{
+			renderable->GetDebugOptions( options );
+		}
+	}
+}
+
+void EvePlanet::RenderDebugInfo( ITr2DebugRenderer2& renderer )
+{
+	for ( auto it = m_observers.begin(); it != m_observers.end(); ++it )
+	{
+		( *it )->RenderDebugInfo( renderer, m_worldTransform );
+	}
+
+	for ( auto it = begin( m_effectChildren ); it != end( m_effectChildren ); ++it )
+	{
+		if ( auto renderable = dynamic_cast< ITr2DebugRenderable* >( *it ) )
+		{
+			renderable->RenderDebugInfo( renderer );
+		}
+	}
+}

@@ -7,6 +7,7 @@
 #include "Tr2ShLightingManager.h"
 #include "SpaceObject/Children/EveChildMesh.h"
 #include "EveEffectRoot2.h"
+#include "include/ITr2DebugRenderer2.h"
 
 BLUE_DECLARE( EvePlanet );
 BLUE_DECLARE( EveUpdateContext );
@@ -61,6 +62,10 @@ public:
 	bool UpdateImpact( Vector3& out, const Vector3& direction, int impactIndex );
 	bool GetImpactPosition( Vector3& out, int locator, const Vector3& posPrev, const Vector3& posNow, float epsilon );
 	bool HasImpactConfigurationShield() const;
+
+	// ITr2DebugRenderable
+	void GetDebugOptions( Tr2DebugRendererOptions& options );
+	void RenderDebugInfo( ITr2DebugRenderer2& renderer );
 
 private:
 	Matrix CalculatePlanetScaleTransform( const Matrix& worldTransform, float renderScale ) const;
