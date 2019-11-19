@@ -29,5 +29,7 @@ BLUE_INTERFACE( IEveSpaceObjectAttachment ): public IRoot
 
 	virtual void SetShaderOption( const BlueSharedString& name, const BlueSharedString& value ) {}
 
+	virtual void SetActivationStrength( float activationStrength ) {}
+	
 	virtual void GetLights( Tr2LightManager& lightManager, const Matrix& parentTransform ) const {}
 };
