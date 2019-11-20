@@ -292,7 +292,7 @@ void EveSpriteSet::GetDebugOptions( Tr2DebugRendererOptions& options )
 	options.insert( "Sprite Sets" );
 }
 
-void EveSpriteSet::RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount )
+void EveSpriteSet::RenderDebugInfo( ITr2DebugRenderer2& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount )
 {
 	if( renderer.HasOption( GetRawRoot(), "Sprite Sets" ) )
 	{

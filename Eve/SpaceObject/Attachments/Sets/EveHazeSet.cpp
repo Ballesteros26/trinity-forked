@@ -281,7 +281,7 @@ void EveHazeSet::GetDebugOptions( Tr2DebugRendererOptions& options )
 }
 
 // --------------------------------------------------------------------------------
-void EveHazeSet::RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& parentTransform, const granny_matrix_3x4*, size_t )
+void EveHazeSet::RenderDebugInfo( ITr2DebugRenderer2& renderer, const Matrix& parentTransform, const granny_matrix_3x4*, size_t )
 {
 	if( renderer.HasOption( GetRawRoot(), "Haze Sets" ) )
 	{

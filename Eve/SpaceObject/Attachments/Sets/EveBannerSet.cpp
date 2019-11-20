@@ -199,7 +199,7 @@ void EveBannerSet::GetDebugOptions( Tr2DebugRendererOptions& options )
 	options.insert( "Banner Bounds" );
 }
 
-void EveBannerSet::RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount )
+void EveBannerSet::RenderDebugInfo( ITr2DebugRenderer2& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount )
 {
 	if( renderer.HasOption( GetRawRoot(), "Banners" ) )
 	{

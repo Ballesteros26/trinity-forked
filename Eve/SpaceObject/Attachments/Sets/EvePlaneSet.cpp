@@ -336,7 +336,7 @@ void EvePlaneSet::GetDebugOptions( Tr2DebugRendererOptions& options )
 	options.insert( "Plane Sets" );
 }
 
-void EvePlaneSet::RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount )
+void EvePlaneSet::RenderDebugInfo( ITr2DebugRenderer2& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount )
 {
 	if( renderer.HasOption( GetRawRoot(), "Plane Sets" ) )
 	{

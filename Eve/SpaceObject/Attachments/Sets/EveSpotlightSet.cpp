@@ -395,7 +395,7 @@ void EveSpotlightSet::GetDebugOptions( Tr2DebugRendererOptions& options )
 	options.insert( "Spotlight Sets" );
 }
 
-void EveSpotlightSet::RenderDebugInfo( Tr2DebugRenderer& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount )
+void EveSpotlightSet::RenderDebugInfo( ITr2DebugRenderer2& renderer, const Matrix& parentTransform, const granny_matrix_3x4* bones, size_t boneCount )
 {
 	if( renderer.HasOption( GetRawRoot(), "Spotlight Sets" ) )
 	{
