@@ -257,7 +257,7 @@ void Tr2Controller::Callback( BlueSharedString callbackName )
 		auto pair = *callbackpair;
 		if( pair.first == callbackName )
 		{
-			pair.second.CallVoid();
+			pair.second.CallVoid().ReportException();
 		}
 	}
 }
