@@ -76,7 +76,6 @@ public:
 	EXPOSE_TO_BLUE();
 	EveSOFDataInstancedMesh( IRoot* lockobj = NULL );
 	~EveSOFDataInstancedMesh() {}
-	void SetInstances( PEveSofDataMeshInstanceStructureList instances );
 
 	// data
 	BlueSharedString m_name;
