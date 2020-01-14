@@ -69,7 +69,6 @@ private:
 	// For Audio
 	IRootPtr m_audioSpeedParameter;
 	INotifyPtr m_audioSpeedNotify;
-	float m_maxSpeed;
 
 	struct
 	{

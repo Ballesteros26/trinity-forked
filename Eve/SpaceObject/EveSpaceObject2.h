@@ -405,6 +405,8 @@ protected:
 	// Activation-Strength
 	float m_activationStrength;
 
+	float m_maxSpeed;
+
 	// LODing
 	void UnloadLodIfNeeded( Be::Time time );
 	void FreezeHighDetailMesh();

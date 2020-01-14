@@ -138,6 +138,11 @@ namespace
 			auto speed = ship->GetMaxSpeed();
 			return speed > 0 ? speed : 1;
 		}
+		else if( EveChildContainerPtr child = BlueCastPtr( s_owner ) )
+		{
+			auto speed = child->GetOwnerMaxSpeed();
+			return speed > 0 ? speed : 1;
+		}
 		return 1;
 	}
 

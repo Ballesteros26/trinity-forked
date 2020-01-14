@@ -151,6 +151,7 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	m_allowLodSelection( false ),
 	m_isPickable( true ),
 	m_activationStrength( 1.0f ),
+	m_maxSpeed( 0 ),
 	m_estimatedPixelDiameter( 0.f ),
 	m_estimatedPixelDiameterWithChildren( 0.f ),
 	m_boundingSphereCenter( 0.f, 0.f, 0.f ),
@@ -376,6 +377,7 @@ void EveSpaceObject2::UpdateSyncronous( EveUpdateContext& updateContext )
 		EveChildUpdateParams params;
 		params.spaceObjectParent = this;
 		params.childParent = nullptr;
+		params.ownerMaxSpeed = m_maxSpeed;
 		params.localToWorldTransform = worldTransform;
 
 		GetBoneList( params.bones, params.boneCount );
@@ -483,6 +485,7 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 		EveChildUpdateParams params;
 		params.spaceObjectParent = this;
 		params.childParent = nullptr;
+		params.ownerMaxSpeed = m_maxSpeed;
 		params.localToWorldTransform = worldTransform;
 
 		GetBoneList( params.bones, params.boneCount );

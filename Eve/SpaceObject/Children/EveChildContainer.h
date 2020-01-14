@@ -108,6 +108,8 @@ public:
 
 	ITr2SoundEmitter* FindSoundEmitter( const char* name ) override;
 
+	float GetOwnerMaxSpeed() const;
+
 	enum DisplayQualityModifier
 	{
 		SHADER_ALL = 5,
@@ -132,6 +134,7 @@ protected:
 	TrackableStdUnorderedMap<std::string, float> m_controllerVariables;
 	PIEveChildTransformModifierVector m_transformModifiers;
 	Vector3 m_worldVelocity;
+	float m_ownerMaxSpeed;
 	bool m_display;
 	DisplayQualityModifier m_displayFilter;
 	bool m_isAlwaysOn;

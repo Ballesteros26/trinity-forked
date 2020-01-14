@@ -18,7 +18,6 @@ CCP_STATS_DECLARE( eveShipsRendered, "Trinity/EveShip2/ShipsRendered", true, CST
 //   Initialize data members
 // --------------------------------------------------------------------------------
 EveShip2::EveShip2( IRoot* lockobj ) :
-	m_maxSpeed( 0.f ),
 	m_displayKillCounterValue( 0 ),
 	m_acceleration( 0.f, 0.f, 0.f )
 {

@@ -13,10 +13,22 @@ BLUE_DECLARE_INTERFACE( IEveSpaceObjectChild );
 
 struct EveChildUpdateParams
 {
+	EveChildUpdateParams()
+		:spaceObjectParent( nullptr ),
+		childParent( nullptr ),
+		boneCount( 0 ),
+		bones( nullptr ),
+		ownerMaxSpeed( 0 ),
+		isVisible( true ),
+		localToWorldTransform( IdentityMatrix() )
+	{
+	}
+
 	IEveSpaceObject2* spaceObjectParent;
 	IEveSpaceObjectChild* childParent;
 	size_t boneCount;
 	const granny_matrix_3x4* bones;
+	float ownerMaxSpeed;
 	bool isVisible;
 	Matrix localToWorldTransform;
 };

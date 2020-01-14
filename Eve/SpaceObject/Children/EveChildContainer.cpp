@@ -30,6 +30,7 @@ EveChildContainer::EveChildContainer( IRoot* lockobj ) :
 	m_worldVelocity( 0, 0, 0 ),
 	m_display( true ),
 	m_isAlwaysOn( false ),
+	m_ownerMaxSpeed( 0 ),
 	m_origin( SPACE )
 {
 	m_controllers.SetNotify( this );
@@ -222,6 +223,8 @@ void EveChildContainer::UpdateSyncronous( EveUpdateContext& updateContext, const
 	{
 		return;
 	}
+
+	m_ownerMaxSpeed = params.ownerMaxSpeed;
 
 	EveChildUpdateParams newParams = params;
 	newParams.isVisible &= m_display;
@@ -611,4 +614,9 @@ ITr2SoundEmitter* EveChildContainer::FindSoundEmitter( const char* name )
 		}
 	}
 	return nullptr;
+}
+
+float EveChildContainer::GetOwnerMaxSpeed() const
+{
+	return m_ownerMaxSpeed;
 }
