@@ -56,6 +56,12 @@ std::vector<Vector3> PlayFX::CalculateBehavior( std::vector<DroneAgent>& agents,
 		return m_todo;
 	}
 
+	// If the drone count is 0 the m_count is not updated so this is needed
+	if( m_firingEffects.size() == 0 )
+	{
+		m_count = 0;
+	}
+
 	size_t diff = m_count > agents.size() ? m_count - agents.size() : agents.size() - m_count;
 
 	if( diff > 0 )

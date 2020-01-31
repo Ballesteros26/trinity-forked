@@ -19,11 +19,6 @@ SeekTarget::~SeekTarget()
 {
 }
 
-int SeekTarget::GetProcessPriority()
-{
-	return PROCESS_FIRST;
-}
-
 size_t SeekTarget::GetScratchMemorySize() const
 {
 	return sizeof( LocatorData );
