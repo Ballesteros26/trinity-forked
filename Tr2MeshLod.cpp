@@ -68,7 +68,7 @@ void Tr2MeshLod::SetGeometryResource( Tr2LodResource* lodResource )
 bool Tr2MeshLod::GetBoundingBox( Vector3& min, Vector3& max ) const
 {
 	auto const geomRes = GetGeometryResource();
-	if( nullptr != geomRes )
+	if( geomRes && geomRes->IsGood() )
 	{
 		return geomRes->GetBoundingBox( m_meshIndex, min, max );
 	}
@@ -78,7 +78,7 @@ bool Tr2MeshLod::GetBoundingBox( Vector3& min, Vector3& max ) const
 bool Tr2MeshLod::GetBoundingSphere( Vector4& sphere )
 {
 	const auto geomRes = GetGeometryResource();
-	if (nullptr != geomRes )
+	if ( geomRes && geomRes->IsGood() )
 	{
 		return geomRes->GetBoundingSphere( m_meshIndex, sphere );
 	}
