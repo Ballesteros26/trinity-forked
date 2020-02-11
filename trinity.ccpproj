@@ -48,8 +48,8 @@ ResourceCompile:
 BaseConfigurations:
   Windows:
     Imports:
-    - ../../../../../../sdk/Granny/2.11.9.1/granny_2.11.9.1.yaml
-    - ../../../../../../sdk/Granny/2.11.9.1/gstate_2.11.9.1.yaml
+    - ../../../../../../sdk/Granny/2.12.0.5/granny_2.12.0.5.yaml
+    - ../../../../../../sdk/Granny/2.12.0.5/gstate_2.12.0.5.yaml
     - ../../../../../../sdk/zlib/1.2.11/zlib_1.2.11.yaml
     - ../../../../../../sdk/tbb/tbb2017_20160916oss/tbb.yaml
     - ../manifests/manifests.props
