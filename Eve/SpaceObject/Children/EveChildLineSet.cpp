@@ -133,6 +133,9 @@ bool EveChildLineSet::Initialize()
 			return true;
 		}
 	}
+
+	m_numSegments = int( m_exposedNumSegments + 0.5f );
+	m_curveSegments = int( m_exposedCurveSegments + 0.5f );
 	
 	GenerateManagedPoints();
 	InitializeLineSet();
@@ -421,6 +424,11 @@ void EveChildLineSet::UpdateBuffer( Tr2RenderContext& renderContext )
 	
 	uint8_t *data;
 	Matrix WT = EveChildTransform::m_worldTransform;
+	
+	Vector3 scale, translation;
+	Quaternion objRot, worldRot;
+	Decompose( scale, worldRot, translation, Inverse( WT ) );
+
 	CR_RETURN( m_vertexBuffer.MapForWriting( data, renderContext ) );
 	
 	for( int i = 0; i < int( m_managedPoints.size() ); i++ )
@@ -430,12 +438,9 @@ void EveChildLineSet::UpdateBuffer( Tr2RenderContext& renderContext )
 			Matrix m = TransformationMatrix( m_objectScale, m_rotation, m_managedPoints[i] ) * WT;
 
 			m = Billboard2D( m );
-			
-			Vector3 scale, translation;
-			Quaternion objRot, worldRot;
+		
 			Decompose( scale, objRot, translation, m );
-			Decompose( scale, worldRot, translation, Inverse( WT ) );
-			
+
 			m = TransformationMatrix( m_objectScale, objRot * worldRot, m_managedPoints[i] ) ;
 			m = Transpose( m );
 			
@@ -460,9 +465,8 @@ void EveChildLineSet::UpdateBuffer( Tr2RenderContext& renderContext )
 				dirToNextPoint = m_managedPoints[nextPoint] - m_managedPoints[i];
 			}
 			
-			Quaternion rotation;
-			TriQuaternionArcFromForward( &rotation, &dirToNextPoint );
-			Matrix matrix = TransformationMatrix( m_objectScale, rotation, m_managedPoints[i] );
+			TriQuaternionArcFromForward( &objRot, &dirToNextPoint );
+			Matrix matrix = TransformationMatrix( m_objectScale, objRot, m_managedPoints[i] );
 			Matrix m = Transpose( matrix );
 			memcpy( data, &m, m_stride );
 			data += m_stride;
