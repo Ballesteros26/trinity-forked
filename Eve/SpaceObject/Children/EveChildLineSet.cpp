@@ -575,6 +575,16 @@ void EveChildLineSet::CreateSpriteVertexDeclaration()
 	m_vertexDeclarationHandle = 0;
 }
 
+// for validation and objects interacting with the shader attributes
+std::vector<std::pair<int, int>> EveChildLineSet::GetVertexElementAddedThroughCode() const
+{
+	std::vector<std::pair<int, int>> out;
+	out.emplace_back(std::pair<int,int>(Tr2VertexDefinition::TEXCOORD, 8));
+	out.emplace_back(std::pair<int, int>( Tr2VertexDefinition::TEXCOORD, 9));
+	out.emplace_back(std::pair<int, int>( Tr2VertexDefinition::TEXCOORD, 10));
+	return out;
+}
+
 void EveChildLineSet::UpdateAsyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params )
 {
 	Matrix localToWorldTransform;

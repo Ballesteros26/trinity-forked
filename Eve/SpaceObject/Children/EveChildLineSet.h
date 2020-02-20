@@ -93,6 +93,7 @@ public:
 	float GetSortValue() { return 0.f; };
 	void UpdateBuffer( Tr2RenderContext& renderContext );
 	void Draw( ChildLineSetInstancingBatch* batch, Tr2RenderContext& renderContext );
+	std::vector<std::pair<int, int>> GetVertexElementAddedThroughCode() const;
 
 	enum lineSetType { OBJECT_RENDER, LINE_RENDER, BOTH };
 	enum lineSetObjType { CIRCLE, BEZIER_CURVE };

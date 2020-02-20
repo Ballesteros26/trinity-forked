@@ -71,6 +71,8 @@ const Be::ClassInfo* EveChildLineSet::ExposeToBlue()
 		MAP_ATTRIBUTE( "animSpeed", m_animSpeed, "how fast the circle rotates. ( 0.5 -> 1 segment per sec )\n:jessica-group: ObjectRenderer", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
 		MAP_ATTRIBUTE( "animValue", m_animValue, "is the circle complete or is it half a circle (0.5) etc [0-1]\n:jessica-group: ObjectRenderer", Be::READ )
 
+		MAP_METHOD_AND_WRAP("GetVertexElementAddedThroughCode", GetVertexElementAddedThroughCode, "for validation and objects requiring vertex elements added to the shader through code\n:jessica-hidden: True")
+
 		// leafs
 		MAP_ATTRIBUTE( "lineSet", m_lineSet, ":jessica-hidden: True", Be::READWRITE | Be::PERSIST );
 		MAP_ATTRIBUTE( "mesh", m_mesh, "the rendered mesh", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
