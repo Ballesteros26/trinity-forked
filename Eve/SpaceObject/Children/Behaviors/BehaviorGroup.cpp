@@ -106,11 +106,6 @@ void BehaviorGroup::InitializeGeometryResource()
 	const int t = m_count;
 	m_count = 0;
 	SetCount( t );
-
-	for( auto it = begin( m_behaviors ); it != end( m_behaviors ); ++it )
-	{
-		( *it )->Reset();
-	}
 }
 
 void BehaviorGroup::SetVertexFunctionReferance( const std::function<void( void )> &F )
@@ -224,18 +219,13 @@ void BehaviorGroup::AddAgent()
 	{
 		(m_changeBufferVertexCount)();
 	}
+	m_count++;
 	CreateAgentTree();
 }
 
-
 void BehaviorGroup::AddAgentPrivate()
 {
-
-	//This function should change to resize the m_agents once and the buffer once, because if we setCount(1000) this is gonna be really slow
-	//Now we are adding an agent, repositioning it and repositioning the buffer as well. 
  	DroneAgent agent;
-	agent.position = Vector3( 0, 0, 0 ); // TODO: We might want to find a 'smart' spawn location, world position?
-	agent.id = TriRandInt( 500 ); //TODO: look better into parameter, could the same ID be generate more than once?
 	m_agents.push_back( agent );
 
 	while( m_scratchData.size() < m_behaviors.size() )
@@ -246,14 +236,12 @@ void BehaviorGroup::AddAgentPrivate()
 	for( size_t i = 0; i < m_behaviors.size(); ++i )
 	{
 		auto size = m_behaviors[ m_sortedBehaviorIndexes[i] ]->GetScratchMemorySize();
-		if( size > 0)
+		if( size > 0 )
 		{
 			m_scratchData[ m_sortedBehaviorIndexes[i] ].resize( "BehaviorGroup::m_scratchData", m_agents.size() * size );
 			m_behaviors[ m_sortedBehaviorIndexes[i] ]->InitializeScratch( agent, m_scratchData[ m_sortedBehaviorIndexes[i] ].get() + size * ( m_agents.size() - 1 ) );
 		}
 	}
-
-	m_count++;
 }
 
 void BehaviorGroup::SetCount( int count )
@@ -265,29 +253,21 @@ void BehaviorGroup::SetCount( int count )
 
 	if ( m_count < count )
 	{
-		int difference = count - m_count;
-		for ( int i = 0; i < difference; i++ )
-		{
-			AddAgentPrivate();
-		}
+		AddAgentsByCount( count );
 	}
 	else
 	{
-		int difference = m_count - count;
-		for ( int i = 0; i < difference; i++ )
-		{
-			RemoveSpecificAgent( m_count - 1 );
-		}
+		RemoveAgentsByCount( count );
 	}
-
+		
 	CreateAgentTree();
+	m_count = count;
 
 	if ( m_changeBufferVertexCount == nullptr )
 	{
 		return;
 	}
 	(m_changeBufferVertexCount)();
-	CreateAgentTree();
 }
 
 float BehaviorGroup::AllTheSame()
@@ -316,36 +296,69 @@ void BehaviorGroup::RemoveAgent()
 		(m_changeBufferVertexCount)();
 	}
 
+	m_count--;
 	CreateAgentTree();
 }
 
-// returns a vector so we can do something with the location. explosion etc
-Vector3 BehaviorGroup::RemoveSpecificAgent( int index )
+void BehaviorGroup::RemoveSpecificAgent( int index )
 {
-	if ( m_agents.empty() )
-	{
-		return Vector3( 0, 0, 0 );
-	}
-
-	Vector3 pos = m_agents[ index ].position;
-	m_agents[ index ] = m_agents.back();
+	m_agents[index] = m_agents.back();
 	m_agents.pop_back();
 
 	for( size_t i = 0; i < m_behaviors.size(); ++i )
 	{
-		auto size = m_behaviors[ m_sortedBehaviorIndexes[ i ] ]->GetScratchMemorySize();
+		auto size = m_behaviors[m_sortedBehaviorIndexes[i]]->GetScratchMemorySize();
 		if( size == 0 )
 		{
 			continue;
 		}
 
-		memcpy( m_scratchData[ m_sortedBehaviorIndexes[ i ] ].get() + size * index, m_scratchData[ m_sortedBehaviorIndexes[ i ] ].get() + size * m_agents.size(), size );
-		m_scratchData[ m_sortedBehaviorIndexes[ i ] ].resize( "BehaviorGroup::m_scratchData", m_agents.size() * size );
+		memcpy( m_scratchData[m_sortedBehaviorIndexes[i]].get() + size * index, m_scratchData[m_sortedBehaviorIndexes[i]].get() + size * m_agents.size(), size );
+		m_scratchData[m_sortedBehaviorIndexes[i]].resize( "BehaviorGroup::m_scratchData", m_agents.size() * size );
+	}
+}
+
+void BehaviorGroup::AddAgentsByCount( int size )
+{
+	size_t sizeBeforeResize = m_agents.size();
+	m_agents.resize( size );
+
+	while( m_scratchData.size() < m_behaviors.size() )
+	{
+		m_scratchData.push_back( CcpMallocBuffer() );
 	}
 
-	m_count--;
+	for( size_t i = 0; i < m_behaviors.size(); ++i )
+	{
+		// When BehaviorGroup will be cleaned up this will be removed (another changelist)
+		DroneAgent agent;
+ 		auto size = m_behaviors[m_sortedBehaviorIndexes[i]]->GetScratchMemorySize();
+		if( size > 0 )
+		{
+			m_scratchData[m_sortedBehaviorIndexes[i]].resize( "BehaviorGroup::m_scratchData", m_agents.size() * size );
+			for( size_t j = sizeBeforeResize; j < m_agents.size(); j++ )
+			{
+				// TODO: Remove agent parameter
+				m_behaviors[m_sortedBehaviorIndexes[i]]->InitializeScratch( agent, m_scratchData[m_sortedBehaviorIndexes[i]].get() + size * ( j ) );
+			}
+		}
+	}
+}
 
-	return pos;
+void BehaviorGroup::RemoveAgentsByCount( int size )
+{
+	m_agents.resize( size );
+
+	for( size_t i = 0; i < m_behaviors.size(); ++i )
+	{
+		auto size = m_behaviors[m_sortedBehaviorIndexes[i]]->GetScratchMemorySize();
+		if( size == 0 )
+		{
+			continue;
+		}
+
+		m_scratchData[m_sortedBehaviorIndexes[i]].resize( "BehaviorGroup::m_scratchData", m_agents.size() * size );
+	}
 }
 
 void BehaviorGroup::UpdateAgents(const float dt, EveChildBehaviorSystem& system )

@@ -2,6 +2,8 @@
 #ifndef DroneAgent_h
 #define DroneAgent_h
 
+#include "include/TriMath.h"
+
 struct DroneAgent
 {	
 	DroneAgent() :					
@@ -12,7 +14,7 @@ struct DroneAgent
 		target( 0, 0, 0 ),
 		targetDirection( 0, 0, 0 ),
 		lifetime( 0.f ),
-		id( 0 ),
+		id( TriRandInt( 500 ) ),
 		playFX( false ),
 		fxStartTime( -1 ),
 		// LOD

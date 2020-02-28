@@ -60,10 +60,11 @@ public:
 	size_t GetSize();
 	unsigned int GetCount();
 	void CreateAgentTree();
-	IBehavior* GetBehaviorByName(std::string name);
+	IBehavior* GetBehaviorByName( std::string name );
 	void SetMeshToggle( bool toggle );
 	void RemoveAgent();
-	Vector3 RemoveSpecificAgent(int index);
+	void RemoveSpecificAgent( int index );
+	void RemoveAgentsByCount( int count );
 	void SetCount( int count );
 	float AllTheSame();
 	int GetGroupIndexIndicator() const;
@@ -91,6 +92,7 @@ public:
 private:
 	void ToggleMesh();
 	void AddAgentPrivate();
+	void AddAgentsByCount( int count );
 	void UpdateCurrentScreenSize();
 	void SortBehaviorIndexes();
 
