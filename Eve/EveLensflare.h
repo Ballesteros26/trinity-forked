@@ -9,6 +9,8 @@
 
 #include "ITr2Renderable.h"
 #include "Tr2Variable.h"
+#include "Controllers/ITr2ControllerOwner.h"
+#include "ITr2CurveSetOwner.h"
 
 // forwards
 class TriFrustum;
@@ -24,6 +26,8 @@ BLUE_DECLARE_INTERFACE( ITriFunction );
 BLUE_DECLARE_IVECTOR( ITriFunction );
 BLUE_DECLARE_INTERFACE( ITr2ValueBinding );
 BLUE_DECLARE_IVECTOR( ITr2ValueBinding );
+BLUE_DECLARE_INTERFACE( ITr2Controller );
+BLUE_DECLARE_IVECTOR( ITr2Controller );
 BLUE_DECLARE( Tr2Mesh );
 
 // --------------------------------------------------------------------------------
@@ -37,13 +41,14 @@ BLUE_DECLARE( Tr2Mesh );
 //   EveSpaceScene, EveOccluder, Tr2TransformModifier
 // --------------------------------------------------------------------------------
 class EveLensflare :
-	public ITr2Renderable
+	public ITr2Renderable,
+	public ITr2CurveSetOwner,
+	public ITr2ControllerOwner,
+	public IInitialize,
+	public IListNotify
 {
 public:
 	EXPOSE_TO_BLUE();
-
-	using IRoot::Lock;
-	using IRoot::Unlock;
 
 	EveLensflare(IRoot* lockobj = NULL);
 	~EveLensflare();
@@ -62,11 +67,28 @@ public:
 	// do the background occlusion rendering/querying
 	void RunBackgroundOcclusionQueries( Tr2RenderContext& renderContext, const TriFrustum& frustum );
 
-
+	bool Initialize();
+	void OnListModified( long event, ssize_t key, ssize_t key2, IRoot* value, const IList* list );
+	
 	virtual void GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData );
     virtual bool HasTransparentBatches();
     virtual float GetSortValue(); 
 	virtual Tr2PerObjectData* GetPerObjectData( ITriRenderBatchAccumulator* accumulator );
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2CurveSetOwner
+	virtual void PlayCurveSet( const std::string& name, const std::string& rangeName );
+	virtual void StopCurveSet( const std::string& name );
+	virtual void UpdateCurveSet( const std::string& name, Be::Time time );
+	virtual float GetCurveSetDuration( const std::string& name ) const;
+	virtual float GetRangeDuration( const std::string& name, const std::string& rangeName ) const;
+	
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2ControllerOwner
+	void SetControllerVariable( const char* name, float value );
+	void HandleControllerEvent( const char* name ) override;
+	void StartControllers();
+	
 
 private:
 	// name
@@ -118,8 +140,11 @@ private:
 	float m_backgroundOcclusionIntensity;
 
 	PTriCurveSetVector m_curveSets;
-
 	Tr2MeshPtr m_mesh;
+
+	// ITr2ControllerOwner
+	PITr2ControllerVector m_controllers;
+	TrackableStdUnorderedMap<std::string, float> m_controllerVariables;
 };
 
 TYPEDEF_BLUECLASS( EveLensflare );

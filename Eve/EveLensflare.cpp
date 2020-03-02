@@ -15,6 +15,7 @@
 #include "EveTransform.h"
 #include "Curves/TriCurveSet.h"
 #include "Tr2Mesh.h"
+#include "Controllers/ITr2Controller.h"
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -31,6 +32,7 @@ EveLensflare::EveLensflare( IRoot* lockobj ) :
 	PARENTLOCK( m_yDistanceToCenter ),
 	PARENTLOCK( m_bindings ),
 	PARENTLOCK( m_curveSets ),
+	PARENTLOCK( m_controllers ),
 	m_display( true ),
 	m_update( true ),
 	m_position( 0.0f, 0.0f, 0.0f ),
@@ -41,8 +43,47 @@ EveLensflare::EveLensflare( IRoot* lockobj ) :
 	m_sunSize( 0.f ),
 	m_directionVar( "LensflareFxDirectionScale", Vector4( 0.f, 0.f, 0.f, 1.f ) ),
 	m_occScaleVar( "LensflareFxOccScale", Vector4( 1.f, 0.f, 0.f, 0.f ) ),
-	m_transform( IdentityMatrix() )
+	m_transform( IdentityMatrix() ),
+	m_controllerVariables( "EveLensflare::m_controllerVariables" )
 {
+	m_controllers.SetNotify( this );
+}
+
+bool EveLensflare::Initialize()
+{
+	for( auto it = m_controllers.begin(); it !=  m_controllers.end(); ++it )
+	{
+		( *it )->Link( *GetRawRoot() );
+	}
+	return true;
+}
+
+void EveLensflare::OnListModified( long event, ssize_t key, ssize_t key2, IRoot* value, const IList* list )
+{
+	if( list == &m_controllers && ( event & BELIST_LOADING ) == 0 )
+	{
+		switch( event & BELIST_EVENTMASK )
+		{
+		case BELIST_INSERTED:
+			if( ITr2ControllerPtr controller = BlueCastPtr( value ) )
+			{
+				controller->Link( *GetRawRoot() );
+				for( auto it = begin( m_controllerVariables ); it != end( m_controllerVariables ); ++it )
+				{
+					controller->SetVariable( it->first.c_str(), it->second );
+				}
+			}
+			break;
+		case BELIST_REMOVED:
+			if( ITr2ControllerPtr controller = BlueCastPtr( value ) )
+			{
+				controller->Unlink();
+			}
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 // --------------------------------------------------------------------------------
@@ -90,6 +131,11 @@ void EveLensflare::Update( Be::Time realTime, Be::Time simTime )
 	for( auto it = m_curveSets.begin(); it != m_curveSets.end(); ++it )
 	{
 		( *it )->Update( realTime, simTime );
+	}
+
+	for( auto it = m_controllers.begin(); it != m_controllers.end(); ++it )
+	{
+		( *it )->Update();
 	}
 }
 
@@ -310,4 +356,98 @@ float EveLensflare::GetSortValue()
 Tr2PerObjectData* EveLensflare::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )
 {
 	return nullptr;
+}
+
+// -------------------------------CurveSets----------------------------------------------
+void EveLensflare::PlayCurveSet( const std::string& name, const std::string& rangeName )
+{
+	for( auto it = m_curveSets.begin(); it != m_curveSets.end(); it++ )
+	{
+		if( ( *it )->GetName() == name )
+		{
+			if( rangeName.empty() )
+			{
+				( *it )->ResetTimeRange();
+				( *it )->Play();
+			}
+			else
+			{
+				( *it )->PlayTimeRange( rangeName.c_str() );
+			}
+		}
+	}
+}
+
+void EveLensflare::StopCurveSet( const std::string& name )
+{
+	for( auto it = m_curveSets.begin(); it != m_curveSets.end(); it++ )
+	{
+		if( ( *it )->GetName() == name )
+		{
+			( *it )->Stop();
+		}
+	}
+}
+
+void EveLensflare::UpdateCurveSet( const std::string& name, Be::Time time )
+{
+	for( auto it = m_curveSets.begin(); it != m_curveSets.end(); it++ )
+	{
+		if( ( *it )->GetName() == name )
+		{
+			( *it )->Update( time, time );
+		}
+	}
+}
+
+float EveLensflare::GetCurveSetDuration( const std::string& name ) const
+{
+	float maxDuration = 0.f;
+	for( auto it = m_curveSets.begin(); it != m_curveSets.end(); it++ )
+	{
+		if( ( *it )->GetName() == name )
+		{
+			maxDuration = max( maxDuration, ( *it )->GetMaxCurveDuration() );
+		}
+	}
+	return maxDuration;
+}
+
+float EveLensflare::GetRangeDuration( const std::string& name, const std::string& rangeName ) const
+{
+	float maxDuration = 0.f;
+	for( auto it = m_curveSets.begin(); it != m_curveSets.end(); it++ )
+	{
+		if( ( *it )->GetName() == name )
+		{
+			maxDuration = max( maxDuration, ( *it )->GetRangeDuration( rangeName.c_str() ) );
+		}
+	}
+	return maxDuration;
+}
+
+// --------------------------Controllers-----------------------------------------
+void EveLensflare::SetControllerVariable( const char* name, float value )
+{
+	m_controllerVariables[name] = value;
+	for( auto it = m_controllers.begin(); it != m_controllers.end(); ++it )
+	{
+		( *it )->SetVariable( name, value );
+	}
+}
+
+void EveLensflare::HandleControllerEvent( const char* name )
+{
+	for( auto it = m_controllers.begin(); it !=  m_controllers.end(); ++it )
+	{
+		( *it )->HandleEvent( name );
+	}
+}
+
+void EveLensflare::StartControllers()
+{
+	for( auto it = m_controllers.begin(); it != m_controllers.end(); ++it )
+	{
+		( *it )->Start();
+	}
 }

@@ -12,6 +12,9 @@ const Be::ClassInfo* EveLensflare::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( EveLensflare, "" )
         MAP_INTERFACE( EveLensflare )
+		MAP_INTERFACE( ITr2ControllerOwner )
+		MAP_INTERFACE( ITr2CurveSetOwner )
+		MAP_INTERFACE( IInitialize )
 
 		MAP_ATTRIBUTE( "name", m_name, "A name for this decal", Be::READWRITE | Be::PERSIST )
 
@@ -63,6 +66,8 @@ const Be::ClassInfo* EveLensflare::ExposeToBlue()
 			m_curveSets, 
 			"List of curve sets", 
 			Be::READ | Be::PERSIST )
+		MAP_ATTRIBUTE( "controllers", m_controllers, "List of object controllers", Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( "mesh", m_mesh, "A mesh that is rendered as a flare", Be::READWRITE | Be::PERSIST )
+
 	EXPOSURE_END()
 }
