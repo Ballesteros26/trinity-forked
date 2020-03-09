@@ -2854,9 +2854,6 @@
     <ClInclude Include="autoversion.h" />
     <ClInclude Include="EveSprite2dBracket.h" />
     <ClInclude Include="EveSprite2dBracketRenderer.h" />
-    <ClInclude Include="Eve\SpaceObject\Children\EveChildInstanceContainer.h" />
-    <ClInclude Include="Eve\SpaceObject\Children\EveChildLineSet.h" />
-    <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierStretch.h" />
     <ClInclude Include="GrannyBoneOffset.h" />
     <ClInclude Include="IRenderCallback.h" />
     <ClInclude Include="ITr2AttributeGenerator.h" />
@@ -3107,6 +3104,8 @@
     <ClInclude Include="Eve\SpaceObject\Children\EveChildEnvironment.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveChildExplosion.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveChildInheritProperties.h" />
+    <ClInclude Include="Eve\SpaceObject\Children\EveChildInstanceContainer.h" />
+    <ClInclude Include="Eve\SpaceObject\Children\EveChildLineSet.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveChildLink.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveChildMesh.h" />
     <ClInclude Include="Eve\SpaceObject\Children\EveChildParticleSphere.h" />
@@ -3148,6 +3147,7 @@
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierHalo.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierHaloInverted.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierSRT.h" />
+    <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierStretch.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierTransformCommon.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierTranslateWithCamera.h" />
     <ClInclude Include="Eve\SpaceObject\Children\TransformModifiers\IEveChildTransformModifier.h" />
@@ -3412,12 +3412,6 @@
     <ClCompile Include="EveSprite2dBracketRenderer.cpp" />
     <ClCompile Include="EveSprite2dBracketRenderer_Blue.cpp" />
     <ClCompile Include="EveSprite2dBracket_Blue.cpp" />
-    <ClCompile Include="Eve\SpaceObject\Children\EveChildInstanceContainer.cpp" />
-    <ClCompile Include="Eve\SpaceObject\Children\EveChildInstanceContainer_Blue.cpp" />
-    <ClCompile Include="Eve\SpaceObject\Children\EveChildLineSet.cpp" />
-    <ClCompile Include="Eve\SpaceObject\Children\EveChildLineSet_Blue.cpp" />
-    <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierStretch.cpp" />
-    <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierStretch_Blue.cpp" />
     <ClCompile Include="GrannyBoneOffset.cpp" />
     <ClCompile Include="GrannyBoneOffset_Blue.cpp" />
     <ClCompile Include="ITr2PickableScene.cpp" />
@@ -3823,6 +3817,10 @@
     <ClCompile Include="Eve\SpaceObject\Children\EveChildExplosion_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildInheritProperties.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildInheritProperties_Blue.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildInstanceContainer.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildInstanceContainer_Blue.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildLineSet.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildLineSet_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildLink.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildLink_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\EveChildMesh.cpp" />
@@ -3894,6 +3892,8 @@
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierHalo_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierSRT.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierSRT_Blue.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierStretch.cpp" />
+    <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierStretch_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierTranslateWithCamera.cpp" />
     <ClCompile Include="Eve\SpaceObject\Children\TransformModifiers\EveChildModifierTranslateWithCamera_Blue.cpp" />
     <ClCompile Include="Eve\SpaceObject\Utils\EveCustomMask.cpp" />
