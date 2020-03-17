@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2020
+//    Copyright: CCP 2020
+//
+
 #include "StdAfx.h"
 #include "EveBoxVolume.h"
 #include "ITr2Renderable.h"

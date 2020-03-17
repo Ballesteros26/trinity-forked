@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2020
+//    Copyright: CCP 2020
+//
+
 #pragma once
 #include "Eve/IEveFiringEffectElement.h"
 #include "Eve/IEveSpaceObject2.h"

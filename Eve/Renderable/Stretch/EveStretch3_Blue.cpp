@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2020
+//    Copyright: CCP 2020
+//
+
 #include "StdAfx.h"
 #include "EveStretch3.h"
 #include "TriFloat.h"
@@ -100,14 +106,6 @@ const Be::ClassInfo* EveStretch3::ExposeToBlue()
 			m_stretchObject,
 			"Object to be stretched from source to destination", 
 			Be::READWRITE | Be::PERSIST | Be::NOTIFY
-		)
-
-		MAP_ATTRIBUTE
-		(
-			"stretchModifier",
-			m_stretchModifier,
-			"The stretch modifier to stretch the stretch object",
-			Be::READ
 		)
 
 

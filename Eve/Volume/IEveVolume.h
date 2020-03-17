@@ -1,3 +1,9 @@
+////////////////////////////////////////////////////////////
+//
+//    Created:   March 2020
+//    Copyright: CCP 2020
+//
+
 #pragma once
 
 #ifndef IEveVolume_H
