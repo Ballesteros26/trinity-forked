@@ -7,6 +7,9 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{fb1c6db8-ce1c-5381-8e10-c7d6f5ab7ffb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Audio">
+      <UniqueIdentifier>{e7beea0b-689d-570c-a096-0707f9159fd0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\Controllers">
       <UniqueIdentifier>{f0eb3861-90a4-5652-89f7-f655099425a7}</UniqueIdentifier>
     </Filter>
@@ -117,9 +120,6 @@
     </Filter>
     <Filter Include="Source Files\Wod">
       <UniqueIdentifier>{9b7dbf25-c064-5688-a6a7-29080b2817ed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Audio">
-      <UniqueIdentifier>{330bc236-9f7f-43e3-867b-b8bedd5dd5cd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -531,6 +531,15 @@
     <ClInclude Include="version.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Audio\ITr2AudEmitter.h">
+      <Filter>Source Files\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\ITr2Audio.h">
+      <Filter>Source Files\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Tr2AudioStretch.h">
+      <Filter>Source Files\Audio</Filter>
+    </ClInclude>
     <ClInclude Include="Controllers\ITr2Controller.h">
       <Filter>Source Files\Controllers</Filter>
     </ClInclude>
@@ -877,6 +886,9 @@
       <Filter>Source Files\Eve\SpaceObject\Children</Filter>
     </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildContainer.h">
+      <Filter>Source Files\Eve\SpaceObject\Children</Filter>
+    </ClInclude>
+    <ClInclude Include="Eve\SpaceObject\Children\EveChildEffectPropagator.h">
       <Filter>Source Files\Eve\SpaceObject\Children</Filter>
     </ClInclude>
     <ClInclude Include="Eve\SpaceObject\Children\EveChildEnvironment.h">
@@ -2385,6 +2397,12 @@
     <ClCompile Include="TriView_Blue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Audio\Tr2AudioStretch.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\Tr2AudioStretch_Blue.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
     <ClCompile Include="Controllers\Tr2BindingPoint.cpp">
       <Filter>Source Files\Controllers</Filter>
     </ClCompile>
@@ -3004,6 +3022,12 @@
       <Filter>Source Files\Eve\SpaceObject\Children</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\EveChildContainer_Blue.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildEffectPropagator.cpp">
+      <Filter>Source Files\Eve\SpaceObject\Children</Filter>
+    </ClCompile>
+    <ClCompile Include="Eve\SpaceObject\Children\EveChildEffectPropagator_Blue.cpp">
       <Filter>Source Files\Eve\SpaceObject\Children</Filter>
     </ClCompile>
     <ClCompile Include="Eve\SpaceObject\Children\EveChildEnvironment.cpp">
@@ -4389,22 +4413,5 @@
     <ResourceCompile Include="Trinity.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-    <ClInclude Include="Audio\ITr2Audio.h">
-      <Filter>Source Files\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio\Tr2AudioStretch.h">
-      <Filter>Source Files\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio\ITr2AudEmitter.h">
-      <Filter>Source Files\Audio</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Audio\Tr2AudioStretch.cpp">
-      <Filter>Source Files\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="Audio\Tr2AudioStretch_Blue.cpp">
-      <Filter>Source Files\Audio</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
