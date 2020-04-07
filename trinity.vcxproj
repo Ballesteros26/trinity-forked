@@ -2985,6 +2985,9 @@
     <ClInclude Include="TriView.h" />
     <ClInclude Include="TriViewport.h" />
     <ClInclude Include="version.h" />
+    <ClInclude Include="Audio\ITr2AudEmitter.h" />
+    <ClInclude Include="Audio\ITr2Audio.h" />
+    <ClInclude Include="Audio\Tr2AudioStretch.h" />
     <ClInclude Include="Controllers\ITr2Controller.h" />
     <ClInclude Include="Controllers\ITr2ControllerOwner.h" />
     <ClInclude Include="Controllers\Tr2BindingPoint.h" />
@@ -3608,6 +3611,8 @@
     <ClCompile Include="TriView.cpp" />
     <ClCompile Include="TriViewport_Blue.cpp" />
     <ClCompile Include="TriView_Blue.cpp" />
+    <ClCompile Include="Audio\Tr2AudioStretch.cpp" />
+    <ClCompile Include="Audio\Tr2AudioStretch_Blue.cpp" />
     <ClCompile Include="Controllers\Tr2BindingPoint.cpp" />
     <ClCompile Include="Controllers\Tr2Controller.cpp" />
     <ClCompile Include="Controllers\Tr2ControllerEventHandler.cpp" />

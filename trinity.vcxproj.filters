@@ -7,6 +7,9 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{fb1c6db8-ce1c-5381-8e10-c7d6f5ab7ffb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Audio">
+      <UniqueIdentifier>{e7beea0b-689d-570c-a096-0707f9159fd0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\Controllers">
       <UniqueIdentifier>{f0eb3861-90a4-5652-89f7-f655099425a7}</UniqueIdentifier>
     </Filter>
@@ -117,9 +120,6 @@
     </Filter>
     <Filter Include="Source Files\Wod">
       <UniqueIdentifier>{9b7dbf25-c064-5688-a6a7-29080b2817ed}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Audio">
-      <UniqueIdentifier>{22f13a40-ad60-43f6-b9cc-abde3c7cf0f9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -530,6 +530,15 @@
     </ClInclude>
     <ClInclude Include="version.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\ITr2AudEmitter.h">
+      <Filter>Source Files\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\ITr2Audio.h">
+      <Filter>Source Files\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Tr2AudioStretch.h">
+      <Filter>Source Files\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Controllers\ITr2Controller.h">
       <Filter>Source Files\Controllers</Filter>
@@ -2387,6 +2396,12 @@
     </ClCompile>
     <ClCompile Include="TriView_Blue.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\Tr2AudioStretch.cpp">
+      <Filter>Source Files\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\Tr2AudioStretch_Blue.cpp">
+      <Filter>Source Files\Audio</Filter>
     </ClCompile>
     <ClCompile Include="Controllers\Tr2BindingPoint.cpp">
       <Filter>Source Files\Controllers</Filter>
@@ -4398,22 +4413,5 @@
     <ResourceCompile Include="Trinity.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-    <ClInclude Include="Audio\ITr2AudEmitter.h">
-      <Filter>Source Files\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio\ITr2Audio.h">
-      <Filter>Source Files\Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio\Tr2AudioStretch.h">
-      <Filter>Source Files\Audio</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Audio\Tr2AudioStretch.cpp">
-      <Filter>Source Files\Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="Audio\Tr2AudioStretch_Blue.cpp">
-      <Filter>Source Files\Audio</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
