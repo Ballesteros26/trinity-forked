@@ -6,7 +6,7 @@ SeekTarget::SeekTarget( IRoot* lockobj ) :
 	m_behaviorWeight( 20.f ),
 	m_arrivedRadius( 10.f ),
 	m_slowDownRadius( 33.f ),
-	m_distanceFromShip( 50.f ),
+	m_distanceFromShip( 0.0f ),
 	m_seconds( 0.25f ),
 	m_exit( false ),
 	m_droneArrived( false ),
@@ -45,6 +45,11 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 	{
 		m_tunnelBehavior = group.GetBehaviorByName( "ProcessLifetime" );
 		m_fxBehavior = group.GetBehaviorByName( "PlayFX" );
+	}
+
+	if( m_distanceFromShip == 0.0f )
+	{
+		SetDistanceFromShip( m_target->GetRadius() );
 	}
 
 	auto data = static_cast<SeekTargetData*>( scratchData );
@@ -159,6 +164,11 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 	}
 
 	return m_todo;
+}
+
+void SeekTarget::SetDistanceFromShip( float boundingRadius )
+{
+	m_distanceFromShip = boundingRadius / 3;
 }
 
 void SeekTarget::SetTarget( EveSpaceObject2* target )

@@ -67,6 +67,8 @@ private:
 	Vector3 m_arrivalPoint; // debug
 	EveSpaceObject2* m_target;
 
+	void SetDistanceFromShip( float boundingRadius );
+
 	IBehavior* m_tunnelBehavior;
 	IBehavior* m_fxBehavior;
 
