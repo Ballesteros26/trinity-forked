@@ -24,6 +24,17 @@ EveStation2::~EveStation2()
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Override base ::PrepareShaderData() function
+// --------------------------------------------------------------------------------
+void EveStation2::PrepareShaderData( EveUpdateContext& updateContext )
+{
+	EveSpaceObject2::PrepareShaderData( updateContext );
+
+	m_spaceObjectShipData.y *= m_activationStrength;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Override base ::UpdateSyncronous() function, so we can update the turrets and 
 //   their positions (if they are attached to animated bones!)
 // --------------------------------------------------------------------------------

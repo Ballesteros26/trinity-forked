@@ -20,6 +20,7 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Overrides of EveSpaceObject2 implementations
 	virtual void GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData );
+	void PrepareShaderData( EveUpdateContext& updateContext ) override;
 };
 
 TYPEDEF_BLUECLASS( EveStation2 );
