@@ -791,6 +791,8 @@ public:
 	EveSOFDataHullChild( IRoot* lockobj = NULL );
 	~EveSOFDataHullChild() {}
 
+	std::string GetName();
+
 	// data
 	std::string m_name;
 	std::string m_redFilePath;

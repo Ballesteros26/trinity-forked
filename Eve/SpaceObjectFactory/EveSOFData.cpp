@@ -375,6 +375,22 @@ EveSOFDataHullChild::EveSOFDataHullChild( IRoot* lockobj ) :
 	m_visibilityGroup( "primary" )
 {}
 
+std::string EveSOFDataHullChild::GetName()
+{
+	auto slash = m_redFilePath.rfind( '/' );
+	if( slash == std::string::npos )
+	{
+		return "";
+	}
+	std::string result = m_redFilePath.substr( slash + 1 );
+	auto dot = result.rfind( '.' );
+	if( dot != std::string::npos )
+	{
+		result = result.substr( 0, dot );
+	}
+	return result;
+}
+
 
 EveSOFDataHullAnimation::EveSOFDataHullAnimation( IRoot* lockobj ) :
 	m_startRotationTime( -1.0f ),

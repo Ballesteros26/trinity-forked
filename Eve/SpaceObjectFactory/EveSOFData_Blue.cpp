@@ -704,7 +704,7 @@ const Be::ClassInfo* EveSOFDataHullChild::ExposeToBlue()
     EXPOSURE_BEGIN( EveSOFDataHullChild, "" )
         MAP_INTERFACE( EveSOFDataHullChild )
 
-		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
+		MAP_PROPERTY_READONLY( "name", GetName, "" )
 		MAP_ATTRIBUTE( "redFilePath", m_redFilePath, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "lowestLodVisible", m_lowestLodVisible, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "translation", m_translation, "", Be::READWRITE | Be::PERSIST )
