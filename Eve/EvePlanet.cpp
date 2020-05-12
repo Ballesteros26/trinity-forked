@@ -129,8 +129,6 @@ void EvePlanet::UpdatePlanetVisibility( const TriFrustum& frustum, float renderS
 
 	for ( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
 	{
-		// TODO: Fix estimatedPixelDiameter for Suns (include children)
-		//(*it)->ForceCurrentScreenSize( m_estimatedPixelDiameter ); 
 		(*it)->UpdateVisibility( frustum, scaledTransform, m_lodLevel );
 	}
 }
