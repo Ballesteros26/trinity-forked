@@ -528,11 +528,6 @@ private:
 		PIEveSpaceObject2Vector& objects,
 		Tr2RenderContext& renderContext );
 
-	void UpdateQuadRenderer(
-		const TriFrustum& frustum,
-		PEvePlanetVector& objects,
-		Tr2RenderContext& renderContext );
-
 	Tr2QuadRenderer* GetQuadRenderer() const;
 
 	void UpdateImpostors( Tr2RenderContext& renderContext );
