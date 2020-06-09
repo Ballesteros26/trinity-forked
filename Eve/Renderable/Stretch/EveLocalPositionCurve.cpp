@@ -2,6 +2,7 @@
 #include "EveLocalPositionCurve.h"
 #include "Utilities/Vector3d.h"
 #include "Eve/SpaceObject/EveSpaceObject2.h"
+#include "Eve/SpaceObject/EveMobile.h"
 #include "Eve/Turret/EveTurretSet.h"
 #include "include/TriMath.h"
 
@@ -15,7 +16,8 @@ EveLocalPositionCurve::EveLocalPositionCurve(IRoot* lockobj) :
 	m_impactEffectIndex( -1 ),
 	m_impactSize( 1.f ),
 	m_behavior ( POS_NONE ),
-	m_offset( 0.f )
+	m_offset( 0.f ),
+	m_muzzleIndex( 0 )
 {	
 }
 
@@ -246,6 +248,20 @@ Vector3* EveLocalPositionCurve::GetDamageLocatorImpact( Vector3* in, Be::Time t 
 	return in;
 }
 
+Vector3* EveLocalPositionCurve::GetFiringTurretPosition( Vector3* in, Be::Time t )
+{
+	if( m_turretSetObject)
+	{
+		auto turretWorld = m_turretSetObject->GetFiringBoneWorldTransform( m_muzzleIndex ).GetTranslation();
+
+		// out
+		in->x = turretWorld.x;
+		in->y = turretWorld.y;
+		in->z = turretWorld.z;
+	}
+	return in;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 // ITriFunction
 /////////////////////////////////////////////////////////////////////////////////////
@@ -271,6 +287,8 @@ Vector3* EveLocalPositionCurve::Update(
 		return CalculateOffsetPlaneRotation( in, t );
 	case POS_NEAREST_FIRING_LOCATOR:
 		return GetNearestFiringLocator( in, t );
+	case POS_ACTIVE_TURRET:
+		return GetFiringTurretPosition( in, t );
 	default:
 		break;
 	}

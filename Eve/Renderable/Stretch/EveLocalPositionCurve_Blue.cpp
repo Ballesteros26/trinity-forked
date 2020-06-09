@@ -46,6 +46,11 @@ Be::VarChooser EveLocalPositionChooser[] =
 		BeCast( EveLocalPositionCurve::POS_NEAREST_FIRING_LOCATOR ),
 		"Use the nearest firing locator of source object"
 	},
+	{
+		"activeTurret",
+		BeCast( EveLocalPositionCurve::POS_ACTIVE_TURRET),
+		"Use the active turret world position"
+	},
 	{ 0 }
 };
 
@@ -100,6 +105,22 @@ const Be::ClassInfo* EveLocalPositionCurve::ExposeToBlue()
 			"na",
 			Be::READWRITE
 		)
+
+		MAP_ATTRIBUTE
+		(
+			"turretSetObject",
+			m_turretSetObject,
+			"na",
+			Be::READWRITE
+		)
+
+		MAP_ATTRIBUTE
+		(
+			"muzzleIndex",
+			m_muzzleIndex,
+			"na",
+			Be::READWRITE
+		)		
 
 		MAP_ATTRIBUTE
 		(  

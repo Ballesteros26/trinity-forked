@@ -15,6 +15,8 @@
 point local to a model. This class has a few behaviours determined by\r\n 
 the LocalPositionBehavior enum.\r\n */
 
+BLUE_DECLARE( EveTurretSet );
+
 class EveLocalPositionCurve:
 	public ITriVectorFunction
 {
@@ -34,8 +36,9 @@ public:
 		POS_TARGET_DMG_LOCATOR_IMPACT,
 		POS_OFFSET_POSITION,
 		POS_OFFSET_PLANE_ROTATION,
-		POS_COUNT,
 		POS_NEAREST_FIRING_LOCATOR,
+		POS_ACTIVE_TURRET,
+		POS_COUNT,
 	};
 	LocalPositionBehavior m_behavior;
 
@@ -62,6 +65,7 @@ public:
 
 private:
 	IEveSpaceObject2Ptr m_parentObject;
+	EveTurretSetPtr m_turretSetObject;
 	ITriVectorFunctionPtr m_parentPositionCurve;
 	ITriQuaternionFunctionPtr m_parentRotationCurve;
 	ITriVectorFunctionPtr m_alignPositionCurve;
@@ -79,6 +83,9 @@ private:
 	// impact data
 	int m_impactEffectIndex;
 	float m_impactSize;
+
+	// turret data
+	int m_muzzleIndex;
 	
 	Vector3* CalculateOffsetPlaneRotation( Vector3* in, Be::Time t );
 	Vector3* CalculateOffsetPosition( Vector3* in, Be::Time t );
@@ -87,6 +94,7 @@ private:
 	Vector3* GetDamageLocator( Vector3* in, Be::Time t );
 	Vector3* GetDamageLocatorImpact( Vector3* in, Be::Time t );
 	Vector3* GetNearestFiringLocator( Vector3* in, Be::Time t );
+	Vector3* GetFiringTurretPosition( Vector3* in, Be::Time t );
 };
 
 TYPEDEF_BLUECLASS(EveLocalPositionCurve);
