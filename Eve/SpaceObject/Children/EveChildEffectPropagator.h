@@ -79,6 +79,7 @@ private:
 
 	void ProcessLocators( IEveSpaceObject2* parent );
 	void ProcessRandomSpreadLocators();
+	void RecalculateLocatorSizes();
 	void ProcessLocalLocators();
 	void ProcessRefLocators( IEveSpaceObject2* parent );
 

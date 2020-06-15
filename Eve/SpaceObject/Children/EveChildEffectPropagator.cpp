@@ -216,6 +216,7 @@ void EveChildEffectPropagator::UpdateTriggerCurve( EveUpdateContext& updateConte
 			}
 			else
 			{
+				RecalculateLocatorSizes();
 				Play();
 			}
 		}
@@ -260,6 +261,7 @@ void EveChildEffectPropagator::UpdateTriggerInterval( EveUpdateContext& updateCo
 		if( m_numDeleted == m_currentTriggerIndex )
 		{
 			m_currentTriggerIndex = 0;  // prevent debug rendering on a running loop after it finishes (see InstanceContainers)
+			m_lastTriggered.clear();
 		}
 	}
 }
@@ -486,6 +488,15 @@ void EveChildEffectPropagator::ProcessLocators( IEveSpaceObject2* parent )
 	DistanceSortLocators();
 }
 
+void EveChildEffectPropagator::RecalculateLocatorSizes()
+{
+	for( auto it = m_processedTransforms.begin(); it != m_processedTransforms.end(); ++it )
+	{
+		float rand = m_randScaleMin + TriRand() * (m_randScaleMax - m_randScaleMin);
+		it->scale = m_effectScaling * rand;
+	}
+}
+
 void EveChildEffectPropagator::GetLights( Tr2LightManager& lightManager ) const
 {
 	if( m_effect != nullptr )
@@ -538,13 +549,18 @@ void EveChildEffectPropagator::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 
 	if( m_type == LOCAL_LOCATORS )
 	{
+		if( m_localLocators == nullptr )
+		{
+			return;
+		}
+
 		const LocatorStructureList& locators = *m_localLocators->GetLocators();
 		int i = 0;
 		for( auto it = m_processedTransforms.begin(); it != m_processedTransforms.end(); ++it, i++ )
 		{
 			renderer.DrawSphereArrow(
 				Tr2DebugObjectReference( &locators, uint32_t( i ) ),
-				it->position,
+				Vector3( XMVector3TransformCoord( it->position, m_worldTransform ) ),
 				Vector3( it->rotation ),
 				Length( it->scale ) * m_triggerSphereScalarMulti / 50.f,
 				8,
