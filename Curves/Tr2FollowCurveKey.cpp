@@ -222,8 +222,11 @@ void Tr2CameraFollowCurveKey::CalculateBoxPosition()
 	float tanOuterFov = tan( m_fov );
 	float tanInnerFov = tan( m_fov * m_fovMultiplication );
 		
+	float nearClipPlaneSize = m_frontClip / tanOuterFov;
+	float aspectRatio = Tr2Renderer::GetAspectRatio();
 
-	float radius = Length( m_objectBounds.GetXY() );
+	float nearClipDistFromViewVector = max( nearClipPlaneSize * aspectRatio, nearClipPlaneSize / aspectRatio );
+	float radius = max( Length( m_objectBounds.GetXY() ), nearClipDistFromViewVector );
 
 	if( tanInnerFov == tanOuterFov )
 	{
@@ -243,7 +246,7 @@ void Tr2CameraFollowCurveKey::CalculateBoxPosition()
 	auto boxCenter = Vector3( 0, 0, -m_minDistanceAlongViewAngle - m_objectBounds.z ) + m_offset * Vector3( 1, 1, -1 );
 	auto orientationMatrix = RotationMatrix( RotationQuaternion( Vector3( 0, 0, -1 ), m_angle + m_angleZero ) );
 
-	auto boxOffsetXY = TransformCoord( Vector3( Length( m_objectBounds.GetXY() ) + m_minDistanceFromViewAngle, 0, 0 ), orientationMatrix );
+	auto boxOffsetXY = TransformCoord( Vector3( radius + m_minDistanceFromViewAngle, 0, 0 ), orientationMatrix );
 
 	m_rotatedLeftTangent = TransformCoord( m_leftTangent, rotMatrix );
 	m_rotatedRightTangent = TransformCoord( m_rightTangent, rotMatrix );
