@@ -209,7 +209,12 @@ void EvePlanet::GetZOnlyRenderables( std::vector<ITr2Renderable*>& renderables )
 	{
 		return;
 	}
-	
+
+	if ( m_lodLevel != TR2_LOD_HIGH )
+	{
+		return;
+	}
+
 	if( nullptr != m_zOnlyModel )
 	{
 		m_zOnlyModel->GetRenderables( renderables );
