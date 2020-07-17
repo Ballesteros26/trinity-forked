@@ -87,7 +87,7 @@ void Tr2ActionChildEffect::Start( Tr2Controller& controller )
 				{
 					owner = BlueCastPtr( cast );
 				}
-				effect->Rebind();
+				effect->Rebind( true );
 			}
 		}
 		if( !owner )

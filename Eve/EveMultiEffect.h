@@ -43,7 +43,7 @@ public:
 
 	EveMultiEffect( IRoot* lockobj = NULL );
 	
-	void Rebind();
+	void Rebind( bool onlyUpdateBindings = 0 );
 	bool SetParameter( BlueSharedString parameterName, IRoot* object );
 	EveMultiEffectParameter* GetParameterByName( BlueSharedString parameterName );
 

@@ -42,11 +42,16 @@ std::unordered_map<std::string, IRoot*> EveMultiEffect::GetParameterMap() const
 	return parameterMap;
 }
 
-void EveMultiEffect::Rebind()
+void EveMultiEffect::Rebind( bool onlyUpdateBindings )
 {
 	for( auto binding = m_bindings.begin(); binding != m_bindings.end(); ++binding )
 	{
 		( *binding )->Link();
+	}
+
+	if( onlyUpdateBindings )
+	{
+		return;
 	}
 
 	for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
