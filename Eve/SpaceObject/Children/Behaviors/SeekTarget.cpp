@@ -2,20 +2,24 @@
 #include "include/TriMath.h"
 #include "SeekTarget.h"
 
+const BlueSharedString LOCATOR_SET_NAME( "seek" );
+
 SeekTarget::SeekTarget( IRoot* lockobj ) :
-	PARENTLOCK( m_locatorSets ),
 	m_behaviorWeight( 20.f ),
 	m_arrivedRadius( 10.f ),
 	m_slowDownRadius( 33.f ),
 	m_seconds( 0.25f ),
+	m_counter( 0 ),
 	m_exit( false ),
+	m_repair( false ),
 	m_droneArrived( false ),
-	m_sortedLocators( false ),  
+	m_sortedLocators( false ),
+	m_doneRepairing( false ),
 	m_target( nullptr ),
-	m_tunnelBehavior( nullptr ),
 	m_fxBehavior( nullptr ),
 	m_locatorSetName( "damage" )
 {
+	m_locatorSet.CreateInstance();
 }
 
 SeekTarget::~SeekTarget()
@@ -32,67 +36,101 @@ void SeekTarget::InitializeScratch( void* scratchMemory )
 	*static_cast<SeekTargetData*>( scratchMemory ) = SeekTargetData();
 }
 
-std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-	BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius )
+std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime, BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius )
 {
-	// Make sure python gets called first
-	if( m_target == nullptr || m_behaviorWeight <= 0 )
+	if( m_behaviorWeight <= 0 )
 	{
 		return m_todo;
 	}
 
-	if( m_tunnelBehavior == nullptr )
-	{
-		m_tunnelBehavior = group.GetBehaviorByName( "ProcessLifetime" );
-
-	}
 	if( m_fxBehavior == nullptr )
 	{
 		m_fxBehavior = group.GetBehaviorByName( "PlayFX" );
 	}
 
 	auto data = static_cast<SeekTargetData*>( scratchData );
+
+	// Make sure the drones stop seeking ship locators when done repairing
+	if( m_exit && m_counter >= 1 )
+	{
+		m_doneRepairing = true;
+		m_exit = false;
+		m_counter = 0;
+	}
+
 	for( auto agent = agents.begin(); agent != agents.end(); ++agent, ++data )
 	{
-		// If drone does not have a picked locator, then pick one
-		if( agent->target == Vector3( 0, 0, 0 ) )
+		if( m_doneRepairing )
 		{
+			data->arrived = true;
+		}
+
+		if( m_repair == true && m_target != nullptr )
+		{
+			// If drone does not have a picked locator, then pick one
+			if( agent->target == Vector3( 0, 0, 0 ) || data->locatorIndex == -1 )
+			{
+				if( m_sortedLocators )
+				{
+					data->bucketId = agent->id % m_boundingBoxes.size();
+					auto bucket = m_locatorBucketIndices[data->bucketId];
+					data->locatorIndex = TriRandInt( int( bucket.size() ) );
+				}
+				else
+				{
+					unsigned int count = m_target->GetLocatorCount( m_locatorSetName );
+					int rand = TriRandInt( count );
+					data->locatorIndex = rand;
+				}
+			}
+
+			// Want to keep this updated because the ship might be moving (when docking)
 			if( m_sortedLocators )
 			{
-				data->bucketId = agent->id % m_boundingBoxes.size();
-				auto bucket = m_locatorBucketIndices[data->bucketId];
-				data->locatorIndex = TriRandInt( int( bucket.size() ) );
+				int locatorIndex = m_locatorBucketIndices[data->bucketId][data->locatorIndex];
+				m_target->GetLocatorPosition( &data->position, locatorIndex, true, m_locatorSetName );
+				m_target->GetLocatorDirection( &data->direction, locatorIndex, true, m_locatorSetName );
 			}
 			else
 			{
-				unsigned int count = m_target->GetLocatorCount( m_locatorSetName );
-				int rand = TriRandInt( count );
-				data->locatorIndex = rand;
+				m_target->GetLocatorPosition( &data->position, data->locatorIndex, true, m_locatorSetName );
+				m_target->GetLocatorDirection( &data->direction, data->locatorIndex, true, m_locatorSetName );
 			}
-		}
-
-		// Want to keep this updated because the ship might be moving (when docking)
-		if( m_sortedLocators )
-		{
-			int locatorIndex = m_locatorBucketIndices[data->bucketId][data->locatorIndex];
-			m_target->GetLocatorPosition( &data->position, locatorIndex, true, m_locatorSetName );
-			m_target->GetLocatorDirection( &data->direction, locatorIndex, true, m_locatorSetName );
 		}
 		else
 		{
-			m_target->GetLocatorPosition( &data->position, data->locatorIndex, true, m_locatorSetName );
-			m_target->GetLocatorDirection( &data->direction, data->locatorIndex, true, m_locatorSetName );
+			if( data->arrived )
+			{
+				//Get count of locators under the "seek" locatorSet
+				auto seekLocators = GetLocatorsForSet( LOCATOR_SET_NAME );
+				if( seekLocators != NULL && seekLocators[0].size() > 0 )
+				{
+					int rand = TriRandInt( 0, (int)seekLocators->size() );
+					data->position = seekLocators[0][rand].position;
+					data->direction = (Vector3)XMVector3Rotate( Vector3( 0.f, 1.f, 0.f ), seekLocators[0][rand].direction );
+				}
+				data->arrived = false;
+			}
 		}
 
 		agent->target = data->position;
 
-		Vector3 center;
-		Vector3 radius;
-		m_target->GetShapeEllipsoid( center, radius );
 		// Set the target point on the radius sphere
 		Vector3 fakePoint = data->direction;
 		fakePoint = Normalize( fakePoint );
-		fakePoint *= radius;
+
+		if( m_repair == true && m_target != nullptr )
+		{
+			Vector3 center;
+			Vector3 radius;
+			m_target->GetShapeEllipsoid( center, radius );
+			fakePoint *= radius * 1.2;
+		}
+		else
+		{
+			fakePoint *= m_arrivedRadius;
+		}
+
 		fakePoint += data->position;
 
 		// For debugging
@@ -113,43 +151,28 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 
 			if( !m_droneArrived && m_onFirstDroneArrivedCallback )
 			{
-				m_onFirstDroneArrivedCallback.CallVoid().ReportException();				
+				m_onFirstDroneArrivedCallback.CallVoid().ReportException();
+				m_droneArrived = true;
+				m_doneRepairing = false;
 			}
-			m_droneArrived = true;
-			
+
 			// Set the rotation of the drone
 			Quaternion newRotation;
-			auto invDir = Normalize(data->position - agentPositionWS );
+			auto invDir = Normalize( data->position - agentPositionWS );
 			TriQuaternionRotationArc( &newRotation, &zAxis, &invDir );
 			agent->rotation = newRotation;
 			data->timePassed = 0.f;
 
+			if( !agent->playFX && m_fxBehavior != nullptr )
+			{
+				agent->fxStartTime = BeOS->GetActualTime();
+				agent->playFX = true;
+			}
+
 			// If the target has arrived then start playing effect
 			if( distance < m_arrivedRadius )
 			{
-				if( !agent->playFX )
-				{
-					agent->fxStartTime = BeOS->GetActualTime();
-					agent->playFX = true;
-				}
-			}
-			// Trigger if: Repairing Ship && Player Undocks
-			else if( m_exit )
-			{
-				if( m_tunnelBehavior )
-				{
-					// Drones search for an exit tunnel
-					m_tunnelBehavior->UpdateState( true );
-				}
-
-				if( m_fxBehavior )
-				{
-					// Behavior deletes effects
-					m_fxBehavior->UpdateState( true );
-				}
-
-				agent->playFX = false;
-				m_behaviorWeight = 0;
+				data->arrived = true;
 			}
 		}
 		else
@@ -157,12 +180,37 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 			// Have the drone slowly start moving based on time passed
 			data->timePassed += deltaTime;
 			data->timePassed = max( data->timePassed, m_seconds );
-			desiredVelocity *= Lerp( 0, 1, max(data->timePassed, m_seconds ) / m_seconds );
+			desiredVelocity *= Lerp( 0, 1, max( data->timePassed, m_seconds ) / m_seconds );
 		}
+
+		// Trigger if: Repairing Ship && Player Undocks
+		if( m_exit )
+		{
+			agent->playFX = false;
+			m_repair = false;
+			data->locatorIndex = -1;
+			m_droneArrived = false;
+			m_counter++;
+		}
+
 		agent->acceleration += desiredVelocity - agent->velocity;
 	}
 
+	m_doneRepairing = false;
 	return m_todo;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Try to find the specified locator set and return a pointer to it
+// --------------------------------------------------------------------------------
+const LocatorStructureList* SeekTarget::GetLocatorsForSet( const BlueSharedString& setName ) const
+{
+	if( m_locatorSet->HasName( setName ) )
+	{
+		return m_locatorSet->GetLocators();
+	}
+	return nullptr;
 }
 
 void SeekTarget::SetTarget( EveSpaceObject2* target )
@@ -180,20 +228,25 @@ void SeekTarget::SetBehaviorWeight( float value )
 	m_behaviorWeight = value;
 }
 
-void SeekTarget::ResetBehavior( )
+void SeekTarget::ResetBehavior()
+{
+	m_counter = 0;
+	m_exit = false;
+	m_repair = false;
+	m_droneArrived = false;
+	m_doneRepairing = true;
+}
+
+void SeekTarget::SetupShipRepair()
 {
 	if( m_fxBehavior )
 	{
 		m_fxBehavior->UpdateState( false );
 	}
 
-	if( m_tunnelBehavior )
-	{
-		m_tunnelBehavior->UpdateState( false );
-	}
-
 	m_exit = false;
 	m_droneArrived = false;
+	m_repair = true;
 }
 
 void SeekTarget::SplitBoundingBox()
@@ -229,7 +282,7 @@ void SeekTarget::SplitBoundingBox()
 	{
 		return;
 	}
-	
+
 	float desiredLength = largest;
 	int boxCount = 0;
 
@@ -239,6 +292,11 @@ void SeekTarget::SplitBoundingBox()
 	while( desiredLength > secondLargest )
 	{
 		desiredLength *= 0.5;
+	}
+
+	if( desiredLength == 0.f )
+	{
+		return;
 	}
 
 	boxCount = int( largest ) / int( desiredLength );
@@ -293,6 +351,7 @@ void SeekTarget::SortLocators()
 void SeekTarget::GetDebugOptions( Tr2DebugRendererOptions& options )
 {
 	options.insert( "SeekTarget" );
+	options.insert( "Locators" );
 }
 
 void SeekTarget::RenderDebugInfo( ITr2DebugRenderer2& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation )
@@ -303,4 +362,37 @@ void SeekTarget::RenderDebugInfo( ITr2DebugRenderer2& renderer, std::vector<Dron
 		renderer.DrawSphere( this, m_arrivalPoint, 5, 8, Tr2DebugRenderer::Wireframe, 0xff0000ff );
 		renderer.DrawSphere( this, m_arrivalPoint, m_slowDownRadius, 8, Tr2DebugRenderer::Wireframe, 0xffcc11ff );
 	}
+
+	if( renderer.HasOption( this, "Locators" ) )
+	{
+		float boundingSphereRadius = 50.f;
+		float modelScale = 5;
+
+		const LocatorStructureList& locators = *m_locatorSet->GetLocators();
+		for( size_t i = 0; i < locators.size(); ++i )
+		{
+			auto& locator = locators[i];
+			auto position = locator.position;
+			auto rotation = locator.direction;
+			uint32_t color = 0x990088ff;
+
+			renderer.DrawSphereArrow(
+				Tr2DebugObjectReference( &locators, uint32_t( i ) ),
+				Vector3( XMVector3TransformCoord( position, parentWorldLocation ) ),
+				Vector3( XMVector3TransformNormal( Vector3( 0, 1, 0 ), Matrix( XMMatrixRotationQuaternion( rotation ) ) * parentWorldLocation ) ),
+				boundingSphereRadius * modelScale / 50.f,
+				8,
+				Tr2DebugRenderer::Lit,
+				color );
+		}
+	}
+}
+
+void SeekTarget::AddLocatorSet()
+{
+	EveLocatorSetsPtr seekSet;
+	seekSet.CreateInstance();
+	seekSet->Set( "seek", NULL, 0 );
+
+	m_locatorSet = seekSet;
 }

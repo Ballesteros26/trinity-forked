@@ -12,7 +12,6 @@ ProcessLifetime::ProcessLifetime( IRoot* lockobj ) :
 	m_exit( false )
 {
 	m_splineTunnels.SetNotify( this );
-	m_potentialPoints.clear();
 }
 
 ProcessLifetime::~ProcessLifetime()
@@ -165,7 +164,6 @@ std::vector<Vector3> ProcessLifetime::CalculateBehavior(std::vector<DroneAgent>&
 	for( int i = static_cast<int>(dronesThatDie.size()) - 1; i >= 0; i-- )
 	{
 		group.RemoveSpecificAgent( dronesThatDie[i] );
-		
 		if( m_respawnAgentsOnDeath )
 		{
 			group.AddAgent();
@@ -310,13 +308,22 @@ void ProcessLifetime::FindASpawnPoint(DroneAgent& agent, ProcessLifetimeData* da
 	static const Vector3 zAxis( 0.f, 0.f, 1.f );
 	TriQuaternionRotationArc( &agent.rotation, &zAxis, &potentialRotations.at( randomNbr ) );
 	data->assignedLifeTimeTunnel = tunnelIndex.at( randomNbr );
-	m_potentialPoints = potentialPoints;
 }
 
-std::vector<Vector3> ProcessLifetime::GetPotentialPoints()
+std::vector<Vector3> ProcessLifetime::GetEntrancePoints()
 {
-	return m_potentialPoints;
-}
+	std::vector<SplineTunnel*> tempVec;
+	std::vector<Vector3> entrancePoints;
+	for( auto tunnel = begin( m_privateTunnels ); tunnel != end( m_privateTunnels ); ++tunnel )
+	{
+		if( ( *tunnel )->tunnelGroupType == ENTRANCE_TUNNELS )
+		{
+			Vector3 point = ( *tunnel )->splinePoints[0].pos;
+			entrancePoints.push_back( point );
+		}
+	}
+	return entrancePoints;
+}	
 
 void ProcessLifetime::UpdateTunnelRegistry()
 {

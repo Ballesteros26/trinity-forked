@@ -26,7 +26,7 @@ std::vector<Vector3> SpawnDrones::CalculateBehavior( std::vector<DroneAgent>& ag
 			auto processLifetime = dynamic_cast<ProcessLifetime*> ( behavior );
 			if( processLifetime )
 			{
-				std::vector<Vector3> spawnPoints = processLifetime->GetPotentialPoints();
+				std::vector<Vector3> spawnPoints = processLifetime->GetEntrancePoints();
 				if( !spawnPoints.empty() )
 				{
 					const auto randomNbr = rand() % spawnPoints.size();

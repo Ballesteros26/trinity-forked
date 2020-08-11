@@ -50,6 +50,8 @@ public:
 	void UpdateState( bool state ) { m_exit = state; }
 
 	std::vector<Vector3> GetPotentialPoints();
+
+	std::vector<Vector3> GetEntrancePoints();
 	
 private:
 	void FindASpawnPoint( DroneAgent& agent, ProcessLifetimeData* data );
@@ -68,7 +70,6 @@ private:
 	bool m_shouldReassignTunnelIDs;
 	bool m_exit;
 	Vector3 m_desiredVector;
-	std::vector<Vector3> m_potentialPoints;
 };
 
 TYPEDEF_BLUECLASS( ProcessLifetime );

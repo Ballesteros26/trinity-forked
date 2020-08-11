@@ -8,7 +8,6 @@
 #include "Eve/SpaceObject/Utils/EveLocatorSets.h"
 
 BLUE_DECLARE( EveLocatorSets );
-BLUE_DECLARE_VECTOR( EveLocatorSets );
 
 struct SeekTargetData
 {
@@ -17,7 +16,8 @@ struct SeekTargetData
 		locatorIndex( -1 ),
 		timePassed( 0.f ),
 		position( 0, 0, 0 ),
-		direction( 0, 0, 0 )
+		direction( 0, 0, 0 ),
+		arrived( true )
 	{
 	}
 
@@ -26,6 +26,7 @@ struct SeekTargetData
 	float timePassed;
 	Vector3 position;
 	Vector3 direction;
+	bool arrived;
 };
 
 struct LocatorData
@@ -54,6 +55,7 @@ public:
 	void SetTarget( EveSpaceObject2* target );
 	void SetExit( bool value );
 	void SetBehaviorWeight( float value );
+	void SetupShipRepair();
 	void ResetBehavior();
 	void SplitBoundingBox();
 
@@ -63,6 +65,9 @@ private:
 	bool m_exit;
 	bool m_droneArrived;
 	bool m_sortedLocators;
+	bool m_repair;
+	bool m_doneRepairing;
+	int m_counter;
 	float m_behaviorWeight;
 	float m_arrivedRadius;
 	float m_slowDownRadius;
@@ -70,7 +75,6 @@ private:
 	Vector3 m_arrivalPoint; // debug
 	EveSpaceObject2* m_target;
 
-	IBehavior* m_tunnelBehavior;
 	IBehavior* m_fxBehavior;
 
 	std::vector<Vector3> m_todo;
@@ -84,7 +88,9 @@ private:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// locator sets
-	PEveLocatorSetsVector m_locatorSets;
+	const LocatorStructureList* GetLocatorsForSet( const BlueSharedString& setName ) const;
+	EveLocatorSetsPtr m_locatorSet;
+	void AddLocatorSet();
 };
 
 TYPEDEF_BLUECLASS( SeekTarget );

@@ -3,7 +3,7 @@
 
 CollisionAvoidance::CollisionAvoidance( IRoot* lockobj ) :
 	PARENTLOCK( m_exclusionVolumes ),
-	m_collisionAvoidanceScalar( 20.f ) 
+	m_collisionAvoidanceScalar( 10.f ) 
 {
 }
 

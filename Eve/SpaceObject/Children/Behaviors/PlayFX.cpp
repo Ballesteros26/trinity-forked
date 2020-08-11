@@ -9,8 +9,8 @@ PlayFX::PlayFX( IRoot* lockobj ) :
 	m_behaviorWeight( 20.f ),
 	m_delay( 0.f ),
 	m_distanceFromCenter( 5.f ),
-	m_minSec( 1 ),
-	m_maxSec( 3 ),
+	m_minSec( 0 ),
+	m_maxSec( 1 ),
 	m_stop( false )
 {
 	m_firingEffect = nullptr;
