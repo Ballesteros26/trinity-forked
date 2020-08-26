@@ -37,6 +37,7 @@ enum Tr2SpriteObjectEffect
 	TR2_SFX_BLURBACKGROUNDCOLORED,				// Primary texture is blurred, uvs are calculated from screen coords
 	TR2_SFX_BLURBACKGROUND,						// Primary texture is blurred, uvs are calculated from screen coords
 	TR2_SFX_GLOW,								// Primary texture is blurred, to be used for glow effects
+	TR2_SFX_FONT,								// Primary texture is a glyph rendered by FreeType
 
 	TR2_SFX_TWO_TEXTURES = 64,
 	TR2_SFX_MODULATE = TR2_SFX_TWO_TEXTURES,	// Primary and secondary textures modulated, then again with vertex colors

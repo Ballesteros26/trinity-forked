@@ -17,7 +17,7 @@ Tr2Sprite2dTextObject::Tr2Sprite2dTextObject( IRoot* lockobj /*= nullptr */ ) :
 	m_hasAuxiliaryTooltip( false ),
 	m_useSizeFromTexture( false )
 {
-
+	m_spriteEffect = TR2_SFX_FONT;
 }
 
 Tr2Sprite2dTextObject::~Tr2Sprite2dTextObject()

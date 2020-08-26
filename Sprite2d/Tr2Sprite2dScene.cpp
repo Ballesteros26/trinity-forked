@@ -115,7 +115,8 @@ Tr2Sprite2dScene::Tr2Sprite2dScene( IRoot* lockobj ) :
 	m_tileMode( S2D_TS_NONE ),
 	m_drawCallStartIndex( 0 ),
 	m_transformsHandle(),
-	m_useLinearColorSpace( false )
+	m_useLinearColorSpace( false ),
+	m_isGammaCorrectingText( true )
 {
 	m_transformStack = CCP_NEW( "Tr2Sprite2dScene/m_transformStack" ) TransformStack_t( "Tr2Sprite2dScene/m_transformStack" );
 	m_depthStack = CCP_NEW( "Tr2Sprite2dScene/m_depthStack" ) DepthStack_t( "Tr2Sprite2dScene/m_depthStack" );
@@ -2580,6 +2581,17 @@ void Tr2Sprite2dScene::SetUseLinearColorSpace( bool use )
 	{
 		m_uberShader3d->SetOption( BlueSharedString( "COLOR_SPACE" ), BlueSharedString( m_useLinearColorSpace ? "COLOR_SPACE_LINEAR" : "COLOR_SPACE_SRGB" ) );
 	}
+}
+
+void Tr2Sprite2dScene::SetGammaCorrectText( bool use)
+{
+	m_isGammaCorrectingText = use;
+	m_uberShader2d->SetOption( BlueSharedString( "FONT_GAMMACORRECT" ), BlueSharedString( m_isGammaCorrectingText ? "ENABLED" : "DISABLED" ) );
+}
+
+bool Tr2Sprite2dScene::IsGammaCorrectingText()
+{
+	return m_isGammaCorrectingText;
 }
 
 

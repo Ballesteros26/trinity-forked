@@ -27,6 +27,7 @@ Be::VarChooser Tr2SpriteObjectEffectChooser[] =
 	{ "TR2_SFX_FILL",			BeCast( TR2_SFX_FILL ),			"No texture - simple fill" },
 	{ "TR2_SFX_FILL_AA",		BeCast( TR2_SFX_FILL_AA ),		"No texture - simple fill, with anti-aliasing" },
 	{ "TR2_SFX_COPY",			BeCast( TR2_SFX_COPY ),			"Primary texture copied" },
+	{ "TR2_SFX_FONT",			BeCast( TR2_SFX_FONT ),			"Font rendered by FreeType" },
 	{ "TR2_SFX_DOT",			BeCast( TR2_SFX_DOT ),			"Dot product of primary texture and direction vector" },
 	{ "TR2_SFX_DROPSHADOW",		BeCast( TR2_SFX_DROPSHADOW ),	"Primary texture copied, plus a drop shadow" },
 	{ "TR2_SFX_MODULATE",		BeCast( TR2_SFX_MODULATE ),		"Primary and secondary textures modulated (multiplied)" },

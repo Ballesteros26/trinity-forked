@@ -169,6 +169,8 @@ private:
 
 	bool IsUsingLinearColorSpace() const;
 	void SetUseLinearColorSpace( bool use );
+	void SetGammaCorrectText( bool use );
+	bool IsGammaCorrectingText();
 
 private:
 	inline bool TexturesReady() const;
@@ -260,6 +262,7 @@ private:
 	bool m_clearFinishedCurveSets;
 
 	bool m_useLinearColorSpace;
+	bool m_isGammaCorrectingText;
 
 	typedef TrackableStdVector<TransformStackEntry> TransformStack_t;
 	typedef TrackableStdVector<Vector2> DepthStack_t;

@@ -301,6 +301,14 @@ const Be::ClassInfo* Tr2Sprite2dScene::ExposeToBlue()
 			"For TESTING sRGB vs linear color math"
 		)
 
+		MAP_PROPERTY(
+			"gammaCorrectText",
+			IsGammaCorrectingText,
+			SetGammaCorrectText,
+			"For TESTING sRGB vs linear color math" 
+		)
+		
+
 		MAP_METHOD_AND_WRAP_OPTIONAL_ARGS
 		(
 			"PickObject",
