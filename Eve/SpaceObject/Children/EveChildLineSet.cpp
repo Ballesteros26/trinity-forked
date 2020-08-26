@@ -21,20 +21,20 @@ namespace
 	public:
 		virtual void SetPerObjectDataToDevice( Tr2ConstantBufferAL** buffers, unsigned constantTypeMask, Tr2RenderContext& renderContext ) const override
 		{
-			FillAndSetConstants( 
+			FillAndSetConstants(
 				*buffers[Tr2RenderContextEnum::VERTEX_SHADER],
-				m_vsData, sizeof( *m_vsData ),
+				m_vsData,
+				sizeof( *m_vsData ),
 				Tr2RenderContextEnum::VERTEX_SHADER,
 				Tr2Renderer::GetPerObjectVSStartRegister(),
-				renderContext 
-			);
-			FillAndSetConstants( 
+				renderContext );
+			FillAndSetConstants(
 				*buffers[Tr2RenderContextEnum::PIXEL_SHADER],
-				m_psData, sizeof( *m_psData ),
+				m_psData,
+				sizeof( *m_psData ),
 				Tr2RenderContextEnum::PIXEL_SHADER,
 				Tr2Renderer::GetPerObjectPSStartRegister(),
-				renderContext 
-			);
+				renderContext );
 		}
 		EveSpaceObjectPSData* m_psData;
 		EveSpaceObjectVSData* m_vsData;
@@ -50,7 +50,6 @@ namespace
 class ChildLineSetInstancingBatch : public TriGeometryBatch
 {
 public:
-
 	void SetGeometryResource( TriGeometryRes* val )
 	{
 		m_geometryResource = val;
@@ -70,7 +69,7 @@ public:
 		{
 			if( m_geom->GetMesh()->GetDisplay() )
 			{
-				m_geom->Draw( this, renderContext);
+				m_geom->Draw( this, renderContext );
 			}
 		}
 	}
@@ -102,6 +101,7 @@ EveChildLineSet::EveChildLineSet( IRoot* lockobj ) :
 	m_circleDistort( 1, 0, 1, 0 ),
 	m_objectScale( 1, 1, 1 ),
 	m_numSegments( 64 ),
+	m_actualSegments( 64 ),
 	m_exposedNumSegments( 64 ),
 	m_completeness( 1 ),
 	m_baseColor( 1, 1, 1, 1 ),
@@ -121,6 +121,7 @@ EveChildLineSet::EveChildLineSet( IRoot* lockobj ) :
 	m_exposedCurveSegments( 24 ),
 	m_type( LINE_RENDER ),
 	m_objType( CIRCLE ),
+ 	m_scaleSegmentsByCompleteness( false ),
 	m_additiveBatch( false ),
 	m_updateLineSet( true )
 {
@@ -143,11 +144,12 @@ bool EveChildLineSet::Initialize()
 
 	m_numSegments = int( m_exposedNumSegments + 0.5f );
 	m_curveSegments = int( m_exposedCurveSegments + 0.5f );
-	
+
+	UpdateSegmentSplitting();
 	GenerateManagedPoints();
 	InitializeLineSet();
 	UpdateBoundingSphere();
-	
+
 	return true;
 }
 
@@ -174,10 +176,28 @@ bool EveChildLineSet::OnModified( Be::Var* value )
 	{
 		m_lineSet->SetAdditiveFlag( m_additiveBatch );
 	}
-
+	
+	UpdateSegmentSplitting();
 	m_updateLineSet = true;
 
 	return true;
+}
+
+void EveChildLineSet::UpdateSegmentSplitting()
+{
+	if( m_objType == CIRCLE )
+	{
+		m_actualSegments = m_numSegments;
+	}
+	else if( m_objType == BEZIER_CURVE )
+	{
+		m_actualSegments = m_curveSegments;
+	}
+
+	if( m_scaleSegmentsByCompleteness )
+	{
+		m_actualSegments = int( ceil( ( 1.f - abs( m_completeness - 1.f ) ) * m_actualSegments ) );
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +210,7 @@ bool EveChildLineSet::OnPrepareResources()
 		m_stride,
 		128,
 		Tr2GpuUsage::VERTEX_BUFFER,
-		Tr2CpuUsage::WRITE_OFTEN,	
+		Tr2CpuUsage::WRITE_OFTEN,
 		nullptr,
 		renderContext );
 	if( FAILED( hr ) )
@@ -217,49 +237,52 @@ Tr2MeshPtr EveChildLineSet::GetMesh() const
 
 void EveChildLineSet::GenerateManagedPoints()
 {
-	if ( m_objType == BEZIER_CURVE )
+	if( m_objType == BEZIER_CURVE )
 	{
 		return GenerateManagedPointsForCurve();
 	}
-		
-	if( m_numSegments <= 0 )
+
+	if( m_actualSegments <= 0 )
 	{
 		return;
 	}
 
 	const float totalArc = ( 1.f - abs( m_completeness - 1.f ) ) * XM_2PI;
-	const float startOffset = max( m_completeness - 1.f, 0.f ) * XM_2PI + totalArc / ( 2 * m_numSegments );
+	const float startOffset = max( m_completeness - 1.f, 0.f ) * XM_2PI + totalArc / ( 2 * m_actualSegments );
 
 	m_managedPoints.clear();
-	m_managedPoints.reserve( m_numSegments );
-	
-	for( int i = 0; i < m_numSegments; i++ )
+	m_managedPoints.reserve( m_actualSegments );
+
+	for( int i = 0; i < m_actualSegments; i++ )
 	{
-		const float locOnCircle = startOffset + totalArc * ( ( float( i ) / m_numSegments ) + m_animValue / m_numSegments );
-		float X = cos( locOnCircle )*m_circleRadius * m_circleDistort.x;
+		const float locOnCircle = startOffset + totalArc * ( ( float( i ) / m_actualSegments ) + m_animValue / m_actualSegments );
+		float X = cos( locOnCircle ) * m_circleRadius * m_circleDistort.x;
 		float Y = 0.f;
 		if( m_circleDistort.y != 0 || m_circleDistort.w != 0 )
 		{
 			Y = pow( sin( locOnCircle ), 2.f ) * m_circleRadius * m_circleDistort.y + pow( cos( locOnCircle ), 2.f ) * m_circleRadius * m_circleDistort.w;
 		}
-		float Z = sin( locOnCircle )*m_circleRadius * m_circleDistort.z;
-		m_managedPoints.emplace_back( Vector3( X, Y, Z) );
+		float Z = sin( locOnCircle ) * m_circleRadius * m_circleDistort.z;
+		m_managedPoints.emplace_back( Vector3( X, Y, Z ) );
 	}
 }
 
 void EveChildLineSet::GenerateManagedPointsForCurve()
 {
-	if( m_curveSegments <= 0 )
+	if( m_actualSegments <= 0 )
 	{
 		return;
 	}
 
 	m_managedPoints.clear();
-	m_managedPoints.reserve( m_curveSegments );
 
-	for( int i = 0; i < m_curveSegments; i++ )
+	m_managedPoints.reserve( m_actualSegments );
+
+	for( int i = 0; i < m_actualSegments; i++ )
 	{
-		const float LoC = ( float( i ) / m_curveSegments ) + m_animValue / m_curveSegments; // LoC = Location on Curve
+		float LoC = ( float( i ) / m_actualSegments ) + m_animValue / m_actualSegments;
+		LoC = ( ( LoC * ( min( m_completeness, 1.f ) - max( 0.f, m_completeness - 1.0f ) ) ) + max( 0.f, m_completeness - 1.0f ) );
+		// LoC = Location on Curve
 		float X = ( 1 - LoC ) * ( 1 - LoC ) * m_point1.x + 2 * ( 1 - LoC ) * LoC * m_bezierPoint.x + LoC * LoC * m_point2.x;
 		float Y = ( 1 - LoC ) * ( 1 - LoC ) * m_point1.y + 2 * ( 1 - LoC ) * LoC * m_bezierPoint.y + LoC * LoC * m_point2.y;
 		float Z = ( 1 - LoC ) * ( 1 - LoC ) * m_point1.z + 2 * ( 1 - LoC ) * LoC * m_bezierPoint.z + LoC * LoC * m_point2.z;
@@ -275,15 +298,15 @@ void EveChildLineSet::InitializeLineSet()
 	{
 		return InitializeLineSetForCurves();
 	}
-	
-	if( !m_lineSet || m_numSegments <= 1 )
+
+	if( !m_lineSet || m_actualSegments <= 1 )
 	{
 		return;
 	}
 
 	m_lineSet->ClearLines();
 
-	int lines = m_numSegments;
+	int lines = m_actualSegments;
 
 	if( m_completeness != 1 )
 	{
@@ -291,23 +314,24 @@ void EveChildLineSet::InitializeLineSet()
 	}
 
 	float b = m_brightness;
-	
+
+
 	for( int i = 0; i < lines; i++ )
 	{
-		int nextPoint = ( i + 1 ) % m_numSegments;
-		
-		int id = m_lineSet->AddStraightLine(m_managedPoints[i], m_baseColor * b,m_managedPoints[nextPoint], m_baseColor * b, m_lineWidth );
-		
-		m_lineSet->ChangeLineAnimation( id, (Vector4) m_animColor * b, m_scrollSpeed, m_scrollSegmenting );
+		int nextPoint = ( i + 1 ) % m_actualSegments;
+
+		int id = m_lineSet->AddStraightLine( m_managedPoints[i], m_baseColor * b, m_managedPoints[nextPoint], m_baseColor * b, m_lineWidth );
+
+		m_lineSet->ChangeLineAnimation( id, (Vector4)m_animColor * b, m_scrollSpeed, m_scrollSegmenting );
 	}
-	
+
 	m_lineSet->SubmitChanges();
 }
 
 
 void EveChildLineSet::InitializeLineSetForCurves()
 {
-	if( !m_lineSet || m_curveSegments <= 0 )
+	if( !m_lineSet || m_actualSegments <= 0 )
 	{
 		return;
 	}
@@ -315,16 +339,19 @@ void EveChildLineSet::InitializeLineSetForCurves()
 	m_lineSet->ClearLines();
 
 	float b = m_brightness;
-	
-	for( int i = 0; i < m_curveSegments; i++ )
+
+	for( int i = 0; i < m_actualSegments; i++ )
 	{
-		int nextPoint = ( i + 1 ) % m_curveSegments;
+		int nextPoint = ( i + 1 ) % m_actualSegments;
 
 		int id;
-		
-		if (nextPoint == 0)
+
+		if( nextPoint == 0 )
 		{
-			id = m_lineSet->AddStraightLine( m_managedPoints[i], m_baseColor * b, m_point2, m_baseColor * b, m_lineWidth );
+			if( m_completeness == 1.f )
+			{
+				id = m_lineSet->AddStraightLine( m_managedPoints[i], m_baseColor * b, m_point2, m_baseColor * b, m_lineWidth );
+			}
 		}
 		else
 		{
@@ -333,7 +360,7 @@ void EveChildLineSet::InitializeLineSetForCurves()
 
 		if( m_scrollSpeed != 0 )
 		{
-			m_lineSet->ChangeLineAnimation( id, (Vector4) m_animColor * b, m_scrollSpeed, m_scrollSegmenting );
+			m_lineSet->ChangeLineAnimation( id, (Vector4)m_animColor * b, m_scrollSpeed, m_scrollSegmenting );
 		}
 	}
 
@@ -343,10 +370,10 @@ void EveChildLineSet::InitializeLineSetForCurves()
 void EveChildLineSet::UpdateBoundingSphere()
 {
 	float objectSizeBonus = 0;
-	
+
 	if( m_type != LINE_RENDER )
 	{
-		if( m_mesh != nullptr)
+		if( m_mesh != nullptr )
 		{
 			if( m_mesh->GetGeometryResource() != nullptr )
 			{
@@ -358,12 +385,12 @@ void EveChildLineSet::UpdateBoundingSphere()
 			}
 		}
 	}
-		
-	if (m_objType == CIRCLE)
+
+	if( m_objType == CIRCLE )
 	{
 		m_boundingSphere = Vector4( m_translation, m_circleRadius + m_lineWidth + objectSizeBonus );
 	}
-	
+
 	if( m_objType == BEZIER_CURVE )
 	{
 		Vector3 center( 0.f, 0.f, 0.f );
@@ -372,7 +399,7 @@ void EveChildLineSet::UpdateBoundingSphere()
 		center += m_bezierPoint;
 		center /= 3.f;
 		float rad = max( max( LengthSq( m_bezierPoint - center ), LengthSq( m_point2 - center ) ), LengthSq( m_point1 - center ) );
-		m_boundingSphere = Vector4(  center, sqrt(rad) + m_lineWidth + objectSizeBonus );
+		m_boundingSphere = Vector4( center, sqrt( rad ) + m_lineWidth + objectSizeBonus );
 	}
 }
 
@@ -395,7 +422,10 @@ void EveChildLineSet::UpdateVisibility( const TriFrustum& frustum, const Matrix&
 
 	m_isVisible = false;
 
-	if( frustum.IsSphereVisible( &m_boundingSphere ) )
+	Vector4 sphere = m_boundingSphere;
+	BoundingSphereTransform( m_worldTransform, sphere );
+
+	if( frustum.IsSphereVisible( &( sphere ) ) )
 	{
 		m_currentScreenSize = frustum.GetPixelSizeAccross( &m_boundingSphere );
 
@@ -404,7 +434,7 @@ void EveChildLineSet::UpdateVisibility( const TriFrustum& frustum, const Matrix&
 			m_isVisible = true;
 		}
 	}
-	
+
 	if( m_lineSet )
 	{
 		m_lineSet->UpdateVisibility( frustum, m_worldTransform );
@@ -431,14 +461,14 @@ void EveChildLineSet::GetRenderables( std::vector<ITr2Renderable*>& renderables 
 		UpdateBoundingSphere();
 		m_updateLineSet = false;
 	}
-	
-	
+
+
 	if( LINE_RENDER != m_type )
 	{
 		renderables.push_back( this );
 	}
-	
-	if ( OBJECT_RENDER != m_type )
+
+	if( OBJECT_RENDER != m_type )
 	{
 		if( m_lineSet )
 		{
@@ -450,36 +480,37 @@ void EveChildLineSet::GetRenderables( std::vector<ITr2Renderable*>& renderables 
 bool EveChildLineSet::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) const
 {
 	sphere = m_boundingSphere;
+
 	BoundingSphereTransform( m_worldTransform, sphere );
+
 	return true;
 }
 
 void EveChildLineSet::UpdateSyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params )
 {
 	CreateSpriteVertexDeclaration();
-	
+
 	m_ownerMaxSpeed = params.ownerMaxSpeed;
-	
-	if ( m_animSpeed != 0 && m_type != LINE_RENDER )
+
+	if( m_animSpeed != 0 && m_type != LINE_RENDER )
 	{
 		float dt = updateContext.GetDeltaT();
 
 		m_animValue += m_animSpeed * dt;
-		m_animValue = fmod(m_animValue,1.f );
+		m_animValue = fmod( m_animValue, 1.f );
 		GenerateManagedPoints();
 	}
 
-	if ( m_type == OBJECT_RENDER || m_type == BOTH )
+	if( m_type == OBJECT_RENDER || m_type == BOTH )
 	{
 		USE_MAIN_THREAD_RENDER_CONTEXT();
 		UpdateBuffer( renderContext );
 	}
-	
+
 	if( m_type == LINE_RENDER || m_type == BOTH )
 	{
 		InitializeLineSet();
 	}
-
 }
 
 void EveChildLineSet::UpdateBuffer( Tr2RenderContext& renderContext )
@@ -489,58 +520,78 @@ void EveChildLineSet::UpdateBuffer( Tr2RenderContext& renderContext )
 		USE_MAIN_THREAD_RENDER_CONTEXT();
 		m_vertexBuffer.Create(
 			m_stride,
-			uint32_t( m_managedPoints.size() ),	
+			uint32_t( m_managedPoints.size() ),
 			Tr2GpuUsage::VERTEX_BUFFER, // VERTEX_BUFFER
 			Tr2CpuUsage::WRITE_OFTEN,
 			nullptr,
 			renderContext );
 	}
-	
-	uint8_t *data;
+
+	uint8_t* data;
 	Matrix WT = m_worldTransform;
-	
+
 	Vector3 scale, translation;
 	Quaternion objRot, worldRot;
 	Decompose( scale, worldRot, translation, Inverse( WT ) );
 
 	CR_RETURN( m_vertexBuffer.MapForWriting( data, renderContext ) );
-	
+
 	for( int i = 0; i < int( m_managedPoints.size() ); i++ )
 	{
+		float sizeMod = 1.f;
+		
+		if( m_scaleObjectsAtEndpoints )
+		{
+			if( i == int( m_managedPoints.size() ) - 1 )
+			{
+				sizeMod = 1.0f - m_animValue; 
+			}
+			
+			sizeMod = i == 0 ? sizeMod * m_animValue : sizeMod;
+			sizeMod = max( 0.01f, sizeMod );
+		}
+		
 		if( m_billboardObject )
 		{
 			Matrix m = TransformationMatrix( m_objectScale, m_rotation, m_managedPoints[i] ) * WT;
 
 			m = Billboard2D( m );
-		
+
 			Decompose( scale, objRot, translation, m );
 
-			m = TransformationMatrix( m_objectScale, objRot * worldRot, m_managedPoints[i] ) ;
+			m = TransformationMatrix( sizeMod * m_objectScale, objRot * worldRot, m_managedPoints[i] );
 			m = Transpose( m );
-			
+
 			memcpy( data, &m, m_stride );
-			
+
 			data += m_stride;
 		}
 		else
 		{
 			Vector3 dirToNextPoint( 0.f, 1.f, 0.f );
-			int nextPoint = ( i + 1 ) % int(m_managedPoints.size());
-			
-			if ( nextPoint == 0 )
+			int nextPoint = ( i + 1 ) % int( m_managedPoints.size() );
+
+			if( nextPoint == 0 )
 			{
-				float blender = 1.f - pow( 1.f - abs(  m_completeness - 1.f ), 15.f );
-				dirToNextPoint = Lerp(	m_managedPoints[nextPoint] - m_managedPoints[i],
-										m_managedPoints[i] - m_managedPoints[i - 1],
-										blender );
+				if( m_objType == CIRCLE )
+				{
+					float blender = 1.f - pow( 1.f - abs( m_completeness - 1.f ), 15.f );
+					dirToNextPoint = Lerp( m_managedPoints[nextPoint] - m_managedPoints[i],
+										   m_managedPoints[i] - m_managedPoints[i - 1],
+										   blender );
+				}
+				else
+				{
+					dirToNextPoint = m_point2 - m_managedPoints[i];
+				}
 			}
 			else
 			{
 				dirToNextPoint = m_managedPoints[nextPoint] - m_managedPoints[i];
 			}
-			
+
 			TriQuaternionArcFromForward( &objRot, &dirToNextPoint );
-			Matrix matrix = TransformationMatrix( m_objectScale, objRot, m_managedPoints[i] );
+			Matrix matrix = TransformationMatrix( sizeMod * m_objectScale, objRot, m_managedPoints[i] );
 			Matrix m = Transpose( matrix );
 			memcpy( data, &m, m_stride );
 			data += m_stride;
@@ -589,11 +640,19 @@ void EveChildLineSet::CreateSpriteVertexDeclaration()
 std::vector<std::pair<int, int>> EveChildLineSet::GetVertexElementAddedThroughCode() const
 {
 	std::vector<std::pair<int, int>> out;
-	out.emplace_back(std::pair<int,int>(Tr2VertexDefinition::TEXCOORD, 8));
-	out.emplace_back(std::pair<int, int>( Tr2VertexDefinition::TEXCOORD, 9));
-	out.emplace_back(std::pair<int, int>( Tr2VertexDefinition::TEXCOORD, 10));
+	out.emplace_back( std::pair<int, int>( Tr2VertexDefinition::TEXCOORD, 8 ) );
+	out.emplace_back( std::pair<int, int>( Tr2VertexDefinition::TEXCOORD, 9 ) );
+	out.emplace_back( std::pair<int, int>( Tr2VertexDefinition::TEXCOORD, 10 ) );
 	return out;
 }
+
+void EveChildLineSet::SetBezierPoints( Vector3 point1, Vector3 point2, Vector3 bezier )
+{
+	m_point1 = point1;
+	m_point2 = point2;
+	m_bezierPoint = bezier;
+}
+
 
 void EveChildLineSet::UpdateAsyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params )
 {
@@ -614,12 +673,11 @@ void EveChildLineSet::UpdateAsyncronous( EveUpdateContext& updateContext, const 
 	}
 
 	m_vsData.worldTransformLast = Transpose( m_worldTransform );
-	
+
 	UpdateTransform( localToWorldTransform );
-	
+
 	m_vsData.worldTransform = Transpose( m_worldTransform );
 	m_vsData.invWorldTransform = Inverse( m_worldTransform );
-	
 }
 
 
@@ -649,25 +707,24 @@ bool EveChildLineSet::HasTransparentBatches()
 	return false;
 }
 
-void EveChildLineSet::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType,
-	const Tr2PerObjectData* perObjectData )
+void EveChildLineSet::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData )
 {
 	if( !m_display )
 	{
 		return;
 	}
 
-	if( m_cachedSVD == -1 || m_vertexDeclarationHandle == -1)
+	if( m_cachedSVD == -1 || m_vertexDeclarationHandle == -1 )
 	{
 		return;
 	}
-	
+
 	if( !m_vertexBuffer.IsValid() )
 	{
 		return;
 	}
 
-	if ( m_type != OBJECT_RENDER && m_type != BOTH )
+	if( m_type != OBJECT_RENDER && m_type != BOTH )
 	{
 		return;
 	}
@@ -693,7 +750,7 @@ void EveChildLineSet::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchT
 	}
 
 	auto areaList = m_mesh->GetAreas( batchType );
-	
+
 	for( auto srcMeshArea = areaList->begin(); srcMeshArea != areaList->end(); ++srcMeshArea )
 	{
 		auto a = *srcMeshArea;
@@ -718,14 +775,26 @@ void EveChildLineSet::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchT
 // Description:
 //   Setup instanced rendering and call DIP
 // --------------------------------------------------------------------------------
-void EveChildLineSet::Draw( ChildLineSetInstancingBatch* batch, Tr2RenderContext& renderContext)
+void EveChildLineSet::Draw( ChildLineSetInstancingBatch* batch, Tr2RenderContext& renderContext )
 {
 	auto geometry = batch->GetGeometryResource();
 
-	if( geometry == nullptr ) { return; }
-	if( !( geometry->IsGood() ) ) { return; }
-	if( geometry->GetMeshCount() < 1 ) { return; }
-	if( !m_vertexBuffer.IsValid() ) { return; }
+	if( geometry == nullptr )
+	{
+		return;
+	}
+	if( !( geometry->IsGood() ) )
+	{
+		return;
+	}
+	if( geometry->GetMeshCount() < 1 )
+	{
+		return;
+	}
+	if( !m_vertexBuffer.IsValid() )
+	{
+		return;
+	}
 
 	const TriGeometryResMeshData* meshData = geometry->GetMeshData( 0 );
 	auto areaIx = batch->GetAreaIndex();
@@ -788,7 +857,7 @@ void EveChildLineSet::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 	{
 		return;
 	}
-	
+
 	if( renderer.HasOption( this, "EveChildLineSetPoints" ) )
 	{
 		for( auto point = m_managedPoints.begin(); point != m_managedPoints.end(); ++point )
@@ -797,8 +866,8 @@ void EveChildLineSet::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 		}
 
 		renderer.DrawSphere( this, TranslationMatrix( m_boundingSphere.GetXYZ() ) * m_worldTransform, m_boundingSphere.w, 10, Tr2DebugRenderer::Wireframe, 0xffffffaa );
-		
-		if (m_objType == BEZIER_CURVE)
+
+		if( m_objType == BEZIER_CURVE )
 		{
 			renderer.DrawSphere( this, TranslationMatrix( m_bezierPoint ) * m_worldTransform, 30, 10, Tr2DebugRenderer::Wireframe, 0xbbbbffff );
 			renderer.DrawSphere( this, TranslationMatrix( m_point1 ) * m_worldTransform, 30, 10, Tr2DebugRenderer::Wireframe, 0xbbffbbff );

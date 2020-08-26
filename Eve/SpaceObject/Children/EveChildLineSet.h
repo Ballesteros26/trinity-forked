@@ -44,13 +44,13 @@ public:
 	// IEveSpaceObjectChild
 	const char* GetName() const;
 	void SetName( const char* name );
-	
+
 	void SetShaderOption( const BlueSharedString& name, const BlueSharedString& value ) override;
 	bool IsAlwaysOn() const override;
 	void Setup( const Vector3* scale, const Quaternion* rotation, const Vector3* translation, Tr2Lod lowestLodVisible );
 	void GetLights( Tr2LightManager& lightManager ) const {};
 	void GetLocalToWorldTransform( Matrix& transform ) const;
-	
+
 	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query = EVE_BOUNDS_NORMAL ) const;
 	void UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform, Tr2Lod parentLod );
 	void AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer ) const {};
@@ -68,7 +68,7 @@ public:
 	virtual void GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData );
 	bool HasTransparentBatches();
 
-	
+
 	/////////////////////////////////////////////////////////////////////////////////////
 	// update
 	void UpdateSyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params );
@@ -76,7 +76,7 @@ public:
 	void UpdateAsyncronous( EveUpdateContext& updateContext, Matrix& parentTransform );
 	void ChangeLOD( Tr2Lod lod );
 
-	
+
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Debug
 	void GetDebugOptions( Tr2DebugRendererOptions& options );
@@ -94,10 +94,11 @@ public:
 	void UpdateBuffer( Tr2RenderContext& renderContext );
 	void Draw( ChildLineSetInstancingBatch* batch, Tr2RenderContext& renderContext );
 	std::vector<std::pair<int, int>> GetVertexElementAddedThroughCode() const;
+	void SetBezierPoints( Vector3 point1, Vector3 point2, Vector3 bezier );
 
 	enum lineSetType { OBJECT_RENDER, LINE_RENDER, BOTH };
 	enum lineSetObjType { CIRCLE, BEZIER_CURVE };
-	
+
 private:
 
 	void InitializeLineSet();
@@ -105,6 +106,7 @@ private:
 	void InitializeLineSetForCurves();
 	void UpdateBoundingSphere();
 	void GenerateManagedPointsForCurve();
+	void UpdateSegmentSplitting();
 
 	BlueSharedString m_name;
 	Vector3 m_worldVelocity;
@@ -112,28 +114,31 @@ private:
 	bool m_display;
 	bool m_isAlwaysOn;
 	bool m_updateLineSet;
+	float m_completeness;
+	bool m_scaleSegmentsByCompleteness;
+	int m_actualSegments;
+
+	EveCurveLineSetPtr m_lineSet;
+	lineSetType m_type;
+	lineSetObjType m_objType;
+	std::vector<Vector3> m_managedPoints;
 
 	// circle attributes
 	float m_circleRadius;
 	int m_numSegments;
 	float m_exposedNumSegments;
 	Vector4 m_circleDistort;
-	float m_completeness;
-	
-	EveCurveLineSetPtr m_lineSet;
-	lineSetType m_type;
-	lineSetObjType m_objType;
-	std::vector<Vector3> m_managedPoints;
-	
+
 	//lines
 	float m_lineWidth;
 	Vector4 m_baseColor;
 	Vector4 m_animColor;
 	bool m_additiveBatch;
-	
+
 	//obj
 	bool m_billboardObject;
-	
+	bool m_scaleObjectsAtEndpoints;
+
 	// Instance data
 	Tr2BufferAL m_vertexBuffer;
 	unsigned const m_stride;
@@ -145,7 +150,7 @@ private:
 	EveSpaceObjectPSData m_psData;
 	EveSpaceObjectVSData m_vsData;
 	Vector3 m_objectScale;
-	
+
 	//animate the scene
 	float m_animValue;
 	float m_animSpeed;
