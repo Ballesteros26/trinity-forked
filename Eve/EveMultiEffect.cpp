@@ -284,11 +284,6 @@ void EveMultiEffect::UpdateSyncronous( EveUpdateContext& updateContext )
 {
 	Be::Time time = updateContext.GetTime();
 
-	for( auto binding = m_bindings.begin(); binding != m_bindings.end(); ++binding )
-	{
-		( *binding )->Update( time );
-	}
-
 	// Update all space objects
 	for( TriCurveSetVector::const_iterator it = m_curveSets.begin(); it != m_curveSets.end(); ++it )
 	{
@@ -298,6 +293,11 @@ void EveMultiEffect::UpdateSyncronous( EveUpdateContext& updateContext )
 	for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
 	{
 		( *it )->Update();
+	}
+
+	for( auto binding = m_bindings.begin(); binding != m_bindings.end(); ++binding )
+	{
+		( *binding )->Update( time );
 	}
 }
 
