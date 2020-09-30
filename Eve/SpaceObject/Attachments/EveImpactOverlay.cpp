@@ -315,7 +315,7 @@ void EveImpactOverlay::UpdateAsyncronous( EveUpdateContext& updateContext, EveSp
 	}
 }
 
-Vector3 EveImpactOverlay::GetShieldImpactPosition( Matrix parentInverseWorldTransform, Vector3 damageLocatorPosWS, Vector3 impactDirection, Vector3 shieldEllipsoidCenter, Vector3 shieldEllipsoidRadii )
+Vector3 EveImpactOverlay::GetShieldImpactPosition( const Matrix& parentInverseWorldTransform, const Vector3& damageLocatorPosWS, const Vector3& impactDirection, const Vector3& shieldEllipsoidCenter, const Vector3& shieldEllipsoidRadii )
 {
 	// calculate point, but depends on shield type
 	Vector3 p( 0.f, 0.f, 0.f );

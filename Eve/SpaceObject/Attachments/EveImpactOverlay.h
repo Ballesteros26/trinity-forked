@@ -125,7 +125,7 @@ private:
 	int CreateShieldImpact( int damageLocatorIndex, const Vector3& direction, float lifeTime, float size, float intensity, EveSpaceObject2* parent );
 	int CreateArmorImpact( int damageLocatorIndex, float size, bool spawnEffects );
 
-	Vector3 GetShieldImpactPosition( Matrix parentInverseWorldTransform, Vector3 damageLocatorPosWS, Vector3 impactDirection, Vector3 shieldEllipsoidCenter, Vector3 shieldEllipsoidRadii );
+	Vector3 GetShieldImpactPosition( const Matrix& parentInverseWorldTransform, const Vector3& damageLocatorPosWS, const Vector3& impactDirection, const Vector3& shieldEllipsoidCenter, const Vector3& shieldEllipsoidRadii );
 
 	// general data
 	BlueSharedString m_name;
