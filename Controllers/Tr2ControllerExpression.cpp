@@ -212,6 +212,7 @@ namespace
 	{
 		return float( GetServerTimeParts().wSecond );
 	}
+
 #else
 	float GetServerYear()
 	{
@@ -248,6 +249,18 @@ namespace
 		return 0;
 	}
 #endif
+
+	float IsWeekend()
+	{
+		if( int( GetServerDayOfWeek() ) % 6 == 0 )
+		{
+			return 1.f;
+		}
+		else
+		{
+			return 0.f;
+		}
+	}
 
 	float TimePhase( float period )
 	{
@@ -371,6 +384,7 @@ std::string Tr2ControllerExpression::CreateParser( const char* expression, Modif
 	m_expressionParser.DefineFun( "ShipMaxSpeed", ShipMaxSpeed, false );
 	m_expressionParser.DefineFun( "Random", Random, false );
 
+	m_expressionParser.DefineFun( "IsWeekend", IsWeekend, false );
 	m_expressionParser.DefineFun( "ServerYear", GetServerYear, false );
 	m_expressionParser.DefineFun( "ServerMonth", GetServerMonth, false );
 	m_expressionParser.DefineFun( "ServerDay", GetServerDay, false );
@@ -459,6 +473,7 @@ void Tr2ControllerExpression::GetExpressionTermInfo( std::vector<Tr2ExpressionTe
 	info.push_back( Tr2ExpressionTermInfo::Function( "Controller", "ShipMaxSpeed", "owning ship maximum speed" ) );
 	info.push_back( Tr2ExpressionTermInfo::Function( "Controller", "Random", "min", "max", "returns a random from 'min'-'max-1' " ) );
 
+	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "IsWeekend", "is it the weekend (output: 1.0 = yes, 0.0 = no)" ) );
 	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "ServerYear", "returns a year for current server time" ) );
 	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "ServerMonth", "returns a month (1-12) for current server time" ) );
 	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "ServerDay", "returns a day of month (1-31) for current server time" ) );
