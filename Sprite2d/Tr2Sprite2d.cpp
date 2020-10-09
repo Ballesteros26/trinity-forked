@@ -2,6 +2,8 @@
 #include "Tr2Sprite2d.h"
 #include "Tr2Sprite2dTexture.h"
 #include "Tr2Sprite2dScene.h"
+#include "Tr2Sprite2dPickingMask.h"
+
 
 static unsigned short s_spriteIndices[18] = { 
 	0,  1,  3,  3,  1,  2, 
@@ -128,7 +130,10 @@ ITr2SpriteObject* Tr2Sprite2d::PickPoint( float x, float y, Tr2Sprite2dScene* re
 	{
 		if( renderer->IsInside( Vector2( x, y ), m_translation, m_displayWidth, m_displayHeight, m_pickRadius ) )
 		{
-			return this;
+			if( !m_pickingMask || m_pickingMask->SampleMask( renderer->InverseTransformPoint( Vector2( x, y ) ), m_translation, m_displayWidth, m_displayHeight ) )
+			{
+				return this;
+			}
 		}
 	}
 	

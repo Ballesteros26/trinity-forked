@@ -10,6 +10,7 @@
 class Tr2Sprite2dScene;
 
 BLUE_DECLARE( Tr2SpriteObject );
+BLUE_DECLARE( Tr2Sprite2dPickingMask );
 
 // This is defined in Tr2SpriteObject_Blue.cpp
 extern Be::VarChooser Tr2SpriteObjectPickStateChooser[];
@@ -71,6 +72,8 @@ protected:
 	std::wstring m_name;
 	bool m_display;
 	Tr2SpriteObjectPickState m_pickState;
+
+	Tr2Sprite2dPickingMaskPtr m_pickingMask;
 
 #if BLUE_WITH_PYTHON
 	PyObject* m_associatedObject;

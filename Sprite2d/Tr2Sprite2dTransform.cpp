@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "Tr2Sprite2dTransform.h"
 #include "Tr2Sprite2dScene.h"
+#include "Tr2Sprite2dPickingMask.h"
 
 Tr2Sprite2dTransform::Tr2Sprite2dTransform( IRoot* lockobj ) :
 	Tr2Sprite2dContainerBase( lockobj ),
@@ -52,6 +53,10 @@ ITr2SpriteObject* Tr2Sprite2dTransform::PickPoint( float x, float y, Tr2Sprite2d
 	// Check that we're within the bounding box of the transform object itself
 	renderer->PushTranslation( m_translation );
 	bool isInside = renderer->IsInside( Vector2( x, y ), Vector2( 0.0f, 0.0f ), m_displayWidth, m_displayHeight, 0.0 );
+	if( isInside && m_pickingMask )
+	{
+		isInside = m_pickingMask->SampleMask( renderer->InverseTransformPoint( Vector2( x, y ) ), Vector2( 0.0f, 0.0f ), m_displayWidth, m_displayHeight );
+	}
 	renderer->PopTranslation();
 	if( !isInside )
 	{

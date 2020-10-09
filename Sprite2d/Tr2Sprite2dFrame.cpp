@@ -3,6 +3,7 @@
 #include "Tr2AtlasTexture.h"
 #include "Tr2Sprite2dTexture.h"
 #include "Tr2Sprite2dScene.h"
+#include "Tr2Sprite2dPickingMask.h"
 
 // All frames can use the same indices - the layout of the frame is always the same.
 static unsigned short s_frameIndices[] = {
@@ -149,7 +150,10 @@ ITr2SpriteObject* Tr2Sprite2dFrame::PickPoint( float x, float y, Tr2Sprite2dScen
 	{
 		if( renderer->IsInside( Vector2( x, y ), Vector2( m_translation.x, m_translation.y ), m_displayWidth, m_displayHeight, 0.0f ) )
 		{
-			return this;
+			if( !m_pickingMask || m_pickingMask->SampleMask( renderer->InverseTransformPoint( Vector2( x, y ) ), m_translation, m_displayWidth, m_displayHeight ) )
+			{
+				return this;
+			}
 		}
 	}
 
@@ -365,5 +369,4 @@ void Tr2Sprite2dFrame::PrepareVertices( Tr2Sprite2dVertexBase* v, float srcWidth
 	v->texCoord[1].x = 1.0f;
 	v->texCoord[1].y = 1.0f;
 	v->color = white;
-	++v;
 }

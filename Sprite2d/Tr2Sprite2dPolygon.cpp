@@ -2,6 +2,7 @@
 #include "Tr2Sprite2dPolygon.h"
 #include "Tr2Sprite2dTexture.h"
 #include "Tr2Sprite2dScene.h"
+#include "Tr2Sprite2dPickingMask.h"
 
 Tr2Sprite2dPolygon::Tr2Sprite2dPolygon( IRoot* lockobj ) :
 	PARENTLOCK( m_vertices ),
@@ -116,21 +117,24 @@ ITr2SpriteObject* Tr2Sprite2dPolygon::PickPoint( float x, float y, Tr2Sprite2dSc
 		return nullptr;
 	}
 
-	Vector2 query( x, y );
-
-	for( auto it = m_triangles.begin(); it != m_triangles.end(); ++it )
+	if( !m_pickingMask || m_pickingMask->SampleMask( renderer->InverseTransformPoint( Vector2( x, y ) ), m_translation, m_displayWidth, m_displayHeight ) )
 	{
-		auto p0 = m_vertices[(*it)->m_index[0]]->position;
-		auto p1 = m_vertices[(*it)->m_index[1]]->position;
-		auto p2 = m_vertices[(*it)->m_index[2]]->position;
+		Vector2 query( x, y );
 
-		if( renderer->IsInsideTriangle( query, Vector2( p0.x, p0.y ), Vector2( p1.x, p1.y ), Vector2( p2.x, p2.y ) ) )
+		for( auto it = m_triangles.begin(); it != m_triangles.end(); ++it )
 		{
-			return this;
-		}
-		if( renderer->IsInsideTriangle( query, Vector2( p0.x, p0.y ), Vector2( p2.x, p2.y ), Vector2( p1.x, p1.y ) ) )
-		{
-			return this;
+			auto p0 = m_vertices[( *it )->m_index[0]]->position;
+			auto p1 = m_vertices[( *it )->m_index[1]]->position;
+			auto p2 = m_vertices[( *it )->m_index[2]]->position;
+
+			if( renderer->IsInsideTriangle( query, Vector2( p0.x, p0.y ), Vector2( p1.x, p1.y ), Vector2( p2.x, p2.y ) ) )
+			{
+				return this;
+			}
+			if( renderer->IsInsideTriangle( query, Vector2( p0.x, p0.y ), Vector2( p2.x, p2.y ), Vector2( p1.x, p1.y ) ) )
+			{
+				return this;
+			}
 		}
 	}
 	return nullptr;

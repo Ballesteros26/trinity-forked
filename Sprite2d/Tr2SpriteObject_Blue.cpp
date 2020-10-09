@@ -126,6 +126,13 @@ const Be::ClassInfo* Tr2SpriteObjectBase::ExposeToBlue()
 			Tr2SpriteObjectPickStateChooser
 		)
 
+		MAP_ATTRIBUTE(
+			"pickingMask",
+			m_pickingMask,
+			"Mouse picking mask",
+			Be::READWRITE
+		)
+
 		MAP_METHOD_AND_WRAP
 		(
 			"SetDirty",

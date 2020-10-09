@@ -8,6 +8,8 @@
 #include "Tr2Sprite2dLineTrace.h"
 #include "Tr2Sprite2dTexture.h"
 #include "Tr2Sprite2dScene.h"
+#include "Tr2Sprite2dPickingMask.h"
+
 
 Tr2Sprite2dLineTraceVertex::Tr2Sprite2dLineTraceVertex( IRoot* lockobj /*= NULL */ ) :
 m_position( 0.0f, 0.0f ),
@@ -218,23 +220,26 @@ ITr2SpriteObject* Tr2Sprite2dLineTrace::PickPoint( float x, float y, Tr2Sprite2d
 			return nullptr;
 		}
 
-		Vector2 p( x, y );
-
-		for( auto it = m_drawCalls.begin(); it != m_drawCalls.end(); ++it )
+		if( !m_pickingMask || m_pickingMask->SampleMask( renderer->InverseTransformPoint( Vector2( x, y ) ), m_translation, m_displayWidth, m_displayHeight ) )
 		{
-			for( size_t i = 0; i < size_t( it->indexCount / 3 ); ++i )
+			Vector2 p( x, y );
+
+			for( auto it = m_drawCalls.begin(); it != m_drawCalls.end(); ++it )
 			{
-				auto ix0 = m_renderIndices[i * 3 + it->indexOffset];
-				auto ix1 = m_renderIndices[i * 3 + it->indexOffset + 1];
-				auto ix2 = m_renderIndices[i * 3 + it->indexOffset + 2];
-
-				auto v0 = m_renderVertices[ix0 + it->vertexOffset];
-				auto v1 = m_renderVertices[ix1 + it->vertexOffset];
-				auto v2 = m_renderVertices[ix2 + it->vertexOffset];
-
-				if( renderer->IsInsideTriangle( p, *(Vector2*)&v0.position, *(Vector2*)&v1.position, *(Vector2*)&v2.position ) )
+				for( size_t i = 0; i < size_t( it->indexCount / 3 ); ++i )
 				{
-					return this;
+					auto ix0 = m_renderIndices[i * 3 + it->indexOffset];
+					auto ix1 = m_renderIndices[i * 3 + it->indexOffset + 1];
+					auto ix2 = m_renderIndices[i * 3 + it->indexOffset + 2];
+
+					auto v0 = m_renderVertices[ix0 + it->vertexOffset];
+					auto v1 = m_renderVertices[ix1 + it->vertexOffset];
+					auto v2 = m_renderVertices[ix2 + it->vertexOffset];
+
+					if( renderer->IsInsideTriangle( p, *(Vector2*)&v0.position, *(Vector2*)&v1.position, *(Vector2*)&v2.position ) )
+					{
+						return this;
+					}
 				}
 			}
 		}

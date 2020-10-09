@@ -7,6 +7,7 @@
 #include "StdAfx.h"
 #include "Tr2Sprite2dRenderJob.h"
 #include "Tr2Sprite2dScene.h"
+#include "Tr2Sprite2dPickingMask.h"
 
 
 Tr2Sprite2dRenderJob::Tr2Sprite2dRenderJob( IRoot* lockobj /*= NULL */ )
@@ -39,7 +40,10 @@ ITr2SpriteObject* Tr2Sprite2dRenderJob::PickPoint( float x, float y, Tr2Sprite2d
 	{
 		if( renderer->IsInside( Vector2( x, y ), m_translation, m_displayWidth, m_displayHeight, 0.0f ) )
 		{
-			return this;
+			if( !m_pickingMask || m_pickingMask->SampleMask( renderer->InverseTransformPoint( Vector2( x, y ) ), m_translation, m_displayWidth, m_displayHeight ) )
+			{
+				return this;
+			}
 		}
 	}
 

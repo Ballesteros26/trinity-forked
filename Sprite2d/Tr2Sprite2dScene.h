@@ -87,6 +87,8 @@ public:
 	bool IsInsideTriangle( const Vector2& pointIn, const Vector2& v0, const Vector2& v1, const Vector2& v2 );
 	bool IsInsideClipRect( const Vector2& point );
 
+	Vector2 InverseTransformPoint( const Vector2& point ) const;
+
 	bool PrepareSpriteVerts( 
 		Tr2Sprite2dD3DVertex* destVerts,
 		const Vector2& pos,
@@ -165,7 +167,7 @@ private:
 	void GrowCaptureVertexBuffer( unsigned int vertexCount );
 
 
-	void TransformPoint( Vector2& result, const Vector2& point, Matrix m );
+	void TransformPoint( Vector2& result, const Vector2& point, const Matrix& m );
 
 	bool IsUsingLinearColorSpace() const;
 	void SetUseLinearColorSpace( bool use );

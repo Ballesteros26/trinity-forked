@@ -116,7 +116,9 @@ Tr2Sprite2dScene::Tr2Sprite2dScene( IRoot* lockobj ) :
 	m_drawCallStartIndex( 0 ),
 	m_transformsHandle(),
 	m_useLinearColorSpace( false ),
-	m_isGammaCorrectingText( true )
+	m_isGammaCorrectingText( true ),
+	m_realTime( 0 ),
+	m_simTime( 0 )
 {
 	m_transformStack = CCP_NEW( "Tr2Sprite2dScene/m_transformStack" ) TransformStack_t( "Tr2Sprite2dScene/m_transformStack" );
 	m_depthStack = CCP_NEW( "Tr2Sprite2dScene/m_depthStack" ) DepthStack_t( "Tr2Sprite2dScene/m_depthStack" );
@@ -777,9 +779,9 @@ void Tr2Sprite2dScene::SetTextureWindow( unsigned int ix, float x, float y, floa
 
 	CCP_ASSERT( ix < 2 );
 
-	TextureSetting& texSettings = m_textureSettings[ix];
 	if( m_texture[ix] )
 	{
+		TextureSetting& texSettings = m_textureSettings[ix];
 		m_texture[ix]->CalcSubTextureWindow( texSettings.textureWindow, x, y, width, height );
 	}
 }
@@ -1289,6 +1291,28 @@ bool Tr2Sprite2dScene::OnPrepareResources()
 	return true;
 }
 
+Vector2 Tr2Sprite2dScene::InverseTransformPoint( const Vector2& point ) const
+{
+	if( m_transformStack->empty() )
+	{
+		return point;
+	}
+	else
+	{
+		const TransformStackEntry& topEntry = m_transformStack->back();
+
+		if( topEntry.isTranslationOnly )
+		{
+			return point - topEntry.translation;
+		}
+		else
+		{
+			auto transformed = Transform( Vector4( point.x, point.y, 0, 1 ), Inverse( topEntry.transform ) );
+			return Vector2( transformed.x, transformed.y );
+		}
+	}
+}
+
 bool Tr2Sprite2dScene::IsInside( const Vector2& pointIn, const Vector2& topLeft, float width, float height, float radius )
 {
 	if( !IsInsideClipRect( pointIn ) )
@@ -1374,19 +1398,19 @@ bool Tr2Sprite2dScene::IsInside( const Vector2& pointIn, const Vector2& topLeft,
 		}
 		else if( radius == -1.0f )
 		{
-			float width = right - left;
-			float height = bottom - top;
+			float rwidth = right - left;
+			float rheight = bottom - top;
 
 			float a, b;
-			if( width > height )
+			if( rwidth > rheight )
 			{
-				a = width * 0.5f;
-				b = height * 0.5f;
+				a = rwidth * 0.5f;
+				b = rheight * 0.5f;
 			}
 			else
 			{
-				a = height * 0.5f;
-				b = width * 0.5f;
+				a = rheight * 0.5f;
+				b = rwidth * 0.5f;
 			}
 
 			if( dX*dX/(a*a) + dY*dY/(b*b) > 1.0f )
@@ -1938,7 +1962,6 @@ Tr2Sprite2dDisplayList* Tr2Sprite2dScene::EndCapture( Tr2Sprite2dDisplayList* pr
 		return nullptr;
 	}
 
-	if( vbSize )
 	{
 		bool reusedVb = false;
 		if( previousDisplayList && previousDisplayList->vertexBuffer.IsValid() && 
@@ -1969,7 +1992,6 @@ Tr2Sprite2dDisplayList* Tr2Sprite2dScene::EndCapture( Tr2Sprite2dDisplayList* pr
 		}
 	}
 
-	if( ibSize )
 	{
 		bool reusedIb = false;
 		if( previousDisplayList && previousDisplayList->indexBuffer.IsValid() && 
@@ -2211,12 +2233,11 @@ bool Tr2Sprite2dScene::PrepareResourcesForRender()
 	if( !m_indexBuffer.IsValid() || !m_vertexBuffer.IsValid() )
 	{
 		PrepareResources();
-	}
-
-	// Bail out if the buffers still aren't valid
-	if( !m_indexBuffer.IsValid() || !m_vertexBuffer.IsValid() )
-	{
-		return false;
+		// Bail out if the buffers still aren't valid
+		if( !m_indexBuffer.IsValid() || !m_vertexBuffer.IsValid() )
+		{
+			return false;
+		}
 	}
 
 	Tr2EffectResPtr effectRes = m_uberShader2d->GetEffectRes();
@@ -2556,7 +2577,7 @@ bool Tr2Sprite2dScene::IsInsideClipRect( const Vector2& point )
 	return true;
 }
 
-void Tr2Sprite2dScene::TransformPoint( Vector2& result, const Vector2& point, Matrix m )
+void Tr2Sprite2dScene::TransformPoint( Vector2& result, const Vector2& point, const Matrix& m )
 {
 	Vector4 point4( point.x, point.y, 0, 1 );
 	Vector4 transformed = Transform( point4, m );

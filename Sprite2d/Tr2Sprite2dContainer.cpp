@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "Tr2Sprite2dContainer.h"
 #include "Tr2Sprite2dScene.h"
+#include "Tr2Sprite2dPickingMask.h"
+
 
 Tr2Sprite2dContainerBase::Tr2Sprite2dContainerBase( IRoot* lockobj ) :
 	PARENTLOCK( m_children ),
@@ -229,40 +231,43 @@ ITr2SpriteObject* Tr2Sprite2dContainer::PickPoint( float x, float y, Tr2Sprite2d
 
 	if( renderer->IsInside( Vector2( x, y ), Vector2( 0.0f, 0.0f ), m_displayWidth, m_displayHeight, m_pickRadius ) )
 	{
-		if( m_clip )
+		if( !m_pickingMask || m_pickingMask->SampleMask( renderer->InverseTransformPoint( Vector2( x, y ) ), Vector2( 0.0f, 0.0f ), m_displayWidth, m_displayHeight ) )
 		{
-			renderer->PushClipRectangle( 0.0f, 0.0f, m_displayWidth, m_displayHeight );
-		}
-
-		for( ITr2SpriteObjectVector::iterator it = m_children.begin(); it != m_children.end(); ++it )
-		{
-			obj = (*it)->PickPoint( x, y, renderer );
-			if( obj )
+			if( m_clip )
 			{
-				break;
+				renderer->PushClipRectangle( 0.0f, 0.0f, m_displayWidth, m_displayHeight );
 			}
-		}
 
-		if( m_clip )
-		{
-			renderer->PopClipRectangle();
-		}
-
-		// If container itself is pickable and no child was found
-		if( m_pickState == TR2_SPS_ON )
-		{
-			this->m_auxMouseover = NULL;
-			if ( !obj )
+			for( ITr2SpriteObjectVector::iterator it = m_children.begin(); it != m_children.end(); ++it )
 			{
-				obj = this;
-			}
-			else
-			{
-				if ( obj->IsAuxMouseover() )
+				obj = ( *it )->PickPoint( x, y, renderer );
+				if( obj )
 				{
-					// The auxiliary mouseover can add content to the mouseover text or context menu
-					this->m_auxMouseover = obj;
+					break;
+				}
+			}
+
+			if( m_clip )
+			{
+				renderer->PopClipRectangle();
+			}
+
+			// If container itself is pickable and no child was found
+			if( m_pickState == TR2_SPS_ON )
+			{
+				this->m_auxMouseover = NULL;
+				if( !obj )
+				{
 					obj = this;
+				}
+				else
+				{
+					if( obj->IsAuxMouseover() )
+					{
+						// The auxiliary mouseover can add content to the mouseover text or context menu
+						this->m_auxMouseover = obj;
+						obj = this;
+					}
 				}
 			}
 		}
