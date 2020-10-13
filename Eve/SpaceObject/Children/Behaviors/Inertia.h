@@ -4,6 +4,19 @@
 #include "Eve/SpaceObject/Children/EveChildBehaviorSystem.h"
 #include "IBehavior.h"
 
+struct InertiaData
+{
+	InertiaData() :
+		agentAccel( 0.0, 0.0, 0.0 ),
+		inertiaWeight( 0.f )
+	{
+	}
+
+	Vector3 agentAccel;
+	float inertiaWeight;
+};
+
+
 BLUE_CLASS( Inertia ) :
 	public IBehavior
 {
@@ -14,14 +27,15 @@ public:
 
 	virtual int GetProcessPriority();
 	virtual size_t GetScratchMemorySize() const;
-	virtual void InitializeScratch( void* scratchMemory );
-	virtual std::vector<Vector3> CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-	                                               BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius);
+	virtual void InitializeScratch( const DroneAgent& drone, void* scratchMemory );
+	virtual std::vector<Vector3> CalculateBehavior( std::vector<DroneAgent> & agents, void* scratchData, const float deltaTime, BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius );
+	void RenderDebugInfo( ITr2DebugRenderer2 & renderer, std::vector<DroneAgent> & agents, Matrix & parentWorldLocation );
 
 private:
 	float m_maxAcceleration;
-	float m_inertiaWeight;
+	float m_minInertiaWeight;	// We always want some inertia when the agent is at full speed
 	float m_maxRotationSpeed;
+	int m_priority;
 };
 TYPEDEF_BLUECLASS( Inertia );
 

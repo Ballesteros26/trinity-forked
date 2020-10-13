@@ -3,13 +3,18 @@
 
 BLUE_DEFINE( PlayFX );
 
+extern Be::VarChooser BehaviorPriorityChooser[];
+
 const Be::ClassInfo* PlayFX::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( PlayFX, "" )
 		MAP_INTERFACE( PlayFX )
 		MAP_INTERFACE( IBehavior )
 
-		MAP_ATTRIBUTE( "behaviorWeight", m_behaviorWeight, ":jessica-group: PlayFX", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE_WITH_CHOOSER( "behaviorPriority", m_priority, "control what priority this behavior should have", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY | Be::ENUM, BehaviorPriorityChooser )
+
+		MAP_ATTRIBUTE( "behaviorWeight", m_behaviorWeight, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "sec", m_sec, "How long should the fx play", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "firingEffect", m_firingEffect, "A stretch effect for this firing effect", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "firingEffects", m_firingEffects, "A stretch effect for this firing effect", Be::READ )

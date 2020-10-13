@@ -6,7 +6,8 @@ InclusionVolume::InclusionVolume( IRoot* lockobj ):
 	PARENTLOCK( m_inclusionVolumes ),
 	m_behaviorWeight( 1 ),
 	m_frameCounter( 0 ),
-	m_framesBetweenUpdates( 11 )
+	m_framesBetweenUpdates( 11 ),
+	m_priority( LEAST_PRIORITY )
 {
 }
 
@@ -14,6 +15,10 @@ InclusionVolume::~InclusionVolume()
 {
 }
 
+int InclusionVolume::GetProcessPriority()
+{
+	return m_priority;
+}
 
 std::vector<Vector3> InclusionVolume::CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
                                                         BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius)

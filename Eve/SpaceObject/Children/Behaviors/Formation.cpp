@@ -17,7 +17,8 @@ Formation::Formation( IRoot* lockobj ):
 	m_maxFormationRotationSpeed( 0.314 ),
 	m_framesBetweenUpdates( 15 ),
 	m_inFormation( false ),
-	m_isFormalizing( false )
+	m_isFormalizing( false ),
+	m_priority( LEAST_PRIORITY )
 {
 	m_lastPullForces.clear();
 }
@@ -38,7 +39,7 @@ void Formation::InitializeScratch( void* scratchMemory )
 
 int Formation::GetProcessPriority()
 {
-	return PROCESS_NEXT;
+	return m_priority;
 }
 
 std::string Formation::GetBehaviorName()

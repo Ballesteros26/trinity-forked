@@ -52,6 +52,7 @@ private:
 	float m_behaviorWeight;
 	float m_distanceFromCenter;
 	int m_sec;
+	int m_priority;
 	bool m_stop;
 
 	IEveFiringEffectElementPtr m_firingEffect;

@@ -3,14 +3,18 @@
 
 BLUE_DEFINE( CollisionAvoidance );
 
+extern Be::VarChooser BehaviorPriorityChooser[];
+
 const Be::ClassInfo* CollisionAvoidance::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( CollisionAvoidance, "" )
 		MAP_INTERFACE( CollisionAvoidance )
 		MAP_INTERFACE( IBehavior )
 
+		MAP_ATTRIBUTE_WITH_CHOOSER( "behaviorPriority", m_priority, "control what priority this behavior should have", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY | Be::ENUM, BehaviorPriorityChooser )
 		MAP_ATTRIBUTE( "exclusionVolumes", m_exclusionVolumes, "", Be::READ | Be::PERSIST )
-		MAP_ATTRIBUTE( "avoidanceScalar", m_collisionAvoidanceScalar, ":jessica-group: CollisionAvoidance", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "avoidanceScalar", m_collisionAvoidanceScalar, "", Be::READWRITE | Be::PERSIST )
 
 	EXPOSURE_END()
 }

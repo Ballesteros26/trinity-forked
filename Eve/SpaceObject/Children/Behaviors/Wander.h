@@ -14,6 +14,7 @@ public:
 
 	virtual std::vector<Vector3> CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
 	                                               BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius);
+	virtual int GetProcessPriority();
 
 private:
 	float m_weightWander;	//priority of behavior
@@ -21,6 +22,7 @@ private:
 	float rand2;
 	float rand3;
 	float m_freq;
+	int m_priority;
 
 };
 

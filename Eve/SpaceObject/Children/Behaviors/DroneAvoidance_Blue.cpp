@@ -3,11 +3,16 @@
 
 BLUE_DEFINE( DroneAvoidance );
 
+extern Be::VarChooser BehaviorPriorityChooser[];
+
 const Be::ClassInfo* DroneAvoidance::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( DroneAvoidance, "" )
 		MAP_INTERFACE( DroneAvoidance )
 		MAP_INTERFACE( IBehavior )
+
+		MAP_ATTRIBUTE_WITH_CHOOSER( "behaviorPriority", m_priority, "control what priority this behavior should have", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY | Be::ENUM, BehaviorPriorityChooser )
 
 		MAP_ATTRIBUTE( "behaviorWeight", m_behaviorWeight, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "visionRange", m_visionRange, "How far the drone looks for it's buddies", Be::READWRITE | Be::PERSIST )

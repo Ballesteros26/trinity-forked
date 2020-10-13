@@ -39,6 +39,7 @@ public:
 	void OnListModified( long event, ssize_t key, ssize_t key2, IRoot* value, const IList* theList );
 	void GetDebugOptions( Tr2DebugRendererOptions& options );
 	void RenderDebugInfo( ITr2DebugRenderer2& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation);
+	virtual int GetProcessPriority();
 	
 private:
 	float ProcessTunnelEntrances(DroneAgent& agent, const std::vector<SplineTunnel*>& tunnels, FollowASplineData* data);
@@ -59,6 +60,7 @@ private:
 	int m_framesBetweenUpdates;
 	int m_frameCounter;
 	std::vector<Vector3> m_lastPullForces;
+	int m_priority;
 };
 
 TYPEDEF_BLUECLASS( FollowASpline );

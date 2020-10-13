@@ -9,7 +9,8 @@ ProcessLifetime::ProcessLifetime( IRoot* lockobj ) :
 	m_behaviorWeight( 15 ),
 	m_shouldReassignTunnelIDs( true ),
 	m_respawnAgentsOnDeath( true ),
-	m_exit( false )
+	m_exit( false ),
+	m_priority( LEAST_PRIORITY )
 {
 	m_splineTunnels.SetNotify( this );
 }
@@ -56,6 +57,11 @@ void ProcessLifetime::OnListModified( long event, ssize_t key, ssize_t key2, IRo
 		}
 		UpdateTunnelRegistry();
 	}
+}
+
+int ProcessLifetime::GetProcessPriority()
+{
+	return m_priority;
 }
 
 std::string ProcessLifetime::GetBehaviorName()

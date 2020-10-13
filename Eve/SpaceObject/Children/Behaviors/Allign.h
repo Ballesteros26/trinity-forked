@@ -18,6 +18,7 @@ public:
 	void GetDebugOptions( Tr2DebugRendererOptions& options );
 	void RenderDebugInfo( ITr2DebugRenderer2& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation );
 	float GetBehaviorSearchRadius();
+	virtual int GetProcessPriority();
 
 private:
 	int m_framesBetweenUpdates;
@@ -25,6 +26,7 @@ private:
 	std::vector<Vector3> m_lastPullForces;
 	float m_behaviorWeight;
 	float m_visionRange;
+	int m_priority;
 };
 TYPEDEF_BLUECLASS( Allign );
 

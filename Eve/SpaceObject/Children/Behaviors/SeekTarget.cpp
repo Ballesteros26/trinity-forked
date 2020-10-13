@@ -20,7 +20,8 @@ SeekTarget::SeekTarget( IRoot* lockobj ) :
 	m_target( nullptr ),
 	m_fxBehavior( nullptr ),
 	m_locatorSetName( "damage" ),
-	m_startTimer( false )
+	m_startTimer( false ),
+	m_priority( LEAST_PRIORITY )
 {
 	m_locatorSet.CreateInstance();
 }
@@ -31,7 +32,7 @@ SeekTarget::~SeekTarget()
 
 int SeekTarget::GetProcessPriority()
 {
-	return PROCESS_LAST;
+	return m_priority;
 }
 
 

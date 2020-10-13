@@ -3,11 +3,16 @@
 
 BLUE_DEFINE( Formation );
 
+extern Be::VarChooser BehaviorPriorityChooser[];
+
 const Be::ClassInfo* Formation::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( Formation, "" )
 		MAP_INTERFACE( Formation )
 		MAP_INTERFACE( IBehavior )
+
+		MAP_ATTRIBUTE_WITH_CHOOSER( "behaviorPriority", m_priority, "control what priority this behavior should have", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY | Be::ENUM, BehaviorPriorityChooser )
 
 		MAP_ATTRIBUTE( "behaviorWeight", m_behaviorWeight, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "framesBetweenUpdates", m_framesBetweenUpdates, "updateFrequency to lessen the load", Be::READWRITE | Be::PERSIST )

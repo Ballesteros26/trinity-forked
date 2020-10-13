@@ -6,7 +6,8 @@ DroneAvoidance::DroneAvoidance( IRoot* lockobj ):
 	m_behaviorWeight( 5 ),
 	m_visionRange( 5 ),
 	m_frameCounter( 0 ),
-	m_framesBetweenUpdates( 3 )
+	m_framesBetweenUpdates( 3 ),
+	m_priority( LEAST_PRIORITY )
 {
 	m_lastPullForces.clear();
 }
@@ -15,6 +16,10 @@ DroneAvoidance::~DroneAvoidance()
 {
 }
 
+int DroneAvoidance::GetProcessPriority()
+{
+	return m_priority;
+}
 
 std::vector<Vector3> DroneAvoidance::CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
                                                        BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius)
@@ -55,8 +60,6 @@ std::vector<Vector3> DroneAvoidance::CalculateBehavior(std::vector<DroneAgent>& 
 				m_lastPullForces.push_back( Vector3( 0, 0, 0 ) );
 				continue;
 			}
-
-			//avoidanceDirection = Cross( avoidanceDirection, agent->velocity );
 
 			Vector3 pullVector = ( 0.5f * Normalize( avoidanceDirection ) + 0.5f * Normalize( agent->velocity ) ) * m_behaviorWeight;
 

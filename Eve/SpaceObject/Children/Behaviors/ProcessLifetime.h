@@ -46,6 +46,7 @@ public:
 	                                               BehaviorGroup& sys, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius);
 	void GetDebugOptions( Tr2DebugRendererOptions& options );
 	void RenderDebugInfo( ITr2DebugRenderer2& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation);
+	virtual int GetProcessPriority();
 
 	void UpdateState( bool state ) { m_exit = state; }
 
@@ -70,6 +71,7 @@ private:
 	bool m_shouldReassignTunnelIDs;
 	bool m_exit;
 	Vector3 m_desiredVector;
+	int m_priority;
 };
 
 TYPEDEF_BLUECLASS( ProcessLifetime );

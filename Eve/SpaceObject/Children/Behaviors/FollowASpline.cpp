@@ -9,6 +9,7 @@ FollowASpline::FollowASpline( IRoot* lockobj ) :
 	m_smoothPullFactor( 0.8 ),
 	m_cornerSmoothener( 0.8 ),
 	m_tunnelGroupType( OTHER_TUNNELS ),
+	m_priority( LEAST_PRIORITY ),
 	m_frameCounter( 0 ),
 	m_framesBetweenUpdates( 11 )
 {
@@ -23,6 +24,11 @@ bool FollowASpline::OnModified( Be::Var* value )
 {
 	UpdateTunnelRegistry();
 	return true;
+}
+
+int FollowASpline::GetProcessPriority()
+{
+	return m_priority;
 }
 
 void FollowASpline::OnListModified( long event, ssize_t key, ssize_t key2, IRoot* value, const struct IList* theList )

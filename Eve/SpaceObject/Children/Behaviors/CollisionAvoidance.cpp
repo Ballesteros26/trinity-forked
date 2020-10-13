@@ -3,7 +3,8 @@
 
 CollisionAvoidance::CollisionAvoidance( IRoot* lockobj ) :
 	PARENTLOCK( m_exclusionVolumes ),
-	m_collisionAvoidanceScalar( 10.f ) 
+	m_collisionAvoidanceScalar( 10.f ),
+	m_priority( LEAST_PRIORITY )
 {
 }
 
@@ -13,7 +14,7 @@ CollisionAvoidance::~CollisionAvoidance()
 
 int CollisionAvoidance::GetProcessPriority()
 {
-	return PROCESS_LAST;
+	return m_priority;
 }
 
 std::vector<Vector3> CollisionAvoidance::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,

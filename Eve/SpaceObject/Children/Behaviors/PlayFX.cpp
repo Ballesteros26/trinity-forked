@@ -9,7 +9,8 @@ PlayFX::PlayFX( IRoot* lockobj ) :
 	m_behaviorWeight( 20.f ),
 	m_distanceFromCenter( 5.f ),
 	m_sec( 1 ),
-	m_stop( false )
+	m_stop( false ),
+	m_priority( LEAST_PRIORITY )
 {
 	m_firingEffect = nullptr;
 }
@@ -20,7 +21,7 @@ PlayFX::~PlayFX()
 
 int PlayFX::GetProcessPriority()
 {
-	return PROCESS_LATER;
+	return m_priority;
 }
 
 std::string PlayFX::GetBehaviorName()

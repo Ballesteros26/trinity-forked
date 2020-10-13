@@ -6,7 +6,8 @@ ApproachGroup::ApproachGroup( IRoot* lockobj ):
 	m_visionRange( 150 ),
 	m_behaviorWeight( 1 ),
 	m_frameCounter( 0 ),
-	m_framesBetweenUpdates( 83 )
+	m_framesBetweenUpdates( 83 ),
+	m_priority( LEAST_PRIORITY )
 {
 	m_lastPullForces.clear();
 }
@@ -15,6 +16,10 @@ ApproachGroup::~ApproachGroup()
 {
 }
 
+int ApproachGroup::GetProcessPriority()
+{
+	return m_priority;
+}
 
 std::vector<Vector3> ApproachGroup::CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
                                                       BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius)

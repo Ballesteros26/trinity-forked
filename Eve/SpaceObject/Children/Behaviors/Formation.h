@@ -55,6 +55,7 @@ private:
 	int m_frameCounter;
 	int m_stubbornness;
 	int m_stubbornnessCounter;
+	int m_priority;
 	float m_behaviorWeight;
 	float m_visionRange;
 	float m_maxFormationRotationSpeed;
@@ -64,7 +65,6 @@ private:
 	Vector3 m_formationRotation;
 	Vector3 m_formationAcceleration;
 	Vector3 m_lastFormationAcceleration;
-	
 };
 TYPEDEF_BLUECLASS( Formation );
 

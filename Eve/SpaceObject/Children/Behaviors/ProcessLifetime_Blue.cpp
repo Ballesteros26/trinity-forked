@@ -13,12 +13,17 @@ BLUE_REGISTER_ENUM_EX( "setTunnelType", SplineTunnelGroup::TunnelGroupType, Proc
 
 BLUE_DEFINE( ProcessLifetime );
 
+extern Be::VarChooser BehaviorPriorityChooser[];
+
 const Be::ClassInfo* ProcessLifetime::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( ProcessLifetime, "" )
 		MAP_INTERFACE( ProcessLifetime )
 		MAP_INTERFACE( IBehavior )
 		MAP_INTERFACE( INotify )
+
+		MAP_ATTRIBUTE_WITH_CHOOSER( "behaviorPriority", m_priority, "control what priority this behavior should have", 
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY | Be::ENUM, BehaviorPriorityChooser )
 
 		MAP_ATTRIBUTE( "exit", m_exit, "Trigger to have drones search for an exit tunnel", Be::READWRITE )
 		MAP_ATTRIBUTE( "firstAgentLifetime", m_firstAgentLifetime, "Current lifetime for first agent in the group", Be::READ )

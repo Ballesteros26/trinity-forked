@@ -8,12 +8,18 @@ Wander::Wander(IRoot* lockobj) :
 	rand1(0.2),
 	rand2(0.8),
 	rand3(1.2),
-	m_freq(2)
+	m_freq(2),
+	m_priority( LEAST_PRIORITY )
 {
 }
 
 Wander::~Wander()
 {
+}
+
+int Wander::GetProcessPriority()
+{
+	return m_priority;
 }
 
 std::vector<Vector3> Wander::CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,

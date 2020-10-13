@@ -6,7 +6,8 @@ Allign::Allign( IRoot* lockobj ):
 	m_behaviorWeight( 1 ),
 	m_visionRange( 75 ),
 	m_frameCounter( 0 ),
-	m_framesBetweenUpdates( 61 )
+	m_framesBetweenUpdates( 61 ),
+	m_priority( LEAST_PRIORITY )
 {
 	m_lastPullForces.clear();
 }
@@ -15,6 +16,10 @@ Allign::~Allign()
 {
 }
 
+int Allign::GetProcessPriority()
+{
+	return m_priority;
+}
 
 std::vector<Vector3> Allign::CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
                                                BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius)

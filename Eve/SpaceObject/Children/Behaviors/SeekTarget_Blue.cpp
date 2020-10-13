@@ -3,21 +3,27 @@
 
 BLUE_DEFINE( SeekTarget );
 
+extern Be::VarChooser BehaviorPriorityChooser[];
+
 const Be::ClassInfo* SeekTarget::ExposeToBlue()
 {
 	EXPOSURE_BEGIN( SeekTarget, "" )
 		MAP_INTERFACE( SeekTarget )
 		MAP_INTERFACE( IBehavior )
 
+		MAP_ATTRIBUTE_WITH_CHOOSER( "behaviorPriority", m_priority, "control what priority this behavior should have",
+			Be::READWRITE | Be::PERSIST | Be::NOTIFY | Be::ENUM, BehaviorPriorityChooser )		
+
 		MAP_ATTRIBUTE( "locatorSet", m_locatorSet, "Set of Blue structure lists of locators identified by a name", Be::READ | Be::PERSIST )
-		MAP_ATTRIBUTE( "behaviorWeight", m_behaviorWeight, ":jessica-group: SeekTarget", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "arrivedRadius", m_arrivedRadius, ":jessica-group: SeekTarget", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "slowDownRadius", m_slowDownRadius, ":jessica-group: SeekTarget", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "fxBehavior", m_fxBehavior, ":jessica-group: SeekTarget", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "target", m_target, ":jessica-group: SeekTarget", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "exit", m_exit, ":jessica-group: SeekTarget", Be::READWRITE )
-		MAP_ATTRIBUTE( "repair", m_repair, ":jessica-group: SeekTarget", Be::READWRITE )
+		MAP_ATTRIBUTE( "behaviorWeight", m_behaviorWeight, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "arrivedRadius", m_arrivedRadius, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "slowDownRadius", m_slowDownRadius, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "fxBehavior", m_fxBehavior, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "target", m_target, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "exit", m_exit, "", Be::READWRITE )
+		MAP_ATTRIBUTE( "repair", m_repair, "", Be::READWRITE )
 		MAP_ATTRIBUTE( "onFirstDroneArrivedCallback", m_onFirstDroneArrivedCallback, "", Be::READWRITE )
+		MAP_ATTRIBUTE( "totalRepairTime", m_totalRepairTime, "", Be::READWRITE )
 
 		MAP_METHOD_AND_WRAP(
 			"SetTarget",

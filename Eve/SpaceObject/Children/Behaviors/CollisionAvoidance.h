@@ -24,6 +24,7 @@ public:
 private:
 	PIEveVolumeVector m_exclusionVolumes;
 	float m_collisionAvoidanceScalar;
+	int m_priority;
 };
 
 TYPEDEF_BLUECLASS( CollisionAvoidance );

@@ -21,7 +21,7 @@ BackAndForth::~BackAndForth()
 
 int BackAndForth::GetProcessPriority()
 {
-	return PROCESS_LATER;
+	return LEAST_PRIORITY;
 }
 
 size_t BackAndForth::GetScratchMemorySize() const

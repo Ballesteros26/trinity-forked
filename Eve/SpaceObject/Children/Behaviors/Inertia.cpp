@@ -3,9 +3,10 @@
 #include "include/TriMath.h"
 
 Inertia::Inertia( IRoot* lockobj ) :
-	m_inertiaWeight( 0.5 ),
+	m_minInertiaWeight( 0.1 ),
 	m_maxRotationSpeed( 3.14 ),
-	m_maxAcceleration( 2 )
+	m_maxAcceleration( 100 ),
+	m_priority( LEAST_PRIORITY )
 {
 }
 
@@ -15,7 +16,7 @@ Inertia::~Inertia()
 
 int Inertia::GetProcessPriority()
 {
-	return PROCESS_INERTIA;
+	return m_priority;
 }
 
 size_t Inertia::GetScratchMemorySize() const
@@ -23,46 +24,54 @@ size_t Inertia::GetScratchMemorySize() const
 	return sizeof( Vector3 );
 }
 
-void Inertia::InitializeScratch( void* scratchMemory )
+void Inertia::InitializeScratch( const DroneAgent& drone, void* scratchMemory )
 {
-	*static_cast<Vector3*>( scratchMemory ) = Vector3( 0, 0, 0 );
+	*static_cast<InertiaData*>( scratchMemory ) = InertiaData();
 }
 
-std::vector<Vector3> Inertia::CalculateBehavior(std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
-                                                BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius)
+std::vector<Vector3> Inertia::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime, BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius )
 {
-	auto data = static_cast<Vector3*>( scratchData );
+	auto data = static_cast<InertiaData*>( scratchData );
 
-	for (auto agent = agents.begin(); agent != agents.end(); ++agent, data++)
+	for( auto agent = agents.begin(); agent != agents.end(); ++agent, ++data )
 	{
-		auto lastVelocityNormalized = Normalize( *data );
-		auto lastVelocityLength = Length( *data );
-		
-		auto desiredVelocity = *data + agent->acceleration;
-		auto velocityNormalized = Normalize( desiredVelocity );
-		auto velocityLength = Length( desiredVelocity );
+		auto lastAccelNormalized = Normalize( data->agentAccel );
+		auto lastAccelLength = Length( data->agentAccel );
+		auto accelNormalized = Normalize( agent->acceleration );
+		auto accelLength = Length( agent->acceleration );
 
-		if ( LengthSq( velocityNormalized ) != 0 )
+		if( LengthSq( lastAccelNormalized ) != 0 && m_maxRotationSpeed > 0 )
 		{
-			if ( m_maxRotationSpeed > 0 )
+			auto c = Normalize( Cross( lastAccelNormalized, accelNormalized ) );
+			if( Length( c ) == 0 )
 			{
-				auto c = Normalize( Cross( lastVelocityNormalized, velocityNormalized ) );
-				if ( LengthSq( c ) != 0 )
-				{
-					auto angle = acos( TriClamp( Dot( velocityNormalized, lastVelocityNormalized ), -1, 1 ) );
-					angle = min( abs( angle ), m_maxRotationSpeed ) * deltaTime * ( angle >= 0 ? 1 : -1 );
-					auto quat = RotationQuaternion( c, angle );
-					TriVectorRotateQuaternion( &velocityNormalized, &lastVelocityNormalized, &quat);
-					velocityNormalized = Normalize( velocityNormalized );
-				}
+				c = Vector3( 0, 1, 0 );
 			}
-			// This might need to be modified to act more naturally when forces flip directions i.e. bounce of walls
-			// or activate thrusters etc since length of lastAccel and Accel might be equal but the change is actually accel x2
-			desiredVelocity = ( velocityNormalized * Lerp( velocityLength, lastVelocityLength, TriClamp( m_inertiaWeight, 0, 1 ) ) );
-			agent->acceleration = desiredVelocity - agent->velocity;
+			auto angle = AngleFromNormalized( lastAccelNormalized, accelNormalized );
+			float step = m_maxRotationSpeed * deltaTime;
+			angle = min( angle, step );
+			if( angle > 0 )
+			{
+				auto quat = RotationQuaternion( c, angle );
+				TriVectorRotateQuaternion( &agent->acceleration, &lastAccelNormalized, &quat );
+			}
+
+			// needs to be data
+			float agentVelocityLength = Length(agent->velocity);
+
+			data->inertiaWeight = group.GetMaxVelocity() - agentVelocityLength;
+
+			data->inertiaWeight = TriClamp( data->inertiaWeight, 0.1, group.GetMaxVelocity() );
+
+			agent->acceleration = ClampLength( Normalize( agent->acceleration ) * Lerp( lastAccelLength, accelLength, data->inertiaWeight * deltaTime ), m_maxAcceleration );
+
 		}
-		*data = desiredVelocity;
+		data->agentAccel = agent->acceleration;
 	}
 	std::vector<Vector3> noNeedToReturnForces;
 	return noNeedToReturnForces;
+}
+
+void Inertia::RenderDebugInfo( ITr2DebugRenderer2& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation )
+{
 }
