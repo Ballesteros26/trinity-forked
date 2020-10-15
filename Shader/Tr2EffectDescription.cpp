@@ -436,7 +436,6 @@ bool Tr2EffectDescription::Read( const void* data,
 					samplerSetup.sampler.Create( sampler, renderContext );
 
 					pass.stageInputs[type].samplers[registerIndex] = samplerSetup;
-					pass.resourceSetDesc.SetSampler( type, registerIndex, samplerSetup.sampler );
 				}
 
 				if( version >= 3 )
@@ -496,6 +495,19 @@ bool Tr2EffectDescription::Read( const void* data,
 				return false;
 			}
 
+			pass.resourceSetDesc = Tr2ResourceSetDescriptionAL( *Tr2EffectStateManager::GetShaderProgram( pass.shaderProgram ) );
+			for( int32_t type = 0; type < Tr2RenderContextEnum::SHADER_TYPE_COUNT; ++type )
+			{
+				if( !pass.stageInputs[type].m_exists )
+				{
+					continue;
+				}
+				for( auto& sampler : pass.stageInputs[type].samplers )
+				{
+					pass.resourceSetDesc.SetSampler( Tr2RenderContextEnum::ShaderType( type ), sampler.first, sampler.second.sampler );
+				}
+			}
+			
 			uint8_t stateCount;
 			READ( uint8_t, uint8_t, stateCount );
 			if( stateCount > 64 )

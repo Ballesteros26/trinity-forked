@@ -83,7 +83,7 @@ public:
 
 	void ApplyRenderStates( uint32_t ix );
 	void ApplyShaderProgram( uint32_t ix );
-	Tr2ShaderProgramAL* GetShaderProgram( uint32_t ix );
+	static Tr2ShaderProgramAL* GetShaderProgram( uint32_t ix );
 
 	void ApplyStreamSource( uint32_t stream, const Tr2BufferAL & buffer, uint32_t offset, uint32_t stride );
 	void ApplyIndexBuffer( const Tr2BufferAL & indices );
