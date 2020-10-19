@@ -1622,6 +1622,9 @@ public:
 
 	// visibility groups
 	PEveSOFDataGenericStringVector m_visibilityGroups;
+
+	// hull categories
+	PEveSOFDataGenericStringVector m_hullCategories;
 };
 TYPEDEF_BLUECLASS( EveSOFDataGeneric );
 

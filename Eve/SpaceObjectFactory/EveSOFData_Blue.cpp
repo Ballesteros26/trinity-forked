@@ -828,7 +828,7 @@ const Be::ClassInfo* EveSOFDataHull::ExposeToBlue()
 		MAP_ATTRIBUTE( "name", m_name, "The hull name, eg cb2_t1. This functions as an ID.", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE( "description", m_description, "A description string. NOT used by the SOF, it's just for debugging purposes.", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "category", m_category, "A category string. NOT used by the SOF, it's for tool validation.", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "category", m_category, "A category string. NOT used by the SOF, it's for tool validation.\n:jessica-widget: hullCategory", Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE_WITH_CHOOSER("buildClass", m_buildClass, "Choose the output trinity class", Be::READWRITE | Be::PERSIST | Be::ENUM, EveSOFBuildClassChooser )
 
@@ -1424,6 +1424,7 @@ const Be::ClassInfo* EveSOFDataGeneric::ExposeToBlue()
 		MAP_ATTRIBUTE( "genericWreckMaterial", m_genericWreckMaterial, "Global wreck area shader data", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "variants", m_variants, "All the hull  variants", Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( "visibilityGroups", m_visibilityGroups, "All the visibility groups", Be::READ | Be::PERSIST )
+		MAP_ATTRIBUTE( "hullCategories", m_hullCategories, "All the hull categories", Be::READ | Be::PERSIST )
 
 		EXPOSURE_END()
 }

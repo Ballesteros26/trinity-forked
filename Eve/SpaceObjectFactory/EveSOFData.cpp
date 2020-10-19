@@ -168,7 +168,8 @@ EveSOFDataGeneric::EveSOFDataGeneric( IRoot* lockobj ) :
 	PARENTLOCK( m_decalShaders ),
 	PARENTLOCK( m_variants ),
 	PARENTLOCK( m_bannerShader ),
-	PARENTLOCK( m_visibilityGroups )
+	PARENTLOCK( m_visibilityGroups ),
+	PARENTLOCK( m_hullCategories )
 {
 	std::fill( std::begin( m_decalMinScreenSizes ), std::end( m_decalMinScreenSizes ), 0.f );
 }
