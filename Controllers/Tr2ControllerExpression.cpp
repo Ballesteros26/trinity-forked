@@ -86,6 +86,15 @@ namespace
 		return result;
 	}
 
+	float Mod( float number, float mod ) 
+	{
+		if( mod == 0 )
+		{
+			return 0;
+		}
+		return fmod( number, mod );
+	}
+
 	float IsAnimationPlaying( const char* layerName )
 	{
 		EveSpaceObject2Ptr spaceObject = BlueCastPtr( s_owner );
@@ -383,6 +392,10 @@ std::string Tr2ControllerExpression::CreateParser( const char* expression, Modif
 	m_expressionParser.DefineFun( "ShipSpeed", ShipSpeed, false );
 	m_expressionParser.DefineFun( "ShipMaxSpeed", ShipMaxSpeed, false );
 	m_expressionParser.DefineFun( "Random", Random, false );
+		
+	// % operator should have the same priority as / and * (6)
+	// see here https://beltoforion.de/en/muparser/features.php#idDef2
+	m_expressionParser.DefineOprt( "%", Mod, 6 ); 
 
 	m_expressionParser.DefineFun( "IsWeekend", IsWeekend, false );
 	m_expressionParser.DefineFun( "ServerYear", GetServerYear, false );
