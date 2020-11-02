@@ -42,6 +42,22 @@ public:
 TYPEDEF_BLUECLASS( EveSOFDataGenericString );
 BLUE_DECLARE_VECTOR( EveSOFDataGenericString );
 
+BLUE_CLASS( EveSOFDataVisibilityGroup ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataVisibilityGroup( IRoot* lockobj = NULL );
+	~EveSOFDataVisibilityGroup()
+	{
+	}
+
+	std::string m_name;
+	std::string m_description;
+};
+TYPEDEF_BLUECLASS( EveSOFDataVisibilityGroup );
+BLUE_DECLARE_VECTOR( EveSOFDataVisibilityGroup );
+
 BLUE_CLASS( EveSOFDataTexture ) :
 	public IRoot
 {
@@ -1621,7 +1637,7 @@ public:
 	PEveSOFDataGenericVariantVector m_variants;
 
 	// visibility groups
-	PEveSOFDataGenericStringVector m_visibilityGroups;
+	PEveSOFDataVisibilityGroupVector m_visibilityGroups;
 
 	// hull categories
 	PEveSOFDataGenericStringVector m_hullCategories;

@@ -1248,7 +1248,15 @@ const Be::ClassInfo* EveSOFDataGenericString::ExposeToBlue()
     EXPOSURE_END()
 }
 
+BLUE_DEFINE( EveSOFDataVisibilityGroup );
+const Be::ClassInfo* EveSOFDataVisibilityGroup::ExposeToBlue(){
+	EXPOSURE_BEGIN( EveSOFDataVisibilityGroup, "" )
+		MAP_INTERFACE( EveSOFDataVisibilityGroup )
 
+		MAP_ATTRIBUTE( "name", m_name, "The name of the visibilty group", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "description", m_description, "", Be::READWRITE | Be::PERSIST )
+	EXPOSURE_END()
+}
 
 BLUE_DEFINE( EveSOFDataGenericDamage );
 const Be::ClassInfo* EveSOFDataGenericDamage::ExposeToBlue()

@@ -104,6 +104,8 @@ EveSOFDataInstancedMesh::EveSOFDataInstancedMesh( IRoot* lockobj ) :
 EveSOFDataGenericString::EveSOFDataGenericString( IRoot* lockobj )
 {}
 
+EveSOFDataVisibilityGroup::EveSOFDataVisibilityGroup( IRoot* lockobj )
+{}
 
 EveSOFDataGenericShader::EveSOFDataGenericShader( IRoot* lockobj ) :
 	m_doGenerateDepthArea( true ),
