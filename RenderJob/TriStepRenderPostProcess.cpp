@@ -210,11 +210,12 @@ TriStepResult TriStepRenderPostProcess::Execute(Be::Time realTime, Be::Time simT
 		RenderTaa(renderContext, taa);
 	}
 
-	if (ProcessDynamicExposure(renderContext, dynamicExposure))
+	if (ProcessDynamicExposure(renderContext, dynamicExposure, bloom))
 	{
 		RenderDynamicExposure(renderContext, dynamicExposure);
 	}
 
+	// this needs to be after dynamic exposure, since bloom can be exposure dependant
 	if (ProcessBloom(bloom))
 	{
 		RenderBloom(renderContext, bloom);
@@ -280,6 +281,8 @@ bool TriStepRenderPostProcess::ProcessBloom(Tr2PPBloomEffect* bloom)
 {
 	if (bloom && bloom->IsActive())
 	{
+		bool exposureDependant = bloom->m_exposureDependency && m_exposure != nullptr;
+
 		if (m_bloomHighPassFilter == nullptr || m_bloomHorizontalBlur == nullptr || m_bloomVerticalBlur == nullptr)
 		{
 			m_bloomHighPassFilter.CreateInstance();
@@ -289,8 +292,8 @@ bool TriStepRenderPostProcess::ProcessBloom(Tr2PPBloomEffect* bloom)
 			m_bloomHighPassFilter->SetParameter(BlueSharedString("LuminanceScale"), bloom->m_luminanceScale);
 			m_bloomHighPassFilter->SetParameter(BlueSharedString("BlitCurrent"), m_renderInfo->GetSourceBufferCopy());
 
-			m_bloomHighPassFilter->SetParameter(BlueSharedString("ExposureDependency"), m_exposure != nullptr ? 1.0f : 0.0f);
-			if (m_exposure != nullptr)
+			m_bloomHighPassFilter->SetParameter( BlueSharedString( "ExposureDependency" ), exposureDependant ? 1.0f : 0.0f );
+			if( exposureDependant )
 			{
 				m_bloomHighPassFilter->SetParameter(BlueSharedString("Exposure"), m_exposure);
 			}
@@ -324,7 +327,11 @@ bool TriStepRenderPostProcess::ProcessBloom(Tr2PPBloomEffect* bloom)
 			m_bloomHighPassFilter->StartUpdate();
 			m_bloomHighPassFilter->SetParameter(BlueSharedString("LuminanceThreshold"), bloom->m_luminanceThreshold);
 			m_bloomHighPassFilter->SetParameter(BlueSharedString("LuminanceScale"), bloom->m_luminanceScale);
-			m_bloomHighPassFilter->SetParameter(BlueSharedString("ExposureDependency"), bloom->m_exposureDependency ? 1.0f : 0.0f);
+			m_bloomHighPassFilter->SetParameter( BlueSharedString( "ExposureDependency" ), exposureDependant ? 1.0f : 0.0f );
+			if( exposureDependant )
+			{
+				m_bloomHighPassFilter->SetParameter( BlueSharedString( "Exposure" ), m_exposure );
+			}
 			m_bloomHighPassFilter->EndUpdate();
 
 			m_tonemappingEffect->StartUpdate();
@@ -513,7 +520,7 @@ void TriStepRenderPostProcess::RenderSignalLoss(Tr2RenderContext& renderContext,
 }
 
 
-bool TriStepRenderPostProcess::ProcessDynamicExposure( Tr2RenderContext &renderContext, Tr2PPDynamicExposureEffect* dynamicExposure)
+bool TriStepRenderPostProcess::ProcessDynamicExposure( Tr2RenderContext &renderContext, Tr2PPDynamicExposureEffect* dynamicExposure, Tr2PPBloomEffect* bloom)
 {
 	if (dynamicExposure && dynamicExposure->IsActive())
 	{
@@ -579,12 +586,10 @@ bool TriStepRenderPostProcess::ProcessDynamicExposure( Tr2RenderContext &renderC
 
 			m_tonemappingEffect->EndUpdate();
 
-			// attach the exposure buffer to the bloom
-			if (m_bloomHighPassFilter != nullptr)
+			// mark the bloom as dirty so it can decide what to do with the exposure
+			if( bloom != nullptr )
 			{
-				m_bloomHighPassFilter->StartUpdate();
-				m_bloomHighPassFilter->SetParameter(BlueSharedString("Exposure"), m_exposure);
-				m_bloomHighPassFilter->EndUpdate();
+				bloom->SetDirty( true );
 			}
 
 			dynamicExposure->SetDirty(false);
@@ -633,6 +638,12 @@ bool TriStepRenderPostProcess::ProcessDynamicExposure( Tr2RenderContext &renderC
 			m_localHistograms = nullptr;
 			m_histogram = nullptr;
 			m_exposure = nullptr;
+			
+			// mark the bloom as dirty so it can decide what to do with the exposure
+			if( bloom != nullptr )
+			{
+				bloom->SetDirty( true );
+			}
 
 			m_tonemappingEffect->StartUpdate();
 			m_tonemappingEffect->SetOption(BlueSharedString("DYNAMIC_EXPOSURE_TOGGLE"), BlueSharedString("DYNAMIC_EXPOSURE_DISABLED"));
