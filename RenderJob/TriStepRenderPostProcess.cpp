@@ -1037,7 +1037,7 @@ bool TriStepRenderPostProcess::ProcessTaa(Tr2PPTaaEffect* taa)
 {
 	if (taa && taa->IsActive())
 	{
-		if (m_taaEffect == nullptr || m_accumulationBuffer == nullptr || m_velocityBuffer == nullptr)
+		if( m_taaEffect == nullptr || m_accumulationBuffer == nullptr || m_velocityBuffer == nullptr )
 		{
 			auto source = m_renderInfo->GetSourceBuffer();
 
@@ -1074,7 +1074,20 @@ bool TriStepRenderPostProcess::ProcessTaa(Tr2PPTaaEffect* taa)
 			m_taaEffect->EndUpdate();
 
 			m_scene->SetupTAA(m_velocityBuffer, 0.5f, TAA_3X);
-			taa->SetDirty(false);
+			taa->SetDirty( false );
+		}
+		else if( taa->IsDirty() )
+		{
+			m_taaEffect->StartUpdate();
+			m_taaEffect->SetParameter( BlueSharedString( "BlendingParams0" ), taa->m_blendParams0 );
+			m_taaEffect->SetParameter( BlueSharedString( "BlendingParams1" ), taa->m_blendParams1 );
+			m_taaEffect->SetParameter( BlueSharedString( "BlendingParams2" ), taa->m_blendParams2 );
+			m_taaEffect->SetParameter( BlueSharedString( "DistanceParams" ), taa->m_distanceParams );
+			m_taaEffect->SetParameter( BlueSharedString( "EnhancementParams" ), taa->m_enhancementParams );
+			m_taaEffect->EndUpdate();
+
+			m_scene->SetupTAA( m_velocityBuffer, 0.5f, TAA_3X );
+			taa->SetDirty( false );
 		}
 	}
 	else
