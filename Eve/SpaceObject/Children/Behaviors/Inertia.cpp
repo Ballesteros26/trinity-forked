@@ -24,7 +24,7 @@ size_t Inertia::GetScratchMemorySize() const
 	return sizeof( InertiaData );
 }
 
-void Inertia::InitializeScratch( const DroneAgent& drone, void* scratchMemory )
+void Inertia::InitializeScratch( void* scratchMemory )
 {
 	*static_cast<InertiaData*>( scratchMemory ) = InertiaData();
 }
