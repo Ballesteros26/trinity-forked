@@ -97,6 +97,7 @@ public:
 	}
 
 	void SetAdditiveFlag( bool b );
+	void SetDynamicFlag( bool b );
 
 protected:
 	// line types (straight, curved, sphered, ...)
@@ -198,6 +199,7 @@ private:
 	void WriteParticleVerticesToBuffer( const Vector3& pos1, const Color& col1, float length1, const Vector3& pos2, const Color& col2, float length2, unsigned int lineID, LineVertex* buffer );
 
 	bool m_additive;
+	bool m_dynamic;
 
 	// line properties
 	float m_lineWidthFactor;

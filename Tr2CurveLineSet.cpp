@@ -30,6 +30,7 @@ Tr2CurveLineSet::Tr2CurveLineSet( IRoot* lockobj ):
 	m_currentSubmittedLineCount( 0 ),
 	m_vertexBufferSize( 0 ),
 	m_display( true ),
+	m_dynamic( false ),
 	m_boundsDirty( false ),
 	m_boundingSphere( 0.f, 0.f, 0.f, 0.f ),
 	m_depthOffset( 0.f )
@@ -381,12 +382,15 @@ bool Tr2CurveLineSet::FillVertexBuffer()
 		{
 			// release old and create new
 			USE_MAIN_THREAD_RENDER_CONTEXT();
+
+			Tr2CpuUsage::Type cpuUsage = m_dynamic ? Tr2CpuUsage::WRITE_OFTEN : Tr2CpuUsage::WRITE;
+			
 			CR_RETURN_VAL(
 				m_vertexBuffer.Create(
 					sizeof( LineVertex ),
 					currentNumOfLines * 6,
 					Tr2GpuUsage::VERTEX_BUFFER,
-					Tr2CpuUsage::WRITE,
+					cpuUsage,
 					nullptr,
 					renderContext )
 				, false );
@@ -1101,6 +1105,15 @@ void Tr2CurveLineSet::ClearLines()
 void Tr2CurveLineSet::SetAdditiveFlag( bool b )
 {
 	m_additive = b;
+}
+
+// -------------------------------------------------------------
+// Description:
+//   Modify if batches should be dynamic. (Animated)
+// -------------------------------------------------------------
+void Tr2CurveLineSet::SetDynamicFlag( bool b )
+{
+	m_dynamic = b;
 }
 
 // -------------------------------------------------------------

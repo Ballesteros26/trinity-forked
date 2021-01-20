@@ -295,17 +295,18 @@ void EveChildLineSet::GenerateManagedPointsForCurve()
 
 void EveChildLineSet::InitializeLineSet()
 {
-	if( m_objType == BEZIER_CURVE )
-	{
-		return InitializeLineSetForCurves();
-	}
-
 	if( !m_lineSet || m_actualSegments <= 1 )
 	{
 		return;
 	}
 
 	m_lineSet->ClearLines();
+	m_lineSet->SetDynamicFlag( true );
+	
+	if( m_objType == BEZIER_CURVE )
+	{
+		return InitializeLineSetForCurves();
+	}
 
 	int lines = m_actualSegments;
 
@@ -332,13 +333,6 @@ void EveChildLineSet::InitializeLineSet()
 
 void EveChildLineSet::InitializeLineSetForCurves()
 {
-	if( !m_lineSet || m_actualSegments <= 0 )
-	{
-		return;
-	}
-
-	m_lineSet->ClearLines();
-
 	float b = m_brightness;
 
 	for( int i = 0; i < m_actualSegments; i++ )
