@@ -145,7 +145,7 @@ std::vector<Vector3> ProcessLifetime::CalculateBehavior(std::vector<DroneAgent>&
 				}
 				else
 				{
-					if ( ProcessTunnel( *drone, *m_privateTunnels[ data->assignedLifeTimeTunnel ], data->tunnelPoint, group.GetBoundingSphereRadius() ) )
+					if( m_privateTunnels.size() > 0 && ProcessTunnel( *drone, *m_privateTunnels[data->assignedLifeTimeTunnel], data->tunnelPoint, group.GetBoundingSphereRadius() ) )
 					{
 						data->hasUsedExitTunnel = true; //redundant add might refactor, keeping it atm
 						dronesThatDie.push_back( index );
