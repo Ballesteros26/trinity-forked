@@ -12,6 +12,7 @@
 BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE( Tr2TextureReference );
 BLUE_DECLARE( Tr2RenderTarget );
+BLUE_DECLARE( TriTextureRes );
 BLUE_DECLARE_INTERFACE( ITriTextureRes );
 
 BLUE_CLASS( Tr2ReflectionProbe ) :
@@ -20,6 +21,14 @@ BLUE_CLASS( Tr2ReflectionProbe ) :
 {
 public:
 	EXPOSE_TO_BLUE();
+
+	enum HackBacklightApplication
+	{
+		BACK_LIGHT_PLAIN,
+		BACK_LIGHT_MODULATE_WITH_BACKGROUND,
+		BACK_LIGHT_MODULATE_WITH_CUBE_MAP,
+		BACK_LIGHT_MODULATE_WITH_CUBE_MAP_CENTER,
+	};
 
 	Tr2ReflectionProbe( IRoot* lockobj = NULL );
 	~Tr2ReflectionProbe();
@@ -61,9 +70,13 @@ private:
 
 	// TEMPORARY controls for experiments with environment maps
 	bool m_hackMode;
+	HackBacklightApplication m_backlightApplication;
 	Color m_backlightColor;
 	float m_backlightContrast;
 	float m_intensity;
+	std::wstring m_backlightModulateCubeMapPath;
+	TriTextureResPtr m_backlightModulateCubeMap;
+	uint32_t m_backlightModulateCubeMapMip;
 };
 
 TYPEDEF_BLUECLASS( Tr2ReflectionProbe );
