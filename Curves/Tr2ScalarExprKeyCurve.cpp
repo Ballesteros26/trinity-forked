@@ -177,20 +177,18 @@ void Tr2ScalarExprKey::InitializeParser( mu::Parser& parser )
 // --------------------------------------------------------------------------------------
 void Tr2ScalarExprKey::SetExpression( mu::Parser& parser, std::string& expression )
 {
-	parser.SetExpr( expression );
 	try
 	{
+		parser.SetExpr( expression );
 		// Generate the bytecode
 		parser.Eval();
 	}
 	catch( const mu::Parser::exception_type& e )
 	{
-		if ( expression.size() )
+		if( expression.size() )
 		{
-			CCP_LOGERR("Tr2ScalarExprKey expression: %s",e.GetMsg().c_str());
-			expression = "";
-			parser.SetExpr( expression );
-		}		
+			CCP_LOGERR( "Tr2ScalarExprKey expression: %s", e.GetMsg().c_str() );
+		}
 	}
 }
 

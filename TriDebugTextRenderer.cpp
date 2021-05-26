@@ -1,8 +1,8 @@
 #include "StdAfx.h"
 
 #include "TriDebugTextRenderer.h"
-#include "blue/Include/Wine.h"
 #include "Tr2Renderer.h"
+#include "pdm.h"
 
 #ifndef _WIN32
 #include "TriDebugTextRendererBitmaps.h"
@@ -20,7 +20,7 @@ TriDebugTextRenderer::TriDebugTextRenderer() :
 #endif
 {
 #ifdef _WIN32
-	const char* font = Wine::IsWine() ? "Menlo" : "Lucida Console";
+	const char* font = PDM::IsWine() ? "Menlo" : "Lucida Console";
 	const char* fallbackFont = "Courier New";
 	for( int i = 0; i < 3; ++i )
     {

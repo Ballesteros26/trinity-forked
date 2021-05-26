@@ -175,20 +175,19 @@ void Tr2CurveVector3Expression::SetExpression( size_t index, const std::string& 
 		m_expressions[index] = expression;
 		return;
 	}
-	m_expressionParsers[index].SetExpr( expression );
 
 	CcpAutoMutex lock( s_mutex );
 	s_currentCurve.push_back( this );
 
 	try
 	{
+		m_expressionParsers[index].SetExpr( expression );
 		m_expressionParsers[index].Eval();
 	}
 	catch( const mu::Parser::exception_type& e )
 	{
 		s_currentCurve.pop_back();
 		CCP_LOGERR( "Tr2CurveVector3Expression::SetExpression invalid expression \"%s\": %s", expression.c_str(), e.GetMsg().c_str() );
-		m_expressionParsers[index].SetExpr( m_expressions[index] );
 		return;
 	}
 	s_currentCurve.pop_back();
@@ -402,13 +401,13 @@ BlueStdResult Tr2CurveVector3Expression::EvaluateExpression( const char* express
 {
 	mu::Parser parser;
 	const_cast<Tr2CurveVector3Expression*>( this )->SetupParser( parser );
-	parser.SetExpr( expression );
 
 	CcpAutoMutex lock( s_mutex );
 	s_currentCurve.push_back( this );
 
 	try
 	{
+		parser.SetExpr( expression );
 		value = parser.Eval();
 	}
 	catch( const mu::Parser::exception_type& e )

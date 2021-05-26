@@ -3,7 +3,7 @@
 #include "TriStepRenderFps.h"
 #include "Tr2Renderer.h"
 #include "TriViewport.h"
-#include "blue/Include/Wine.h"
+#include "pdm.h"
 
 #ifdef _WIN32
 #include <ctime>
@@ -173,7 +173,7 @@ TriStepResult TriStepRenderFps::Execute( Be::Time realTime, Be::Time simTime, Tr
 		"        MS: %10.2f\n"
 		"Draw Calls: %10.0d";
 
-	if( Wine::IsWine() )
+	if( PDM::IsWine() )
 	{
 		str += "\n      Wine: %10s";
 	}
@@ -195,7 +195,7 @@ TriStepResult TriStepRenderFps::Execute( Be::Time realTime, Be::Time simTime, Tr
 		m_averageFPS,
 		m_averageMSPerFrame,
 		dpCount,
-		Wine::GetWineVersion()
+		PDM::GetWineVersion()
 	);
 
 	uint32_t flags = 0;

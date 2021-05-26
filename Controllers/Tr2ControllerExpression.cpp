@@ -433,11 +433,11 @@ std::string Tr2ControllerExpression::CreateParser( const char* expression, Modif
 		( *modifyParser )( m_expressionParser );
 	}
 	
-	m_expressionParser.SetExpr( expression );
-	s_stateMachine = m_stateMachine;
-	s_owner = m_controller->GetOwner();
 	try
 	{
+		m_expressionParser.SetExpr( expression );
+		s_stateMachine = m_stateMachine;
+		s_owner = m_controller->GetOwner();
 		m_expressionParser.Eval();
 	}
 	catch( const mu::Parser::exception_type& e )

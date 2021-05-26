@@ -199,20 +199,19 @@ void Tr2CurveScalarExpression::SetExpression( const std::string& expression )
 		m_expression = expression;
 		return;
 	}
-	m_expressionParser.SetExpr( expression );
 
 	CcpAutoMutex lock( s_mutex );
 	s_currentCurve.push_back( this );
 
 	try
 	{
+		m_expressionParser.SetExpr( expression );
 		m_expressionParser.Eval();
 	}
 	catch( const mu::Parser::exception_type& e )
 	{
 		s_currentCurve.pop_back();
 		CCP_LOGERR( "Tr2CurveScalarExpression::SetExpression invalid expression \"%s\": %s", expression.c_str(), e.GetMsg().c_str() );
-		m_expressionParser.SetExpr( m_expression );
 		return;
 	}
 	s_currentCurve.pop_back();
@@ -285,13 +284,13 @@ BlueStdResult Tr2CurveScalarExpression::EvaluateExpression( const char* expressi
 {
 	mu::Parser parser;
 	const_cast<Tr2CurveScalarExpression*>( this )->SetupParser( parser );
-	parser.SetExpr( expression );
 
 	CcpAutoMutex lock( s_mutex );
 	s_currentCurve.push_back( this );
 
 	try
 	{
+		parser.SetExpr( expression );
 		value = parser.Eval();
 	}
 	catch( const mu::Parser::exception_type& e )
