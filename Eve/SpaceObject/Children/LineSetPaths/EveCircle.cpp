@@ -124,7 +124,7 @@ void EveCircle::GeneratePoints( const Matrix& parentTransform )
 			Y += pow( cos( locOnCircle ), 2.f ) * m_circleRadius * distort2;
 		}
 		float Z = sin( locOnCircle ) * m_circleRadius;
-		m_points.emplace_back( TransformCoord( Vector3( X, Y, Z ), m_worldTransform ) );
+		m_points.emplace_back( Vector3( X, Y, Z ) );
 	}
 	
 	m_regeneratePoints = false;
@@ -160,7 +160,7 @@ void EveCircle::UpdateVisibility( const TriFrustum& frustum, Tr2Lod parentLod, c
 	m_isVisible = false;
 
 	Vector4 sphere = m_boundingSphere;
-	BoundingSphereTransform( m_worldTransform * systemLocation, sphere );
+	BoundingSphereTransform( m_localTransform * systemLocation, sphere );
 
 	if( frustum.IsSphereVisible( &( sphere ) ) )
 	{
@@ -194,7 +194,8 @@ void EveCircle::AddLinesToSet( EveCurveLineSet& lineSet, const Vector4& color, c
 			continue;
 		}
 		
-		id = lineSet.AddStraightLine( m_points[i], color, m_points[nextPoint], color, m_lineWidth );
+		
+		id = lineSet.AddStraightLine( TransformCoord( m_points[i], m_localTransform ), color, TransformCoord( m_points[nextPoint], m_localTransform ), color, m_lineWidth );
 
 		if( scrollSpeed != 0 )
 		{
@@ -237,8 +238,13 @@ void EveCircle::UpdateBuffer( Tr2RenderContext& renderContext, uint8_t*& data, c
 		
 		if( m_billboardObjects )
 		{
-			const Vector3 angleToCamera = Tr2Renderer::GetViewPosition() - TransformCoord( m_points[count], systemLocation );
-			dirToNextPoint = TransformCoord( angleToCamera, Inverse( systemLocation ) );
+			Vector3 tmpScale, tmpTranslation;
+			Quaternion tmpRotation;
+			Decompose( tmpScale, tmpRotation, tmpTranslation, m_localTransform*systemLocation );
+			Matrix rotMat = RotationMatrix( tmpRotation );
+
+			const Vector3 angleToCamera = Tr2Renderer::GetViewPosition() - TransformCoord( translation, m_localTransform * systemLocation );
+			dirToNextPoint = TransformCoord( angleToCamera, Inverse(rotMat) );
 		}
 		else
 		{
@@ -248,7 +254,7 @@ void EveCircle::UpdateBuffer( Tr2RenderContext& renderContext, uint8_t*& data, c
 
 		TriQuaternionArcFromForward( &objRot, &dirToNextPoint );
 		
-		Matrix matrix = TransformationMatrix( sizeMod * m_objectScale, objRot, translation );
+		Matrix matrix = TransformationMatrix( sizeMod * m_objectScale, objRot, translation ) * m_localTransform;
 
 		Matrix m = Transpose( matrix );
 		memcpy( data, &m, stride );
@@ -272,14 +278,12 @@ void EveCircle::RenderDebugInfo( ITr2DebugRenderer2& renderer, const Matrix& sys
 	if( renderer.HasOption( this, "Bounding Sphere" ) )
 	{
 		Vector4 sphere = m_boundingSphere;
-		BoundingSphereTransform( m_worldTransform * systemLocation, sphere );
+		BoundingSphereTransform( m_localTransform * systemLocation, sphere );
 		renderer.DrawSphere( this, sphere.GetXYZ(), sphere.w, 4, Tr2DebugRenderer::Wireframe, 0xaaaaaaff );
 	}
 
-	renderer.DrawSphere( this, TransformCoord( m_translation, m_worldTransform * systemLocation ), m_boundingSphere.w / 60.f, 8, Tr2DebugRenderer::Wireframe, 0xbbbbffff );
-
 	for( auto point = m_points.begin(); point != m_points.end(); ++point )
 	{
-		renderer.DrawSphere( this, TranslationMatrix( *point ) * systemLocation, m_boundingSphere.w / 100.f, 4, Tr2DebugRenderer::Wireframe, 0xffffffff );
+		renderer.DrawSphere( this, TranslationMatrix( *point ) * m_localTransform * systemLocation, m_boundingSphere.w / 100.f, 4, Tr2DebugRenderer::Wireframe, 0xffffffff );
 	}
 }
