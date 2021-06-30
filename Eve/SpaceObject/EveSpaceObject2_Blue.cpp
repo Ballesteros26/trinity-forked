@@ -535,6 +535,12 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 			":param duration: animation duration\n"
 		)
 		MAP_METHOD_AND_WRAP(
+			"GetGoodLocatorIndex",
+			GetCloseLocatorIndex,
+			"Get the closest locator in set to target.\n"
+			":param position: position of target\n"
+			":param locatorSetName: name of locator set \n"
+		)MAP_METHOD_AND_WRAP(
 			"GetCloseLocatorIndex",
 			GetCloseLocatorIndex,
 			"Get the closest locator in set to target, does not mind about direction of locator.\n"
