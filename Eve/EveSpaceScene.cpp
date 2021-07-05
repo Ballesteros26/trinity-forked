@@ -157,7 +157,6 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_suncVecVar( "SunVec", Vector3( 0.0f, 0.0f, 1.0f )),
 	m_shadowLightnessVar( "ShadowLightness", 0.0f ),
 	m_nebulaIntensity( 1.f ),
-	m_nebulaIntensityVar( "NebulaIntensity", m_nebulaIntensity ),
 	m_planetScale( 1e6 ),
 	m_planetCameraScale( 1e6 ),
 	m_taaPixelOffsetScale( 0.5f ),
@@ -166,9 +165,11 @@ EveSpaceScene::EveSpaceScene( IRoot* lockobj ) :
 	m_sunColor( 1.0f, 1.0f, 1.0f, 1.0f ),
 	m_sunColorWithDynamicLights( 1.0f, 1.0f, 1.0f, 1.0f ),
 	m_useSunColorWithDynamicLights( false ),
-	m_reflectionIntensity( 1.35f ),
-	m_reflectionBackLightingContrast( 8.0f ),
-	m_reflectionBackLightingColor( 2.0f, 2.0f, 2.0f, 2.0f ),
+	m_nebulaBrightnessOverride( 0.f ),
+	m_nebulaBrightnessOverrideVar( "NebulaBrightnessOverride", m_nebulaBrightnessOverride ),
+	m_reflectionProbeIntensity( 1.35f ),
+	m_reflectionProbeBackLightingContrast( 8.0f ),
+	m_reflectionProbeBackLightingColor( 2.0f, 2.0f, 2.0f, 2.0f ),
 	m_hasDepthPass( false ),
 	m_msaaSamples( 0 ),
 	m_hasBackgroundDistortionBatches( false ),
@@ -2251,7 +2252,7 @@ void EveSpaceScene::UpdateVariableStore ()
 	m_envMap2Var = m_envMap2;
 	m_reflectionMapVar = m_envMap1;
 	m_reflectionMaskMapVar = m_envMap2;
-	m_nebulaIntensityVar = m_nebulaIntensity;
+	m_nebulaBrightnessOverrideVar = m_nebulaBrightnessOverride <= 0.0f ? 1.0f : m_nebulaBrightnessOverride;
 
 	auto envMapTextureRes = m_envMapTextureRes;
 	if( Tr2Renderer::GetShaderModel() < TR2SHADERMODEL::TR2SM_3_0_DEPTH && m_mediumQualityReflectionMap != nullptr )
@@ -2346,7 +2347,8 @@ void EveSpaceScene::PopulatePerFramePSData( PerFramePSData &data, Tr2RenderConte
 	data.Sun.DirWorld = -Normalize( data.Sun.DirWorld );
 	data.AmbientColor = Vector3( m_ambientColor.r, m_ambientColor.g, m_ambientColor.b );
 
-	data.ReflectionIntensity = m_reflectionIntensity * m_nebulaIntensity;
+	float intensityValue = ( HasReflectionProbe() && m_reflectionProbe->IsHollyWoodModeOn() ) ? 1.0f : ( m_nebulaBrightnessOverride > 0.0f ? m_nebulaBrightnessOverride : m_nebulaIntensity );
+	data.NebulaIntensity = m_reflectionProbeIntensity * intensityValue;
 	data.FogColor = Vector4( m_fogColor.r, m_fogColor.g, m_fogColor.b, m_fogMax );
 
 	// ps gamma brightness
@@ -2395,8 +2397,8 @@ bool EveSpaceScene::Initialize()
 	{
 		m_envMapTextureRes = m_reflectionProbe->GetReflection();
 
-		m_reflectionProbe->SetBackLightColor( m_reflectionBackLightingColor );
-		m_reflectionProbe->SetBackLightContrast( m_reflectionBackLightingContrast );
+		m_reflectionProbe->SetBackLightColor( m_reflectionProbeBackLightingColor );
+		m_reflectionProbe->SetBackLightContrast( m_reflectionProbeBackLightingContrast );
 	}
 	else if( m_envMapHandle )
 	{
@@ -2450,8 +2452,8 @@ bool EveSpaceScene::OnModified( Be::Var* value )
 		if( HasReflectionProbe() )
 		{
 			m_envMapTextureRes = m_reflectionProbe->GetReflection();
-			m_reflectionProbe->SetBackLightColor( m_reflectionBackLightingColor );
-			m_reflectionProbe->SetBackLightContrast( m_reflectionBackLightingContrast );
+			m_reflectionProbe->SetBackLightColor( m_reflectionProbeBackLightingColor );
+			m_reflectionProbe->SetBackLightContrast( m_reflectionProbeBackLightingContrast );
 		}
 		else if( !m_envMapResPath.empty() )
 		{
@@ -2491,13 +2493,13 @@ bool EveSpaceScene::OnModified( Be::Var* value )
 		}
 	}
 
-	if( IsMatch( value, m_reflectionBackLightingColor ) && HasReflectionProbe() )
+	if( IsMatch( value, m_reflectionProbeBackLightingColor ) && HasReflectionProbe() )
 	{
-		m_reflectionProbe->SetBackLightColor( m_reflectionBackLightingColor );
+		m_reflectionProbe->SetBackLightColor( m_reflectionProbeBackLightingColor );
 	}
-	if( IsMatch( value, m_reflectionBackLightingContrast ) && HasReflectionProbe() )
+	if( IsMatch( value, m_reflectionProbeBackLightingContrast ) && HasReflectionProbe() )
 	{
-		m_reflectionProbe->SetBackLightContrast( m_reflectionBackLightingContrast );	
+		m_reflectionProbe->SetBackLightContrast( m_reflectionProbeBackLightingContrast );	
 	}
 
 	return true;
