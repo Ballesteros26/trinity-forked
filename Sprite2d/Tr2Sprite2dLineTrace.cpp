@@ -352,7 +352,7 @@ void Tr2Sprite2dLineTrace::AddSegment(
 	{
 		if ( m_cornerType == CORNERTYPE_MITER )
 		{
-			segmentVertices += 1;
+			segmentVertices += 1 + 2;
 			segmentIndices += 6;
 		}
 		else
@@ -384,6 +384,41 @@ void Tr2Sprite2dLineTrace::AddSegment(
 	}
 	if( totalIndexCount + segmentIndices >= renderer->GetMaxIndexCountPerDrawCall() || totalVertexCount + segmentVertices >= renderer->GetMaxVertexCountPerDrawCall() )
 	{
+		if( m_cornerType == CORNERTYPE_MITER )
+		{
+			// previous joint may have references to the next segment in the index buffer, so we need to add first to vertices of this segment to the previous draw call
+			Tr2Sprite2dVertexBase capVerts[2];
+
+			// v0 - top left
+			Tr2Sprite2dVertexBase& cv0 = capVerts[0];
+			cv0.position.x = adjustedFrom.x - normal.x * halfWidth;
+			cv0.position.y = adjustedFrom.y - normal.y * halfWidth;
+			cv0.position.z = m_depth;
+			cv0.color = fromColor;
+			cv0.texCoord[0] = Vector2( texOffset1, 0.0f );
+			if( isAA )
+			{
+				cv0.texCoord[1] = Vector2( -pixelWidthInTexels, m_lineWidth );
+			}
+
+			// v1 - bottom left
+			Tr2Sprite2dVertexBase& cv1 = capVerts[1];
+			cv1.position.x = adjustedFrom.x + normal.x * halfWidth;
+			cv1.position.y = adjustedFrom.y + normal.y * halfWidth;
+			cv1.position.z = m_depth;
+			cv1.color = fromColor;
+			cv1.texCoord[0] = Vector2( texOffset1, 1.0f );
+			if( isAA )
+			{
+				cv1.texCoord[1] = Vector2( 1.0f + pixelWidthInTexels, m_lineWidth );
+			}
+
+			auto capSize = m_renderVertices.size();
+			m_renderVertices.resize( capSize + 2 );
+
+			renderer->PrepareTriangleVerts( &m_renderVertices[capSize], capVerts, sizeof( Tr2Sprite2dVertexBase ), 2 );
+		}
+
 		m_drawCalls.back().vertexCount = uint16_t( m_renderVertices.size() - m_drawCalls.back().vertexOffset );
 		m_drawCalls.back().indexCount = uint16_t( m_renderIndices.size() - m_drawCalls.back().indexOffset );
 
@@ -757,4 +792,9 @@ void Tr2Sprite2dLineTrace::OnListModified( long event, /* BLUELISTEVENT values *
 		SetDirty();
 		break;
 	}
+}
+
+size_t Tr2Sprite2dLineTrace::GetRenderVertexCount() const
+{
+	return m_renderVertices.size();
 }
