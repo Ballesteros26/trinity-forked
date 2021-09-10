@@ -153,6 +153,11 @@ bool EveShip2::DisplayBoosters() const
 	return m_boosters && DisplayChildren();
 }
 
+float EveShip2::GetKillCounterValue() const
+{
+    return static_cast<float>( m_displayKillCounterValue );
+}
+
 void EveShip2::GetDebugOptions( Tr2DebugRendererOptions& options )
 {
 	EveMobile::GetDebugOptions( options );

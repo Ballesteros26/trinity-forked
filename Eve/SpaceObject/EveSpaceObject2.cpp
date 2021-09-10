@@ -378,6 +378,7 @@ void EveSpaceObject2::UpdateSyncronous( EveUpdateContext& updateContext )
 		params.spaceObjectParent = this;
 		params.childParent = nullptr;
 		params.ownerMaxSpeed = m_maxSpeed;
+        params.activationStrength = m_activationStrength;
 		params.localToWorldTransform = worldTransform;
 
 		GetBoneList( params.bones, params.boneCount );
@@ -486,6 +487,7 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
 		params.spaceObjectParent = this;
 		params.childParent = nullptr;
 		params.ownerMaxSpeed = m_maxSpeed;
+        params.activationStrength = m_activationStrength;
 		params.localToWorldTransform = worldTransform;
 
 		GetBoneList( params.bones, params.boneCount );

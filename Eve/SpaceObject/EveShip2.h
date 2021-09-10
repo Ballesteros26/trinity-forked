@@ -54,6 +54,7 @@ public:
 	// re-positions all attached boosters to the corresponding locators
 	void RebuildBoosterSet();
 
+    float GetKillCounterValue() const;
 	float GetMaxSpeed() const;
 protected:
 	// keep track of some ship's speed (in m/s)
