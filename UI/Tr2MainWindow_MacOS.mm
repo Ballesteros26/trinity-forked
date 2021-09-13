@@ -1483,7 +1483,11 @@ void Tr2MainWindow::OnMouseMove_MacOS( float left, float top )
 
 void Tr2MainWindow::OnMouseWheel_MacOS(float delta)
 {
-    m_onMouseWheel.CallVoid( int32_t( delta ) );
+    auto intDelta = int32_t( delta );
+    if( intDelta != 0 )
+    {
+        m_onMouseWheel.CallVoid( intDelta );
+    }
 }
 
 void Tr2MainWindow::OnKey_MacOS( bool isDown, int32_t key, bool repeat )
