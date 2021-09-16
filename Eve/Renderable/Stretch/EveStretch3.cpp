@@ -68,6 +68,36 @@ bool EveStretch3::Initialize()
 	return true;
 }
 
+IEveSpaceObject2Ptr EveStretch3::GetSourceSpaceObject() const
+{
+    return m_sourceSpaceObject;
+}
+
+IEveSpaceObject2Ptr EveStretch3::GetDestSpaceObject() const
+{
+    return m_destSpaceObject;
+}
+
+void EveStretch3::Rebind( bool onlyUpdateBindings )
+{
+    for( auto binding = begin(m_dynamicBindings); binding != end(m_dynamicBindings); ++binding )
+    {
+        ( *binding )->Link();
+        const Be::Time time = 0;
+        ( *binding )->Update( time );
+    }
+
+    if( onlyUpdateBindings )
+    {
+        return;
+    }
+
+    for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
+    {
+        ( *it )->Link( *GetRawRoot() );
+    }
+}
+
 void EveStretch3::RunOnComponents( std::function<void( IEveSpaceObjectChild* )> func ) const
 {
 	if( m_sourceObject )

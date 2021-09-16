@@ -25,10 +25,12 @@ const Be::ClassInfo* Tr2ActionOverlay::ExposeToBlue()
 			Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( 
 			"targetAnotherOwner", 
-			m_MultiEffectParameter,
+			m_targetAnotherOwner,
 			"Designate a child or a MultiEffect parameter to "
 			"target for the load (defaults to controller's owner)"
 			, Be::READWRITE | Be::PERSIST )
+        MAP_ATTRIBUTE( "addOnStart", m_addOnStart, "Add the overlay on action start", Be::READWRITE | Be::PERSIST )
+        MAP_ATTRIBUTE( "removeOnStop", m_removeOnStop, "Remove the overlay on action stop", Be::READWRITE | Be::PERSIST )
 
 	EXPOSURE_END()
 }

@@ -46,6 +46,10 @@ public:
     EXPOSE_TO_BLUE();
     EveStretch3( IRoot* lockobj = NULL );
 
+    void Rebind( bool onlyUpdateBindings = 0 );
+    IEveSpaceObject2Ptr GetSourceSpaceObject() const;
+    IEveSpaceObject2Ptr GetDestSpaceObject() const;
+
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize
 	bool Initialize() override;

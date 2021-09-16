@@ -11,39 +11,51 @@
 #include "Utilities/StringUtils.h"
 #include "Eve/EveMultiEffect.h"
 #include "Eve/EveMultiEffectParameter.h"
+#include "Eve/Renderable/Stretch/EveStretch3.h"
 
+Tr2ActionOverlay::Tr2ActionOverlay( IRoot* ) :
+        m_addOnStart( true ),
+        m_removeOnStop( true ),
+        m_targetAnotherOwner( "" )
+{
+}
 
 void Tr2ActionOverlay::Start( Tr2Controller& controller )
 {
 	EveSpaceObject2Ptr owner = BlueCastPtr( controller.GetOwner() );
-	
+    bool rebind = false;
+
 	if( !owner )
 	{
-		if( !m_MultiEffectParameter.empty() )
+		if( !m_targetAnotherOwner.empty() )
 		{
-			EveMultiEffectPtr effect = BlueCastPtr( controller.GetOwner() );
-			if( effect )
-			{
-				EveMultiEffectParameter* mep = effect->GetParameterByName( m_MultiEffectParameter );
+			if( EveMultiEffectPtr multiEffect = BlueCastPtr( controller.GetOwner() ) ) {
+                if( EveMultiEffectParameterPtr mep = multiEffect->GetParameterByName( m_targetAnotherOwner ) )
+                {
+                    owner = BlueCastPtr( mep->GetParameterObject() );
+                }
+            } else if ( EveStretch3Ptr stretch3 = BlueCastPtr( controller.GetOwner() ) ) {
+                IEveSpaceObject2Ptr obj;
 
-				if( nullptr == mep )
-				{
-					return;
-				}
-				
-				auto obj = mep->GetParameterObject();
-				auto cast = dynamic_cast<EveSpaceObject2*> (obj);
-				if( cast )
-				{
-					owner = BlueCastPtr( cast );
-				}
-				effect->Rebind( true );
-			}
-		}
+                if (m_targetAnotherOwner == BlueSharedString("sourceSpaceObject" ) ) {
+                    obj = stretch3->GetSourceSpaceObject();
+                }
+
+                if ( m_targetAnotherOwner == BlueSharedString("destSpaceObject" ) ) {
+                    obj = stretch3->GetDestSpaceObject();
+                }
+
+                if ( obj ) {
+                    owner = BlueCastPtr(obj);
+                }
+            }
+        }
+
 		if( !owner )
 		{
 			return;
 		}
+        rebind = true;
 	}
 	
 	auto path = m_path;
@@ -61,10 +73,21 @@ void Tr2ActionOverlay::Start( Tr2Controller& controller )
 	BeResMan->SetUrgentResourceLoads( true );
 	m_overlay = BeResMan->LoadObject<EveMeshOverlayEffect>( path.c_str() );
 	BeResMan->SetUrgentResourceLoads( false );
-	if( m_overlay )
+	if( m_overlay && m_addOnStart)
 	{
 		owner->AddOverlayEffect( m_overlay );
 	}
+
+    if( rebind )
+    {
+        if( EveMultiEffectPtr multiEffect = BlueCastPtr( controller.GetOwner() ) )
+        {
+            multiEffect->Rebind( true );
+        } else if( EveStretch3Ptr stretch3 = BlueCastPtr( controller.GetOwner() ) )
+        {
+            stretch3->Rebind( true );
+        }
+    }
 }
 
 void Tr2ActionOverlay::Stop( Tr2Controller& controller )
@@ -74,26 +97,35 @@ void Tr2ActionOverlay::Stop( Tr2Controller& controller )
 		return;
 	}
 
-	EveMultiEffectPtr effect = BlueCastPtr( controller.GetOwner() );
-	if( effect && !m_MultiEffectParameter.empty() )
-	{
-		EveMultiEffectParameter* mep = effect->GetParameterByName( m_MultiEffectParameter );
 
-		if( nullptr == mep )
-		{
-			return;
-		}
+    EveSpaceObject2Ptr owner = BlueCastPtr( controller.GetOwner() );
 
-		auto cast = dynamic_cast<EveSpaceObject2*> (mep->GetParameterObject());
-		if( cast )
-		{
-			cast->RemoveOverlayEffect( m_overlay );
-		}
-	}
+    if( !owner && !m_targetAnotherOwner.empty() )
+    {
+        if( EveMultiEffectPtr multiEffect = BlueCastPtr( controller.GetOwner() ) )
+        {
+            if( EveMultiEffectParameterPtr mep = multiEffect->GetParameterByName( m_targetAnotherOwner ) )
+            {
+                owner = BlueCastPtr(mep->GetParameterObject());
+            }
+        } else if ( EveStretch3Ptr stretch3 = BlueCastPtr( controller.GetOwner() ) ){
 
-	EveSpaceObject2Ptr owner = BlueCastPtr( controller.GetOwner() );
+            IEveSpaceObject2Ptr obj;
 
-	if( owner )
+            if (m_targetAnotherOwner == BlueSharedString("sourceSpaceObject")) {
+                obj = stretch3->GetSourceSpaceObject();
+            }
+            if (m_targetAnotherOwner == BlueSharedString("destSpaceObject")) {
+                obj = stretch3->GetDestSpaceObject();
+            }
+
+            if (obj) {
+                owner = BlueCastPtr(obj);
+            }
+        }
+    }
+
+	if( owner && m_removeOnStop)
 	{
 		owner->RemoveOverlayEffect( m_overlay );
 	}

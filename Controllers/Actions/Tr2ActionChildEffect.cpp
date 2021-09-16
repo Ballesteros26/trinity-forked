@@ -11,6 +11,7 @@
 #include "Eve/SpaceObject/Children/IEveSpaceObjectChild.h"
 #include "Eve/EveMultiEffect.h"
 #include "Eve/EveMultiEffectParameter.h"
+#include "Eve/Renderable/Stretch/EveStretch3.h"
 
 
 namespace
@@ -73,28 +74,32 @@ void Tr2ActionChildEffect::Start( Tr2Controller& controller )
 	{
 		if( !m_targetAnotherOwner.empty() )
 		{
-			EveMultiEffectPtr effect = BlueCastPtr( controller.GetOwner() );
-			if( effect )
+			if( EveMultiEffectPtr multiEffect = BlueCastPtr( controller.GetOwner() ) )
 			{
-				EveMultiEffectParameter* mep = effect->GetParameterByName( m_targetAnotherOwner );
+                if( EveMultiEffectParameterPtr mep = multiEffect->GetParameterByName( m_targetAnotherOwner ) )
+                {
+                    owner = BlueCastPtr( mep->GetParameterObject() );
+                }
+			} else if (EveStretch3Ptr stretch3 = BlueCastPtr( controller.GetOwner() ))
+            {
+                if ( m_targetAnotherOwner == BlueSharedString("sourceSpaceObject") )
+                {
+                    IEveSpaceObject2Ptr source = stretch3->GetSourceSpaceObject();
+                    owner = BlueCastPtr( source );
+                }
 
-				if( !mep )
-				{
-					return;
-				}
-				auto obj = mep->GetParameterObject();
-				auto cast = dynamic_cast<IEveEffectChildrenOwner*>( obj );
-				if( cast )
-				{
-					owner = BlueCastPtr( cast );
-					rebind = true;
-				}
-			}
+                if ( m_targetAnotherOwner == BlueSharedString("destSpaceObject") )
+                {
+                    IEveSpaceObject2Ptr dest = stretch3->GetDestSpaceObject();
+                    owner = BlueCastPtr( dest );
+                }
+            }
 		}
 		if( !owner )
 		{
 			return;
 		}
+        rebind = true;
 	}
 
 	m_child = nullptr;
@@ -114,15 +119,14 @@ void Tr2ActionChildEffect::Start( Tr2Controller& controller )
 			owner->AddToEffectChildrenList( m_child );
 			m_child->StartControllers();
 		}
-	}
-
-	if( rebind )
-	{
-		EveMultiEffectPtr effect = BlueCastPtr( controller.GetOwner() );
-		if( effect )
-		{
-			effect->Rebind( true );
-		}
+        if( rebind )
+        {
+            EveMultiEffectPtr effect = BlueCastPtr( controller.GetOwner() );
+            if( effect )
+            {
+                effect->Rebind( true );
+            }
+        }
 	}
 }
 
@@ -160,6 +164,27 @@ void Tr2ActionChildEffect::Stop( Tr2Controller& controller )
 					cast->RemoveFromEffectChildrenList( m_child );
 				}
 			}
+            else if (EveStretch3Ptr stretch3 = BlueCastPtr( controller.GetOwner() ))
+            {
+                IEveEffectChildrenOwnerPtr cast;
+
+                if ( m_targetAnotherOwner == BlueSharedString("sourceSpaceObject") )
+                {
+                    IEveSpaceObject2Ptr source = stretch3->GetSourceSpaceObject();
+                    cast = BlueCastPtr( source );
+                }
+
+                if ( m_targetAnotherOwner == BlueSharedString("destSpaceObject") )
+                {
+                    IEveSpaceObject2Ptr dest = stretch3->GetDestSpaceObject();
+                    cast = BlueCastPtr( dest );
+                }
+
+                if( cast )
+                {
+                    cast->RemoveFromEffectChildrenList( m_child );
+                }
+            }
 		}
 	}
 	m_child = nullptr;
