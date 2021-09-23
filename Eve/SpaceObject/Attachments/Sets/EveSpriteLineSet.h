@@ -23,8 +23,7 @@ BLUE_DECLARE( Tr2Effect );
 // --------------------------------------------------------------------------------
 BLUE_CLASS( EveSpriteLineSet ):
 	public IEveSpaceObjectAttachment,
-	public IInitialize,
-	public Tr2DeviceResource
+	public IInitialize
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -35,12 +34,6 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize
 	bool Initialize();
-
-	//////////////////////////////////////////////////////////////////////////////////////
-	// ITriDeviceResource
-	void ReleaseResources( TriStorage s );
-private:
-	bool OnPrepareResources();
 
 public:
 
@@ -59,6 +52,8 @@ public:
 	void Rebuild();
 
 private:
+	bool ReallocateResources();
+
 	// general data
 	std::string m_name;
 	bool m_display;

@@ -43,18 +43,10 @@ EveSpriteLineSet::~EveSpriteLineSet()
 // --------------------------------------------------------------------------------
 bool EveSpriteLineSet::Initialize()
 {
-	PrepareResources();
-	CreateBoundingBoxes();
+	Rebuild();
 	return true;
 }
 
-// --------------------------------------------------------------------------------
-// Description:
-//   We have to free all device stuff
-// --------------------------------------------------------------------------------
-void EveSpriteLineSet::ReleaseResources( TriStorage s )
-{
-}
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -81,8 +73,7 @@ void EveSpriteLineSet::Add( EveSpriteLineSetItemPtr newItem )
 // --------------------------------------------------------------------------------
 void EveSpriteLineSet::Rebuild()
 {
-	ReleaseResources( 0 );
-	PrepareResources();
+	ReallocateResources();
 	CreateBoundingBoxes();
 }
 
@@ -134,9 +125,9 @@ void EveSpriteLineSet::CreateBoundingBoxes()
 
 // --------------------------------------------------------------------------------
 // Description:
-//   (Re)-allocate all device stuff
+//   (Re)-allocate vertex and sprite info to buffers
 // --------------------------------------------------------------------------------
-bool EveSpriteLineSet::OnPrepareResources()
+bool EveSpriteLineSet::ReallocateResources()
 {
 	// create a hash value for the effect, global quadrenderer needs it!
 	if( m_effect )
