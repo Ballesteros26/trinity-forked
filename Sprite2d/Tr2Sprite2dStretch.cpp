@@ -168,6 +168,8 @@ void Tr2Sprite2dStretch::PrepareVertices( Tr2Sprite2dVertexBase* v, float srcWid
 
 	float y1 = scaledHeight + offsetY;
 
+	const Color white( 1, 1, 1, 1 );
+
 	//
 	// First line
 	//
@@ -179,7 +181,7 @@ void Tr2Sprite2dStretch::PrepareVertices( Tr2Sprite2dVertexBase* v, float srcWid
 	v->texCoord[0].y = 0.0f;
 	v->texCoord[1].x = 0.0f;
 	v->texCoord[1].y = 0.0f;
-	v->color = m_color;
+	v->color = white;
 	++v;
 
 	// Vertex 1
@@ -190,7 +192,7 @@ void Tr2Sprite2dStretch::PrepareVertices( Tr2Sprite2dVertexBase* v, float srcWid
 	v->texCoord[0].y = 0.0f;
 	v->texCoord[1].x = leftEdgeSize / srcWidth;
 	v->texCoord[1].y = 0.0f;
-	v->color = m_color;
+	v->color = white;
 	++v;
 
 	// Vertex 2
@@ -201,7 +203,7 @@ void Tr2Sprite2dStretch::PrepareVertices( Tr2Sprite2dVertexBase* v, float srcWid
 	v->texCoord[0].y = 0.0f;
 	v->texCoord[1].x = 1.0f - rightEdgeSize / srcWidth;
 	v->texCoord[1].y = 0.0f;
-	v->color = m_color;
+	v->color = white;
 	++v;
 
 	// Vertex 3
@@ -212,7 +214,7 @@ void Tr2Sprite2dStretch::PrepareVertices( Tr2Sprite2dVertexBase* v, float srcWid
 	v->texCoord[0].y = 0.0f;
 	v->texCoord[1].x = 1.0f;
 	v->texCoord[1].y = 0.0f;
-	v->color = m_color;
+	v->color = white;
 	++v;
 
 	//
@@ -226,7 +228,7 @@ void Tr2Sprite2dStretch::PrepareVertices( Tr2Sprite2dVertexBase* v, float srcWid
 	v->texCoord[0].y = 1.0f;
 	v->texCoord[1].x = 0.0f;
 	v->texCoord[1].y = 1.0f;
-	v->color = m_color;
+	v->color = white;
 	++v;
 
 	// Vertex 5
@@ -237,7 +239,7 @@ void Tr2Sprite2dStretch::PrepareVertices( Tr2Sprite2dVertexBase* v, float srcWid
 	v->texCoord[0].y = 1.0f;
 	v->texCoord[1].x = leftEdgeSize / srcWidth;
 	v->texCoord[1].y = 1.0f;
-	v->color = m_color;
+	v->color = white;
 	++v;
 
 	// Vertex 6
@@ -248,7 +250,7 @@ void Tr2Sprite2dStretch::PrepareVertices( Tr2Sprite2dVertexBase* v, float srcWid
 	v->texCoord[0].y = 1.0f;
 	v->texCoord[1].x = 1.0f - rightEdgeSize / srcWidth;
 	v->texCoord[1].y = 1.0f;
-	v->color = m_color;
+	v->color = white;
 	++v;
 
 	// Vertex 7
@@ -259,5 +261,5 @@ void Tr2Sprite2dStretch::PrepareVertices( Tr2Sprite2dVertexBase* v, float srcWid
 	v->texCoord[0].y = 1.0f;
 	v->texCoord[1].x = 1.0f;
 	v->texCoord[1].y = 1.0f;
-	v->color = m_color;
+	v->color = white;
 }
