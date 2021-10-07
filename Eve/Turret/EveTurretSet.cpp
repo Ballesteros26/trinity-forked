@@ -2842,6 +2842,11 @@ void EveTurretSet::SetTurretBonePose( EveTurretSetPerObjectData* perObjectData, 
 // --------------------------------------------------------------------------------
 void EveTurretSet::GetLights( Tr2LightManager& lightManager ) const
 {
+    if( !m_display )
+    {
+        return;
+    }
+
 	if( m_firingEffect )
 	{
 		m_firingEffect->GetLights( lightManager );
@@ -2876,7 +2881,7 @@ void EveTurretSet::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRen
     {
         return;
     }
-    
+
 	if( nullptr != m_firingEffect )
 	{
 		m_firingEffect->AddQuadsToQuadRenderer( frustum, quadRenderer );
