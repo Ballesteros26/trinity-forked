@@ -847,17 +847,20 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
         m_mainWindow->OnKey_MacOS( true, keyCode, event.isARepeat );
     }
     const NSUInteger LEFT_OPT = 524576;
-	if( ( event.modifierFlags & LEFT_OPT ) != LEFT_OPT )
-	{
-		if( m_mainWindow->m_imeState_MacOS == Tr2ImeState_MacOS::DISABLED )
-		{
-			[self insertText:event.characters];
-		}
-		else
-		{
-			[self interpretKeyEvents:@[event]];
-		}
-	}
+    if( ( event.modifierFlags & NSEventModifierFlagCommand ) == 0 )
+    {
+        if( ( event.modifierFlags & LEFT_OPT ) != LEFT_OPT )
+        {
+            if( m_mainWindow->m_imeState_MacOS == Tr2ImeState_MacOS::DISABLED )
+            {
+                [self insertText:event.characters];
+            }
+            else
+            {
+                [self interpretKeyEvents:@[event]];
+            }
+        }
+    }
 }
 
 - (void)keyUp:(NSEvent *)event
