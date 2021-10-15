@@ -64,6 +64,8 @@ function(set_shared_trinity_properties target)
             PDB_OUTPUT_DIRECTORY ${output_directory}
             OUTPUT_NAME "_${target}"
     )
+
+    add_trinity_dev_debug_flags(${target})
 endfunction()
 
 #[[
