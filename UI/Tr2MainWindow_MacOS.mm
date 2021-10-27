@@ -663,6 +663,11 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
     return self;
 }
 
+- (BOOL)acceptsFirstMouse:(NSEvent *)event
+{
+	return YES;
+}
+
 - (CALayer *)makeBackingLayer
 {
     return [CAMetalLayer layer];
@@ -734,7 +739,7 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
     {
         [self removeTrackingArea: m_trackingArea];
     }
-    m_trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds] options:(NSTrackingCursorUpdate | NSTrackingActiveAlways | NSTrackingInVisibleRect) owner:self userInfo:nil];
+    m_trackingArea = [[NSTrackingArea alloc] initWithRect:[self bounds] options:(NSTrackingCursorUpdate | NSTrackingMouseMoved | NSTrackingActiveAlways | NSTrackingInVisibleRect) owner:self userInfo:nil];
     [self addTrackingArea:m_trackingArea];
 }
 
@@ -1079,7 +1084,6 @@ void Tr2MainWindow::CreateOSWindow( Tr2MainWindowState::State& state )
 
     auto view = [[CcpContentView alloc] initWithWindow:this];
     [window setContentView:view];
-    [window setAcceptsMouseMovedEvents:YES];
 
     [window makeKeyAndOrderFront:nil];
     [window makeFirstResponder:[window contentView]];
