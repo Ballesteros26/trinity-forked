@@ -133,6 +133,15 @@ namespace
 		return remaining > 0;
 	}
 
+	float KillCount()
+	{
+		if( EveShip2Ptr ship = BlueCastPtr( s_owner ) )
+		{
+			return ship->GetKillCounterValue();
+		}
+		return 0.0f;
+	}
+
 	float ShipSpeed()
 	{
 		if( g_controllerFunctionOverrideEnabled )
@@ -437,6 +446,8 @@ std::string Tr2ControllerExpression::CreateParser( const char* expression, Modif
 	m_expressionParser.DefineFun( "ShipMaxSpeed", ShipMaxSpeed, false );
 	m_expressionParser.DefineFun( "Random", Random, false );
 	m_expressionParser.DefineFun( "ShipBoosterIntensity", BoosterIntensity, false );
+	m_expressionParser.DefineFun( "KillCount", KillCount, false );
+
 
 	// % operator should have the same priority as / and * (6)
 	// see here https://beltoforion.de/en/muparser/features.php#idDef2
@@ -532,6 +543,8 @@ void Tr2ControllerExpression::GetExpressionTermInfo( std::vector<Tr2ExpressionTe
 	info.push_back( Tr2ExpressionTermInfo::Function( "Controller", "ShipMaxSpeed", "owning ship maximum speed" ) );
 	info.push_back( Tr2ExpressionTermInfo::Function( "Controller", "ShipBoosterIntensity", "Owning ships boosters intensity" ) );
 	info.push_back( Tr2ExpressionTermInfo::Function( "Controller", "Random", "min", "max", "returns a random from 'min'-'max-1' " ) );
+	info.push_back( Tr2ExpressionTermInfo::Function( "Controller", "KillCount", "Owning ship kill count" ) );
+
 
 	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "IsWeekend", "is it the weekend (output: 1.0 = yes, 0.0 = no)" ) );
 	info.push_back( Tr2ExpressionTermInfo::Function( "DateTime", "ServerYear", "returns a year for current server time" ) );
