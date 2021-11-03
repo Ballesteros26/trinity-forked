@@ -233,6 +233,27 @@ TriVariable* Tr2RenderContextBase::GetObjectIdVariable( void )
 	return m_objectIdVariable;
 }
 
+namespace
+{
+const char* s_passNames[] = {
+	"Pass #1",
+	"Pass #2",
+	"Pass #3",
+	"Pass #4",
+	"Pass #5",
+	"Pass #6",
+	"Pass #7",
+	"Pass #8",
+	"Pass #...",
+};
+
+const char* GetPassName( size_t passIndex )
+{
+	return s_passNames[std::min( passIndex, sizeof( s_passNames ) / sizeof( s_passNames[0] ) )];
+}
+
+}
+
 void Tr2RenderContextBase::RenderBatchesInOrder( ITriRenderBatchAccumulator* batches, const BlueSharedString& techniqueName )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
@@ -287,7 +308,10 @@ void Tr2RenderContextBase::RenderBatchesInOrder( ITriRenderBatchAccumulator* bat
 			D3DPERF_EVENT1( L"Pass %i", passIx );
 			shader->ApplyAllStateForPass( technique, passIx, *renderContext );
 			material->ApplyMaterialDataForPass( technique, passIx, *renderContext );
+
+			Tr2GpuProfiler::GetProfiler().Begin( material, GetPassName( passIx ), *renderContext );
 			it->SubmitGeometry( *renderContext );
+			Tr2GpuProfiler::GetProfiler().End( *renderContext );
 
 			CCP_STATS_INC( batchCount );
 		}
@@ -319,7 +343,9 @@ void Tr2RenderContextBase::RenderBatchesSortedByEffectHelper( TriRenderBatch* ba
 		if( !material )
 		{
 			D3DPERF_EVENT( CA2W(batch->GetBatchTypeName().c_str()) );
+			Tr2GpuProfiler::GetProfiler().Begin( nullptr, "Batch Without Material", *renderContext );
 			batch->SubmitGeometry( *renderContext );
+			Tr2GpuProfiler::GetProfiler().End( *renderContext );
 			batch = batch->GetNext();
 			continue;
 		}
@@ -415,7 +441,9 @@ void Tr2RenderContextBase::RenderBatchesSortedByEffectHelper( TriRenderBatch* ba
 				CCP_STATS_INC( batchCount );
 
 				// Submit the geometry for this batch
+				Tr2GpuProfiler::GetProfiler().Begin( batch->GetShaderMaterialInterface(), GetPassName( passIx ), *renderContext );
 				batch->SubmitGeometry( *renderContext );
+				Tr2GpuProfiler::GetProfiler().End( *renderContext );
 
 				batch = batch->GetNext();
 			}
@@ -597,7 +625,9 @@ void Tr2RenderContextBase::RenderBatchesWithOverride( ITriRenderBatchAccumulator
 				perObjectData->SetPerObjectDataToDevice( perObjectConstantBuffers, overrideShader->GetShaderTypeMask( 0 ), *renderContext );
 			}
 
+			Tr2GpuProfiler::GetProfiler().Begin( materialForThisBatch, GetPassName( passIx ), *renderContext );
 			it->SubmitGeometry( *renderContext );
+			Tr2GpuProfiler::GetProfiler().End( *renderContext );
 
 			CCP_STATS_INC( batchCount );
 		}
@@ -671,7 +701,10 @@ void Tr2RenderContextBase::RenderBatchesForPicking( ITriRenderBatchAccumulator* 
 
 		shader->ApplyAllStateForPass( technique, 0, *renderContext );
 		material->ApplyMaterialDataForPass( technique, 0, *renderContext );
+		Tr2GpuProfiler::GetProfiler().Begin( material, "", *renderContext );
 		it->SubmitGeometry( *renderContext );
+		Tr2GpuProfiler::GetProfiler().End( *renderContext );
+
 		CCP_STATS_INC( batchCount );
 
 	}

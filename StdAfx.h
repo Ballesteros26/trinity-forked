@@ -131,5 +131,11 @@ using std::max;
 
 #define TRINITY_SUPPORTS_TAA TRINITY_PLATFORM_SUPPORTS_MSAA_SAMPLE
 
+#include "Tr2GpuProfiler.h"
+
+#define GPU_REGION( renderContext, label ) \
+	GPU_REGION_AL( renderContext, label ); \
+	Tr2GpuProfilerZone _profilerZone##__COUNTER__( nullptr, label, renderContext );
+
 
 #endif

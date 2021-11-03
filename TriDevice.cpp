@@ -1005,6 +1005,8 @@ bool TriDevice::Render()
 	Tr2Viewport vp;
 	mViewport.ConvertToTr2Viewport( vp );
 	renderContext.SetViewport( vp );
+
+	Tr2GpuProfiler::GetProfiler().BeginFrame( Tr2Renderer::GetCurrentFrameCounter() );
 	
 	// start rendering
 	Tr2Renderer::BeginFrame();
@@ -1031,6 +1033,7 @@ bool TriDevice::Render()
 
 	Tr2Renderer::EndRenderContext();
 	Tr2Renderer::EndFrame();
+	Tr2GpuProfiler::GetProfiler().EndFrame();
 
 	return true;
 }
