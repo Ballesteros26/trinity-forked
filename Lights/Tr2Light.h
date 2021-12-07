@@ -65,6 +65,8 @@ public:
 	// INotify
 	virtual bool OnModified( Be::Var* value );
 
+    virtual void SetInheritProperties( const Color* colorSet ) {};
+
 protected:
 	LightData m_lightData;
 	LIGHT_TYPE m_type;
