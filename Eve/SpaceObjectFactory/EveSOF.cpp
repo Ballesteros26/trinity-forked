@@ -1347,10 +1347,10 @@ void EveSOF::SetupBannerSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 					"RecruitmentInformation3ResPath",
 					"RecruitmentInformation4ResPath",
 				};
-				static_assert( sizeof( names ) / sizeof( names[0] ) == EveSOFDataHullBanner::_USAGE_COUNT, "Banner usage names mismatch" );
+				static_assert( sizeof( names ) / sizeof( names[0] ) == EveSOFDataHullBannerSetItem::_USAGE_COUNT, "Banner usage names mismatch" );
 
 				const char* externalParamName = nullptr;
-				if( usage >= 0 && usage < EveSOFDataHullBanner::_USAGE_COUNT )
+				if( usage >= 0 && usage < EveSOFDataHullBannerSetItem::_USAGE_COUNT )
 				{
 					externalParamName = names[usage];
 				}
