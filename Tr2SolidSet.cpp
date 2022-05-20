@@ -70,8 +70,7 @@ bool Tr2SolidSet::OnPrepareResources()
 			m_currentSubmittedTriangleCount = (unsigned int)m_triangles.size();
 		}
 
-		TriangleVertex* vertexBuffer;
-		CR_RETURN_VAL( m_vertexBuffer.MapForWriting( vertexBuffer, renderContext ), false );
+		std::vector<TriangleVertex> vertexBuffer( m_triangles.size() * 3 );
 		
 		// Copy our user data to the buffer
 		unsigned int j = 0;
@@ -95,13 +94,15 @@ bool Tr2SolidSet::OnPrepareResources()
 		float radius = 0.0f;
 		ComputeBoundingSphere( &vertexBuffer[0].m_position, (unsigned int)m_triangles.size()*3, sizeof(TriangleVertex), center, radius );
 
+		TriangleVertex* data;
+		CR_RETURN_VAL( m_vertexBuffer.MapForWriting( data, renderContext ), false );
+		memcpy( data, vertexBuffer.data(), vertexBuffer.size() * sizeof( TriangleVertex ) );
+		m_vertexBuffer.UnmapForWriting( renderContext );
+
 		m_boundingSphere.x = center.x;
 		m_boundingSphere.y = center.y;
 		m_boundingSphere.z = center.z;
 		m_boundingSphere.w = radius;
-
-		m_vertexBuffer.UnmapForWriting( renderContext );
-
 	}
 	return true;
 }

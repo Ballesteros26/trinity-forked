@@ -92,21 +92,20 @@ bool Tr2LineSet::OnPrepareResources()
 			m_currentSubmittedLineCount = (unsigned int)m_lines.size();
 		}
 
-		void* vertexBuffer;
-		CR_RETURN_VAL( m_vertexBuffer.MapForWriting( vertexBuffer, renderContext ), false );
-
-		memcpy( vertexBuffer, &m_lines[0], sizeof( LineData ) * m_lines.size() );	
 		// Create a bounding sphere around the visible lines
 		Vector3 center( 0.0f, 0.0f, 0.0f );
 		float radius = 0.0f;
-		ComputeBoundingSphere( static_cast<Vector3*>( vertexBuffer ), (unsigned int)m_lines.size()*2, sizeof(LineData)/2, center, radius );
+		ComputeBoundingSphere( static_cast<Vector3*>( &m_lines[0].m_position1 ), (unsigned int)m_lines.size() * 2, sizeof( LineData ) / 2, center, radius );
+
+		void* vertexBuffer;
+		CR_RETURN_VAL( m_vertexBuffer.MapForWriting( vertexBuffer, renderContext ), false );
+		memcpy( vertexBuffer, &m_lines[0], sizeof( LineData ) * m_lines.size() );	
+		m_vertexBuffer.UnmapForWriting( renderContext );
 
 		m_boundingSphere.x = center.x;
 		m_boundingSphere.y = center.y;
 		m_boundingSphere.z = center.z;
 		m_boundingSphere.w = radius;
-
-		m_vertexBuffer.UnmapForWriting( renderContext );
 	}
 
 	
