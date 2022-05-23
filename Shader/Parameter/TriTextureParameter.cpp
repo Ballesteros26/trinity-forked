@@ -44,7 +44,7 @@ void TriTextureParameter::UsedWithScreenSize( float screenSize, const std::vecto
 {
 	if( m_textureRes )
 	{
-		if( m_textureLodEnabled )
+		if( m_textureLodEnabled && !uvDensities.empty() )
 		{
 			size_t i = 0;
 			float resolution = 0;
@@ -55,6 +55,11 @@ void TriTextureParameter::UsedWithScreenSize( float screenSize, const std::vecto
 				if( density > 0 )
 				{
 					resolution = std::max( resolution, screenSize / density );
+				}
+				else
+				{
+					resolution = std::numeric_limits<float>::max();
+					break;
 				}
 			}
 			m_textureRes->RequestResolution( resolution );
