@@ -311,6 +311,9 @@ void EveTransform::UpdateVisibility( const TriFrustum& frustum, const Matrix& pa
 			if( frustum.IsSphereVisible( &boundingSphere ) || ( m_visibilityThreshold < 0.f ) )
 			{
 				float estimatedSize = frustum.GetPixelSizeAccross( &boundingSphere );
+
+				m_mesh->UseWithScreenSize( estimatedSize );
+
 				if( estimatedSize >= g_eveSpaceSceneMediumDetailThreshold )
 				{
 					m_lodLevel = TR2_LOD_HIGH;
