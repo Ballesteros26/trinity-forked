@@ -309,7 +309,8 @@ uint32_t Tr2EffectStateManager::RegisterRenderStateSetup( const Tr2RenderStateSe
 uint32_t Tr2EffectStateManager::RegisterShader( 
 	ShaderType type, 
 	const Tr2ShaderBytecodeAL& bytecode,
-	const Tr2ShaderSignatureAL& signature )
+	const Tr2ShaderSignatureAL& signature,
+	const char* shaderPath)
 {
 	for( size_t i = 0; i != s_shaders.size(); ++i )
 	{
@@ -342,6 +343,7 @@ uint32_t Tr2EffectStateManager::RegisterShader(
 								type, 
 								bytecode, 
 								signature,
+					   			shaderPath,
 								renderContext )
 				, UNKNOWN );
 

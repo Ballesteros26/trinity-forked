@@ -65,8 +65,7 @@ public:
 	virtual bool ApplyUav(
 		Tr2ResourceSetDescriptionAL& resourceDesc,
 		Tr2RenderContextEnum::ShaderType stage,
-		uint32_t registerIndex,
-		uint32_t initialCount ) const;
+		uint32_t registerIndex ) const;
 	unsigned GetHashValue( unsigned startingHash ) const;
 
 	void UsedWithScreenSize( float screenSize, const std::vector<float>& uvDensities ) override;

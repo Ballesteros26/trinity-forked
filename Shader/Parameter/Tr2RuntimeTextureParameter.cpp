@@ -53,8 +53,7 @@ bool Tr2RuntimeTextureParameter::CopyToResourceSet(
 bool Tr2RuntimeTextureParameter::ApplyUav(
 	Tr2ResourceSetDescriptionAL& resourceDesc,
 	Tr2RenderContextEnum::ShaderType stage,
-	uint32_t registerIndex,
-	uint32_t initialCount ) const
+	uint32_t registerIndex ) const
 {
 	if( Tr2TextureAL* tex = ( m_texture ? m_texture->GetTexture() : nullptr ) )
 	{

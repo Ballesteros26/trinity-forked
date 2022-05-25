@@ -1405,7 +1405,6 @@ void Tr2Effect::MapPassResources( const Tr2EffectResourceMap& resources, Tr2Effe
 			param.m_sourceName = ss.name;
 			param.m_registerIndex = it->first;
 			param.m_registerCount = it->second.isSRGB ? ITr2EffectValue::RESOURCE_FLAG_SRGB : 0;
-			param.m_initialCount = it->second.initialCount;
 
 			pv.push_back( param );
 		}
@@ -1864,21 +1863,19 @@ Tr2VariableStore& Tr2Effect::GetVariableStore()
 }
 
 // --------------------------------------------------------------------------------------
-void Tr2Effect::SetParameter( const BlueSharedString& name, ITr2GpuBuffer* buffer, uint32_t initialCount )
+void Tr2Effect::SetParameter( const BlueSharedString& name, ITr2GpuBuffer* buffer )
 {
 	auto existing = GetResourceByName( name.c_str() );
 	Tr2GeometryBufferParameterPtr param = BlueCastPtr( existing );
 	if( param )
 	{
 		param->SetGpuBuffer( buffer );
-		param->m_initialCount = initialCount;
 	}
 	else
 	{
 		param.CreateInstance();
 		param->m_name = name;
 		param->SetGpuBuffer( buffer );
-		param->m_initialCount = initialCount;
 		AddResource( param );
 	}
 }

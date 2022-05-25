@@ -27,8 +27,6 @@ public:
 	unsigned int m_registerIndex;
 	// Size of parameter value in bytes
 	unsigned int m_registerCount;
-	// Initial count for buffer list UAVs (default -1 means the counter is not reset)
-	uint32_t m_initialCount;
 };
 
 typedef std::vector<Tr2EffectParam>		Tr2EffectParamVector;

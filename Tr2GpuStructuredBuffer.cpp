@@ -136,15 +136,6 @@ ALResult Tr2GpuStructuredBuffer::CreateBuffer()
 	{
 		cpuUsage = Tr2CpuUsage::WRITE_OFTEN;
 	}
-	if( m_creationFlags & APPEND_BUFFER )
-	{
-		gpuUsage = gpuUsage | Tr2GpuUsage::APPEND_CONSUME;
-	}
-	if( m_creationFlags & COUNTER )
-	{
-		gpuUsage = gpuUsage | Tr2GpuUsage::BUFFER_COUNTER;
-	}
-
 	
 	USE_MAIN_THREAD_RENDER_CONTEXT();
 	return m_buffer.Create( 

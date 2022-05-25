@@ -69,8 +69,7 @@ bool TriVariable::CopyToResourceSet(
 bool TriVariable::ApplyUav(
 	Tr2ResourceSetDescriptionAL& resourceDesc,
 	Tr2RenderContextEnum::ShaderType stage,
-	uint32_t registerIndex,
-	uint32_t initialCount ) const
+	uint32_t registerIndex ) const
 {
 	switch( m_type )
 	{
@@ -100,7 +99,7 @@ bool TriVariable::ApplyUav(
 		}
 		if( buffer )
 		{
-			return resourceDesc.SetUav( stage, registerIndex, *buffer, initialCount );
+			return resourceDesc.SetUav( stage, registerIndex, *buffer );
 		}
 		else
 		{

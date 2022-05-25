@@ -268,7 +268,7 @@ bool Tr2Material::ApplyShaderInputs( uint32_t techniqueIndex, unsigned int passI
 
 	for( auto it = input.m_uavs.cbegin(); it != input.m_uavs.cend(); ++it )
 	{
-		descChanged |= it->m_sourceValue->ApplyUav( pp.m_resourceSetDesc, shaderType, it->m_registerIndex, it->m_initialCount );
+		descChanged |= it->m_sourceValue->ApplyUav( pp.m_resourceSetDesc, shaderType, it->m_registerIndex );
 	}
 
 	return descChanged;

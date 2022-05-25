@@ -37,10 +37,6 @@ public:
 		CPU_WRITABLE	= 1,
 		// Is the buffer used for GPU write access
 		GPU_WRITABLE	= 2,
-		// Buffer with append/consume GPU access
-		APPEND_BUFFER	= 4,
-		// Add a counter to the buffer
-		COUNTER			= 8,
 	};
 
 	typedef uint32_t CreationFlags;

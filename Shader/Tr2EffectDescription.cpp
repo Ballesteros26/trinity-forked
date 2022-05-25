@@ -394,7 +394,6 @@ bool Tr2EffectDescription::Read( const void* data,
 					READ( uint8_t, uint8_t, registerIndex );
 
 					Tr2EffectResource resource;
-					resource.initialCount = -1;
 
 					READ_STRING( resource.name );
 					READ( uint8_t, Tr2EffectResource::Type, resource.type );
@@ -509,7 +508,6 @@ bool Tr2EffectDescription::Read( const void* data,
 
 						Tr2EffectResource resource;
 						resource.isSRGB = false;
-						resource.initialCount = -1;
 
 						READ_STRING( resource.name );
 						READ( uint8_t, Tr2EffectResource::Type, resource.type );
@@ -528,7 +526,8 @@ bool Tr2EffectDescription::Read( const void* data,
 				pass.stageInputs[type].m_shader = Tr2EffectStateManager::RegisterShader(
 					type,
 					Tr2ShaderBytecodeAL( shaderCode, shaderSize ),
-					pass.stageInputs[type].signature );
+					pass.stageInputs[type].signature,
+					effectName);
 				shaderHandles[stageIx] = pass.stageInputs[type].m_shader;
 
 				if( pass.stageInputs[type].m_shader == unsigned( -1 ) )
@@ -602,33 +601,6 @@ bool Tr2EffectDescription::Read( const void* data,
 		if( !ReadAnnotations( annotationMap ) )
 		{
 			return false;
-		}
-	}
-
-	for( auto technique = std::begin( techniques ); technique != std::end( techniques ); ++technique )
-	{
-
-		for( auto pass = std::begin( technique->passes ); pass != std::end( technique->passes ); ++pass )
-		{
-			for( auto stage = std::begin( pass->stageInputs ); stage != std::end( pass->stageInputs ); ++stage )
-			{
-				for( auto uav = std::begin( stage->uavs ); uav != std::end( stage->uavs ); ++uav )
-				{
-					auto annotation = annotations.find( uav->second.name );
-					if( annotation != std::end( annotations ) )
-					{
-						auto found = std::find_if( std::begin( annotation->second ), std::end( annotation->second ),
-							[&]( const Tr2EffectParameterAnnotation& a )
-						{
-							return a.type == Tr2EffectParameterAnnotation::INT && strcmp( a.name, "InitialCount" ) == 0;
-						} );
-						if( found != std::end( annotation->second ) )
-						{
-							uav->second.initialCount = found->intValue;
-						}
-					}
-				}
-			}
 		}
 	}
 	return true;

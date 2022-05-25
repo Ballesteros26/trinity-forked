@@ -15,7 +15,6 @@
 // --------------------------------------------------------------------------------------
 Tr2GeometryBufferParameter::Tr2GeometryBufferParameter( IRoot* lockobj )
 	:m_meshIndex( 0 ),
-	m_initialCount( -1 ),
 	m_isUsedByEffect( false )
 {
 }
@@ -103,21 +102,6 @@ void Tr2GeometryBufferParameter::RebuildEffectHandles( Tr2Shader* effectRes )
 	}
 
 	m_isUsedByEffect = true;
-	if( auto annotations = effectRes->GetParameterAnnotations( m_name.c_str() ) )
-	{
-		auto found = std::find_if( 
-			annotations->begin(), 
-			annotations->end(), 
-			[&]( const Tr2EffectParameterAnnotation& x ) 
-			{ 
-				return x.type == Tr2EffectParameterAnnotation::INT && strcmp( x.name, m_name.c_str() ) == 0;
-		} );
-		if( found != annotations->end() )
-		{
-			m_initialCount = found->intValue;
-		}
-	}
-	
 }
 
 // --------------------------------------------------------------------------------------
@@ -143,8 +127,7 @@ bool Tr2GeometryBufferParameter::CopyToResourceSet(
 bool Tr2GeometryBufferParameter::ApplyUav(
 	Tr2ResourceSetDescriptionAL& resourceDesc,
 	Tr2RenderContextEnum::ShaderType stage,
-	uint32_t registerIndex,
-	uint32_t initialCount ) const
+	uint32_t registerIndex ) const
 {
 	if( !m_gpuBuffer )
 	{
@@ -155,7 +138,7 @@ bool Tr2GeometryBufferParameter::ApplyUav(
 	{
 		return resourceDesc.SetUav( stage, registerIndex, Tr2BufferAL() );
 	}
-	return resourceDesc.SetUav( stage, registerIndex, *buffer, initialCount == -1 ? m_initialCount : initialCount );
+	return resourceDesc.SetUav( stage, registerIndex, *buffer );
 }
 
 // --------------------------------------------------------------------------------------
