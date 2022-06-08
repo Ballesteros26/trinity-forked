@@ -195,6 +195,10 @@ void Tr2GpuParticleSystem::ReleaseResources( TriStorage s )
 	{
 		m_sortCB = Tr2ConstantBufferAL();
 	}
+	if( ( s & TRISTORAGE_MANAGEDMEMORY ) != 0 )
+	{
+		Clear();
+	}
 }
 
 bool Tr2GpuParticleSystem::OnPrepareResources()
