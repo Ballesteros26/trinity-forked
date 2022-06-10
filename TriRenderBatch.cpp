@@ -163,7 +163,10 @@ void TriGeometryBatch::SyncronousSubmit( Tr2RenderContext& renderContext )
 {
 	if( m_geometryResource && m_reversed )
 	{
-		m_geometryResource->ReverseIndexBuffer( m_meshIndex, renderContext );
+		if( auto meshData = m_geometryResource->GetMeshData( m_meshIndex, m_screenSize ) )
+		{
+			m_geometryResource->ReverseIndexBuffer( *meshData, renderContext );
+		}
 	}
 }
 

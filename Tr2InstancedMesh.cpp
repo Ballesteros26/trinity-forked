@@ -612,7 +612,7 @@ void Tr2InstancedMesh::RenderAreas( unsigned int areaIx,
 		renderContext.m_esm.ApplyStreamSource( 0, pMesh->m_vertexBuffer, 0, pMesh->m_bytesPerVertex );
 		if( reversed )
 		{
-			geometryResource->ReverseIndexBuffer( m_meshIndex, renderContext );
+			geometryResource->ReverseIndexBuffer( *pMesh, renderContext );
 			renderContext.m_esm.ApplyIndexBuffer( pMesh->m_reversedIndexBuffer );
 		}
 		else
@@ -685,7 +685,7 @@ void Tr2InstancedMesh::RenderAreas( unsigned int areaIx,
 			renderContext.m_esm.ApplyStreamSource( 1, instanceData.buffer, 0, instanceData.stride );
 			if( reversed )
 			{
-				geometryResource->ReverseIndexBuffer( m_meshIndex, renderContext );
+				geometryResource->ReverseIndexBuffer( *pMesh, renderContext );
 				renderContext.m_esm.ApplyIndexBuffer( pMesh->m_reversedIndexBuffer );
 			}
 			else

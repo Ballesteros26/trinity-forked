@@ -263,7 +263,7 @@ public:
 	typedef void( *PerTriangleCallback )( void* context, const Vector3& p1, const Vector3& p2, const Vector3& p3 );
 	void ProcessMeshTriangles( int meshIx, PerTriangleCallback cb, void* cbContext );
 
-	void ReverseIndexBuffer( unsigned int meshIx, Tr2RenderContext& renderContext );
+	void ReverseIndexBuffer( TriGeometryResMeshData& meshData, Tr2RenderContext & renderContext );
 
 	void Reload();
 

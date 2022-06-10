@@ -1426,21 +1426,9 @@ TriGeometryResMeshData::TriGeometryResMeshData() :
 //   Reverses the original mesh index buffer. This is needed for
 //   hair rendering to render hair meshes back-side in "backwards"
 //   order.
-// Arguments:
-//   meshIx - Index of the mesh that needs a reversed index buffer
 // -------------------------------------------------------------
-void TriGeometryRes::ReverseIndexBuffer( unsigned int meshIx, Tr2RenderContext& renderContext )
+void TriGeometryRes::ReverseIndexBuffer( TriGeometryResMeshData& meshData, Tr2RenderContext& renderContext )
 {
-	if( meshIx >= GetMeshCount() )
-	{
-		return;
-	}
-	if( !Tr2Renderer::IsResourceCreationAllowed() )
-	{
-		return;
-	}
-
-	TriGeometryResMeshData &meshData = *GetMeshData( meshIx );
 	if( !meshData.m_indexBuffer.IsValid() )
 	{
 		return;
@@ -1547,7 +1535,7 @@ bool TriGeometryRes::RenderAreas( float screenSize, unsigned int meshIx, unsigne
 		renderContext.m_esm.ApplyStreamSource( 0, pMesh->m_vertexBuffer, 0, pMesh->m_bytesPerVertex );
 		if( reversed )
 		{
-			ReverseIndexBuffer( meshIx, renderContext );
+			ReverseIndexBuffer( *pMesh, renderContext );
 			renderContext.m_esm.ApplyIndexBuffer( pMesh->m_reversedIndexBuffer );
 		}
 		else

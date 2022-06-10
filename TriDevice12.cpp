@@ -50,10 +50,11 @@ void TriDevice::HandleRenderTick( Be::Time realTime, Be::Time simTime )
 			++s_deviceLostCount;
 
 			Tr2RenderContextEnum::RenderContextStatus status = Tr2RenderContextEnum::CONTEXT_STATUS_INVALID;
-			std::string marker, markerMessage, crashInfo;
-			if( SUCCEEDED( Tr2RenderContext_GetMainThreadRenderContext().GetGpuStateMarker( status, marker, crashInfo ) ) )
+			std::string marker, markerMessage, crashInfo, offendingShader;
+			if( SUCCEEDED( Tr2RenderContext_GetMainThreadRenderContext().GetGpuStateMarker( status, marker, offendingShader, crashInfo ) ) )
 			{
 				markerMessage = ", GPU marker: " + marker;
+				markerMessage = ", shader: " + offendingShader;
 			}
 
 			Tr2RenderContextEnum::PixelFormat format;
@@ -74,7 +75,7 @@ void TriDevice::HandleRenderTick( Be::Time realTime, Be::Time simTime )
 
 			if( m_onDeviceRemoved.IsValid() )
 			{
-				m_onDeviceRemoved.CallVoid( (uint64_t)(unsigned long)hr, BeGetErrorMessage( ALResult( hr ) ), s_deviceLostCount, marker, resourceDesc, crashInfo );
+				m_onDeviceRemoved.CallVoid( (uint64_t)(unsigned long)hr, BeGetErrorMessage( ALResult( hr ) ), s_deviceLostCount, marker, resourceDesc, offendingShader, crashInfo );
 			}
 
 			CCP_LOGERR( "DX12 device removed, reason: 0x%x%s", hr, markerMessage.c_str() );
