@@ -162,23 +162,12 @@ void TriDevice::ApplicationActivated( ApplicationActivation activated )
 		USE_MAIN_THREAD_RENDER_CONTEXT();
 		if( activated == APP_ACTIVATED )
 		{
-			if( renderContext.m_swapChain )
-			{
-				if( SUCCEEDED( renderContext.m_swapChain->SetFullscreenState( TRUE, nullptr ) ) )
-				{
-					return;
-				}
-			}
-			CCP_LOGWARN( "TriDevice: SetFullscreenState failed when activating app. Trying to reset device." );
 			ChangeDevice( mAdapter, mHwnd, nullptr );
 		}
 		else
 		{
-			if( renderContext.m_swapChain )
-			{
-				CR( renderContext.m_swapChain->SetFullscreenState( FALSE, nullptr ) );
-			}
 			ShowWindow( mHwnd, SW_MINIMIZE );
+			ChangeDevice( mAdapter, mHwnd, nullptr );
 		}
 	}
 }
