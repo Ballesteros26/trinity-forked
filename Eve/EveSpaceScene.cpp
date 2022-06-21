@@ -1695,13 +1695,27 @@ void EveSpaceScene::RenderReflectionPass( Tr2RenderContext& renderContext )
 		PopulatePerFrameVSData( m_perFrameVS, renderContext );
 		ApplyPerFrameData( renderContext );
 		
+		{
+			Matrix orgViewMatrix = SetupPlanetViewMatrix();
+
+			TriFrustum frustum;
+			Matrix planetProjection = EveCamera::ModifyClipPlanes( Tr2Renderer::GetProjectionTransform(), 0.01f, 1e5f );
+			frustum.DeriveFrustum( &Tr2Renderer::GetViewTransform(), &Tr2Renderer::GetViewPosition(), &planetProjection, renderContext.m_esm.GetViewport() );
+			for( auto& planet: m_planets )
+			{
+				planet->UpdatePlanetVisibility( frustum, m_planetScale ); 
+			}
+
+			Tr2Renderer::SetViewTransform( orgViewMatrix );
+		}
+
+		TriFrustum currentFrustum = m_reflectionProbe->GetFrustum( i, renderContext );
+
 		// get the background reflection renderables from the component registry
 		RenderBackgroundPassObjects( renderContext, BackgroundRenderingReason::BACKGROUND_RENDER_REFLECTION);
 
 		if( !m_lensflares.empty() && g_eveReflectionMode == EntityComponents::REFLECTION_SETTING_HIGHEST )
 		{
-			TriFrustum currentFrustum = m_reflectionProbe->GetFrustum( i, renderContext );
-
 			GPU_REGION( renderContext, "Lens Flares in reflections" );
 			std::vector<ITr2Renderable*> visible;
 
@@ -1729,7 +1743,6 @@ void EveSpaceScene::RenderReflectionPass( Tr2RenderContext& renderContext )
 
 			std::vector<ITr2Renderable*> visibleRenderables;
 			visibleRenderables.reserve( reflectionRenderables.size() );
-			TriFrustum currentFrustum = m_reflectionProbe->GetFrustum( i, renderContext );
 
 			// Filter out the non-visible reflection renderables based on the current frustum
 			for( auto it = reflectionRenderables.begin(); it != reflectionRenderables.end(); ++it )
