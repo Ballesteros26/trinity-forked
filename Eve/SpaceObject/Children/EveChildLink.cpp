@@ -154,6 +154,22 @@ void EveChildLink::UpdateAsyncronous( EveUpdateContext& updateContext, const Eve
 	m_vsData.worldTransformLast = Transpose( linkRotationMat );
 }
 
+void EveChildLink::UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform, Tr2Lod parentLod )
+{
+	if( !m_display )
+	{
+		return;
+	}
+	// HOTFIX: Don't LOD out the effect. This ONLY affects the tethering effect
+	// TODO: Fix m_currentScreenSize calculation, should be the distance between dest and target in screenspace
+	m_isVisible = false;
+	m_currentScreenSize = -1;
+
+	if( m_mesh )
+	{
+		m_isVisible = true;
+	}
+}
 
 bool EveChildLink::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) const
 {

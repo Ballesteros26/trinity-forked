@@ -29,6 +29,7 @@ public:
 	// IEveSpaceObjectChild
 	void UpdateSyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params );
 	void UpdateAsyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params );
+	void UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform, Tr2Lod parentLod );
 	void GetLocalToWorldTransform( Matrix& transform ) const;
 	void ChangeLOD( Tr2Lod lod ) {};
 	void GetLights( Tr2LightManager& lightManager ) const {};
