@@ -100,9 +100,8 @@ void Tr2Light::AddLight( Tr2LightManager& lightManager, CXMMATRIX transform, flo
 	data.flags = m_lightData.flags | ( profile << 4 );
 	data.position = Vector3( XMVector3TransformCoord( m_lightData.position, lightTransform ) );
 
-	Matrix lightRotation;
-	lightRotation = RotationMatrix( Normalize( m_lightData.rotation * RotationQuaternion( lightTransform ) ) );
-	data.direction = Vector3_16( Transform( Vector4( 0.0, 0.0, -1, 0.0 ), lightRotation ).GetXYZ() );
+	Matrix lightRotation = RotationMatrix( m_lightData.rotation ) * lightTransform;
+	data.direction = Vector3_16( Normalize( Transform( Vector4( 0.0, 0.0, -1, 0.0 ), lightRotation ).GetXYZ() ) );
 	switch( m_type )
 	{
 	case SPOT_LIGHT:
