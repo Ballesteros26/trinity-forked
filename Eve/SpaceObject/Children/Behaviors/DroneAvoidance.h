@@ -21,6 +21,7 @@ public:
 	virtual int GetProcessPriority();
 
 private:
+	bool m_enabled;
 	int32_t m_framesBetweenUpdates;
 	int32_t m_frameCounter;
 	std::vector<Vector3> m_lastPullForces;

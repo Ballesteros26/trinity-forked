@@ -15,8 +15,11 @@ public:
 	virtual std::vector<Vector3> CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime,
 		BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius );
 
+private:
+	bool m_enabled;
 	float m_seconds;
 	float m_time;
+	int m_count;
 	Vector3 m_spawnPosition;
 };
 

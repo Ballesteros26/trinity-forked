@@ -45,10 +45,13 @@ public:
 	void UpdateAsyncronous( EveUpdateContext & updateContext, const TriFrustum& frustum, const Matrix& parentTransform );
 	void UpdateSyncronous( EveUpdateContext & updateContext );
 	void UpdateState( bool state ) { m_stop = state; }
+	void RegisterWithQuadRenderer( Tr2QuadRenderer & quadRenderer );
+	void AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer ) const;
 
 private:
 	void CheckCount( size_t agentSize );
 
+	bool m_enabled;
 	size_t m_count;
 	float m_behaviorWeight;
 	float m_distanceFromCenter;

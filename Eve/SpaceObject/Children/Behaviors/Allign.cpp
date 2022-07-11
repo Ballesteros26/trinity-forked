@@ -3,6 +3,7 @@
 
 
 Allign::Allign( IRoot* lockobj ):
+	m_enabled( true ),
 	m_behaviorWeight( 1 ),
 	m_visionRange( 75 ),
 	m_frameCounter( 0 ),
@@ -25,6 +26,11 @@ std::vector<Vector3> Allign::CalculateBehavior(std::vector<DroneAgent>& agents, 
                                                BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius)
 {
 	std::vector<Vector3> returnForces;
+	if( !m_enabled )
+	{
+		return returnForces;
+	}
+	
 	int c = 0;
 	if ( m_frameCounter == 0 )
 	{

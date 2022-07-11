@@ -20,6 +20,7 @@ BehaviorGroup::BehaviorGroup( IRoot* lockobj ) :
 	m_maxVelocity( 100 ),
 	m_changeBufferVertexCount( nullptr ),
 	m_parent( nullptr ),
+	m_playFXBehavior( nullptr ),
 	m_scale( 1.0 ),
 	m_currentScreenSize( 0.0 ),
 	m_renderThreshold( 1.0 ),
@@ -46,6 +47,8 @@ bool BehaviorGroup::Initialize()
 	{
 		m_booster->RebuildFlareBuffer( m_count );
 	}
+
+	SetPlayFXBehavior();
 	return true;
 }
 
@@ -482,7 +485,7 @@ void BehaviorGroup::RemoveAgentsByCount( int count )
 void BehaviorGroup::UpdateAgents( const float dt, EveChildBehaviorSystem& system )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
-	
+
 	// make sure the update isn't too big when e.g. a player resizes his window (in window mode)
 	float deltaTime = TriClamp( dt, 0.0, 0.1 );
 
@@ -633,7 +636,7 @@ void BehaviorGroup::GetInfoForBuffer( uint8_t* data, const Matrix& parentWorldLo
 	if( m_currentScreenSize == 0.0 )
 	{
 
-		for(auto agent = m_agents.begin(); agent != m_agents.end(); ++agent )
+		for( auto agent = m_agents.begin(); agent != m_agents.end(); ++agent )
 		{
 			memcpy( data, &zeroMatrix, 12 * sizeof( float ) );
 			data += 12 * sizeof( float );
@@ -641,7 +644,7 @@ void BehaviorGroup::GetInfoForBuffer( uint8_t* data, const Matrix& parentWorldLo
 			// boosters
 			memcpy( data, &zeroMatrix, 12 * sizeof( float ) );
 			data += 12 * sizeof( float );
-		}		
+		}
 		return;
 	}
 
@@ -677,7 +680,7 @@ void BehaviorGroup::GetInfoForBuffer( uint8_t* data, const Matrix& parentWorldLo
 
 				if( LOD < 0.3 )
 				{
-					boosterPos.GetXYZ() = TransformCoord( m_booster->GetOffset() * m_scale, agentTransform );					
+					boosterPos.GetXYZ() = TransformCoord( m_booster->GetOffset() * m_scale, agentTransform );
 
 					srand( agent->id );
 					boosterInfo.x = intensity;
@@ -767,15 +770,9 @@ void BehaviorGroup::CreateVertexDeclaration()
 // --------------------------------------------------------------------------------------
 void BehaviorGroup::GetRenderables( std::vector<ITr2Renderable*>& renderables )
 {
-	auto behavior = GetBehaviorByName( "PlayFX" );
-
-	if( behavior != nullptr )
+	if( m_playFXBehavior != nullptr )
 	{
-		auto tmp = dynamic_cast<PlayFX*>( behavior );
-		if( tmp )
-		{
-			tmp->GetRenderables( renderables );
-		}
+		m_playFXBehavior->GetRenderables( renderables );
 	}
 }
 
@@ -785,15 +782,9 @@ void BehaviorGroup::GetRenderables( std::vector<ITr2Renderable*>& renderables )
 // --------------------------------------------------------------------------------------
 void BehaviorGroup::UpdateAsyncronous( EveUpdateContext& updateContext )
 {
-	auto behavior = GetBehaviorByName( "PlayFX" );
-
-	if( behavior != nullptr )
+	if( m_playFXBehavior != nullptr )
 	{
-		auto tmp = dynamic_cast<PlayFX*>( behavior );
-		if( tmp )
-		{
-			tmp->UpdateAsyncronous( updateContext, m_frustum, m_parentTransform );
-		}
+		m_playFXBehavior->UpdateAsyncronous( updateContext, m_frustum, m_parentTransform );
 	}
 }
 
@@ -810,15 +801,9 @@ void BehaviorGroup::UpdateSyncronous( EveUpdateContext& updateContext, const Eve
 		m_createAgentTree = false;
 	}
 
-	auto behavior = GetBehaviorByName( "PlayFX" );
-
-	if( behavior != nullptr )
+	if( m_playFXBehavior != nullptr )
 	{
-		auto tmp = dynamic_cast<PlayFX*>( behavior );
-		if( tmp )
-		{
-			tmp->UpdateSyncronous( updateContext );
-		}
+		m_playFXBehavior->UpdateSyncronous( updateContext );
 	}
 
 	if( m_parent == nullptr )
@@ -871,6 +856,19 @@ BehaviorGroupBoosterPtr BehaviorGroup::GetBooster() const
 	return m_booster;
 }
 
+void BehaviorGroup::SetPlayFXBehavior()
+{
+	auto behavior = GetBehaviorByName( "PlayFX" );
+	if( behavior != nullptr )
+	{
+		auto tmp = dynamic_cast<PlayFX*>( behavior );
+		if( tmp )
+		{
+			m_playFXBehavior = tmp;
+		}
+	}
+}
+
 void BehaviorGroup::AddLights( Tr2LightManager& lightManager, const Matrix& parentTransform )
 {
 	if( m_booster && m_booster->GetDisplay() )
@@ -883,15 +881,9 @@ void BehaviorGroup::AddLights( Tr2LightManager& lightManager, const Matrix& pare
 		}
 	}
 
-	auto behavior = GetBehaviorByName( "PlayFX" );
-
-	if( behavior != nullptr )
+	if( m_playFXBehavior != nullptr )
 	{
-		auto tmp = dynamic_cast<PlayFX*>( behavior );
-		if( tmp )
-		{
-			tmp->GetLights( lightManager );
-		}
+		m_playFXBehavior->GetLights( lightManager );
 	}
 }
 
@@ -901,6 +893,11 @@ void BehaviorGroup::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
 	{
 		m_booster->RegisterWithQuadRenderer( quadRenderer );
 	}
+
+	if( m_playFXBehavior != nullptr )
+	{
+		m_playFXBehavior->RegisterWithQuadRenderer( quadRenderer );
+	}
 }
 
 
@@ -908,9 +905,17 @@ void BehaviorGroup::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRe
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
-	if( m_booster && m_booster->GetDisplay() && m_display && IsGroupVisible())
+	if( m_display && IsGroupVisible() )
 	{
-		m_booster->AddQuadsToQuadRenderer( frustum, quadRenderer );
+		if( m_booster && m_booster->GetDisplay() )
+		{
+			m_booster->AddQuadsToQuadRenderer( frustum, quadRenderer );
+		}
+
+		if( m_playFXBehavior != nullptr )
+		{
+			m_playFXBehavior->AddQuadsToQuadRenderer( frustum, quadRenderer );
+		}
 	}
 }
 
@@ -999,9 +1004,9 @@ void BehaviorGroup::RenderDebugInfo( ITr2DebugRenderer2& renderer, Matrix& paren
 		}
 	}
 
-	if( renderer.HasOption( this, "AgentRotation") ) 
+	if( renderer.HasOption( this, "AgentRotation" ) )
 	{
-		for( auto it = m_agents.begin(); it != m_agents.end(); ++it)
+		for( auto it = m_agents.begin(); it != m_agents.end(); ++it )
 		{
 			Quaternion rot = it->rotation;
 			renderer.DrawAxis( this, TransformationMatrix( Vector3( 100, 100, 100 ), rot, it->position ) * parentWorldLocation, Tr2DebugRenderer::Wireframe );

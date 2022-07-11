@@ -23,6 +23,7 @@ public:
 	void RenderDebugInfo( ITr2DebugRenderer2& renderer, std::vector<DroneAgent>& agents, Matrix& parentWorldLocation );
 
 private:
+	bool m_enabled;
 	PIEveVolumeVector m_inclusionVolumes;
 	int32_t m_priority;
 	int32_t m_framesBetweenUpdates;

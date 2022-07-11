@@ -20,6 +20,7 @@ const Be::ClassInfo* BackAndForth::ExposeToBlue()
 		MAP_INTERFACE( BackAndForth )
 		MAP_INTERFACE( IBehavior )
 
+		MAP_ATTRIBUTE_WITH_CHOOSER( "enabled", m_enabled, "Should this behavior be active", Be::READWRITE | Be::PERSIST | Be::NOTIFY | Be::ENUM, BehaviorPriorityChooser )
 		MAP_ATTRIBUTE_WITH_CHOOSER( "behaviorPriority", m_priority, "control what priority this behavior should have", Be::READWRITE | Be::PERSIST | Be::NOTIFY | Be::ENUM, BehaviorPriorityChooser )
 		MAP_ATTRIBUTE_WITH_CHOOSER( "locatorType", m_locatorType, "Control from where to get locators for drones to seek", Be::READWRITE | Be::PERSIST | Be::ENUM | Be::NOTIFY, LocatorChooser )
 		MAP_ATTRIBUTE( "locatorSetName", m_locatorSetName, "Name of locatorSet", Be::READWRITE | Be::PERSIST )

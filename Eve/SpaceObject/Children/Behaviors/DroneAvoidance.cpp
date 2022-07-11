@@ -3,6 +3,7 @@
 
 
 DroneAvoidance::DroneAvoidance( IRoot* lockobj ) :
+	m_enabled( true ),
 	m_behaviorWeight( 300 ),
 	m_visionRange( 5 ),
 	m_frameCounter( 0 ),
@@ -26,6 +27,11 @@ std::vector<Vector3> DroneAvoidance::CalculateBehavior( std::vector<DroneAgent>&
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	std::vector<Vector3> returnForces;
+	if( !m_enabled )
+	{
+		return returnForces;
+	}
+	
 	int c = 0;
 	if( m_frameCounter == 0 )
 	{

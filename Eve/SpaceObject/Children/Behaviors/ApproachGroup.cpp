@@ -3,6 +3,7 @@
 
 
 ApproachGroup::ApproachGroup( IRoot* lockobj ):
+	m_enabled( true ),
 	m_visionRange( 150 ),
 	m_behaviorWeight( 60 ),
 	m_frameCounter( 0 ),
@@ -25,6 +26,11 @@ std::vector<Vector3> ApproachGroup::CalculateBehavior(std::vector<DroneAgent>& a
                                                       BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius)
 {
 	std::vector<Vector3> returnForces;
+	
+	if( !m_enabled )
+	{
+		return returnForces;
+	}
 	int c = 0;
 	if ( m_frameCounter == 0 )
 	{

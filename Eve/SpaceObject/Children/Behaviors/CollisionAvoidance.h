@@ -22,6 +22,7 @@ public:
 	int GetProcessPriority();
 
 private:
+	bool m_enabled;
 	PIEveVolumeVector m_exclusionVolumes;
 	float m_collisionAvoidanceScalar;
 	int32_t m_priority;

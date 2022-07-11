@@ -3,6 +3,7 @@
 #include "SeekTarget.h"
 
 SeekTarget::SeekTarget( IRoot* lockobj ) :
+	m_enabled( true ),
 	m_behaviorWeight( 1200.f ),
 	m_arrivedRadius( 10.f ),
 	m_distFromOrigin( 10.f ),
@@ -51,15 +52,16 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 	m_arrivalPoints.resize( agents.size() );
+	std::vector<Vector3> m_returnForces;
 
 	if( m_parent == nullptr )
 	{
 		m_parent = group.GetParent();
 	}
 
-	if( m_behaviorWeight <= 0 )
+	if( m_behaviorWeight <= 0 || !m_enabled )
 	{
-		return m_todo;
+		return m_returnForces;
 	}
 
 	auto data = static_cast<SeekTargetData*>( scratchData );
@@ -195,7 +197,7 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 		// If the agent is approaching, slow him down
 		if( distance < m_slowDownRadius )
 		{
-			desiredVelocity = desiredVelocity * m_behaviorWeight * ( distance / m_slowDownRadius );
+			desiredVelocity = desiredVelocity * ( distance / m_slowDownRadius );
 
 			if( !m_droneArrived && m_onFirstDroneArrivedCallback )
 			{
@@ -233,7 +235,9 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 			// Have the drone slowly start moving based on time passed
 			data->timePassed += deltaTime;
 			data->timePassed = max( data->timePassed, m_seconds );
-			desiredVelocity *= Lerp( 0, 1, max( data->timePassed, m_seconds ) / m_seconds );
+			auto value = Lerp( 0, m_behaviorWeight, max( data->timePassed, m_seconds ) / m_seconds );
+			//desiredVelocity *= Lerp( 0, 1, max( data->timePassed, m_seconds ) / m_seconds );
+			desiredVelocity *= value;
 		}
 
 		// Trigger if: Repairing Ship && Player Undocks
@@ -247,7 +251,13 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 			m_startTimer = false;
 		}
 
+		// Move the drone in the desired direction
+		auto force = desiredVelocity * m_behaviorWeight - agent->velocity;
 		agent->acceleration += desiredVelocity - agent->velocity;
+		
+		Vector3 forceOffset = (force) * group.GetBoundingSphereRadius();
+		m_returnForces.push_back( agent->position + forceOffset );
+		m_returnForces.push_back( force );
 	}
 
 	m_doneRepairing = false;
@@ -258,7 +268,7 @@ std::vector<Vector3> SeekTarget::CalculateBehavior( std::vector<DroneAgent>& age
 	}
 
 	
-	return m_todo;
+	return m_returnForces;
 }
 
 // --------------------------------------------------------------------------------

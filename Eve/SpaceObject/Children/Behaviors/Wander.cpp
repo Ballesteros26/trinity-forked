@@ -4,6 +4,7 @@
 #include "include/TriQuaternion.h"
 
 Wander::Wander(IRoot* lockobj) :
+	m_enabled( true ),
 	m_weightWander( 240.f ),
 	rand1(0.2),
 	rand2(0.8),
@@ -28,6 +29,11 @@ std::vector<Vector3> Wander::CalculateBehavior(std::vector<DroneAgent>& agents, 
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	std::vector<Vector3> forceVectors;
+	if( !m_enabled )
+	{
+		return forceVectors;
+	}
+
 	for( auto agent = agents.begin(); agent != agents.end(); ++agent )
 	{
 		float seed = agent->lifetime + agent->id;

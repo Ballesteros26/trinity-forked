@@ -5,6 +5,7 @@
 
 PlayFX::PlayFX( IRoot* lockobj ) :
 	PARENTLOCK( m_firingEffects ),
+	m_enabled( true ),
 	m_count( 0 ),
 	m_behaviorWeight( 20.f ),
 	m_distanceFromCenter( 5.f ),
@@ -42,10 +43,12 @@ std::vector<Vector3> PlayFX::CalculateBehavior( std::vector<DroneAgent>& agents,
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
-	if( m_behaviorWeight <= 0 )
-	{
-		return m_todo;
-	}
+	if( m_enabled )
+
+		if( m_behaviorWeight <= 0 || !m_enabled )
+		{
+			return m_todo;
+		}
 
 	if( m_firingEffect == nullptr )
 	{
@@ -161,6 +164,36 @@ void PlayFX::GetLights( Tr2LightManager& lightManager ) const
 		( *fx )->GetLights( lightManager );
 	}
 }
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Registers space object attachments (sprite and spotlight sets) with quad
+//   renderer.
+// Arguments:
+//   quadRenderer - quad renderer
+// --------------------------------------------------------------------------------
+void PlayFX::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
+{
+	for( auto fx = m_firingEffects.begin(); fx != m_firingEffects.end(); ++fx )
+	{
+		( *fx )->RegisterWithQuadRenderer( quadRenderer );
+	}
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Adds sprites from sprite sets and spotlight sets to quad renderer.
+// Arguments:
+//   quadRenderer - quad renderer
+// --------------------------------------------------------------------------------
+void PlayFX::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer ) const
+{
+	for( auto fx = m_firingEffects.begin(); fx != m_firingEffects.end(); ++fx )
+	{
+		( *fx )->AddQuadsToQuadRenderer( frustum, quadRenderer );
+	}
+}
+
 
 void PlayFX::CheckCount( size_t agentSize )
 {

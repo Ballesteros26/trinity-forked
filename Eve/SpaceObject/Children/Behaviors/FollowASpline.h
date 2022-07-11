@@ -42,6 +42,8 @@ public:
 	virtual int GetProcessPriority();
 	
 private:
+	bool m_enabled;
+
 	float ProcessTunnelEntrances(DroneAgent& agent, const std::vector<SplineTunnel*>& tunnels, FollowASplineData* data);
 	bool ProcessAssignedTunnel(DroneAgent& agent, const std::vector<SplineTunnel*>& tunnels, BehaviorGroup& group, FollowASplineData* data);
 	bool CheckForAndUpdateFormation( std::vector<DroneAgent>& agents, BehaviorGroup& group, void* scratchData, int tunnel, int tunnelPoint );

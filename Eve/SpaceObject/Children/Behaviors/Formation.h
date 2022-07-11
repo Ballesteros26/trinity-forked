@@ -35,6 +35,8 @@ public:
 	void Reset();
 
 private:
+	bool m_enabled;
+
 	void InitializeFormation(std::vector<DroneAgent>& agents, void* scratchData, float radius);
 	void CreateFormationGrid(std::vector<DroneAgent>& agents, Vector3& targetDir, float radius);
 	void AssignSlots(std::vector<DroneAgent>& agents, void* scratchData);

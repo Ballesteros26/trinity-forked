@@ -53,7 +53,8 @@ public:
 
 	void SetParent( IEveSpaceObject2 *parent );
 
-private:	
+private:
+	bool m_enabled;
 	int32_t m_priority;
 	int m_rand;
 	float m_arrivedRadius;

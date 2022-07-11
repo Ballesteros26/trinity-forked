@@ -3,6 +3,7 @@
 
 CollisionAvoidance::CollisionAvoidance( IRoot* lockobj ) :
 	PARENTLOCK( m_exclusionVolumes ),
+	m_enabled( true ),
 	m_collisionAvoidanceScalar( 12.0f ),
 	m_priority( LEAST_PRIORITY )
 {
@@ -22,6 +23,10 @@ std::vector<Vector3> CollisionAvoidance::CalculateBehavior( std::vector<DroneAge
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	std::vector<Vector3> forceVectors;
+	if( !m_enabled )
+	{
+		return forceVectors;
+	}
 	for( auto agent = agents.begin(); agent != agents.end(); ++agent )
 	{
 		for( int i = 0; i < m_exclusionVolumes.size(); ++i )

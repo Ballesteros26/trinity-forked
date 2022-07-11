@@ -65,6 +65,7 @@ public:
 private:
 	void SortLocators();
 
+	bool m_enabled;
 	bool m_exit;
 	bool m_droneArrived;
 	bool m_sortedLocators;
@@ -82,8 +83,6 @@ private:
 	float m_seconds;
 	std::vector<Vector3> m_arrivalPoints; // debug
 	EveSpaceObject2* m_target;
-
-	std::vector<Vector3> m_todo;
 
 	BlueScriptCallback m_onFirstDroneArrivedCallback;
 

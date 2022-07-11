@@ -3,6 +3,7 @@
 #include "include/TriMath.h"
 
 Inertia::Inertia( IRoot* lockobj ) :
+	m_enabled( true ),
 	m_minInertiaWeight( 0.1 ),
 	m_maxRotationSpeed( 3.14 ),
 	m_maxAcceleration( 60 ),
@@ -36,6 +37,10 @@ std::vector<Vector3> Inertia::CalculateBehavior( std::vector<DroneAgent>& agents
 	auto data = static_cast<InertiaData*>( scratchData );
 
 	std::vector<Vector3> force;
+	if( !m_enabled )
+	{
+		return force;
+	}
 	for( auto agent = agents.begin(); agent != agents.end(); ++agent, ++data )
 	{
 		auto lastAccelNormalized = Normalize( data->agentAccel );

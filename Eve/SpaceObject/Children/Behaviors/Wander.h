@@ -17,6 +17,7 @@ public:
 	virtual int GetProcessPriority();
 
 private:
+	bool m_enabled;
 	float m_weightWander;	//priority of behavior
 	float rand1;
 	float rand2;

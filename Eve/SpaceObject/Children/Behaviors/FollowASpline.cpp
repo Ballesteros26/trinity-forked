@@ -4,6 +4,7 @@
 
 FollowASpline::FollowASpline( IRoot* lockobj ) :
 	PARENTLOCK( m_splineTunnels ),
+	m_enabled( true ),
 	m_shouldReassignTunnelIDs( true ),
 	m_behaviorWeight( 600.f ),
 	m_smoothPullFactor( 0.8 ),
@@ -201,6 +202,12 @@ std::vector<Vector3> FollowASpline::CalculateBehavior(std::vector<DroneAgent>& a
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
+	std::vector<Vector3> forceVectors;
+	if( !m_enabled )
+	{
+		return forceVectors;
+	}
+
 	if ( m_frameCounter >= m_framesBetweenUpdates )
 	{
 		m_frameCounter = 0;
@@ -210,7 +217,7 @@ std::vector<Vector3> FollowASpline::CalculateBehavior(std::vector<DroneAgent>& a
 		m_frameCounter++;
 	}
 
-	std::vector<Vector3> forceVectors;
+
 	if ( m_frameCounter == 0 )
 	{
 		if( m_shouldReassignTunnelIDs )

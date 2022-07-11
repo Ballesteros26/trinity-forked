@@ -15,6 +15,7 @@ BLUE_DECLARE_IVECTOR( IBehavior );
 BLUE_DECLARE( KDdroneManagementTree );
 BLUE_DECLARE( Tr2LightManager );
 BLUE_DECLARE( Tr2QuadRenderer );
+BLUE_DECLARE( PlayFX );
 
 
 BLUE_CLASS( BehaviorGroup ) :
@@ -34,22 +35,21 @@ public:
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// INotify
-	bool OnModified( Be::Var* value );
+	bool OnModified( Be::Var * value );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IListNotify
 	void OnListModified(
-		long event,		// BLUELISTEVENT values
+		long event, // BLUELISTEVENT values
 		ssize_t key,
 		ssize_t key2,
 		IRoot* value,
-		const struct IList* theList
-	);
+		const struct IList* theList );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2DebugRenderable
-	virtual void GetDebugOptions( Tr2DebugRendererOptions& options );
-	virtual void RenderDebugInfo( ITr2DebugRenderer2& renderer, Matrix& parentWorldLocation );
+	virtual void GetDebugOptions( Tr2DebugRendererOptions & options );
+	virtual void RenderDebugInfo( ITr2DebugRenderer2 & renderer, Matrix & parentWorldLocation );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// BehaviorGroup
@@ -63,7 +63,7 @@ public:
 	bool IsGroupVisible() const;
 	void CreateVertexDeclaration();
 
-	void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
+	void RegisterWithQuadRenderer( Tr2QuadRenderer & quadRenderer );
 	void AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer ) const;
 
 	// Getters
@@ -75,8 +75,8 @@ public:
 	IBehavior* GetBehaviorByName( const std::string& name );
 	int GetGroupIndexIndicator() const;
 	unsigned int GetVertexDeclarationHandle() const;
-	void GetInfoForBuffer( uint8_t* data, const Matrix& parentWorldLocation );
-	void GetRenderables( std::vector<ITr2Renderable*>& renderables );
+	void GetInfoForBuffer( uint8_t * data, const Matrix& parentWorldLocation );
+	void GetRenderables( std::vector<ITr2Renderable*> & renderables );
 
 	// Setters
 	void SetCount( int count );
@@ -100,29 +100,32 @@ public:
 	void SetupRenderables();
 
 	BehaviorGroupBoosterPtr GetBooster() const;
-	void AddLights( Tr2LightManager& lightManger, const Matrix& parentTransform);
+	void AddLights( Tr2LightManager & lightManger, const Matrix& parentTransform );
 
 	Vector3 m_spawnPosition;
 
 	EveSpaceObject2* m_parent;
 	EveSpaceObject2* GetParent();
 
+	void AddAgentsByCount( int count );
+	void RemoveAgentsByCount( int count );
+
+
 private:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// BehaviorGroup
 	void CreateAgentTree();
 	void AddAgentPrivate();
-	void AddAgentsByCount( int count );
-	void RemoveAgentsByCount( int count );
 	void OnAgentCountChanged();
 	void SortBehaviorIndexes();
 	void ReleaseCachedData( BlueAsyncRes* );
 	void RebuildCachedData( BlueAsyncRes* );
 	float GetBlendModifier() const;
+	void SetPlayFXBehavior();
 
 
 	// Variables
-	BlueSharedString m_behaviorGroupName; 	// name to identify group
+	BlueSharedString m_behaviorGroupName; // name to identify group
 	int32_t m_count; // Number of agents to spawn initially
 	int32_t m_actualCount; // Number of actual agents spawned for this system
 	int m_groupIndex; // ID
@@ -132,21 +135,22 @@ private:
 	std::vector<int> m_sortedBehaviorIndexes; // A sorted list by processPriority
 	std::vector<DroneAgent> m_agents; // The agents
 	std::vector<CcpMallocBuffer> m_scratchData; // Additional data for each behavior
-	unsigned int m_vertexDeclarationHandle; // VertexDeclHandle for the BehaviorGroup agent mesh 
+	unsigned int m_vertexDeclarationHandle; // VertexDeclHandle for the BehaviorGroup agent mesh
 	std::function<void()> m_changeBufferVertexCount; // A reference to a function on the parent class
 	float m_maxVelocity; // Steering behavior characteristics
 	float m_boundingSphereRadius;
 	bool m_createAgentTree;
+	PlayFX* m_playFXBehavior;
 
 	// Lod-ing
 	float m_scale; // Size Multiplier for the agent mesh
 
-	// Tr2Debug 
-	std::vector<Vector3> m_forces; // A debug vector that represents the forces applied to the agent 
+	// Tr2Debug
+	std::vector<Vector3> m_forces; // A debug vector that represents the forces applied to the agent
 
 	// Crossfade blend range
-	float m_currentScreenSize;  // READONLY attribute to show artist what the current agent screen size
-	float m_renderThreshold;	// Do not render group if all agents have a screen size below this threshold.
+	float m_currentScreenSize; // READONLY attribute to show artist what the current agent screen size
+	float m_renderThreshold; // Do not render group if all agents have a screen size below this threshold.
 	float m_blendScreenSizeMin; // If mesh screen size (in pixels) is smaller than this, it will be drawn as a sprite
 	float m_blendScreenSizeMax; // If mesh screen size exceeds this, it will be drawn as mesh
 
@@ -164,4 +168,3 @@ private:
 };
 
 TYPEDEF_BLUECLASS( BehaviorGroup );
-

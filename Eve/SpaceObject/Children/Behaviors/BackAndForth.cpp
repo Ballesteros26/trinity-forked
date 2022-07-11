@@ -7,6 +7,7 @@ const BlueSharedString SEEK_LOCATOR_SET_NAME( "seek" );
 
 BackAndForth::BackAndForth( IRoot* lockobj ) :
 	PARENTLOCK( m_locatorSets ),
+	m_enabled( true ),
 	m_arrivedRadius( 50.f ),
 	m_distFromOrigin( 20.f ),
 	m_slowDownRadius( 200.f ),
@@ -48,6 +49,12 @@ void BackAndForth::InitializeScratch( void* scratchMemory )
 std::vector<Vector3> BackAndForth::CalculateBehavior( std::vector<DroneAgent>& agents, void* scratchData, const float deltaTime, BehaviorGroup& group, EveChildBehaviorSystem& system, const std::vector<std::vector<DroneAgent*>>& dronesInSearchRadius )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
+
+	std::vector<Vector3> todo;
+	if( !m_enabled )
+	{
+		return todo;
+	}
 
 	if( m_fxBehavior == nullptr )
 	{
@@ -180,7 +187,7 @@ std::vector<Vector3> BackAndForth::CalculateBehavior( std::vector<DroneAgent>& a
 		}
 		agent->acceleration += desiredVelocity - agent->velocity;
 	}
-	std::vector<Vector3> todo;
+	
 	return todo;
 }
 

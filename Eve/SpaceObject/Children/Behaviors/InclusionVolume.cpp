@@ -4,6 +4,7 @@
 
 InclusionVolume::InclusionVolume( IRoot* lockobj ):
 	PARENTLOCK( m_inclusionVolumes ),
+	m_enabled( true ),
 	m_behaviorWeight( 60.0f ),
 	m_frameCounter( 0 ),
 	m_framesBetweenUpdates( 11 ),
@@ -26,6 +27,10 @@ std::vector<Vector3> InclusionVolume::CalculateBehavior(std::vector<DroneAgent>&
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	std::vector<Vector3> returnForces;
+	if( !m_enabled )
+	{
+		return returnForces;
+	}
 	for ( auto agent = agents.begin(); agent != agents.end(); ++agent)
 	{
 		Vector3 force( 0, 0, 0 );
