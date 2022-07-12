@@ -4,7 +4,8 @@
 
 SpawnDrones::SpawnDrones( IRoot* lockobj ) :
 	m_enabled( true ),
-	m_seconds( 10.f ),
+	m_addByCount( false ),
+	m_seconds( -1 ),
 	m_time( 0.f ),
 	m_count( 1 ),
 	m_spawnPosition( 0, 0, 0 )
@@ -24,15 +25,25 @@ std::vector<Vector3> SpawnDrones::CalculateBehavior( std::vector<DroneAgent>& ag
 		return noNeedToReturnForces;
 	}
 
-	m_time += deltaTime;
-
-	// If time is set to -1 the behavior adds agents by count
-	if( m_seconds == -1 )
+	// If m_addByCount is toggled on the behavior adds agents by count
+	if( m_addByCount == true )
 	{
-		group.AddAgentsByCount( m_count );
+		for( unsigned int i = 0; i < m_count; i++ )
+		{
+			group.AddAgent();
+		}
+		
+		m_addByCount = false;
 	}
 
-	if( m_time > m_seconds && m_seconds <= 0.0 )
+	if( m_seconds <= 0.0 )
+	{
+		return noNeedToReturnForces;
+	}
+
+	m_time += deltaTime;
+
+	if( m_time > m_seconds && m_seconds >= 0.0 )
 	{
 		auto behavior = group.GetBehaviorByName( "ProcessLifetime" );
 		if( behavior != nullptr )
@@ -51,7 +62,10 @@ std::vector<Vector3> SpawnDrones::CalculateBehavior( std::vector<DroneAgent>& ag
 
 		group.m_spawnPosition = m_spawnPosition;
 
-		group.AddAgentsByCount( m_count );
+		for( unsigned int i = 0; i < m_count; i++ )
+		{
+			group.AddAgent();
+		}
 		m_time = 0.0f;
 	}
 

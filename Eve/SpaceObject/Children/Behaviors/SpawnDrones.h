@@ -17,6 +17,7 @@ public:
 
 private:
 	bool m_enabled;
+	bool m_addByCount;
 	float m_seconds;
 	float m_time;
 	int m_count;

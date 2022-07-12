@@ -107,9 +107,6 @@ public:
 	EveSpaceObject2* m_parent;
 	EveSpaceObject2* GetParent();
 
-	void AddAgentsByCount( int count );
-	void RemoveAgentsByCount( int count );
-
 
 private:
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -122,6 +119,8 @@ private:
 	void RebuildCachedData( BlueAsyncRes* );
 	float GetBlendModifier() const;
 	void SetPlayFXBehavior();
+	void AddAgentsByCount( int count );
+	void RemoveAgentsByCount( int count );
 
 
 	// Variables
