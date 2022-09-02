@@ -383,8 +383,9 @@ void BehaviorGroup::RemoveAgent()
 	{
 		return;
 	}
-	// Removes the last agent
-	RemoveSpecificAgent( m_actualCount - 1 );
+	// Removes a random agent
+	int rand = TriRandInt( m_agents.size() );
+	RemoveSpecificAgent( rand );
 
 	OnAgentCountChanged();
 }
