@@ -243,9 +243,11 @@ void Tr2Controller::Update()
 		if( !m_updateables.empty() )
 		{
 			CCP_STATS_SCOPED_TIME( controllerUpdateablesTime );
-			
+
 			auto realTime = BeOS->GetActualTime();
 			auto simTime = BeOS->GetCurrentFrameTime();
+
+			CcpAutoMutex lock( g_controllerMutex );
 
 			for( auto& updatable : m_updateables )
 			{

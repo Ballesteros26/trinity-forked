@@ -50,6 +50,8 @@ void EveComponentRegistry::RegisterComponent( ComponentType type, EveEntity* ent
 		CCP_LOGERR( "EveComponentRegistry: RegisterComponent(%d) when entity already has that component", type );
 		return;
 	}
+
+	m_entityReregisterMutex->Acquire();
 	switch( type )
 	{
 	case REFLECTION_RENDERABLE:
@@ -65,6 +67,7 @@ void EveComponentRegistry::RegisterComponent( ComponentType type, EveEntity* ent
 	default:
 		break;
 	}
+	m_entityReregisterMutex->Release();
 }
 
 void EveComponentRegistry::UnRegisterComponent( ComponentType type, EveEntity* entity, RegistrationState& state, bool silent )
@@ -77,6 +80,8 @@ void EveComponentRegistry::UnRegisterComponent( ComponentType type, EveEntity* e
 		}
 		return;
 	}
+
+	m_entityReregisterMutex->Acquire();
 	switch( type )
 	{
 	case REFLECTION_RENDERABLE:
@@ -93,6 +98,7 @@ void EveComponentRegistry::UnRegisterComponent( ComponentType type, EveEntity* e
 	default:
 		break;
 	}
+	m_entityReregisterMutex->Release();
 }
 
 bool EveComponentRegistry::HasComponent( ComponentType type, RegistrationState& state )
