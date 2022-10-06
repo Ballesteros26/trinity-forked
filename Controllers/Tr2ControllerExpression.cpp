@@ -514,7 +514,7 @@ std::string Tr2ControllerExpression::CreateParser( const char* expression, const
 	CcpParser::Externals externals;
 	CcpParser::VariableView varViews[] = { m_controller->GetVariableView() };
 	externals.variables = varViews;
-	CcpParser::FunctionView funcViews[2] = { s_functions, extraFunctions };
+	CcpParser::FunctionView funcViews[2] = { extraFunctions, s_functions };
 	externals.functions = { funcViews, 2 };
 	ParserObserver observer;
 	observer.m_variables = varViews[0];

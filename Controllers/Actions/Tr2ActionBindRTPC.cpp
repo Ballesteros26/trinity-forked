@@ -17,7 +17,7 @@ namespace
 	struct ExtraBuffer
 	{
 		const Tr2ActionBindRTPC* action = nullptr;
-		float stateTime = 0;
+		float* stateTime = nullptr;
 	};
 
 	float StateTime( float* stateTime )
@@ -107,7 +107,8 @@ void Tr2ActionBindRTPC::Update( Be::Time realTime, Be::Time simTime )
 {
 	// Handle logic necessary in order to use simulated time in the expression.
 	m_lastSimTime = simTime;
-	ExtraBuffer buffer = { this, TimeAsFloat( simTime - m_startTime ) };
+	float time = TimeAsFloat( simTime - m_startTime );
+	ExtraBuffer buffer = { this, &time };
 	auto value = m_evaluator.Eval( &buffer );
 
 	if ( value.first && m_emitter )
@@ -167,7 +168,8 @@ BlueStdResult Tr2ActionBindRTPC::EvaluateExpression( const char* expression, flo
 	{
 		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, error.c_str() );
 	}
-	ExtraBuffer buffer = { this, TimeAsFloat( m_lastSimTime - m_startTime ) };
+	float time = TimeAsFloat( m_lastSimTime - m_startTime );
+	ExtraBuffer buffer = { this, &time };
 	auto result = expr.Eval( &buffer );
 	if( !result.first )
 	{

@@ -16,7 +16,7 @@ namespace
 	struct ExtraBuffer
 	{
 		const Tr2ActionAnimateValue* action = nullptr;
-		float stateTime = 0;
+		float* stateTime = nullptr;
 	};
 
 	float StateTime( float* stateTime )
@@ -98,7 +98,8 @@ void Tr2ActionAnimateValue::Update( Be::Time realTime, Be::Time simTime )
 	{
 		return;
 	}
-	ExtraBuffer buffer = { this, TimeAsFloat( simTime - m_startTime ) };
+	float time = TimeAsFloat( simTime - m_startTime );
+	ExtraBuffer buffer = { this, &time };
 	auto value = m_evaluator.Eval( &buffer );
 	if( value.first )
 	{
@@ -194,7 +195,8 @@ BlueStdResult Tr2ActionAnimateValue::EvaluateExpression( const char* expression,
 	{
 		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, error.c_str() );
 	}
-	ExtraBuffer buffer = { this, TimeAsFloat( m_lastSimTime - m_startTime ) };
+	float time = TimeAsFloat( m_lastSimTime - m_startTime );
+	ExtraBuffer buffer = { this, &time };
 	auto result = expr.Eval( &buffer );
 	if( !result.first )
 	{
