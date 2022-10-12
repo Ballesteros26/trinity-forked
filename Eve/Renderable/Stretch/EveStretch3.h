@@ -13,6 +13,8 @@
 #include "ITr2DynamicBindingOwner.h"
 #include "ITr2SoundEmitterOwner.h"
 #include "Controllers/ITr2ControllerOwner.h"
+#include "Lights/ITr2LightOwner.h"
+#include "Lights/Tr2Light.h"
 
 BLUE_DECLARE( EveStretch3 );
 BLUE_DECLARE( TriFloat );
@@ -40,7 +42,8 @@ BLUE_CLASS( EveStretch3 ):
 	public IListNotify,
 	public IInitialize,
 	public ITr2CurveSetOwner,
-	public ITr2SoundEmitterOwner
+	public ITr2SoundEmitterOwner,
+	public ITr2LightOwner
 {
 public:
     EXPOSE_TO_BLUE();
@@ -66,10 +69,14 @@ public:
 	virtual void GetModelCenterWorldPosition( Vector3 &position ) const;
 	virtual bool GetLocalBoundingBox( Vector3& min, Vector3& max );
 	virtual void GetLocalToWorldTransform( Matrix& transform ) const;
-	virtual void GetLights( Tr2LightManager& lightManager ) const;
 	virtual void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
 	virtual void AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer );
 
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2LightOwner
+	virtual void GetLights( Tr2LightManager& lightManager ) const;
+	virtual void AddLight( Tr2Light* light ){};
+	virtual void ClearLights(){};
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2ControllerOwner

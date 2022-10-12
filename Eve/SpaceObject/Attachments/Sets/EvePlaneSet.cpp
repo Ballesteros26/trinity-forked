@@ -204,6 +204,8 @@ bool EvePlaneSet::OnPrepareResources()
 	USE_MAIN_THREAD_RENDER_CONTEXT();
 	CR_RETURN_VAL( m_vertexBuffer.Create( sizeof( PlaneVertex ), m_vertexCount, Tr2GpuUsage::VERTEX_BUFFER, Tr2CpuUsage::NONE, &verts[0], renderContext ), false );
 
+	Tr2Renderer::GetQuadListIndexBuffer( m_vertexCount / 4 );
+
 	return true;
 }
 

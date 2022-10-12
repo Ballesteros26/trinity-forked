@@ -7,6 +7,7 @@
 #include "StdAfx.h"
 #include "Tr2TranslationAdapter.h"
 #include "Utilities/Vector3d.h"
+#include "Include/TriMath.h"
 
 
 // --------------------------------------------------------------------------------
@@ -15,6 +16,7 @@ Tr2TranslationAdapter::Tr2TranslationAdapter( IRoot* )
 	m_offset( 0 ),
 	m_value( 0, 0, 0 ),
 	m_currentValue( 0, 0, 0 ),
+	m_rotationOffset( 0, 0, 0, 1 ),
 	m_timeScale( 1 )
 {
 
@@ -44,6 +46,9 @@ Vector3* Tr2TranslationAdapter::Update( Vector3* in, Be::Time time )
 	{
 		m_currentValue = m_value;
 	}
+
+	TriVectorRotateQuaternion( &m_currentValue, &m_currentValue, &m_rotationOffset );
+
 	*in = m_currentValue;
 	return in;
 }
@@ -59,6 +64,9 @@ Vector3* Tr2TranslationAdapter::Update( Vector3* in, double time )
 	{
 		m_currentValue = m_value;
 	}
+
+	TriVectorRotateQuaternion( &m_currentValue, &m_currentValue, &m_rotationOffset );
+
 	*in = m_currentValue;
 	return in;
 }

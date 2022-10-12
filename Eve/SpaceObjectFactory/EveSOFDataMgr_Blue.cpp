@@ -70,6 +70,13 @@ const Be::ClassInfo* EveSOFDataMgr::ExposeToBlue()
 			":param name: pattern name\n"
 			":param data: pattern definition"
 			)
+		MAP_METHOD_AND_WRAP(
+			"UpdateLayout",
+			UpdateLayout,
+			"Update a specific layout\n"
+			":param name: layout name\n"
+			":param data: layout definition"
+			)
 
 		MAP_METHOD_AND_WRAP( 
 			"HasFactionData", 

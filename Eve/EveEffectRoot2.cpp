@@ -391,6 +391,17 @@ void EveEffectRoot2::GetLights( Tr2LightManager& lightManager ) const
 	}
 }
 
+
+void EveEffectRoot2::AddLight( Tr2Light* light )
+{
+	m_lights.Append( light->GetRawRoot() );
+}
+
+void EveEffectRoot2::ClearLights()
+{
+	m_lights.Clear();
+}
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Called by all children. It is similar to what spaceobjects send to vs/ps
@@ -885,6 +896,12 @@ ITr2AudEmitterPtr EveEffectRoot2::FindSoundEmitter( const char* name )
 	return nullptr;
 }
 
+void EveEffectRoot2::AddObserver( TriObserverLocalPtr observer )
+{
+	m_observers.Append( observer );
+}
+
+
 void EveEffectRoot2::FreezeHighDetailMesh()
 {
 	m_lodLevel = TR2_LOD_HIGH;
@@ -892,4 +909,13 @@ void EveEffectRoot2::FreezeHighDetailMesh()
 	{
 		(*ecIt)->ChangeLOD(m_lodLevel);
 	}
+}
+
+void EveEffectRoot2::SetProceduralContainerVariable( const char *name, float value )
+{
+    for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); it++ )
+    {
+        auto child = *it;
+        child->SetProceduralContainerVariable( name, value );
+    }
 }

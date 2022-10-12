@@ -121,16 +121,6 @@ bool EveSOFDataMgr::HasMaterialData( const char* materialName ) const
 
 // --------------------------------------------------------------------------------
 // Description:
-//   check if pattern data is there. Mainly for debug reason!
-// --------------------------------------------------------------------------------
-bool EveSOFDataMgr::HasPatternData( const char* patternName ) const
-{
-	std::map<std::string, PatternData>::const_iterator finder = m_patternData.find( patternName );
-	return finder != m_patternData.end();
-}
-
-// --------------------------------------------------------------------------------
-// Description:
 //   Access to materialdata, only const pointer!!
 // --------------------------------------------------------------------------------
 const EveSOFDataMgr::MaterialData* EveSOFDataMgr::GetMaterialData( const char* materialName ) const
@@ -141,6 +131,16 @@ const EveSOFDataMgr::MaterialData* EveSOFDataMgr::GetMaterialData( const char* m
 		return nullptr;
 	}
 	return &finder->second;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   check if pattern data is there. Mainly for debug reason!
+// --------------------------------------------------------------------------------
+bool EveSOFDataMgr::HasPatternData( const char* patternName ) const
+{
+	std::map<std::string, PatternData>::const_iterator finder = m_patternData.find( patternName );
+	return finder != m_patternData.end();
 }
 
 // --------------------------------------------------------------------------------
@@ -156,6 +156,51 @@ const EveSOFDataMgr::PatternData* EveSOFDataMgr::GetPatternData( const char* pat
 	}
 	return &finder->second;
 }
+
+
+// --------------------------------------------------------------------------------
+// Description:
+//   check if layoutdata is there.
+// --------------------------------------------------------------------------------
+bool EveSOFDataMgr::HasLayoutData( const char* layoutName ) const
+{
+	return GetLayoutData( layoutName ) != nullptr;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Access to layoutdata, only const pointer!!
+// --------------------------------------------------------------------------------
+const EveSOFDataMgr::LayoutData* EveSOFDataMgr::GetLayoutData( const char* layoutName ) const
+{
+	std::map<std::string, LayoutData>::const_iterator finder = m_layoutData.find( layoutName );
+	if( finder == m_layoutData.end() )
+	{
+		return nullptr;
+	}
+	return &finder->second;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Returns all the layout data that is specified in the vector
+// --------------------------------------------------------------------------------
+const std::vector<const EveSOFDataMgr::LayoutData*> EveSOFDataMgr::GetLayoutData( std::vector<std::string>& names ) const
+{
+	std::vector<const EveSOFDataMgr::LayoutData*> layouts = std::vector<const EveSOFDataMgr::LayoutData*>();
+
+	for( size_t i = 0; i < names.size(); i++ )
+	{
+		auto data = GetLayoutData( names[i].c_str() );
+		if( data != nullptr )
+		{
+			layouts.push_back(data);
+		}
+	}
+
+	return layouts;
+}
+
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -278,6 +323,32 @@ bool EveSOFDataMgr::UpdatePattern( const char* patternName, EveSOFDataPattern* p
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Update an individual layout, identified by it's name
+// --------------------------------------------------------------------------------
+bool EveSOFDataMgr::UpdateLayout( const char* layoutName, EveSOFDataLayout* layoutData)
+{
+	if( !layoutData )
+	{
+		return false;
+	}
+
+	if( !HasLayoutData( layoutName ) )
+	{
+		CCP_LOGWARN( "Layout '%s' does not exist, by doing this you will not add it to the sof data just to this instance of EveSOFDataMgr", layoutName );
+	}
+
+	// fill the non-trinity struct with the provided data
+	LayoutData ld;
+	GenerateLayoutData( ld, layoutData);
+
+	// set it to the main map
+	m_layoutData[layoutName] = ld;
+
+	return true;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Update the generic data
 // --------------------------------------------------------------------------------
 bool EveSOFDataMgr::UpdateGeneric( EveSOFDataGeneric* genericData )
@@ -345,8 +416,16 @@ bool EveSOFDataMgr::SetData( EveSOFData* dbData )
 		CCP_LOGERR( "Error loading pattern data!" );
 		return false;
 	}
-	CCP_LOGNOTICE( "SOF: loaded %d patternss", m_patternData.size() );
-
+	CCP_LOGNOTICE( "SOF: loaded %d patterns", m_patternData.size() );
+	
+	// load layoutdata
+	if( !LoadLayoutData( dbData ) )
+	{
+		CCP_LOGERR( "Error loading layout data!" );
+		return false;
+	}
+	CCP_LOGNOTICE( "SOF: loaded %d layouts", m_layoutData.size() );
+	
 	// load generic data
 	if(!LoadGenericData( dbData ) )
 	{
@@ -459,9 +538,8 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 	// insert data
 	hd.buildClass = srcData->m_buildClass;
 	hd.geometryResFilePath = srcData->m_geometryResFilePath;
-	hd.boundingSphere = srcData->m_boundingSphere;
-	hd.shapeEllipsoidCenter = srcData->m_shapeEllipsoidCenter;
-	hd.shapeEllipsoidRadius = srcData->m_shapeEllipsoidRadius;
+	hd.boundingSphere = CcpMath::Sphere( srcData->m_boundingSphere );
+	hd.shapeEllipsoid = CcpMath::AxisAlignedEllipsoid( srcData->m_shapeEllipsoidCenter, srcData->m_shapeEllipsoidRadius );
 	hd.isSkinned = srcData->m_isSkinned;
 	hd.enableDynamicBoundingSphere = srcData->m_enableDynamicBoundingSphere;
 	hd.castShadow = srcData->m_castShadow;
@@ -869,6 +947,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 	}
 
 	// locator sets
+	unsigned uniqueID = 0;
 	hd.locatorSets.clear();
 	for( auto lsit = srcData->m_locatorSets.begin(); lsit != srcData->m_locatorSets.end(); ++lsit )
 	{
@@ -882,6 +961,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 			ldd.position = locatorData->m_position;
 			ldd.rotation = locatorData->m_rotation;
 			ldd.boneIndex = locatorData->m_boneIndex;
+			ldd.uniqueID = uniqueID++;
 			hd.locatorSets[locatorSet->m_name].push_back( ldd );
 		}
 	}
@@ -899,6 +979,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		hc.scaling = child->m_scaling;
 		hc.id = child->m_id;
 		hc.groupIndex = child->m_groupIndex;
+		hc.buildFilter = child->m_buildFilter;
 
 		hd.children.push_back( hc );
 	}
@@ -918,6 +999,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 			hcd.translation = child->m_translation;
 			hcd.rotation = child->m_rotation;
 			hcd.scaling = child->m_scaling;
+			hcd.buildFilter = child->m_buildFilter;
 			hcsd.items.push_back( hcd );
 		}
 
@@ -934,6 +1016,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 		him.lowestLodVisible = instMesh->m_lowestLodVisible;
 		him.geometryResPath = instMesh->m_geometryResPath;
 		him.instances.reserve( instMesh->m_instances.size() );
+		CcpMath::AxisAlignedBox boundingBox = CcpMath::AxisAlignedBox();
 		for( auto iit = instMesh->m_instances.begin(); iit != instMesh->m_instances.end(); ++iit )
 		{
 			HullMeshInstance instance;
@@ -943,6 +1026,10 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 			instance.transform2 = *reinterpret_cast<Vector4*>( &transform.GetZ() );
 			instance.boneIndex = iit->boneIndex;
 			him.instances.push_back( instance );
+
+			CcpMath::AxisAlignedBox instanceBox(-iit->scaling, iit->scaling);
+			instanceBox.Transform( transform );
+			boundingBox.Include( instanceBox );
 		}
 		him.shader = instMesh->m_shader;
 		for( auto tit = instMesh->m_textures.begin(); tit != instMesh->m_textures.end(); ++tit )
@@ -952,6 +1039,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 			td.resFilePath = textureData->m_resFilePath;
 			him.textures[textureData->m_name] = td;
 		}
+		him.bounds = boundingBox;
 		him.displayModifier = instMesh->m_displayModifier;
 		hd.instancedMeshes.push_back( him );
 	}
@@ -996,7 +1084,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 	hd.controllers.clear();
 	for( auto cit = begin( srcData->m_controllers ); cit != end( srcData->m_controllers ); ++cit )
 	{
-		hd.controllers.push_back( BlueSharedString( ( *cit )->m_path ) );
+		hd.controllers.push_back( { BlueSharedString( ( *cit )->m_path ), ( *cit )->m_buildFilter } );
 	}
 
 	// model curves
@@ -1393,6 +1481,135 @@ void EveSOFDataMgr::GeneratePatternData( PatternData& pd, EveSOFDataPatternPtr s
 
 // --------------------------------------------------------------------------------
 // Description:
+//   Fill a non-trinity layout data struct with all the data from the trinity
+//   data struct
+// --------------------------------------------------------------------------------
+void EveSOFDataMgr::GenerateLayoutData( LayoutData& ld, EveSOFDataLayoutPtr srcData ) const
+{
+	ld.name = BlueSharedString(srcData->m_name);
+
+	for( auto placement : srcData->m_placements )
+	{
+		if( placement->m_descriptor == nullptr )
+		{
+			CCP_LOGERR( "Layout (%s) placement (%s) has no dna descriptor", srcData->m_name.c_str(), placement->m_name.c_str());
+			continue;
+		}
+		if( placement->m_descriptor->m_hull.empty() )
+		{
+			CCP_LOGERR( "Layout (%s) placement (%s) has no hull", srcData->m_name.c_str(), placement->m_name.c_str());
+			continue;
+		}
+		
+		auto descriptor = DNADescriptorData();
+		
+		descriptor.hull = BlueSharedString( placement->m_descriptor->m_hull );
+		descriptor.faction = BlueSharedString( placement->m_descriptor->m_faction );
+		descriptor.race = BlueSharedString( placement->m_descriptor->m_race );
+		descriptor.pattern = BlueSharedString( placement->m_descriptor->m_pattern );
+		descriptor.material1 = BlueSharedString( placement->m_descriptor->m_material1 );
+		descriptor.material2 = BlueSharedString( placement->m_descriptor->m_material2 );
+		descriptor.material3 = BlueSharedString( placement->m_descriptor->m_material3 );
+		descriptor.material4 = BlueSharedString( placement->m_descriptor->m_material4 );
+		descriptor.layout = BlueSharedString( placement->m_descriptor->m_layout );
+
+		auto placementData = ExtensionPlacementData();
+		placementData.name = BlueSharedString(placement->m_name);
+		placementData.offset = placement->m_offset;
+		placementData.locatorSetName = BlueSharedString(placement->m_locatorSetName);
+		placementData.descriptor = descriptor;
+		placementData.isInstanced = placement->m_isInstanced;
+
+		placementData.hasDistribution = placement->m_distribution != nullptr;
+		if( placementData.hasDistribution)
+		{
+			placementData.distribution = generateDistributionData(placement->m_distribution);
+		}
+
+		for( auto placementCondition : placement->m_distributionConditions )
+		{
+			placementData.placementConditions.push_back( generateDistributionConditionData( placementCondition ) );
+		}
+
+		ld.placements.push_back(placementData);
+	}
+}
+
+EveSOFDataMgr::ExtensionPlacementDistribution EveSOFDataMgr::generateDistributionData( EveSOFDataHullExtensionPlacementDistributionPlacementPtr distributionObj ) const
+{
+	auto placementDistribution = ExtensionPlacementDistribution();
+
+	placementDistribution.completeness = distributionObj->m_completeness;
+	placementDistribution.placementBias = distributionObj->m_placementBias;
+	placementDistribution.centerBias = distributionObj->m_centerBias;
+	placementDistribution.cap = distributionObj->m_cap;
+	placementDistribution.rotationRandomness = distributionObj->m_rotationRandomness;
+	placementDistribution.occupyLocators = distributionObj->m_occupyLocators;
+
+	return placementDistribution;
+}
+
+
+EveSOFDataMgr::ExtensionPlacementDistributionCondition EveSOFDataMgr::generateDistributionConditionData( IEveSOFDataHullExtensionPlacementDistributionPtr distributionObj ) const
+{
+	auto placementCondition = ExtensionPlacementDistributionCondition();
+
+	if( EveSOFDataHullExtensionPlacementDistributionParentMatchPtr parentMatch = BlueCastPtr( distributionObj ) )
+	{
+		auto pmm = ExtensionPlacementParentMatchAttributes();
+
+		pmm.matchHull = parentMatch->m_matchHull;
+		pmm.matchFaction = parentMatch->m_matchFaction;
+		pmm.matchRace = parentMatch->m_matchRace;
+		pmm.matchPattern = parentMatch->m_matchPattern;
+		pmm.matchMaterial1 = parentMatch->m_matchMaterial1;
+		pmm.matchMaterial2 = parentMatch->m_matchMaterial2;
+		pmm.matchMaterial3 = parentMatch->m_matchMaterial3;
+		pmm.matchMaterial4 = parentMatch->m_matchMaterial4;
+		pmm.matchLayout = parentMatch->m_matchLayout;
+		placementCondition.parentMatchMap = pmm;
+
+		if( parentMatch->m_parentDescriptor != nullptr )
+		{
+			placementCondition.distributionType = PARENT_MATCH;
+
+			auto DNADiscriptor = DNADescriptorData();
+			DNADiscriptor.hull = BlueSharedString( parentMatch->m_parentDescriptor->m_hull );
+			DNADiscriptor.faction = BlueSharedString( parentMatch->m_parentDescriptor->m_faction );
+			DNADiscriptor.race = BlueSharedString( parentMatch->m_parentDescriptor->m_race );
+			DNADiscriptor.pattern = BlueSharedString( parentMatch->m_parentDescriptor->m_pattern );
+			DNADiscriptor.material1 = BlueSharedString( parentMatch->m_parentDescriptor->m_material1 );
+			DNADiscriptor.material2 = BlueSharedString( parentMatch->m_parentDescriptor->m_material2 );
+			DNADiscriptor.material3 = BlueSharedString( parentMatch->m_parentDescriptor->m_material3 );
+			DNADiscriptor.material4 = BlueSharedString( parentMatch->m_parentDescriptor->m_material4 );
+			DNADiscriptor.layout = BlueSharedString( parentMatch->m_parentDescriptor->m_layout );
+
+			placementCondition.spaceObjectParentDescriptor = DNADiscriptor;
+		}
+	}
+	else if( EveSOFDataHullExtensionPlacementDistributionDepletionCounterPtr DepletionCounterDistribution = BlueCastPtr( distributionObj ) )
+	{
+		placementCondition.distributionType = DEPLETION_COUNTER;
+
+		for ( auto counter : DepletionCounterDistribution->m_depletionCounters)
+		{
+			auto counterStruct =  ExtensionPlacementDepletionCounter();
+			counterStruct.counterName = BlueSharedString( counter->m_name );
+			counterStruct.counterValue = counter->m_value;
+			placementCondition.depletionCounters.push_back(counterStruct);
+		}
+	}
+	else if( EveSOFDataHullExtensionPlacementDistributionRandomChancePtr randomChanceCondition = BlueCastPtr( distributionObj ) )
+	{
+		placementCondition.distributionType = RANDOM_INCLUCION;
+		placementCondition.triggerChance = randomChanceCondition->m_chanceOfUsage;
+	}
+
+	return placementCondition;
+}
+
+// --------------------------------------------------------------------------------
+// Description:
 //   Init pattern-specific data
 // --------------------------------------------------------------------------------
 bool EveSOFDataMgr::LoadPatternData( EveSOFDataPtr srcData )
@@ -1419,6 +1636,37 @@ bool EveSOFDataMgr::LoadPatternData( EveSOFDataPtr srcData )
 
 	return true;
 }
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Init pattern-specific data
+// --------------------------------------------------------------------------------
+bool EveSOFDataMgr::LoadLayoutData( EveSOFDataPtr srcData )
+{
+	// store that data from that object internally
+	for( EveSOFDataLayoutVector::const_iterator it = srcData->m_layout.begin(); it != srcData->m_layout.end(); ++it )
+	{
+		EveSOFDataLayoutPtr layoutData = ( *it );
+
+		// if this pattern is already there, we have a problem!
+		if( m_layoutData.find( layoutData->m_name ) != m_layoutData.end() )
+		{
+			CCP_LOGERR( "Found a duplicate layout name: %s", layoutData->m_name.c_str() );
+			return false;
+		}
+
+		// fill the non-trinity struct with the provided data
+		LayoutData ld;
+		GenerateLayoutData( ld, layoutData);
+
+		// put it into the main map
+		m_layoutData[( *it )->m_name] = ld;
+	}
+
+	return true;
+}
+
+
 
 // --------------------------------------------------------------------------------
 // Description:

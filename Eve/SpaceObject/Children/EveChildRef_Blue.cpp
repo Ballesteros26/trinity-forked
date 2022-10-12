@@ -34,6 +34,9 @@ const Be::ClassInfo* EveChildRef::ExposeToBlue()
 		MAP_ATTRIBUTE( "worldTransform", m_worldTransform, "", Be::READ )
 		MAP_ATTRIBUTE( "useSRT", m_useSRT, "Should local transform be built from scaling, rotation and translation attributes.", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "staticTransform", m_staticTransform, "Does local transform need to be rebuilt every frame.", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "loadChildAutomatically", m_loadChildAutomatically, "Don't load child effect automatically \n:jessica-hidden: True\n", Be::READWRITE | Be::PERSIST )
+
+
 
 		MAP_METHOD_AND_WRAP( "RebuildLocalTransform", RebuildLocalTransform, "Rebuilds local transform." )
 
@@ -60,11 +63,11 @@ const Be::ClassInfo* EveChildRef::ExposeToBlue()
 			":jessica-hidden: True\n"
 		)
 
-		MAP_METHOD_AND_WRAP(
-			"Reload",
-			Reload,
-			"Reload the effect child.\n"
-		)
-
-		EXPOSURE_END()
+        MAP_METHOD_AND_WRAP_OPTIONAL_ARGS(
+            "Reload",
+            Reload,
+            1,
+            "Reload the effect child.\n"
+        )
+    EXPOSURE_END()
 }

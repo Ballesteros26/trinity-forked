@@ -5,7 +5,7 @@ BLUE_DEFINE( Tr2QuaternionLerpCurve );
 
 const Be::ClassInfo* Tr2QuaternionLerpCurve::ExposeToBlue()
 {
-    EXPOSURE_BEGIN(Tr2QuaternionLerpCurve, "no comment")
+    EXPOSURE_BEGIN(Tr2QuaternionLerpCurve, ":jessica-deprecated: True")
         MAP_INTERFACE(ITriFunction)
         MAP_INTERFACE(ITriQuaternionFunction)
         MAP_INTERFACE(ITriCurveLength)

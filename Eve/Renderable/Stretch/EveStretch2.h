@@ -7,6 +7,7 @@
 #pragma once
 
 #include "Eve/IEveFiringEffectElement.h"
+#include "Lights/ITr2LightOwner.h"
 #include "ITr2Renderable.h"
 #include "ITr2GeometryProvider.h"
 #include "Tr2DeviceResource.h"
@@ -32,7 +33,8 @@ BLUE_CLASS( EveStretch2 )
 	public Tr2DeviceResource,
 	public IInitialize,
 	public INotify,
-	public ITr2DebugRenderable
+	public ITr2DebugRenderable,
+	public ITr2LightOwner
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -60,13 +62,17 @@ public:
 
 	virtual void UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform );
 	virtual void GetRenderables( std::vector<ITr2Renderable*>& renderables );
-	virtual void GetLights( Tr2LightManager& lightManager ) const;
-
 
 	virtual Tr2PerObjectData* GetPerObjectData( ITriRenderBatchAccumulator* accumulator );
 	virtual void GetBatches( ITriRenderBatchAccumulator * batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData, Tr2RenderReason reason = TR2RENDERREASON_NORMAL );
 	virtual bool HasTransparentBatches();
 	virtual float GetSortValue();
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2LightOwner
+	virtual void GetLights(Tr2LightManager& lightManager) const;
+	virtual void AddLight(Tr2Light* light) {};
+	virtual void ClearLights() {}; 
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2DebugRenderable

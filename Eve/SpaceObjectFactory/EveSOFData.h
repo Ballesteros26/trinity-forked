@@ -8,6 +8,7 @@
 #define EveSOFData_H
 
 #include "Eve/SpaceObject/EveSwarm.h"
+//#include "Eve/SpaceObjectFactory/EveSOFDataMgr.h"
 
 // --------------------------------------------------------------------------------
 // All data storage classes for gerenal purposes
@@ -970,6 +971,17 @@ public:
 TYPEDEF_BLUECLASS( EveSOFDataHullLocatorSet );
 BLUE_DECLARE_VECTOR( EveSOFDataHullLocatorSet );
 
+
+namespace EveSOFDataHullBuildFilter
+{
+constexpr uint32_t STANDALONE = 1 << 0;
+constexpr uint32_t NON_INSTANCED_PLACEMENT = 1 << 1;
+constexpr uint32_t INSTANCED_PLACEMENT = 1 << 2;
+
+constexpr uint32_t DEFAULT_FILTER = 0xffffffff;
+}
+
+
 BLUE_CLASS( EveSOFDataHullChildSetItem ) :
 	public IRoot
 {
@@ -988,6 +1000,7 @@ public:
 	Vector3 m_translation;
 	Quaternion m_rotation;
 	Vector3 m_scaling;
+	uint32_t m_buildFilter;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullChildSetItem );
 BLUE_DECLARE_VECTOR( EveSOFDataHullChildSetItem );
@@ -1032,6 +1045,7 @@ public:
 	Vector3 m_scaling;
 	int32_t m_id;
 	int32_t m_groupIndex;
+	uint32_t m_buildFilter;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullChild );
 BLUE_DECLARE_VECTOR( EveSOFDataHullChild );
@@ -1249,6 +1263,7 @@ public:
 	std::string GetName() const;
 
 	std::string m_path;
+	uint32_t m_buildFilter = EveSOFDataHullBuildFilter::DEFAULT_FILTER;
 };
 TYPEDEF_BLUECLASS( EveSOFDataHullController );
 BLUE_DECLARE_VECTOR( EveSOFDataHullController );
@@ -1285,6 +1300,7 @@ public:
 		BUILDCLASS_MOBILE,
 		BUILDCLASS_STATIONARY,
 		BUILDCLASS_SWARM,
+		BUILDCLASS_EXTENSION,
 
 		BUILDCLASS_COUNT,
 	};
@@ -1632,12 +1648,168 @@ public:
 TYPEDEF_BLUECLASS( EveSOFDataMaterial );
 BLUE_DECLARE_VECTOR( EveSOFDataMaterial );
 
+// --------------------------------------------------------------------------------
+// All data storage classes for hull extension data
+// --------------------------------------------------------------------------------
+
+BLUE_CLASS( EveSOFDNADescriptor ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDNADescriptor( IRoot* lockobj = NULL );
+	~EveSOFDNADescriptor()
+	{
+	}
+
+	std::string m_hull;
+	std::string m_faction;
+	std::string m_race;
+	std::string m_layout;
+	std::string m_pattern;
+	std::string m_material1;
+	std::string m_material2;
+	std::string m_material3;
+	std::string m_material4;
+};
+TYPEDEF_BLUECLASS( EveSOFDNADescriptor );
+BLUE_DECLARE_VECTOR( EveSOFDNADescriptor );
+
+// interface
+BLUE_INTERFACE( IEveSOFDataHullExtensionPlacementDistribution ) :
+	public IRoot
+{
+};
+
+BLUE_DECLARE_INTERFACE( IEveSOFDataHullExtensionPlacementDistribution );
+BLUE_DECLARE_IVECTOR( IEveSOFDataHullExtensionPlacementDistribution );
 
 
+BLUE_CLASS( EveSOFDataHullExtensionPlacementDistributionParentMatch ) :
+	public IEveSOFDataHullExtensionPlacementDistribution
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataHullExtensionPlacementDistributionParentMatch( IRoot* lockobj = NULL );
+	~EveSOFDataHullExtensionPlacementDistributionParentMatch()
+	{
+	}
+	std::string m_name;
+	bool m_matchHull;
+	bool m_matchFaction;
+	bool m_matchRace;
+	bool m_matchLayout;
+	bool m_matchPattern;
+	bool m_matchMaterial1;
+	bool m_matchMaterial2;
+	bool m_matchMaterial3;
+	bool m_matchMaterial4;
+	EveSOFDNADescriptorPtr m_parentDescriptor;
+};
+
+TYPEDEF_BLUECLASS( EveSOFDataHullExtensionPlacementDistributionParentMatch );
+
+BLUE_CLASS( EveSOFDataDistributionDepletionCounter ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataDistributionDepletionCounter( IRoot* lockobj = NULL );
+	~EveSOFDataDistributionDepletionCounter()
+	{
+	}
+	std::string m_name;
+	int32_t m_value;
+};
+TYPEDEF_BLUECLASS( EveSOFDataDistributionDepletionCounter );
+BLUE_DECLARE_VECTOR( EveSOFDataDistributionDepletionCounter );
+
+BLUE_CLASS( EveSOFDataHullExtensionPlacementDistributionDepletionCounter ) :
+	public IEveSOFDataHullExtensionPlacementDistribution
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataHullExtensionPlacementDistributionDepletionCounter( IRoot* lockobj = NULL );
+	~EveSOFDataHullExtensionPlacementDistributionDepletionCounter(){}
+	std::string m_name;
+	PEveSOFDataDistributionDepletionCounterVector m_depletionCounters;
+};
+TYPEDEF_BLUECLASS( EveSOFDataHullExtensionPlacementDistributionDepletionCounter );
+
+BLUE_CLASS( EveSOFDataHullExtensionPlacementDistributionRandomChance ) :
+	public IEveSOFDataHullExtensionPlacementDistribution
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataHullExtensionPlacementDistributionRandomChance( IRoot* lockobj = NULL );
+	~EveSOFDataHullExtensionPlacementDistributionRandomChance()
+	{
+	}
+
+	float m_chanceOfUsage;
+};
+TYPEDEF_BLUECLASS( EveSOFDataHullExtensionPlacementDistributionRandomChance );
 
 
+BLUE_CLASS( EveSOFDataHullExtensionPlacementDistributionPlacement ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataHullExtensionPlacementDistributionPlacement( IRoot* lockobj = NULL );
+	~EveSOFDataHullExtensionPlacementDistributionPlacement()
+	{
+	}
+	std::string m_name;
+	EveSOFDNADescriptorPtr m_descriptor;
+	float m_completeness;
+	Vector3 m_placementBias;
+	float m_centerBias;
+	int32_t m_cap;
+	Quaternion m_rotationRandomness;
+	bool m_occupyLocators;
+};
+TYPEDEF_BLUECLASS( EveSOFDataHullExtensionPlacementDistributionPlacement );
 
+BLUE_CLASS( EveSOFDataHullExtensionPlacement ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataHullExtensionPlacement( IRoot* lockobj = NULL );
+	~EveSOFDataHullExtensionPlacement()
+	{
+	}
 
+	std::string m_name;
+	std::string m_locatorSetName;
+	bool m_isInstanced;
+	Vector3 m_offset;
+	EveSOFDataHullExtensionPlacementDistributionPlacementPtr m_distribution;
+	PIEveSOFDataHullExtensionPlacementDistributionVector m_distributionConditions;
+	EveSOFDNADescriptorPtr m_descriptor;
+};
+TYPEDEF_BLUECLASS( EveSOFDataHullExtensionPlacement );
+BLUE_DECLARE_VECTOR( EveSOFDataHullExtensionPlacement );
+
+BLUE_CLASS( EveSOFDataLayout ) :
+	public IRoot
+{
+public:
+	EXPOSE_TO_BLUE();
+	EveSOFDataLayout( IRoot* lockobj = NULL );
+	~EveSOFDataLayout()
+	{
+	}
+
+	// layout name
+	std::string m_name;
+	int32_t m_seed;
+	PEveSOFDataDistributionDepletionCounterVector m_depletionCounters;
+	PEveSOFDataHullExtensionPlacementVector m_placements;
+};
+TYPEDEF_BLUECLASS( EveSOFDataLayout );
+BLUE_DECLARE_VECTOR( EveSOFDataLayout );
 
 
 // --------------------------------------------------------------------------------
@@ -1869,6 +2041,8 @@ public:
 	PEveSOFDataMaterialVector m_material;
 	// pattern data
 	PEveSOFDataPatternVector m_pattern;
+	// layout data
+	PEveSOFDataLayoutVector m_layout;
 };
 TYPEDEF_BLUECLASS( EveSOFData );
 

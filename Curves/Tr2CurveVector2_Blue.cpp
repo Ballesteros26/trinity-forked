@@ -11,7 +11,7 @@ BLUE_DEFINE( Tr2CurveVector2 );
 
 const Be::ClassInfo* Tr2CurveVector2::ExposeToBlue()
 {
-	EXPOSURE_BEGIN( Tr2CurveVector2, ":jessica-icon: tree/trivectorcurve.png" )
+	EXPOSURE_BEGIN( Tr2CurveVector2, ":jessica-deprecated: True\n:jessica-icon: tree/trivectorcurve.png" )
 		MAP_INTERFACE( Tr2CurveVector2 )
 		MAP_INTERFACE( ITriFunction )
 		MAP_INTERFACE( ITriCurveLength )

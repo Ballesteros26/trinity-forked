@@ -819,6 +819,11 @@ void Tr2InstancedMesh::CreateVertexDeclaration() const
 	}
 }
 
+unsigned int Tr2InstancedMesh::GetVertexDeclaration() const
+{
+	return m_vertexDeclaration;
+}
+
 void Tr2InstancedMesh::GetDebugOptions( Tr2DebugRendererOptions& options )
 {
 	options.insert( "Instance Mesh Bounds" );

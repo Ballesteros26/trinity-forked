@@ -10,6 +10,10 @@ BLUE_DECLARE( TriGrannyRes );
 BLUE_DECLARE( TriGeometryRes );
 BLUE_DECLARE( Tr2GrannyAnimation );
 
+namespace Tr2GrannyAnimationUtils
+{
+	bool GetBoneList( Tr2GrannyAnimation* animationUpdater, const granny_matrix_3x4*& bones, size_t& boneCount );
+};
 
 struct GrannyBoneBindingBounds
 {

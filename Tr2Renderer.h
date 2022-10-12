@@ -105,7 +105,7 @@ public:
 	static void ReinitializeRegisteredEffects();
 
 	// pointer since this can fail
-	static Tr2BufferAL*  GetQuadListIndexBuffer( unsigned int numOfQuads );
+	static Tr2BufferAL* GetQuadListIndexBuffer( uint32_t numOfQuads );
 
 	static void BeginFrame();
 	static void EndFrame();

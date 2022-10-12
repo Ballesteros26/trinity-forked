@@ -76,6 +76,15 @@ void EveSocketParameterBindingBase::Propagate()
 #endif
 
 #define SOCKET_PARAMETER_DEFINE( _className, _valueType, _defaultValue )\
+	_className::_className( IRoot* lockobj ) :\
+		EveSocketParameterBindingBase( lockobj ),\
+		m_defaults( ),\
+		m_value( _defaultValue )\
+	{\
+	}\
+	_className::~_className()\
+	{\
+	}\
 	void _className::ClearBindings()\
 	{\
 		m_defaults.clear();\
@@ -112,6 +121,10 @@ void EveSocketParameterBindingBase::Propagate()
 		if (!m_defaults.empty())\
 		{\
 			m_value = m_defaults[0];\
+		}\
+		else\
+		{\
+			m_value = _defaultValue;\
 		}\
 	}\
 

@@ -51,26 +51,55 @@ public:
 	Tr2RenderTargetPtr GetOutput() const;
 
 private:
+	struct SSAOResources;
 	static constexpr unsigned SSAO_PASS_COUNT = 4;
 
-	HRESULT ApplyConstBuffer( unsigned pass, Tr2RenderContext& renderContext );
-	void PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settingsTemplate, float zoomLevel, Tr2Effect* ssaoEffect, Tr2RenderContext& renderContext );
-	void UpdateEffect( Tr2Effect * ssaoEffect, uint32_t blurPassCount );
 
-	SSAOQuality m_ssaoQuality = SSAOQuality::HIGHEST;
+	struct SSAOResources
+	{
+		SSAOResources();
+		void ReleaseResources();
+
+		// Prepare
+		Tr2TextureAL deinterleavedDepthTexture;
+		Tr2TextureAL deinterleavedNormalTexture;
+		Tr2RenderTargetPtr deinterleavedDepthTarget;
+		Tr2RenderTargetPtr deinterleavedNormalTarget;
+
+		// SSAO
+		Tr2TextureAL ssaoWorkerTextureA;
+		Tr2TextureAL ssaoWorkerTextureB;
+		Tr2RenderTargetPtr ssaoWorkerTargetA;
+		Tr2RenderTargetPtr ssaoWorkerTargetB;
+
+		// Importance
+		Tr2RenderTargetPtr importanceTargetA;
+		Tr2RenderTargetPtr importanceTargetB;
+	};
+
+	struct Layer
+	{
+		void ReleaseResources();
+
+		bool enabled = true;
+		SSAOQuality quality;
+		bool downsampled;
+		float zoomLevel;
+	
+		FFX_CACAO_Settings settings;
+		Tr2EffectPtr effect;
+		SSAOResources resources;
+	};
+
+	HRESULT ApplyConstBuffer( unsigned pass, Tr2RenderContext& renderContext );
+	void PerformPass( const Layer& layer, bool reuseNormals, Tr2RenderContext& renderContext );
+	void UpdateEffect( Layer& layer );
+	bool PrepareSsaoResources( Layer& layer, const Layer* prevLayer, Tr2PrimaryRenderContext& renderContext );
+
+	Layer m_detail = { true, SSAOQuality::HIGHEST, false, 5.f };
+	Layer m_large = { true, SSAOQuality::LOW, false, 1300.f };
 
 	bool m_initialized = false;
-	bool m_enabled = true;
-	bool m_downsampledSSAO = false;
-	bool m_largeEffect = true;
-	float m_zoomLevel = 5.f;
-	float m_zoomLevelLarge = 1300.f;
-
-	FFX_CACAO_Settings m_settings;
-	FFX_CACAO_Settings m_settingsLarge;
-
-	Tr2EffectPtr m_ssaoEffect;
-	Tr2EffectPtr m_ssaoLargeEffect;
 
 	Tr2ConstantBufferAL m_constBuffers[SSAO_PASS_COUNT + 1]{};
 
@@ -78,22 +107,7 @@ private:
 	Tr2DepthStencilPtr m_inputDepthBuffer;
 	Tr2RenderTargetPtr m_inputNormalBuffer;
 
-	// Prepare
-	Tr2TextureAL m_deinterleavedDepthTexture;
-	Tr2TextureAL m_deinterleavedNormalTexture;
-	Tr2RenderTargetPtr m_deinterleavedDepthTarget;
-	Tr2RenderTargetPtr m_deinterleavedNormalTarget;
-
-	// SSAO
-	Tr2TextureAL m_ssaoWorkerTextureA;
-	Tr2TextureAL m_ssaoWorkerTextureB;
-	Tr2RenderTargetPtr m_ssaoWorkerTargetA;
-	Tr2RenderTargetPtr m_ssaoWorkerTargetB;
 	Tr2GpuBufferPtr m_loadCounterBuffer;
-
-	// Importance
-	Tr2RenderTargetPtr m_importanceTargetA;
-	Tr2RenderTargetPtr m_importanceTargetB;
 
 	// Output
 	TriTextureResPtr m_blankOutputTexture;

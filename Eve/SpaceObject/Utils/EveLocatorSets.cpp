@@ -35,19 +35,12 @@ EveLocatorSets::~EveLocatorSets()
 }
 
 // --------------------------------------------------------------------------------
-// Description:
-//   Setutp from the outisde
-// --------------------------------------------------------------------------------
-void EveLocatorSets::Set( const char* name, const Locator* locators, size_t count )
-{
-	m_name = BlueSharedString( name );
-	m_locators.Resize( count );
-	memcpy( &m_locators[0], locators, count * sizeof( Locator ) );
-}
-
-// --------------------------------------------------------------------------------
 void EveLocatorSets::Translate( const Vector3& offset )
 {
+	if( LengthSq(offset) == 0.0f )
+	{
+		return;
+	}
 	for( auto it = m_locators.begin(); it != m_locators.end(); ++it )
 	{
 		it->position += offset;
@@ -92,4 +85,9 @@ const LocatorStructureList* EveLocatorSets::GetLocators() const
 const char* EveLocatorSets::GetName() const
 {
 	return m_name.c_str();
+}
+
+void EveLocatorSets::SetName( BlueSharedString name )
+{
+	m_name = name;
 }

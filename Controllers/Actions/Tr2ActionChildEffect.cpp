@@ -25,6 +25,9 @@ void PrefetchResFile( void* pContext )
 	stream->OpenW( path->c_str(), true );
 	delete path;
 }
+
+std::unordered_set<std::string> s_requestedPaths;
+
 }
 
 Tr2ActionChildEffect::Tr2ActionChildEffect( IRoot* ) :
@@ -40,6 +43,12 @@ void Tr2ActionChildEffect::Link( Tr2Controller& controller )
 	{
 		return;
 	}
+
+	if( s_requestedPaths.find( m_path ) != end( s_requestedPaths ) )
+	{
+		return;
+	}
+	s_requestedPaths.insert( m_path );
 
 	std::wstring* wstrCopy = new std::wstring( m_path.begin(), m_path.end() );
 

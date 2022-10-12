@@ -127,6 +127,7 @@ public:
 	void CreateInstance(const Vector3& scale, const Quaternion& rotation, const Vector3& translation, const int32_t boneIndex = -1);
 	void ClearInstanceList();
 	void PopFront();
+	void DisableEditMode( bool disable );
 
 	void SetSourceEffect( IEveSpaceObjectChildPtr sourceEffect );
 	void AddInstanceTransform( const Vector3& scale, const Quaternion& rotation, const Vector3& translation, int32_t boneIndex = -1 );
@@ -143,6 +144,7 @@ protected:
 	float m_ownerMaxSpeed;
 	bool m_display;
 
+	bool m_disableEditMode;
 	bool m_isAlwaysOn;
 	EveChildInheritPropertiesPtr m_inheritProperties;
 	Origin m_origin;

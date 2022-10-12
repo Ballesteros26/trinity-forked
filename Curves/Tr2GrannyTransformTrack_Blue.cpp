@@ -5,7 +5,7 @@ BLUE_DEFINE( Tr2GrannyTransformTrack );
 
 const Be::ClassInfo* Tr2GrannyTransformTrack::ExposeToBlue()
 {
-	EXPOSURE_BEGIN( Tr2GrannyTransformTrack, ":jessica-icon: tree/trisplttransform.png" )
+	EXPOSURE_BEGIN( Tr2GrannyTransformTrack, ":jessica-deprecated: True\n:jessica-icon: tree/trisplttransform.png" )
 		MAP_INTERFACE( Tr2GrannyTransformTrack )
 		MAP_ATTRIBUTE( "translation", m_translation, "The position of the track", Be::READ )
 		MAP_ATTRIBUTE( "rotation", m_rotation, "The orientation of the track", Be::READ )

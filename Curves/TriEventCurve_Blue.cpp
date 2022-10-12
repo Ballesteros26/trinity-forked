@@ -6,7 +6,7 @@ BLUE_DEFINE( TriEventCurve );
 
 const Be::ClassInfo* TriEventCurve::ExposeToBlue()
 {
-    EXPOSURE_BEGIN( TriEventCurve, "" )
+    EXPOSURE_BEGIN( TriEventCurve, ":jessica-deprecated: True" )
         MAP_INTERFACE( TriEventCurve )
 		MAP_INTERFACE( ITriFunction )
 		MAP_INTERFACE( IInitialize )

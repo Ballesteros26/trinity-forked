@@ -10,17 +10,21 @@
 #include "Tr2DeviceResource.h"
 #include "Tr2ShLightingManager.h"
 #include "Tr2DebugRenderer.h"
+#include "Eve/IEveSpaceObject2.h"
 
+BLUE_DECLARE_INTERFACE( ITr2InstanceData );
+BLUE_DECLARE( Tr2Buffer );
 BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE( Tr2Mesh );
 BLUE_DECLARE( TriVariable );
 BLUE_DECLARE( TriFrustum );
 BLUE_DECLARE( Tr2DebugRenderer );
+BLUE_DECLARE( Tr2InstancedMesh );
 
 struct DecalIndexBuffer
 {
 	std::vector<uint32_t> m_indices;
-	Tr2BufferAL m_indexBuffer;
+	uint32_t m_startIndex{ 0 };
 	uint32_t m_primitiveCount{ 0 };
 };
 
@@ -45,8 +49,7 @@ public:
 	// pixel shader per object data
 	Vector4 m_displayData;
 	Vector4 m_shipData;
-	Vector4 m_clipData1;
-	Vector4 m_clipData2;
+	Vector4 m_clipData;
 	Vector4 m_shLightingCoefficients[Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT];
 };
 
@@ -70,18 +73,6 @@ public:
 
 	EveSpaceObjectDecal(IRoot* lockobj = NULL);
 	~EveSpaceObjectDecal();
-
-	//////////////////////////////////////////////////////////////////////////////////////
-	// public structs
-	struct ParentData
-	{
-		Matrix transform;
-		uint32_t displayCounter;
-		Vector4 shipData;
-		Vector4 clipData;
-		Vector4 clipDataEx;
-		const Vector4* shLighting;
-	};
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize
@@ -118,8 +109,9 @@ public:
 	void CopyFrom( EveSpaceObjectDecal *object );
 
 	// access
-	void UpdateVisibility( const TriFrustum& frustum, const ParentData* parentData );
+	void UpdateVisibility( const TriFrustum& frustum, const IEveSpaceObject2::ParentData* parentData );
 	void GetRenderables( std::vector<ITr2Renderable*>& renderables, TriGeometryRes* geomRes, float screensize );
+	void GetInstancedRenderables( std::vector<ITr2Renderable*> & renderables, const Tr2InstancedMesh* instancedMesh );
 
 	// access position etc.
 	const Vector3& GetPosition() const;
@@ -159,7 +151,7 @@ private:
 	bool m_display;
 
 	// parent ship data
-	ParentData m_parentData;
+	IEveSpaceObject2::ParentData m_parentData;
 
 	// decal shader
 	Tr2EffectPtr m_decalEffect;
@@ -184,9 +176,16 @@ private:
 
 	// new index buffers
 	std::vector<DecalIndexBuffer> m_indexBuffers;
+	Tr2BufferAL m_indexBuffer;
 	bool m_rebuildIndexBuffers;
 	float m_isVisible;
 	float m_minScreenSize;
+
+	unsigned int m_vertexDeclarationOverride;
+	ITr2InstanceData* m_instanceData;
+
+	// Bounds for mimicing the frustum culling and fading for instanced hulls that have decals
+	Vector3 m_minBounds, m_maxBounds;
 };
 
 TYPEDEF_BLUECLASS( EveSpaceObjectDecal );

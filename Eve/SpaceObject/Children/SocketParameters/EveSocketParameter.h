@@ -50,6 +50,8 @@ TYPEDEF_BLUECLASS( EveSocketParameterBindingBase );
 	{\
 	public:\
 		EXPOSE_TO_BLUE();\
+		_className( IRoot* lockobj = nullptr );\
+		~_className();\
 		virtual void ClearBindings();\
 		virtual void Reset();\
 		virtual void SetValueToDefault();\

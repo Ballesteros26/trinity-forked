@@ -9,6 +9,34 @@
 #include "Tr2VertexDefinitionUtilities.h"
 #include <algorithm>
 
+namespace Tr2GrannyAnimationUtils
+{
+	bool GetBoneList( Tr2GrannyAnimation* animationUpdater, const granny_matrix_3x4*& bones, size_t& boneCount )
+	{
+		if( animationUpdater && animationUpdater->IsInitialized() )
+		{
+			boneCount = size_t( animationUpdater->GetMeshBoneCount() );
+			if( boneCount )
+			{
+				bones = animationUpdater->GetMeshBoneMatrixList();
+				return true;
+			}
+			else
+			{
+				bones = nullptr;
+			}
+		}
+		else
+		{
+			boneCount = 0;
+			bones = nullptr;
+		}
+		return false;
+	}
+};
+
+
+
 static const int MAX_JOINT_COUNT = 58;
 
 Tr2GrannyAnimation::Tr2GrannyAnimation( IRoot* lockobj ) :

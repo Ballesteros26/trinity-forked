@@ -39,7 +39,8 @@ public:
 	const char* GetResPath() const;
 	void SetResPath( const char* resPath );
 
-	void Reload();
+	void Reload( bool bypassAutoLoadBlocker = false);
+    void SetAutoLoadBlocker( bool shouldBlockAutoLoad );
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize
@@ -64,6 +65,7 @@ public:
 	IEveSpaceObjectChildPtr GetEffectChildByName( const char* name ) const;
 	void AddToEffectChildrenList( IEveSpaceObjectChild* child );
 	void RemoveFromEffectChildrenList( IEveSpaceObjectChild* child );
+    void SetProceduralContainerVariable( const char *name, float value ) override;
 
 	void UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform, Tr2Lod parentLod );
 	void GetRenderables( std::vector<ITr2Renderable*>& renderables );
@@ -85,6 +87,7 @@ public:
 	void UpdateCurveSet( const std::string& name, Be::Time time );
 	float GetCurveSetDuration( const std::string& name ) const;
 	float GetRangeDuration( const std::string& name, const std::string& rangeName ) const;
+    void PlayAllCurveSets() override;
 	void ChangeLOD( Tr2Lod lod );
 	void GetLights( Tr2LightManager& lightManager ) const;
 
@@ -106,10 +109,10 @@ protected:
 	bool LoadChild();
 
 	IEveSpaceObjectChildPtr m_child;
-
 	BlueSharedString m_name;
 	std::string m_resPath;
 
+    bool m_loadChildAutomatically;
 	bool m_display;
 };
 

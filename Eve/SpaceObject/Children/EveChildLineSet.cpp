@@ -426,7 +426,7 @@ std::vector<std::pair<int, int>> EveChildLineSet::GetVertexElementAddedThroughCo
 
 void EveChildLineSet::UpdateAsyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params )
 {
-	Matrix localToWorldTransform;
+	Matrix localToWorldTransform = params.localToWorldTransform;
 
 	if( nullptr != params.childParent )
 	{

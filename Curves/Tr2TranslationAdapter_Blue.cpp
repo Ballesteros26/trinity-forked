@@ -28,6 +28,12 @@ const Be::ClassInfo* Tr2TranslationAdapter::ExposeToBlue()
 			Be::READWRITE | Be::PERSIST )
 
 		MAP_ATTRIBUTE(
+			"rotationOffset",
+			m_rotationOffset,
+			"use to calculate additional modelTranslation",
+			Be::READWRITE | Be::PERSIST )
+
+		MAP_ATTRIBUTE(
 			"currentValue",
 			m_currentValue,
 			"Curve value after the last update",

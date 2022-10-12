@@ -28,8 +28,8 @@
 #include "Shader/Utils/Tr2DataTextureManager.h"
 #include "Utilities/StringUtils.h"
 #include "Tr2ExternalParameter.h"
-
 #include "Controllers/ITr2Controller.h"
+#include "Eve/SpaceObject/Children/EveChildInheritProperties.h"
 
 #include <limits>
 
@@ -201,6 +201,7 @@ EveSpaceObject2::EveSpaceObject2( IRoot* lockobj ) :
 	memset( &m_vsData, 0, sizeof( EveSpaceObjectVSData ) );
 
 	m_controllers.SetNotify( this );
+	m_lights.SetNotify( this );
 	m_effectChildren.SetNotify( this );
     m_overlayEffects.SetNotify( this );
 
@@ -323,6 +324,27 @@ void EveSpaceObject2::OnListModified( long event, ssize_t key, ssize_t key2, IRo
                 break;
         }
     }
+
+	if( list == &m_effectChildren && (event & BELIST_EVENTMASK) == BELIST_INSERTED )
+	{
+		if( m_inheritProperties )
+		{
+			if( IEveInheritPropertiesOwnerPtr obj = BlueCastPtr( value) )
+			{
+				obj->SetInheritProperties( m_inheritProperties->GetProperties() );
+			}
+		}
+	}
+	else if( list == &m_lights && (event & BELIST_EVENTMASK) == BELIST_INSERTED  )
+	{
+		if( m_inheritProperties )
+		{
+			if( IEveInheritPropertiesOwnerPtr light = BlueCastPtr( value) )
+			{
+				light->SetInheritProperties( m_inheritProperties->GetProperties() );
+			}
+		}
+	}
 }
 
 void EveSpaceObject2::RegisterSecondaryLightSource( Tr2ShLightingManager& manager )
@@ -413,7 +435,7 @@ void EveSpaceObject2::UpdateSyncronous( EveUpdateContext& updateContext )
         params.activationStrength = m_activationStrength;
 		params.localToWorldTransform = worldTransform;
 
-		GetBoneList( params.bones, params.boneCount );
+		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, params.bones, params.boneCount );
 
 		for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt )
 		{
@@ -518,7 +540,7 @@ void EveSpaceObject2::UpdateAsyncronous( EveUpdateContext& updateContext )
         params.activationStrength = m_activationStrength;
 		params.localToWorldTransform = worldTransform;
 
-		GetBoneList( params.bones, params.boneCount );
+		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, params.bones, params.boneCount );
 
 		for( auto ecIt = m_effectChildren.begin(); ecIt != m_effectChildren.end(); ++ecIt )
 		{
@@ -577,6 +599,7 @@ void EveSpaceObject2::GetDebugOptions( Tr2DebugRendererOptions& options )
 	options.insert( "Local Bounding Box" );
 	options.insert( "Bounding Box" );
 	options.insert( "Bounding Sphere" );
+	options.insert( "Bounding Sphere Accumulated" );
 	options.insert( "Mesh Area Bounding Boxes" );
 	options.insert( "Dynamic Bounds" );
 	options.insert( "Bones" );
@@ -586,6 +609,7 @@ void EveSpaceObject2::GetDebugOptions( Tr2DebugRendererOptions& options )
 	options.insert( "Lights" );
 	options.insert( "Locators" );
 	options.insert( "Shield" );
+	options.insert( "ClipSphere" );
 
 	for( auto it = m_observers.begin(); it != m_observers.end(); ++it )
 	{
@@ -663,6 +687,19 @@ void EveSpaceObject2::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 		renderer.DrawSphere( this, m_boundingSphereWorldCenter, m_boundingSphereWorldRadius, 8, Tr2DebugRenderer::Wireframe, 0xffff00ff );
 	}
 
+	if( renderer.HasOption( GetRawRoot(), "Bounding Sphere Accumulated" ) )
+	{
+		Vector4 sphere;
+		GetBoundingSphere( sphere, BoundingSphereQuery::EVE_BOUNDS_WITH_CHILDREN );
+		renderer.DrawSphere( this, sphere.GetXYZ(), sphere.w, 8, Tr2DebugRenderer::Wireframe, 0xff00ffff );
+	}
+
+	if( renderer.HasOption( this, "ClipSphere" ) )
+	{
+		renderer.DrawSphere( this, TransformCoord( m_clipSphereCenter + GetBoundingSphereCenter(), m_worldTransform ), m_clipSphereFactor * m_boundingSphereWorldRadius, 16, Tr2DebugRenderer::Wireframe, 0xffff00ff );
+	}
+
+
 	if( renderer.HasOption( GetRawRoot(), "Shield" ) )
 	{
 		Vector3 radius;
@@ -727,7 +764,7 @@ void EveSpaceObject2::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 	{
 		size_t boneCount = 0;
 		const granny_matrix_3x4* bones = nullptr;
-		GetBoneList( bones, boneCount );
+		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
 		for( auto it = m_lights.begin(); it != m_lights.end(); ++it )
 		{
 			( *it )->RenderDebugInfo( renderer, m_worldTransform, bones, boneCount );
@@ -780,7 +817,7 @@ void EveSpaceObject2::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 				size_t boneCount;
 				const granny_matrix_3x4* bones;
 
-				if( locator.boneIndex >= 0 && GetBoneList( bones, boneCount ) )
+				if( locator.boneIndex >= 0 && Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount ) )
 				{
 					if( locator.boneIndex < int( boneCount ) )
 					{
@@ -801,7 +838,7 @@ void EveSpaceObject2::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 					Tr2DebugObjectReference( &locators, uint32_t( i ) ),
 					Vector3( XMVector3TransformCoord( position, m_worldTransform ) ),
 					Vector3( XMVector3TransformNormal( Vector3( 0, 1, 0 ), Matrix( XMMatrixRotationQuaternion( rotation ) ) * m_worldTransform ) ),
-					m_boundingSphereRadius * m_modelScale / 50.f,
+					min(m_boundingSphereRadius * m_modelScale / 50.f, 100.0f),
 					8,
 					Tr2DebugRenderer::Lit,
 					color );
@@ -813,7 +850,7 @@ void EveSpaceObject2::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 	{
 		size_t boneCount = 0;
 		const granny_matrix_3x4* bones = nullptr;
-		GetBoneList( bones, boneCount );
+		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
 
 		for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
 		{
@@ -1336,7 +1373,7 @@ void EveSpaceObject2::UpdateVisibility( const TriFrustum& frustum, const Matrix&
 	{
 		size_t boneCount = 0;
 		const granny_matrix_3x4* bones = nullptr;
-		GetBoneList( bones, boneCount );
+		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
 
 		for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
 		{
@@ -1417,8 +1454,8 @@ void EveSpaceObject2::UpdateVisibility( const TriFrustum& frustum, const Matrix&
 
 	if( DisplayDecals() && m_isMeshVisible )
 	{
-		EveSpaceObjectDecal::ParentData pd;
-		FillDecalParentData( &pd );
+		IEveSpaceObject2::ParentData pd;
+		GetParentData( &pd );
 
 		for( auto it = m_decals.begin(); it != m_decals.end(); ++it )
 		{
@@ -1478,18 +1515,16 @@ void EveSpaceObject2::GetRenderables( std::vector<ITr2Renderable*>& renderables,
 
 // --------------------------------------------------------------------------------
 // Description:
-//   This funstion fills all the relevant data to pass to each decal as "parent's
-//   data. With it being virtual, sub classes can add more data.
+//   This function fills a parent data struct with parent data
 // Arguments:
 //   pd - the data buffer
 // --------------------------------------------------------------------------------
-void EveSpaceObject2::FillDecalParentData( EveSpaceObjectDecal::ParentData* pd ) const
+void EveSpaceObject2::GetParentData( ParentData* pd ) const
 {
-	memset( pd, 0, sizeof( EveSpaceObjectDecal::ParentData ) );
+	memset( pd, 0, sizeof( ParentData ) );
 	pd->transform = m_worldTransform;
 	pd->shipData = m_spaceObjectShipData;
 	pd->clipData = m_psData.clipData;
-	pd->clipDataEx = m_psData.miscData;
 	pd->shLighting = m_psData.shLightingCoefficients;
 }
 
@@ -1526,7 +1561,7 @@ void EveSpaceObject2::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2Quad
 	}
 	size_t boneCount = 0;
 	const granny_matrix_3x4* bones = nullptr;
-	GetBoneList( bones, boneCount );
+	Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
 
 	for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
 	{
@@ -2404,10 +2439,10 @@ ITriVectorFunctionPtr EveSpaceObject2::GetPositionFunction()
 //   Set the boundingsphere inforamtion from the outside directly, instead of
 //   calculating it in runtime
 // --------------------------------------------------------------------------------
-void EveSpaceObject2::SetBoundingSphereInformation( const Vector4& centerAndRadius )
+void EveSpaceObject2::SetBoundingSphereInformation( const CcpMath::Sphere& sphere )
 {
-	m_boundingSphereCenter = BoundingSphereGetCenter( centerAndRadius );
-	m_boundingSphereRadius = centerAndRadius.w;
+	m_boundingSphereCenter = sphere.center;
+	m_boundingSphereRadius = sphere.radius;
 }
 
 // --------------------------------------------------------------------------------
@@ -2425,6 +2460,11 @@ void EveSpaceObject2::AddAttachment( IEveSpaceObjectAttachment* attachment )
 	m_attachments.Append( attachment );
 }
 
+void EveSpaceObject2::ClearAttachments()
+{
+	m_attachments.Clear();
+}
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Add a new decal to this object from the outside
@@ -2440,7 +2480,20 @@ void EveSpaceObject2::AddDecal( EveSpaceObjectDecalPtr newDecal )
 // --------------------------------------------------------------------------------
 void EveSpaceObject2::AddLight( Tr2Light* newLight )
 {
+	if( m_inheritProperties )
+	{
+		if( IEveInheritPropertiesOwnerPtr light = BlueCastPtr( newLight ) )
+		{
+			light->SetInheritProperties( m_inheritProperties->GetProperties() );
+		}
+	}
+
 	m_lights.Append( newLight->GetRawRoot() );
+}
+
+void EveSpaceObject2::ClearLights()
+{
+	m_lights.Clear();
 }
 
 // --------------------------------------------------------------------------------
@@ -2495,6 +2548,12 @@ void EveSpaceObject2::AddLocatorSet( const char* name, const Locator* locators, 
 	m_locatorSets.Append( newSet );
 }
 
+
+void EveSpaceObject2::ClearLocatorSets()
+{
+	m_locatorSets.Clear();
+}
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Set the shadow shader of this object from the outside
@@ -2520,7 +2579,7 @@ void EveSpaceObject2::AddController( ITr2Controller* controller )
 }
 
 // --------------------------------------------------------------------------------
-void EveSpaceObject2::AddObserver( TriObserverLocal* observer )
+void EveSpaceObject2::AddObserver( TriObserverLocalPtr observer )
 {
 	m_observers.Append( observer );
 }
@@ -2552,6 +2611,15 @@ void EveSpaceObject2::AddToEffectChildrenList( IEveSpaceObjectChild* child )
 			entity->Register( GetComponentRegistry() );
 		}
 	}
+
+	if( m_inheritProperties )
+	{
+		if( IEveInheritPropertiesOwnerPtr obj = BlueCastPtr( child ) )
+		{
+			obj->SetInheritProperties( m_inheritProperties->GetProperties() );
+		}
+	}
+
 	m_effectChildren.Append( child->GetRootObject() );
 }
 
@@ -2833,10 +2901,10 @@ void EveSpaceObject2::GetShapeEllipsoid( Vector3& center, Vector3& radius )
 //   Set the user-authored shape ellipsoid. This will be used instead of the
 //   dynamically generated. Can accept nullptr
 // --------------------------------------------------------------------------------
-void EveSpaceObject2::SetShapeEllipsoid( const Vector3* center, const Vector3* radius )
+void EveSpaceObject2::SetShapeEllipsoid( const CcpMath::AxisAlignedEllipsoid& ellipsoid )
 {
-	m_shapeEllipsoidCenter = ( center != nullptr ) ? *center : Vector3( 0.f, 0.f, 0.f );
-	m_shapeEllipsoidRadius = ( radius != nullptr ) ? *radius : Vector3( 0.f, 0.f, 0.f );
+	m_shapeEllipsoidCenter = ellipsoid.center;
+	m_shapeEllipsoidRadius = ellipsoid.radii;
 }
 
 // --------------------------------------------------------------------------------
@@ -3042,7 +3110,7 @@ void EveSpaceObject2::GetLights( Tr2LightManager& lightManager ) const
 
 	size_t boneCount = 0;
 	const granny_matrix_3x4* bones = nullptr;
-	GetBoneList( bones, boneCount );
+	Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater,  bones, boneCount );
 
 	for( auto it = std::begin( m_lights ); it != std::end( m_lights ); ++it )
 	{
@@ -3301,29 +3369,6 @@ void EveSpaceObject2::SetShaderOption( const BlueSharedString& name, const BlueS
 	}
 }
 
-bool EveSpaceObject2::GetBoneList( const granny_matrix_3x4*& bones, size_t& boneCount ) const
-{
-	if( m_animationUpdater && m_animationUpdater->IsInitialized() )
-	{
-		boneCount = size_t( m_animationUpdater->GetMeshBoneCount() );
-		if( boneCount )
-		{
-			bones = m_animationUpdater->GetMeshBoneMatrixList();
-			return true;
-		}
-		else
-		{
-			bones = nullptr;
-		}
-	}
-	else
-	{
-		boneCount = 0;
-		bones = nullptr;
-	}
-	return false;
-}
-
 ITr2AudEmitterPtr EveSpaceObject2::FindSoundEmitter( const char* name )
 {
 	for( auto it = begin( m_observers ); it != end( m_observers ); ++it )
@@ -3366,6 +3411,7 @@ void EveSpaceObject2::SetReflectionMode( EntityComponents::ReflectionMode mode )
 	m_reflectionMode = mode;
 	ReRegister();
 }
+
 int EveSpaceObject2::GetLastUsedMeshLod() const
 {
 	if( !m_mesh || !m_mesh->GetGeometryResource() )
@@ -3378,4 +3424,38 @@ int EveSpaceObject2::GetLastUsedMeshLod() const
 	}
 	auto meshScreenSize = m_estimatedPixelDiameter / g_eveSpaceSceneLODFactor;
 	return m_mesh->GetGeometryResource()->GetLodIndexForScreenSize( unsigned( m_mesh->GetMeshIndex() ), meshScreenSize );
+}
+
+void EveSpaceObject2::SetProceduralContainerVariable( const char *name, float value )
+{
+    for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); it++ )
+    {
+        auto child = *it;
+        child->SetProceduralContainerVariable( name, value );
+    }
+}
+
+void EveSpaceObject2::SetInheritProperties( const Color* colorSet )
+{
+	if( !m_inheritProperties )
+	{
+		m_inheritProperties.CreateInstance();
+	}
+	m_inheritProperties->SetProperties( colorSet );
+
+	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); it++ )
+	{
+		if( IEveInheritPropertiesOwnerPtr cast = BlueCastPtr(*it) )
+		{
+			cast->SetInheritProperties( m_inheritProperties->GetProperties() );
+		}
+	}
+
+	for( auto it = m_lights.begin(); it != m_lights.end(); it++ )
+	{
+		if( IEveInheritPropertiesOwnerPtr light = BlueCastPtr( *it ) )
+		{
+			light->SetInheritProperties( m_inheritProperties->GetProperties() );
+		}
+	}
 }

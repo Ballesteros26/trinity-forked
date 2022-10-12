@@ -22,7 +22,7 @@ namespace
 // Initial size of the light buffer (number of elements)
 const uint32_t LIGHT_BUFFER_SIZE = 1024;
 // Size of the light index buffer (number of indices)
-const uint32_t INDEX_BUFFER_SIZE = 4 * 1024 * 1024;
+const uint32_t INDEX_BUFFER_SIZE = 8 * 1024 * 1024;
 // Minimal size of a point light sphere in pixels before it is culled out
 const float CUTOFF_PIXEL_SIZE = 7.f;
 // Size (in pixels) for the light to stat dimming out before disappeating

@@ -490,7 +490,7 @@ void SeekTarget::AddLocatorSet()
 {
 	EveLocatorSetsPtr seekSet;
 	seekSet.CreateInstance();
-	seekSet->Set( m_locatorSetName.c_str(), NULL, 0 );
+	seekSet->SetName( m_locatorSetName );
 
 	m_locatorSet = seekSet;
 }

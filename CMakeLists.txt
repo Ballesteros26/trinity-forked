@@ -109,6 +109,9 @@ set(_SOURCES
     Curves/Tr2CurveColorMixer.cpp
     Curves/Tr2CurveColorMixer.h
     Curves/Tr2CurveColorMixer_Blue.cpp
+    Curves/Tr2CurveCombiner.cpp
+    Curves/Tr2CurveCombiner.h
+    Curves/Tr2CurveCombiner_Blue.cpp
     Curves/Tr2CurveConstant.cpp
     Curves/Tr2CurveConstant.h
     Curves/Tr2CurveConstant_Blue.cpp
@@ -187,7 +190,6 @@ set(_SOURCES
     Curves/TriEventKey.cpp
     Curves/TriEventKey.h
     Curves/TriEventKey_Blue.cpp
-    Eve/Components/IEveLightOwner.h
     Eve/Renderable/Stretch/EveFiringEffectElementContainer.cpp
     Eve/Renderable/Stretch/EveFiringEffectElementContainer.h
     Eve/Renderable/Stretch/EveFiringEffectElementContainer_Blue.cpp
@@ -243,6 +245,7 @@ set(_SOURCES
     Eve/SpaceObject/Attachments/Sets/EveSpriteSetItem.h
     Eve/SpaceObject/Attachments/Sets/EveSpriteSetItem_Blue.cpp
     Eve/SpaceObject/Attachments/Sets/IEveSpaceObjectAttachment.h
+    Eve/SpaceObject/Attachments/Sets/IEveSpaceObjectAttachmentOwner.h
     Eve/SpaceObject/Attachments/EveBoosterSet2.cpp
     Eve/SpaceObject/Attachments/EveBoosterSet2.h
     Eve/SpaceObject/Attachments/EveBoosterSet2_Blue.cpp
@@ -324,6 +327,34 @@ set(_SOURCES
     Eve/SpaceObject/Children/LineSetPaths/EveLineChildContainer.h
     Eve/SpaceObject/Children/LineSetPaths/EveLineChildContainer_Blue.cpp
     Eve/SpaceObject/Children/LineSetPaths/IEveLineSetPath.h
+    Eve/SpaceObject/Children/ProceduralContainer/EveChildProceduralContainer.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/EveChildProceduralContainer.h
+    Eve/SpaceObject/Children/ProceduralContainer/EveChildProceduralContainer_Blue.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodAttributeMap.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodAttributeMap.h
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodAttributeMapParameter.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodAttributeMapParameter.h
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodAttributeMapParameter_Blue.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodAttributeMap_Blue.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodCycling.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodCycling.h
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodCyclingParameter.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodCyclingParameter.h
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodCyclingParameter_Blue.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodCycling_Blue.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodRandom.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodRandom.h
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodRandomParameter.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodRandomParameter.h
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodRandomParameter_Blue.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodRandom_Blue.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodThresholdParameter.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodThresholdParameter.h
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodThresholdParameter_Blue.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodThresholds.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodThresholds.h
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/EveProceduralMethodThresholds_Blue.cpp
+    Eve/SpaceObject/Children/ProceduralContainer/SelectionMethods/IEveProceduralSelectionMethod.h
     Eve/SpaceObject/Children/SocketParameters/EveSocketParameter.cpp
     Eve/SpaceObject/Children/SocketParameters/EveSocketParameter.h
     Eve/SpaceObject/Children/SocketParameters/EveSocketParameter_Blue.cpp
@@ -467,6 +498,7 @@ set(_SOURCES
     Eve/SpaceObjectFactory/EveSOFData.cpp
     Eve/SpaceObjectFactory/EveSOFData.h
     Eve/SpaceObjectFactory/EveSOFData_Blue.cpp
+    Eve/SpaceObjectFactory/EveSOFData_Blue2.cpp
     Eve/SpaceObjectFactory/EveSOFDataMgr.cpp
     Eve/SpaceObjectFactory/EveSOFDataMgr.h
     Eve/SpaceObjectFactory/EveSOFDataMgr_Blue.cpp
@@ -658,6 +690,7 @@ set(_SOURCES
     Interior/Tr2IntSkinnedObject.cpp
     Interior/Tr2IntSkinnedObject.h
     Interior/Tr2IntSkinnedObject_Blue.cpp
+    Lights/ITr2LightOwner.h
     Lights/Tr2FactionLight.cpp
     Lights/Tr2FactionLight.h
     Lights/Tr2FactionLight_Blue.cpp

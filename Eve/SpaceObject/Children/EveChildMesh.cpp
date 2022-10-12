@@ -5,15 +5,17 @@
 #include "Eve/SpaceObject/EveSpaceObject2.h"
 #include "Eve/EveTransform.h"
 #include "Utilities/BoundingSphere.h"
+#include "Tr2InstancedMesh.h"
 #include "Tr2GrannyAnimation.h"
-
 
 extern float g_eveSpaceSceneLODFactor;
 extern float g_eveSpaceSceneVisibilityThreshold;
 
-
 EveChildMesh::EveChildMesh( IRoot* lockobj ):
 	PARENTLOCK( m_transformModifiers ),
+	PARENTLOCK( m_decals ),
+	PARENTLOCK( m_attachments ),
+	PARENTLOCK( m_lights ),
 	m_display( true ),
 	m_isVisible( false ),
 	m_lowestLodVisible( TR2_LOD_LOW ),
@@ -22,6 +24,7 @@ EveChildMesh::EveChildMesh( IRoot* lockobj ):
 	m_sortValueOffset( 0 ),
 	m_sortValueScale( 1 ),
 	m_useSpaceObjectData( true ),
+	m_activationStrength( 1.0f ),
 	m_origin( SPACE ),
 	m_reflectionMode( EntityComponents::REFLECT_NEVER ),
 	EveChildTransform(),
@@ -129,6 +132,30 @@ void EveChildMesh::UpdateVisibility( const TriFrustum& frustum, const Matrix& pa
 			m_isVisible = parentLod >= m_lowestLodVisible && m_currentScreenSize >= m_minScreenSize * g_eveSpaceSceneLODFactor;
 		}
 	}
+
+	if( !m_attachments.empty() )
+	{
+		size_t boneCount = 0;
+		const granny_matrix_3x4* bones = nullptr;
+		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
+
+		for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
+		{
+			( *it )->UpdateVisibility( frustum, m_worldTransform, bones, boneCount );
+		}
+	}
+
+	if( m_isVisible )
+	{
+		for( auto it = m_decals.begin(); it != m_decals.end(); ++it )
+		{
+			if( m_animationUpdater && m_animationUpdater->GetMeshBoneCount() && m_animationUpdater->IsInitialized() )
+			{
+				( *it )->SetBoneMatrix( m_animationUpdater->GetMeshBoneMatrixList(), m_animationUpdater->GetMeshBoneCount() );
+			}
+			( *it )->UpdateVisibility( frustum, &m_parentData );
+		}
+	}
 }
 
 void EveChildMesh::GetRenderables( std::vector<ITr2Renderable*>& renderables )
@@ -136,6 +163,37 @@ void EveChildMesh::GetRenderables( std::vector<ITr2Renderable*>& renderables )
 	if( m_isVisible )
 	{
 		renderables.push_back( this );
+		if( DisplayDecals() )
+		{
+			if( Tr2InstancedMeshPtr instanced = BlueCastPtr( m_mesh ) ) 
+			{
+				TriGeometryResPtr geometryRes = m_mesh->GetGeometryResource();
+
+				if( geometryRes )
+				{
+					// runn over every decal and update it
+					for( EveSpaceObjectDecalVector::const_iterator it = m_decals.begin(); it != m_decals.end(); ++it )
+					{
+						// now prep to get the renderables
+						( *it )->GetInstancedRenderables( renderables, instanced );
+					}
+				}
+			}
+			else
+			{
+				TriGeometryResPtr geometryRes = m_mesh->GetGeometryResource();
+
+				if( geometryRes )
+				{
+					// runn over every decal and update it
+					for( EveSpaceObjectDecalVector::const_iterator it = m_decals.begin(); it != m_decals.end(); ++it )
+					{
+						// now prep to get the renderables
+						( *it )->GetRenderables( renderables, geometryRes, m_currentScreenSize );
+					}
+				}
+			}
+		}		
 	}
 }
 
@@ -181,9 +239,20 @@ bool EveChildMesh::IsVisible( const TriFrustum& frustum ) const
 
 void EveChildMesh::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData, Tr2RenderReason reason )
 {
-	if( m_display && m_mesh )
+	if( m_display )
 	{
-		m_mesh->GetBatches( batches, m_mesh->GetAreas( batchType ), perObjectData, m_currentScreenSize );
+		if( m_mesh )
+		{
+			m_mesh->GetBatches( batches, m_mesh->GetAreas( batchType ), perObjectData, m_currentScreenSize );
+		}
+		
+		if( m_activationStrength != 0.0 )
+		{
+			for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
+			{
+				( *it )->GetBatches( batches, batchType, perObjectData, reason );
+			}
+		}	
 	}
 }
 
@@ -275,6 +344,7 @@ void EveChildMesh::UpdateAsyncronous( EveUpdateContext& updateContext, const Eve
 	m_perObjectDataPs.InvalidateBufferData();
 
 	Matrix localToWorldTransform;
+	Matrix lastWorldTransform = m_worldTransform;
 	
 	if( nullptr != params.childParent )
 	{
@@ -283,13 +353,11 @@ void EveChildMesh::UpdateAsyncronous( EveUpdateContext& updateContext, const Eve
 	else if( nullptr != params.spaceObjectParent )
 	{
 		params.spaceObjectParent->GetLocalToWorldTransform( localToWorldTransform );
-		params.spaceObjectParent->GetPerObjectStructs( m_vsData, m_psData );
 	}
 	else 
 	{
 		localToWorldTransform = params.localToWorldTransform;
 	}
-	m_vsData.worldTransformLast = Transpose( m_worldTransform );
 
 	UpdateTransform( localToWorldTransform );
 	for( auto it = m_transformModifiers.begin(); it != m_transformModifiers.end(); it++ )
@@ -297,8 +365,25 @@ void EveChildMesh::UpdateAsyncronous( EveUpdateContext& updateContext, const Eve
 		m_worldTransform = (*it)->ApplyTransform( m_worldTransform, params.boneCount, params.bones );
 	}
 
+	// need to update the data we get from the parent to be relevant to us!
+	if( nullptr != params.spaceObjectParent )
+	{
+		params.spaceObjectParent->GetPerObjectStructs( m_vsData, m_psData );
+		params.spaceObjectParent->GetParentData( &m_parentData );
+
+		// need to move the clipdata inversely of the translation of the childmesh
+		m_vsData.clipData = Vector4( m_vsData.clipData.GetXYZ() - m_translation, m_vsData.clipData.w );
+		m_psData.clipData = Vector4( m_psData.clipData.GetXYZ() - m_translation, m_psData.clipData.w );
+		
+		// update the world transform of the parent
+		m_parentData.transform = m_worldTransform;
+	}
+
+	m_activationStrength = params.activationStrength;
+
 	m_vsData.worldTransform = Transpose( m_worldTransform );
 	m_vsData.invWorldTransform = Inverse( m_worldTransform );
+	m_vsData.worldTransformLast = Transpose( lastWorldTransform );
 
 	// Normalize screenSize dimensions
 	auto screen_width = Tr2Renderer::GetViewport().width;
@@ -332,11 +417,16 @@ void EveChildMesh::ChangeLOD( Tr2Lod )
 {
 }
 
+bool EveChildMesh::DisplayDecals() const
+{
+	// TODO - add similar lod checks as in EveSpaceObject2
+	return true;
+}
+
 void EveChildMesh::SetMesh( Tr2MeshBase* mesh )
 {
 	m_mesh = mesh;
 }
-
 
 void EveChildMesh::SetOrigin( Origin origin )
 {
@@ -368,6 +458,17 @@ void EveChildMesh::SetShaderOption( const BlueSharedString& name, const BlueShar
 	{
 		m_mesh->SetShaderOption( name, value );
 	}
+
+	for( EveSpaceObjectDecalVector::iterator it = m_decals.begin(); it != m_decals.end(); ++it )
+	{
+		( *it )->SetShaderOption( name, value );
+	}
+
+	for( auto it = m_attachments.begin(); it != m_attachments.end(); ++it )
+	{
+		IEveSpaceObjectAttachment* attachment = *it;
+		attachment->SetShaderOption( name, value );
+	}
 }
 
 void EveChildMesh::SetScale( const Vector3& scale )
@@ -382,6 +483,13 @@ void EveChildMesh::GetDebugOptions( Tr2DebugRendererOptions& options )
 		m_mesh->GetDebugOptions( options );
 	}
 	options.insert( "Bones" );
+	options.insert( "Decals" );
+	options.insert( "Lights" );
+
+	for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
+	{
+		( *it )->GetDebugOptions( options );
+	}
 }
 
 void EveChildMesh::RenderDebugInfo( ITr2DebugRenderer2& renderer )
@@ -397,6 +505,40 @@ void EveChildMesh::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 	if( m_animationUpdater && renderer.HasOption( GetRawRoot(), "Bones" ) )
 	{
 		m_animationUpdater->RenderBones( m_worldTransform );
+	}
+
+	if( renderer.HasOption( GetRawRoot(), "Decals" ) )
+	{
+		if( DisplayDecals() )
+		{
+			for( EveSpaceObjectDecalVector::iterator it = m_decals.begin(); it != m_decals.end(); ++it )
+			{
+				( *it )->RenderDebugInfo( renderer, m_worldTransform );
+			}
+		}
+	}
+
+	if( !m_attachments.empty() )
+	{
+		size_t boneCount = 0;
+		const granny_matrix_3x4* bones = nullptr;
+		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
+
+		for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
+		{
+			( *it )->RenderDebugInfo( renderer, m_worldTransform, bones, boneCount );
+		}
+	}
+
+	if( renderer.HasOption( GetRawRoot(), "Lights" ) )
+	{
+		size_t boneCount = 0;
+		const granny_matrix_3x4* bones = nullptr;
+		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
+		for( auto it = m_lights.begin(); it != m_lights.end(); ++it )
+		{
+			( *it )->RenderDebugInfo( renderer, m_worldTransform, bones, boneCount );
+		}
 	}
 }
 
@@ -414,4 +556,76 @@ void EveChildMesh::SetAnimationController( Tr2GrannyAnimation* animation )
 {
 	m_animationUpdater = animation;
 	InitializeAnimation();
+}
+
+void EveChildMesh::AddDecal( EveSpaceObjectDecalPtr newDecal )
+{
+	m_decals.Append( newDecal->GetRawRoot() );
+}
+
+void EveChildMesh::AddAttachment( IEveSpaceObjectAttachment* attachment )
+{
+	m_attachments.Append( attachment );
+}
+
+void EveChildMesh::ClearAttachments()
+{
+	m_attachments.Clear();
+}
+
+void EveChildMesh::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
+{
+	for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
+	{
+		( *it )->RegisterWithQuadRenderer( quadRenderer );
+	}
+}
+
+void EveChildMesh::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer ) const
+{
+	if( m_attachments.empty() || !m_isVisible || !m_display )
+	{
+		return;
+	}
+	size_t boneCount = 0;
+	const granny_matrix_3x4* bones = nullptr;
+	Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
+	for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
+	{
+		// If we need boostergain then we will need to get it from the parent (the 0.0 in the param list)
+		( *it )->AddToQuadRenderer( quadRenderer, m_worldTransform, m_activationStrength, 0.0, bones, boneCount );
+	}
+}
+
+void EveChildMesh::GetLights( Tr2LightManager& lightManager ) const
+{
+	if( ( m_lights.empty() && m_attachments.empty() ) || !m_display )
+	{
+		return;
+	}
+
+	size_t boneCount = 0;
+	const granny_matrix_3x4* bones = nullptr;
+	Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
+
+	for( auto it = std::begin( m_lights ); it != std::end( m_lights ); ++it )
+	{
+		( *it )->AddLight( lightManager, m_worldTransform, 1.0f, bones, boneCount );
+		( *it )->SetBrightnessMultiplier( m_activationStrength );
+	}
+
+	for( auto it = std::begin( m_attachments ); it != std::end( m_attachments ); ++it )
+	{
+		( *it )->GetLights( lightManager, m_worldTransform );
+	}
+}
+
+void EveChildMesh::AddLight( Tr2Light* newLight )
+{
+	m_lights.Append( newLight->GetRawRoot() );
+}
+
+void EveChildMesh::ClearLights()
+{
+	m_lights.Clear();
 }

@@ -11,7 +11,7 @@ BLUE_DEFINE( EveProjectBracket );
 
 const Be::ClassInfo* EveProjectBracket::ExposeToBlue()
 {
-	EXPOSURE_BEGIN( EveProjectBracket, "Projects a 3D position to 2D for brackets" )
+	EXPOSURE_BEGIN( EveProjectBracket, "Projects a 3D position to 2D for brackets\n:jessica-deprecated: True" )
 		MAP_INTERFACE( ITriFunction )
 		MAP_INTERFACE( EveProjectBracket )
 		

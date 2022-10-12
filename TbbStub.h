@@ -16,6 +16,7 @@
 #define Tr2ParallelSort tbb::parallel_sort
 #define Tr2EnumerableThreadSpecific tbb::enumerable_thread_specific
 #define Tr2SpinMutex tbb::spin_mutex
+#define Tr2ParallelTaskGroup tbb::task_group
 
 #else
 
@@ -91,6 +92,18 @@ public:
 	}
 private:
 	T m_data;
+};
+
+struct Tr2ParallelTaskGroup
+{
+	template <typename F>
+	void run( F&& f )
+	{
+		F();
+	}
+	void wait()
+	{
+	}
 };
 
 #endif

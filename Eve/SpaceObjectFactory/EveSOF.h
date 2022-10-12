@@ -14,11 +14,17 @@
 BLUE_DECLARE( EveTurretSet );
 BLUE_DECLARE( Tr2Effect );
 BLUE_DECLARE( Tr2LodResource );
+BLUE_DECLARE_INTERFACE( IEveSpaceObjectDecalOwner );
 BLUE_DECLARE( EveSpaceObject2 );
 BLUE_DECLARE( EveShip2 );
 BLUE_DECLARE( EveSOF );
 BLUE_DECLARE( EveSOFDNA );
+BLUE_DECLARE( Tr2InstancedMesh );
 BLUE_DECLARE( Tr2MeshArea );
+BLUE_DECLARE( EveChildContainer );
+BLUE_DECLARE_INTERFACE( IEveEffectChildrenOwner );
+BLUE_DECLARE_INTERFACE( ITr2LightOwner );
+BLUE_DECLARE_INTERFACE( IEveSpaceObjectAttachment );
 BLUE_DECLARE_VECTOR( Tr2MeshArea );
 
 // --------------------------------------------------------------------------------
@@ -49,6 +55,9 @@ public:
 	void SetupTurretMaterialFromDNA( EveTurretSet* turretSet, const char* dnaString );
 	void SetupTurretMaterialFromFaction( EveTurretSet* turretSet, const char* factionName );
 
+	// change the layout data of the space object
+	void RegenerateLayout(EveSpaceObject2* owner, const char* dnaString);
+
 	bool LoadData( const char* filePath );
 private:
 	// creation
@@ -77,26 +86,39 @@ private:
 		}
 	};
 
+	EveSOFDNAPtr CreateDna( const char* dnaString );
+
 	// all setup functions for the to-be-created space object
 	void SetupConsts( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupMesh( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
-	void SetupSpriteSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
-	void SetupSpotlightSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
-	void SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
-	void SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
-	void SetupHazeSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
-	void SetupBanners( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const; 
-	void SetupBannerSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const; 
-	void SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
-	void SetupEffectChildren( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna ) const;
-	void SetupControllers( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna ) const;
-	void SetupAudio( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna ) const;
-	void SetupInstancedMeshes( EveSpaceObject2Ptr newObj, EveSOFDNAPtr dna ) const;
-	void SetupDecalSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
+	void SetupAttachments( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const;
+	void SetupSpriteSets( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const;
+	void SetupSpotlightSets( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const;
+	void SetupPlaneSets( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const;
+	void SetupSpriteLineSets( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const;
+	void SetupHazeSets( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const;
+	void SetupBanners( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const; 
+	void SetupBannerSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const; 
+	void SetupEffects( EveSpaceObject2Ptr obj, IEveEffectChildrenOwnerPtr childOwner, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets, uint32_t buildFlags ) const;
+	void SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, IEveEffectChildrenOwnerPtr childOwner, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets, uint32_t buildFlags ) const;
+	void SetupEffectChildren( EveSpaceObject2Ptr newObj, IEveEffectChildrenOwnerPtr childOwner, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets, uint32_t buildFlags ) const;
+	void SetupControllers( ITr2ControllerOwnerPtr newObj, const EveSOFDNAPtr dna, uint32_t buildFlags ) const;
+	void SetupAudio( ITr2SoundEmitterOwnerPtr newObj, const EveSOFDNAPtr dna, const Matrix& offset = IdentityMatrix() ) const;
+	void SetupInstancedMeshes( EveSpaceObject2Ptr newObj, EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const;
+	void SetupDecalSets( IEveSpaceObjectDecalOwnerPtr obj, const EveSOFDNAPtr dna ) const;
 	void SetupModelCurves( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 	void SetupLocators( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
-	void SetupEffects( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
-	void SetupLights( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
+	void SetupLocatorSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets );
+	void SetupImpactEffects( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
+	void SetupLights( ITr2LightOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const;
+	void SetupLayout( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets );
+
+
+	Tr2MeshPtr CreateMesh( const EveSOFDNAPtr dna ) const;
+	Tr2InstancedMeshPtr CreateInstancedMesh( std::vector<EveSOFDataMgr::HullMeshInstance> instances, std::string resPath ) const;
+	void SetupShaders( const EveSOFDNAPtr dna, Tr2MeshBase* mesh ) const;
+	
+	EveChildContainerPtr CreatePlacement( EveSpaceObject2Ptr parent, EveSOFDNAPtr extensionDna, EveSOFDataMgr::ExtensionPlacementData& placement, const std::vector<EveSOFDataMgr::LocatorDirectionData>& locators, const std::vector<Matrix>& nestedOffsets );
 
 	void SetupCustomMask( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const;
 
@@ -104,6 +126,9 @@ private:
 	void SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const;
 
 	Tr2EffectPtr CreateBoosterEffect( const EveSOFDataMgr::RaceBoosterData* rdata, const BlueSharedString& lodOption ) const;
+
+	bool ProcessLayoutDistributionConditions(  EveSOFDataMgr::ExtensionPlacementData& placement, const EveSOFDNAPtr dna, std::vector<EveSOFDataMgr::LocatorDirectionData>& placementSet, std::vector<EveSOFDataMgr::LocatorDirectionData>& managedLocatorSet );
+	void ProcessLayoutDistributionDistribute( EveSOFDataMgr::ExtensionPlacementDistribution& distributionData, const EveSOFDNAPtr dna, std::vector<EveSOFDataMgr::LocatorDirectionData>& placementSet, std::vector<EveSOFDataMgr::LocatorDirectionData>& managedLocatorSet );
 
 	// helper functions
 	size_t FillMeshAreaVector( Tr2MeshAreaVector* meshAreaVector, TriBatchType areaType, const EveSOFDNAPtr dna, size_t hullIdx, size_t meshIndexOffset ) const;
@@ -121,6 +146,8 @@ private:
 
 	mutable std::unordered_map<std::string, bool> m_existingFilesCache;
 	bool m_allowFileCaching;
+
+	bool m_editorMode;
 };
 
 TYPEDEF_BLUECLASS( EveSOF );

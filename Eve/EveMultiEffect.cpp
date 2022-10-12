@@ -308,7 +308,6 @@ void EveMultiEffect::UpdateAsyncronous( EveUpdateContext& updateContext ) {}
 void EveMultiEffect::UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform ) {}
 void EveMultiEffect::GetRenderables( std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors ) {}
 bool EveMultiEffect::GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query ) const { return false; }
-void EveMultiEffect::GetLights( Tr2LightManager& lightManager ) const {}
 void EveMultiEffect::GetPerObjectStructs( EveSpaceObjectVSData& vsData, EveSpaceObjectPSData& psData ) const {}
 void EveMultiEffect::UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t ) {}
 void EveMultiEffect::GetModelCenterWorldPosition( Vector3 &position ) const {}

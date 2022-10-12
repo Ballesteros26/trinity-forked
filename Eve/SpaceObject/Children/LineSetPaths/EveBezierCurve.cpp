@@ -156,7 +156,7 @@ void EveBezierCurve::UpdateVisibility( const TriFrustum& frustum, Tr2Lod parentL
 
 	Vector4 sphere = m_boundingSphere;
 	
-	BoundingSphereTransform( m_worldTransform * systemLocation, sphere );
+	BoundingSphereTransform( m_localTransform * systemLocation, sphere );
 
 	m_isVisible = frustum.IsSphereVisible( &( sphere ) );
 }

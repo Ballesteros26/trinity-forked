@@ -17,6 +17,7 @@ const Be::ClassInfo* EveSOF::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "dataMgr", m_dataMgr, "Holds all the source data to the ships", Be::READ )
 		MAP_ATTRIBUTE( "allowFileCaching", m_allowFileCaching, "Allow caching of \"file exists\" queries in SOF for better performance", Be::READWRITE )
+		MAP_ATTRIBUTE( "editorMode", m_editorMode, "When enabled some features will operate differently for the benefit of those editing sof data.", Be::READWRITE )
 
 		MAP_METHOD_AND_WRAP( 
 			"Build", 
@@ -52,6 +53,13 @@ const Be::ClassInfo* EveSOF::ExposeToBlue()
 			"Change the material of the turret according to the faction in SOF\n"
 			":param turretSet: turret set that will be modified\n"
 			":param faction: faction name"
+			)
+		MAP_METHOD_AND_WRAP(
+			"RegenerateLayout",
+			RegenerateLayout,
+			"Change the layout of the object. Used for editing\n"
+			":param spaceobject: the space object that will be modified\n"
+			":parm dna: the dna of the owner space object"
 			)
 
     EXPOSURE_END()

@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "Tr2Controller.h"
+
 
 BLUE_INTERFACE( ITr2ControllerOwner ) : public IRoot
 {
@@ -24,6 +26,8 @@ BLUE_INTERFACE( ITr2ControllerOwner ) : public IRoot
 	{
 		variables["Owner"] = this->GetRootObject();
 	};
+	// Interface to add controllers (via SOF or other means)
+	virtual void AddController( ITr2Controller * controller ){};
 };
 
 BLUE_DECLARE_IVECTOR( ITr2ControllerOwner );

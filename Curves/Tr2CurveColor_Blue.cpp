@@ -51,6 +51,12 @@ const Be::ClassInfo* Tr2CurveColor::ExposeToBlue()
 			Be::READ | Be::PERSIST )
 
 		MAP_ATTRIBUTE(
+			"timeOffset",
+			m_timeOffset,
+			"Curve internal time offset",
+			Be::READWRITE | Be::PERSIST )
+
+		MAP_ATTRIBUTE(
 			"currentValue",
 			m_currentValue,
 			"Curve value after the last update",

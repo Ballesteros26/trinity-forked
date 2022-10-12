@@ -124,7 +124,7 @@ EveTurretSet::EveTurretSet( IRoot* lockobj ) :
 	m_impactBehaviour( ImpactBehaviour::DAMAGE_LOCATOR )
 {
 	// 0
-	memset( &m_parentData, 0, sizeof( ParentData ) );
+	memset( &m_parentData, 0, sizeof( EveSpaceObject2::ParentData ) );
 	m_parentData.transform = IdentityMatrix();
 	for( unsigned int i = 0; i < SYSBONE_MAX; ++i )
 	{
@@ -375,7 +375,7 @@ void EveTurretSet::InitializeAmbientEffect()
 
 bool EveTurretSet::IsAmbientVisible() const
 {
-	return m_display && m_displayEffects && m_parentData.clipDataEx.w < 0.05;
+	return m_display && m_displayEffects && m_parentData.clipData.w < 0.05;
 }
 
 
@@ -1000,7 +1000,7 @@ void EveTurretSet::UpdateSyncronous( EveUpdateContext& updateContext, const Matr
 //   updateContext - scene update context
 //   parentData - parent object data
 // --------------------------------------------------------------------------------
-void EveTurretSet::UpdateAsyncronous( EveUpdateContext& updateContext, const ParentData* parentData )
+void EveTurretSet::UpdateAsyncronous( EveUpdateContext& updateContext, const IEveSpaceObject2::ParentData* parentData )
 {
 	// keep parent's transform
 	m_parentData = *parentData;
@@ -1849,7 +1849,6 @@ Tr2PerObjectData* EveTurretSet::GetPerObjectData( ITriRenderBatchAccumulator* ac
 		// ps data
 		perObjectData->m_shipData = m_parentData.shipData;
 		perObjectData->m_clipData1 = m_parentData.clipData;
-		perObjectData->m_clipData2 = m_parentData.clipDataEx;
 		if( m_parentShLighting )
 		{
 			memcpy( perObjectData->m_shLightingCoefficients, m_parentShLighting, sizeof( perObjectData->m_shLightingCoefficients ) );
@@ -3003,6 +3002,6 @@ void EveTurretSetPerObjectData::SetPerObjectDataToDevice( Tr2ConstantBufferAL** 
 		EVE_MAX_TURRET_SET_BONES;									// Vector4 array for bone pose rotation
 	FillAndSetConstants( *buffers[VERTEX_SHADER], &m_baseCutoffData, vsConstantCount * 16, VERTEX_SHADER, Tr2Renderer::GetPerObjectVSStartRegister(), renderContext );
 
-	FillAndSetConstants( *buffers[PIXEL_SHADER], &m_shipData, ( 3 + Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT ) * 16, PIXEL_SHADER, Tr2Renderer::GetPerObjectPSStartRegister(), renderContext );
+	FillAndSetConstants( *buffers[PIXEL_SHADER], &m_shipData, ( 2 + Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT ) * 16, PIXEL_SHADER, Tr2Renderer::GetPerObjectPSStartRegister(), renderContext );
 
 }

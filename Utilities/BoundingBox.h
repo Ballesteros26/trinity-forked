@@ -54,6 +54,7 @@ bool IntersectTriangleAABB( const Vector3* v0,
 
 bool IsBoundingBoxEmpty( const Vector3& min, const Vector3& max );
 
+Vector3 ClosestPointToBoundingBox( const Vector3& min, const Vector3& max, const Vector3& point );
 
 
 template <typename Iterator>

@@ -50,7 +50,7 @@ static PyObject* PyCreateFromPoints( PyObject* self, PyObject* args )
 
 const Be::ClassInfo* Tr2GrannyVector3Curve::ExposeToBlue()
 {
-    EXPOSURE_BEGIN( Tr2GrannyVector3Curve, ":jessica-icon: tree/trivectorcurve.png" )
+    EXPOSURE_BEGIN( Tr2GrannyVector3Curve, ":jessica-deprecated: True\n:jessica-icon: tree/trivectorcurve.png" )
         MAP_INTERFACE( Tr2GrannyVector3Curve )
 		MAP_INTERFACE( ITriFunction )
 		MAP_INTERFACE( ITriCurveLength )

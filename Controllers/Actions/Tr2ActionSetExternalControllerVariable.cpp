@@ -16,6 +16,7 @@ BLUE_DECLARE_INTERFACE( ITr2ControllerOwner );
 
 
 Tr2ActionSetExternalControllerVariable::Tr2ActionSetExternalControllerVariable( IRoot* ) :
+	m_destination( nullptr ),
 	m_controller( nullptr ),
 	m_value( 0.0 ),
 	m_startControllers( false )
@@ -43,9 +44,15 @@ void Tr2ActionSetExternalControllerVariable::Start( Tr2Controller& controller )
 
 	if( IsDestinationValid() )
 	{
+		auto target = static_cast<IRoot*>( m_destination );
+		ITr2ControllerOwnerPtr dest = BlueCastPtr( target );
+		if( !dest )
+		{
+			return;
+		}
 		if( m_startControllers )
 		{
-			m_destination->StartControllers();
+			dest->StartControllers();
 		}
 		float value = m_value;
 		if( !m_sourceVariable.empty() )
@@ -56,7 +63,7 @@ void Tr2ActionSetExternalControllerVariable::Start( Tr2Controller& controller )
 			}
 		}
 
-		m_destination->SetControllerVariable( m_variable.c_str(), value );
+		dest->SetControllerVariable( m_variable.c_str(), value );
 	}
 }
 
@@ -104,8 +111,11 @@ void Tr2ActionSetExternalControllerVariable::LinkToDestinationOwner()
 		std::transform( key.begin(), key.end(), key.begin(), ::tolower );
 		if( key == destOwner )
 		{
-			m_destination = BlueCastPtr( it.second );
-			return;
+			if( ITr2ControllerOwnerPtr target = BlueCastPtr( it.second ) )
+			{
+				m_destination = target.p;
+				return;
+			}
 		}
 	}
 }

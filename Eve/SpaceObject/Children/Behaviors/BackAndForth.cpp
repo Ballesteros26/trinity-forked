@@ -333,11 +333,11 @@ void BackAndForth::AddLocatorSet()
 {
 	EveLocatorSetsPtr seekSet;
 	seekSet.CreateInstance();
-	seekSet->Set( SEEK_LOCATOR_SET_NAME.c_str(), NULL, 0 );
+	seekSet->SetName( SEEK_LOCATOR_SET_NAME );
 
 	EveLocatorSetsPtr deliverSet;
 	deliverSet.CreateInstance();
-	deliverSet->Set( DELIVER_LOCATOR_SET_NAME.c_str(), NULL, 0 );
+	deliverSet->SetName( DELIVER_LOCATOR_SET_NAME );
 
 	m_locatorSets.Append( seekSet );
 	m_locatorSets.Append( deliverSet );

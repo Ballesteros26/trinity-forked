@@ -14,9 +14,10 @@
 #include "Tr2GrannyAnimation.h"
 #include "EveTurretTarget.h"
 #include "Tr2DebugRenderer.h"
+
 #include "Controllers/ITr2ControllerOwner.h"
 #include "Eve/SpaceObject/Children/EveChildInstanceContainer.h"
-
+#include "Eve/SpaceObject/EveSpaceObject2.h"
 
 // needed for override
 #include "Tr2PerObjectData.h"
@@ -73,7 +74,6 @@ public:
 	// pixel shader per object data
 	Vector4 m_shipData;
 	Vector4 m_clipData1;
-	Vector4 m_clipData2;
 	Vector4 m_shLightingCoefficients[Tr2ShLightingManager::PACKED_COEFFICIENT_COUNT];
 };
 
@@ -106,16 +106,6 @@ public:
 
 	explicit EveTurretSet(IRoot* lockobj = nullptr);
 	~EveTurretSet();
-
-	//////////////////////////////////////////////////////////////////////////////////////
-	// public structs
-	struct ParentData
-	{
-		Matrix transform;
-		Vector4 shipData;
-		Vector4 clipData;
-		Vector4 clipDataEx;
-	};
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// IInitialize
@@ -169,7 +159,7 @@ public:
 
 	// timing and worldspace positioning
 	void UpdateSyncronous( EveUpdateContext& updateContext, const Matrix* parentMatrix );
-	void UpdateAsyncronous( EveUpdateContext& updateContext, const ParentData* parentData );
+	void UpdateAsyncronous( EveUpdateContext& updateContext, const IEveSpaceObject2::ParentData* parentData );
 
 	// rendering
 	void UpdateVisibility( const TriFrustum& frustum );
@@ -324,7 +314,7 @@ private:
 	unsigned int m_swarmID;
 
 	// parent ship data
-	ParentData m_parentData;
+	IEveSpaceObject2::ParentData m_parentData;
 	const Vector4* m_parentShLighting;
 
 	// keep a vector of data on each pair of the turret

@@ -31,7 +31,9 @@ public:
 	~EveLocatorSets();
 
 	// access
-	void Set( const char* name, const Locator* locators, size_t count );
+	template <typename T> 
+	void Set( const char* name, const T* locators, size_t count );
+	
 	void Translate( const Vector3& offset );
 	void Append( const Locator* locators, size_t count );
 
@@ -39,6 +41,8 @@ public:
 	bool HasName( const BlueSharedString& name ) const;
 	const LocatorStructureList* GetLocators() const;
 	const char* GetName() const;
+	void SetName( BlueSharedString name );
+	
 private:
 	// name to identify set
 	BlueSharedString m_name;
@@ -47,6 +51,18 @@ private:
 	PLocatorStructureList m_locators;
 };
 TYPEDEF_BLUECLASS( EveLocatorSets );
+
+template <typename T>
+void EveLocatorSets::Set( const char* name, const T* locators, size_t count )
+{
+	m_name = BlueSharedString( name );
+	m_locators.Clear();
+	m_locators.Resize( count );
+	for( int i = 0; i < count; ++i)
+	{
+		m_locators[i] = (Locator)locators[i];
+	}
+}
 
 
 #endif

@@ -38,7 +38,13 @@ public:
 	{
 		Vector3 position;
 		Quaternion rotation;
-		int boneIndex;
+		int32_t boneIndex;
+		int32_t uniqueID;
+
+		operator Locator() const
+		{
+			return Locator{ position, rotation, boneIndex };
+		};
 	};
 
 	struct AreaMaterialData
@@ -83,7 +89,7 @@ public:
 
 	struct PatternApplicationData
 	{
-		std::vector < std::pair<PatternLayerData, PatternProjectionData> > layerAndProjection;
+		std::vector<std::pair<PatternLayerData, PatternProjectionData>> layerAndProjection;
 	};
 
 	struct PatternData
@@ -94,6 +100,93 @@ public:
 		// SOF PHASE-6
 		// pattern data (per hull with data from the projection groups)
 		std::map<BlueSharedString, PatternApplicationData> applicationData;
+	};
+
+	struct DNADescriptorData
+	{
+		BlueSharedString hull;
+		BlueSharedString faction;
+		BlueSharedString race;
+		BlueSharedString layout;
+		BlueSharedString seed;
+		BlueSharedString pattern;
+		BlueSharedString material1;
+		BlueSharedString material2;
+		BlueSharedString material3;
+		BlueSharedString material4;
+	};
+
+	enum DistributionMethod
+	{
+		RANDOM_INCLUCION = 0,
+		PARENT_MATCH = 1,
+		DEPLETION_COUNTER = 2,
+	};
+
+	struct ExtensionPlacementDistribution
+	{
+		float completeness;
+		Vector3 placementBias;
+		float centerBias;
+		int32_t cap;
+		Quaternion rotationRandomness;
+		bool occupyLocators;
+	};
+
+	struct ExtensionPlacementParentMatchAttributes
+	{
+		bool matchHull;
+		bool matchFaction;
+		bool matchRace;
+		bool matchLayout;
+		bool matchSeed;
+		bool matchPattern;
+		bool matchMaterial1;
+		bool matchMaterial2;
+		bool matchMaterial3;
+		bool matchMaterial4;
+	};
+
+	struct ExtensionPlacementDepletionCounter
+	{
+		BlueSharedString counterName;
+		int32_t counterValue;
+	};
+
+	struct ExtensionPlacementDistributionCondition
+	{
+		DistributionMethod distributionType;
+		int32_t seed;
+
+		// ParentMatch
+		DNADescriptorData spaceObjectParentDescriptor;
+		ExtensionPlacementParentMatchAttributes parentMatchMap;
+
+		// DepletionCounters
+		std::vector<ExtensionPlacementDepletionCounter> depletionCounters;
+
+		// Random
+		float triggerChance;
+	};
+
+	struct ExtensionPlacementData
+	{
+		BlueSharedString name;
+		Vector3 offset;
+		BlueSharedString locatorSetName;
+		DNADescriptorData descriptor;
+		bool isInstanced;
+		bool hasDistribution;
+		ExtensionPlacementDistribution distribution;
+		std::vector<ExtensionPlacementDistributionCondition> placementConditions;
+	};
+
+	struct LayoutData
+	{
+		BlueSharedString name;
+		int32_t seed;
+		std::vector<ExtensionPlacementData> placements;
+		std::vector<ExtensionPlacementDepletionCounter> depletionCounters;
 	};
 
 	// hull data structs
@@ -160,7 +253,7 @@ public:
 		Vector3 position;
 		float blinkRate, blinkPhase, minScale, maxScale, falloff, intensity;
 		int boneIndex;
-        SOFDataFactionColorChooser::ColorType colorType;
+		SOFDataFactionColorChooser::ColorType colorType;
 	};
 
 	struct HullSpriteSetData
@@ -177,7 +270,7 @@ public:
 		float spacing, blinkRate, blinkPhase, blinkPhaseShift, minScale, maxScale, falloff, intensity;
 		int boneIndex;
 		bool isCircle;
-        SOFDataFactionColorChooser::ColorType colorType;
+		SOFDataFactionColorChooser::ColorType colorType;
 	};
 
 	struct HullSpriteLineSetData
@@ -192,7 +285,7 @@ public:
 		Vector3 position, scaling;
 		int boneIndex;
 		Quaternion rotation;
-        SOFDataFactionColorChooser::ColorType colorType;
+		SOFDataFactionColorChooser::ColorType colorType;
 		float hazeBrightness, hazeFalloff, sourceSize, sourceBrightness;
 		bool boosterGainInfluence;
 	};
@@ -289,6 +382,7 @@ public:
 		Vector3 scaling;
 		int id;
 		int groupIndex;
+		uint32_t buildFilter;
 	};
 
 	struct HullChildSetItemData
@@ -298,12 +392,13 @@ public:
 		Vector3 translation;
 		Quaternion rotation;
 		Vector3 scaling;
+		uint32_t buildFilter;
 	};
 
 	struct HullChildSetData
 	{
 		uint32_t visibilityGroup;
-		std::vector<HullChildSetItemData> items;		
+		std::vector<HullChildSetItemData> items;
 	};
 
 	struct HullMeshInstance
@@ -323,6 +418,7 @@ public:
 		BlueSharedString shader;
 		std::map<BlueSharedString, TextureData> textures;
 		std::vector<HullMeshInstance> instances;
+		CcpMath::AxisAlignedBox bounds;
 	};
 
 	struct HullAnimation
@@ -352,13 +448,18 @@ public:
 		Quaternion rotation;
 	};
 
+	struct HullController
+	{
+		BlueSharedString path;
+		uint32_t buildFilter;
+	};
+
 	struct HullData
 	{
 		EveSOFDataHull::BuildClass buildClass;
 		std::string geometryResFilePath;
-		Vector4 boundingSphere;
-		Vector3 shapeEllipsoidCenter;
-		Vector3 shapeEllipsoidRadius;
+		CcpMath::Sphere boundingSphere;
+		CcpMath::AxisAlignedEllipsoid shapeEllipsoid;
 		bool isSkinned;
 		bool isUsingDecalSets;
 		bool enableDynamicBoundingSphere;
@@ -388,7 +489,7 @@ public:
 		std::vector<HullInstancedMesh> instancedMeshes;
 		std::vector<HullAnimation> animations;
 		std::vector<HullSoundEmitter> soundEmitters;
-		std::vector<BlueSharedString> controllers;
+		std::vector<HullController> controllers;
 		std::string modelRotationCurvePath;
 		std::string modelTranslationCurvePath;
 		std::map<int32_t, size_t> meshIndexToOpaqueAreaLookup;
@@ -661,6 +762,7 @@ public:
 	bool UpdateGeneric( EveSOFDataGeneric* genericData );
 	bool UpdateMaterial( const char* materialName, EveSOFDataMaterial* materialData );
 	bool UpdatePattern( const char* patternName, EveSOFDataPattern* patternData );
+	bool UpdateLayout( const char* layoutName, EveSOFDataLayout* layoutData );
 
 	// access to generic
 	const GenericData* GetGenericData() const;
@@ -679,6 +781,10 @@ public:
 	// access to pattern data
 	bool HasPatternData( const char* patternName ) const;
 	const PatternData* GetPatternData( const char* patternName ) const;
+	// access to layout data
+	bool HasLayoutData( const char* layoutName ) const;
+	const LayoutData* GetLayoutData( const char* layoutName ) const;
+	const std::vector<const LayoutData*> GetLayoutData( std::vector<std::string>& layouts) const;
 
 private:
 	// load indiviual parts of data
@@ -688,6 +794,7 @@ private:
 	bool LoadGenericData( EveSOFDataPtr srcData );
 	bool LoadMaterialData( EveSOFDataPtr srcData );
 	bool LoadPatternData( EveSOFDataPtr srcData );
+	bool LoadLayoutData( EveSOFDataPtr srcData );
 	HullAreas LoadHullAreaData( const EveSOFDataHullAreaPtr hullArea ) const;
 
 	// helper functions to pass data from trinity object to stl containers
@@ -697,11 +804,14 @@ private:
 	void GenerateGenericData( GenericData& gd, EveSOFDataGenericPtr srcData ) const;
 	void GenerateMaterialData( MaterialData& rd, EveSOFDataMaterialPtr srcData ) const;
 	void GeneratePatternData( PatternData& rd, EveSOFDataPatternPtr srcData ) const;
+	void GenerateLayoutData( LayoutData& ld, EveSOFDataLayoutPtr srcData ) const;
 
 	// helper function to get the hash
 	uint32_t GetVisibilityGroupHash( const BlueSharedString visibilityGroup ) const;
-
-	// keep all hull data in a map
+	// helper function to deal with layout Distributions
+	ExtensionPlacementDistribution generateDistributionData( EveSOFDataHullExtensionPlacementDistributionPlacementPtr distributionObj ) const;
+	ExtensionPlacementDistributionCondition generateDistributionConditionData( IEveSOFDataHullExtensionPlacementDistributionPtr distributionObj ) const;
+		// keep all hull data in a map
 	std::map<std::string, HullData> m_hullData;
 	// keep all faction data in a map
 	std::map<std::string, FactionData> m_factionData;
@@ -711,6 +821,8 @@ private:
 	std::map<std::string, MaterialData> m_materialData;
 	// keep all pattern data in a map
 	std::map<std::string, PatternData> m_patternData;
+	// keep all layout data in a map
+	std::map<std::string, LayoutData> m_layoutData;
 
 	// keep the generic data
 	GenericData m_genericData;

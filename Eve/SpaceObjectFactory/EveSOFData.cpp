@@ -17,7 +17,8 @@ EveSOFData::EveSOFData( IRoot* lockobj ) :
 	PARENTLOCK( m_faction ),
 	PARENTLOCK( m_race ),
 	PARENTLOCK( m_material ),
-	PARENTLOCK( m_pattern )
+	PARENTLOCK( m_pattern ),
+	PARENTLOCK( m_layout )
 {}
 EveSOFData::~EveSOFData()
 {}
@@ -398,7 +399,8 @@ EveSOFDataHullChildSetItem::EveSOFDataHullChildSetItem( IRoot* lockobj ) :
 	m_lowestLodVisible( TR2_LOD_LOW ),
 	m_translation( 0.f, 0.f, 0.f ),
 	m_rotation( 0.f, 0.f, 0.f, 1.f ),
-	m_scaling( 1.f, 1.f, 1.f )
+	m_scaling( 1.f, 1.f, 1.f ),
+	m_buildFilter( EveSOFDataHullBuildFilter::DEFAULT_FILTER )
 {
 }
 
@@ -435,7 +437,8 @@ EveSOFDataHullChild::EveSOFDataHullChild( IRoot* lockobj ) :
 	m_rotation( 0.f, 0.f, 0.f, 1.f ),
 	m_scaling( 1.f, 1.f, 1.f ),
 	m_id( -1 ),
-	m_groupIndex( -1 )
+	m_groupIndex( -1 ),
+	m_buildFilter( EveSOFDataHullBuildFilter::DEFAULT_FILTER )
 {}
 
 std::string EveSOFDataHullChild::GetName()
@@ -930,4 +933,76 @@ EveSOFDataHullSoundEmitter::EveSOFDataHullSoundEmitter( IRoot* ):
 {
 }
 
+EveSOFDNADescriptor::EveSOFDNADescriptor( IRoot* ) :
+	m_hull( "" ),
+	m_faction( "" ),
+	m_race( "" ),
+	m_layout( "" ),
+	m_pattern( "" ),
+	m_material1( "" ),
+	m_material2( "" ),
+	m_material3( "" ),
+	m_material4( "" )
+{
+}
 
+EveSOFDataHullExtensionPlacement::EveSOFDataHullExtensionPlacement( IRoot*  lockobj) :
+	PARENTLOCK( m_distributionConditions ),
+	m_name( "" ),
+	m_locatorSetName( "" ),
+	m_offset( 0.f, 0.f, 0.f),
+	m_isInstanced( true )
+{
+	m_descriptor.CreateInstance();
+}
+
+EveSOFDataHullExtensionPlacementDistributionParentMatch::EveSOFDataHullExtensionPlacementDistributionParentMatch( IRoot* ) :
+	m_name( "" ),
+	m_matchHull( true ),
+	m_matchFaction( false ),
+	m_matchRace( false ),
+	m_matchLayout( false ),
+	m_matchPattern( false ),
+	m_matchMaterial1( false ),
+	m_matchMaterial2( false ),
+	m_matchMaterial3( false ),
+	m_matchMaterial4( false )
+{
+	m_parentDescriptor.CreateInstance();
+}
+
+EveSOFDataDistributionDepletionCounter::EveSOFDataDistributionDepletionCounter( IRoot* ) :
+	m_name( "" ),
+	m_value( 1 )
+{
+}
+
+EveSOFDataHullExtensionPlacementDistributionDepletionCounter::EveSOFDataHullExtensionPlacementDistributionDepletionCounter( IRoot* lockobj ) :
+	PARENTLOCK( m_depletionCounters ),
+	m_name( "" )
+{
+}
+
+EveSOFDataHullExtensionPlacementDistributionRandomChance::EveSOFDataHullExtensionPlacementDistributionRandomChance( IRoot* ) :
+	m_chanceOfUsage( 1.f )
+{
+}
+
+EveSOFDataHullExtensionPlacementDistributionPlacement::EveSOFDataHullExtensionPlacementDistributionPlacement( IRoot* ) :
+	m_name( "" ),
+	m_completeness( 1.f ),
+	m_placementBias( 0.f, 0.f, 0.f ),
+	m_centerBias( 0.0f ),
+	m_cap( 0 ),
+	m_rotationRandomness( 0.f, 0.f, 0.f, 0.f),
+	m_occupyLocators( true )
+{
+}
+
+EveSOFDataLayout::EveSOFDataLayout( IRoot* lockobj ) :
+	PARENTLOCK( m_depletionCounters ),
+	PARENTLOCK( m_placements ),
+	m_seed( 1337 ),
+	m_name( "" )
+{
+}

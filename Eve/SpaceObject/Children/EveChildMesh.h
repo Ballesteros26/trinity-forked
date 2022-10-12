@@ -11,6 +11,12 @@
 #include "IEveSpaceObjectChild.h"
 #include "EveChildTransform.h"
 #include "Eve/SpaceObject/EveSpaceObject2.h"
+#include "Eve/SpaceObject/Attachments/EveSpaceObjectDecal.h"
+#include "Eve/SpaceObject/Attachments/IEveSpaceObjectDecalOwner.h"
+#include "Lights/Tr2Light.h"
+#include "Lights/ITr2LightOwner.h"
+#include "Eve/SpaceObject/Attachments/Sets/IEveSpaceObjectAttachment.h"
+#include "Eve/SpaceObject/Attachments/Sets/IEveSpaceObjectAttachmentOwner.h"
 #include "ITr2Renderable.h"
 #include "ITr2GeometryProvider.h"
 #include "Resources/Tr2LodResource.h"
@@ -31,7 +37,10 @@ BLUE_CLASS( EveChildMesh ) :
 	public ITr2DebugRenderable,
 	public ITr2GrannyAnimationOwner,
 	public EveEntity,
-	public INotify
+	public INotify,
+	public IEveSpaceObjectDecalOwner,
+	public IEveSpaceObjectAttachmentOwner,
+	public ITr2LightOwner
 {
 public:
 	EXPOSE_TO_BLUE();
@@ -50,16 +59,22 @@ public:
 	void UpdateAsyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params );
 	void GetLocalToWorldTransform( Matrix& transform ) const;
 	void ChangeLOD( Tr2Lod lod ) override;
-	void GetLights( Tr2LightManager& lightManager ) const {};
 	virtual void Setup( const Vector3* scale, const Quaternion* rotation, const Vector3* translation, Tr2Lod lowestLodVisible );
 	bool IsAlwaysOn() const;
 	void SetShaderOption( const BlueSharedString& name, const BlueSharedString& value ) override;
 	void SetScale( const Vector3& scale );
 	void AddTransformModifier( IEveChildTransformModifier* modifier ) override;
+	void RegisterWithQuadRenderer( Tr2QuadRenderer & quadRenderer ) override;
+	void AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer ) const override;
+
 	
 	//////////////////////////////////////////////////////////////////////////////////////
 	// EveEntity
 	void RegisterComponents() override;
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	// IEveSpaceObjectDecalOwner
+	void AddDecal( EveSpaceObjectDecalPtr newDecal ) override;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable
@@ -77,6 +92,17 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// INotify
 	bool OnModified( Be::Var * value );
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// IEveSpaceObjectAttachmentOwner
+	void AddAttachment( IEveSpaceObjectAttachment* attachment );
+	void ClearAttachments();
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// IEveLightOwner
+	virtual void GetLights( Tr2LightManager& lightManager ) const;
+	virtual void AddLight( Tr2Light* newLight );
+	virtual void ClearLights();
 
 	void GetDebugOptions( Tr2DebugRendererOptions& options ) override;
 	void RenderDebugInfo( ITr2DebugRenderer2& renderer ) override;
@@ -97,12 +123,15 @@ protected:
 	void InitializeAnimation();
 	bool ShouldReflect() const;
 
+	bool DisplayDecals() const;
+
 
 	// general data
 	BlueSharedString m_name;
 
 	// the mesh
 	Tr2MeshBasePtr m_mesh;
+	IEveSpaceObject2::ParentData m_parentData;
 
 	PIEveChildTransformModifierVector m_transformModifiers;
 	Tr2GrannyAnimationPtr m_animationUpdater;
@@ -124,10 +153,15 @@ protected:
 	bool m_display;
 	bool m_isVisible;
 	bool m_useSpaceObjectData;
+	float m_activationStrength;
 
 	Origin m_origin;
 
 	EntityComponents::ReflectionMode m_reflectionMode;
+
+	PEveSpaceObjectDecalVector m_decals;
+	PIEveSpaceObjectAttachmentVector m_attachments;
+	PTr2LightVector m_lights;
 };
 
 TYPEDEF_BLUECLASS( EveChildMesh );

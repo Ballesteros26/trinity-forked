@@ -94,6 +94,8 @@ public:
 	void SetDynamicBounds( float maxInstanceSize );
 	void SetDynamicScaledBounds( float maxScale );
 
+	unsigned int GetVertexDeclaration() const;
+
 protected:
 	class Batch;
 

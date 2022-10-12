@@ -37,6 +37,7 @@
 #include "VirtualCamera/EveVirtualCameraSystem.h"
 #include "Eve/EveEntity.h"
 #include "Tr2SSAO.h"
+#include "Lights/ITr2LightOwner.h"
 
 using namespace Tr2RenderContextEnum;
 
@@ -404,8 +405,18 @@ void EveSpaceScene::Update( Be::Time realTime, Be::Time simTime )
 	{
 		CCP_STATS_ZONE( "UpdateAsyncronous" );
 
-		Tr2ParallelDo( m_objects.begin(), m_objects.end(), [&]( IEveSpaceObject2* obj ) { obj->UpdateAsyncronous( m_updateContext ); } );
-		Tr2ParallelDo( m_uiObjects.begin(), m_uiObjects.end(), [&]( IEveSpaceObject2* obj ) { obj->UpdateAsyncronous( m_updateContext ); } );
+		Tr2ParallelTaskGroup taskGroup = {};
+		m_updateContext.SetTaskGroup( &taskGroup );
+		for( auto& object : m_objects )
+		{
+			taskGroup.run( [object, this] { object->UpdateAsyncronous( m_updateContext ); } );
+		}
+		for( auto& object : m_uiObjects )
+		{
+			taskGroup.run( [object, this] { object->UpdateAsyncronous( m_updateContext ); } );
+		}
+		taskGroup.wait();
+		m_updateContext.SetTaskGroup( nullptr );
 	}
 
 	// Update the sun direction from the ball
@@ -1274,13 +1285,21 @@ void EveSpaceScene::BeginRender( Tr2RenderContext& renderContext )
 		{
 			for( auto i = range.begin(); i != range.end(); ++i )
 			{
-				m_objects[i]->GetLights( *lightManager );
+				ITr2LightOwnerPtr lightOwner( BlueCastPtr( m_objects[i] ) );
+				if( lightOwner )
+				{
+					lightOwner->GetLights( *lightManager );
+				}
 			}
 		} );
 
 		for( auto it = begin( m_backgroundObjects ); it != end( m_backgroundObjects ); ++it )
 		{
-			( *it )->GetLights( *lightManager );
+			ITr2LightOwnerPtr lightOwner( BlueCastPtr( *it ) );
+			if( lightOwner )
+			{
+				lightOwner->GetLights( *lightManager );
+			}
 		}
 		m_cameraAttachmentParent->GetLights( *lightManager );
 	}

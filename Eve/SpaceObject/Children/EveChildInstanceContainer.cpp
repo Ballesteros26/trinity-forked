@@ -13,7 +13,7 @@
 
 namespace
 {
-	BlueStructureDefinition s_eveChildInstanceTransformStructureDef[] =
+BlueStructureDefinition s_eveChildInstanceTransformStructureDef[] =
 	{
 		{ "scale", Be::FLOAT32_3, 0 },
 		{ "rotation", Be::FLOAT32_4, 12 },
@@ -22,11 +22,11 @@ namespace
 		{ 0 }
 	};
 
-	EveChildInstanceTransform s_defaultEveChildInstanceTransform;
+EveChildInstanceTransform s_defaultEveChildInstanceTransform;
 }
 
 
-EveChildInstanceTransform::EveChildInstanceTransform():
+EveChildInstanceTransform::EveChildInstanceTransform() :
 	scale( Vector3( 1.f, 1.f, 1.f ) ),
 	rotation( IdentityQuaternion() ),
 	translation( Vector3() ),
@@ -43,6 +43,7 @@ EveChildInstanceContainer::EveChildInstanceContainer( IRoot* lockobj ) :
 	m_worldVelocity( 0, 0, 0 ),
 	m_display( true ),
 	m_isAlwaysOn( false ),
+	m_disableEditMode( false ),
 	m_ownerMaxSpeed( 0 ),
 	m_origin( SPACE ),
 	m_locatorSetName( "" ),
@@ -75,8 +76,8 @@ bool EveChildInstanceContainer::OnModified( Be::Var* value )
 	{
 		m_reset = true;
 	}
-	if( IsMatch(value, m_display) )
-	{	
+	if( IsMatch( value, m_display ) )
+	{
 		ReRegister();
 	}
 	return true;
@@ -89,11 +90,11 @@ void EveChildInstanceContainer::RegisterComponents()
 	{
 		for( auto instance = m_instances.begin(); instance != m_instances.end(); ++instance )
 		{
-			if( EveEntityPtr entity = BlueCastPtr(*instance) )
+			if( EveEntityPtr entity = BlueCastPtr( *instance ) )
 			{
 				entity->Register( this->GetComponentRegistry() );
 			}
-		}	
+		}
 	}
 }
 
@@ -103,11 +104,11 @@ void EveChildInstanceContainer::UnRegisterComponents()
 	{
 		for( auto instance = m_instances.begin(); instance != m_instances.end(); ++instance )
 		{
-			if( EveEntityPtr entity = BlueCastPtr(*instance) )
+			if( EveEntityPtr entity = BlueCastPtr( *instance ) )
 			{
 				entity->UnRegister( this->GetComponentRegistry() );
 			}
-		}	
+		}
 	}
 }
 
@@ -126,7 +127,7 @@ void EveChildInstanceContainer::AddInstanceTransform( const Vector3& scale, cons
 	transform->translation = translation;
 
 	m_transforms.Append( transform );
-	
+
 	CreateInstance( scale, rotation, translation, boneIndex );
 	m_reset = false;
 }
@@ -168,7 +169,7 @@ void EveChildInstanceContainer::DistributeAcrossLocatorset( const BlueSharedStri
 void EveChildInstanceContainer::CreateInstances( IEveSpaceObject2* parent )
 {
 	ClearInstanceList();
-	
+
 	if( !m_source )
 	{
 		return;
@@ -190,7 +191,7 @@ void EveChildInstanceContainer::CreateInstances( IEveSpaceObject2* parent )
 	}
 
 	for( auto transform = m_transforms.begin(); transform != m_transforms.end(); ++transform )
-	{		
+	{
 		CreateInstance( transform->scale, transform->rotation, transform->translation, transform->boneIndex );
 	}
 }
@@ -212,13 +213,13 @@ void EveChildInstanceContainer::CreateInstance( const Vector3& scale, const Quat
 	{
 		return;
 	}
-	
+
 	EveChildContainerPtr translationParent;
 	translationParent.CreateInstance();
 
 	IEveSpaceObjectChildPtr instance;
-	
-	if( !BeClasses->CopyTo( m_source, ( IRoot** )&instance ) )
+
+	if( !BeClasses->CopyTo( m_source, (IRoot**)&instance ) )
 	{
 		return;
 	}
@@ -243,7 +244,7 @@ void EveChildInstanceContainer::CreateInstance( const Vector3& scale, const Quat
 		boneParent->RegisterWithQuadRenderer( *Tr2QuadRenderer::Instance() );
 		boneParent->Register( GetComponentRegistry() );
 
-		m_instances.Append( ( IEveSpaceObjectChildPtr ) boneParent );
+		m_instances.Append( (IEveSpaceObjectChildPtr)boneParent );
 	}
 	else
 	{
@@ -251,7 +252,7 @@ void EveChildInstanceContainer::CreateInstance( const Vector3& scale, const Quat
 		translationParent->Register( GetComponentRegistry() );
 		m_instances.Append( (IEveSpaceObjectChildPtr)translationParent );
 	}
-	
+
 	return;
 }
 
@@ -262,7 +263,7 @@ void EveChildInstanceContainer::CreateInstance( const Vector3& scale, const Quat
 // --------------------------------------------------------------------------------------
 void EveChildInstanceContainer::UpdateInstance( const uint32_t index, const Vector3& scale, const Quaternion& rotation, const Vector3& translation )
 {
-	auto instance = ( IEveSpaceObjectChild* )m_instances.GetAt( index );
+	auto instance = (IEveSpaceObjectChild*)m_instances.GetAt( index );
 	if( instance == nullptr )
 	{
 		return;
@@ -272,14 +273,14 @@ void EveChildInstanceContainer::UpdateInstance( const uint32_t index, const Vect
 
 // --------------------------------------------------------------------------------------
 // Description:
-//   A helper method to run a function on the source (if the instances are not valid) or 
+//   A helper method to run a function on the source (if the instances are not valid) or
 //   on the instances
 // Arguments:
 //   func - The function to run, takes a single parameter which is an IEveSpaceObjectChild*
 // --------------------------------------------------------------------------------------
 void EveChildInstanceContainer::RunOnInstances( std::function<void( IEveSpaceObjectChild* )> func ) const
 {
-	if( m_instances.empty() && m_source )
+	if( m_instances.empty() && m_source && !m_disableEditMode )
 	{
 		func( m_source );
 	}
@@ -290,6 +291,11 @@ void EveChildInstanceContainer::RunOnInstances( std::function<void( IEveSpaceObj
 			func( *it );
 		}
 	}
+}
+
+void EveChildInstanceContainer::DisableEditMode( bool disable )
+{
+	m_disableEditMode = disable;
 }
 
 void EveChildInstanceContainer::ClearInstanceList()
@@ -309,7 +315,7 @@ void EveChildInstanceContainer::PopFront()
 				front->UnRegister( GetComponentRegistry() );
 			}
 		}
-	
+
 		m_instances.Remove( 0 );
 	}
 }
@@ -325,7 +331,7 @@ void EveChildInstanceContainer::GetRenderables( std::vector<ITr2Renderable*>& re
 	{
 		return;
 	}
-	
+
 	RunOnInstances( [&renderables]( IEveSpaceObjectChild* c ) { c->GetRenderables( renderables ); } );
 }
 
@@ -395,7 +401,7 @@ void EveChildInstanceContainer::UpdateAsyncronous( EveUpdateContext& updateConte
 
 	RunOnInstances( [&updateContext, &newParams]( IEveSpaceObjectChild* c ) { c->UpdateAsyncronous( updateContext, newParams ); } );
 
-	
+
 	if( params.spaceObjectParent && !params.childParent )
 	{
 		params.spaceObjectParent->GetWorldVelocity( m_worldVelocity );
@@ -418,14 +424,14 @@ bool EveChildInstanceContainer::GetBoundingSphere( Vector4& sphere, BoundingSphe
 	{
 		return true;
 	}
-	
-	RunOnInstances( [&sphere, &query]( IEveSpaceObjectChild* c ) { c->GetBoundingSphere( sphere, query ); } );	
+
+	RunOnInstances( [&sphere, &query]( IEveSpaceObjectChild* c ) { c->GetBoundingSphere( sphere, query ); } );
 	return true;
 }
 
 
-void EveChildInstanceContainer::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer ) 
-{ 
+void EveChildInstanceContainer::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer )
+{
 	if( m_source )
 	{
 		m_source->RegisterWithQuadRenderer( quadRenderer );
@@ -457,15 +463,17 @@ void EveChildInstanceContainer::SetShaderOption( const BlueSharedString& name, c
 	RunOnInstances( [&name, &value]( IEveSpaceObjectChild* c ) { c->SetShaderOption( name, value ); } );
 }
 
-bool EveChildInstanceContainer::IsAlwaysOn() const 
+bool EveChildInstanceContainer::IsAlwaysOn() const
 {
 	return m_isAlwaysOn;
 }
 
 void EveChildInstanceContainer::SetInheritProperties( const Color* colorSet )
 {
-	RunOnInstances( [&colorSet]( IEveSpaceObjectChild* c ) { c->SetInheritProperties( colorSet ); } );
-
+	if( IEveInheritPropertiesOwnerPtr obj = BlueCastPtr( m_source ) )
+	{
+		obj->SetInheritProperties( colorSet );
+	}
 }
 
 void EveChildInstanceContainer::GetWorldVelocity( Vector3& velocity ) const
@@ -506,11 +514,11 @@ void EveChildInstanceContainer::StartControllers()
 
 void EveChildInstanceContainer::SetControllerVariableForInstance( const uint32_t index, const char* name, float value )
 {
-	if( index > m_instances.size() ) 
+	if( index > m_instances.size() )
 	{
 		return;
 	}
-	
+
 	auto instance = m_instances[index];
 	instance->SetControllerVariable( name, value );
 }
@@ -528,7 +536,7 @@ void EveChildInstanceContainer::HandleControllerEventForInstance( const uint32_t
 
 void EveChildInstanceContainer::PlayCurveSet( const std::string& name, const std::string& rangeName )
 {
-	RunOnInstances( [&name, &rangeName]( IEveSpaceObjectChild* c ) { 
+	RunOnInstances( [&name, &rangeName]( IEveSpaceObjectChild* c ) {
 		ITr2CurveSetOwnerPtr cso = BlueCastPtr( c->GetRootObject() );
 		if( cso != nullptr )
 		{
@@ -564,7 +572,7 @@ float EveChildInstanceContainer::GetCurveSetDuration( const std::string& name ) 
 {
 	if( m_source )
 	{
-		if( ITr2CurveSetOwnerPtr cso = BlueCastPtr( m_source->GetRootObject() ) ) 
+		if( ITr2CurveSetOwnerPtr cso = BlueCastPtr( m_source->GetRootObject() ) )
 		{
 			return cso->GetCurveSetDuration( name );
 		}
@@ -609,7 +617,7 @@ void EveChildInstanceContainer::StopAllCurveSets()
 void EveChildInstanceContainer::GetDebugOptions( Tr2DebugRendererOptions& options )
 {
 	RunOnInstances( [&options]( IEveSpaceObjectChild* c ) {
-		if( auto dr = dynamic_cast< ITr2DebugRenderable* >( c ) )
+		if( auto dr = dynamic_cast<ITr2DebugRenderable*>( c ) )
 		{
 			dr->GetDebugOptions( options );
 		}
@@ -619,7 +627,7 @@ void EveChildInstanceContainer::GetDebugOptions( Tr2DebugRendererOptions& option
 void EveChildInstanceContainer::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 {
 	RunOnInstances( [&renderer]( IEveSpaceObjectChild* c ) {
-		if( auto dr = dynamic_cast< ITr2DebugRenderable* >( c ) )
+		if( auto dr = dynamic_cast<ITr2DebugRenderable*>( c ) )
 		{
 			dr->RenderDebugInfo( renderer );
 		}

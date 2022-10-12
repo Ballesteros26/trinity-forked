@@ -3,6 +3,7 @@
 #define EveUpdateContext_h
 #include "Include/IEveBallpark.h"
 #include "Utilities/Vector3d.h"
+#include "../TbbStub.h"
 
 BLUE_DECLARE( Tr2DataTextureManager );
 
@@ -101,6 +102,16 @@ public:
 		return Vector3d( 0, 0, 0 );
 	}
 
+	void SetTaskGroup( Tr2ParallelTaskGroup* taskGroup )
+	{
+		m_taskGroup = taskGroup;
+	}
+
+	Tr2ParallelTaskGroup* GetTaskGroup() const
+	{
+		return m_taskGroup;
+	}
+
 private:
 	Be::Time m_currentTime;
 	Be::Time m_lastTime;
@@ -114,6 +125,7 @@ private:
 	Vector3d m_origin;
 	Vector3 m_originShift;
 	Vector3d m_originShiftRemainder;
+	Tr2ParallelTaskGroup* m_taskGroup = nullptr;
 };
 
 #endif //EveUpdateContext_h

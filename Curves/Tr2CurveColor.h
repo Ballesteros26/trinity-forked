@@ -50,6 +50,8 @@ private:
 
 	Color m_currentValue;
 
+	float m_timeOffset;
+
 	bool m_srgbOutput;
 };
 

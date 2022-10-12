@@ -16,6 +16,7 @@ const Be::ClassInfo* EveEffectRoot2::ExposeToBlue()
 		MAP_INTERFACE( ITr2ControllerOwner )
 		MAP_INTERFACE ( IShaderConfigurer )
 		MAP_INTERFACE( ITr2SoundEmitterOwner )
+		MAP_INTERFACE( ITr2LightOwner )
 		MAP_INTERFACE( IWorldPosition )
 		MAP_INTERFACE( EveEntity )
 
@@ -180,6 +181,14 @@ const Be::ClassInfo* EveEffectRoot2::ExposeToBlue()
 			FreezeHighDetailMesh,
 			""
 		)
+
+        MAP_METHOD_AND_WRAP(
+            "SetProceduralContainerVariable",
+            SetProceduralContainerVariable,
+            "Set variable for all applicable ProceduralContainer\n"
+            ":param name: variable name\n"
+            ":param value: new variable value\n"
+        )
 
     EXPOSURE_END();
 }

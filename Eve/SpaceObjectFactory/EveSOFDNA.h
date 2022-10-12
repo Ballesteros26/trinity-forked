@@ -39,12 +39,14 @@ public:
 		CMD_VARIANT,
 		CMD_CLASS,
 		CMD_PATTERN,
+		CMD_LAYOUT,
 		CMD_EXPERIMENTAL,
 		CMD_MAX
 	}; 
 
 	// initialize this dna
 	void Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr );
+	void Setup( BlueSharedString layoutName, const EveSOFDataMgr::DNADescriptorData& descriptor, EveSOFDNAPtr parent, const EveSOFDataMgrPtr dataMgr );
 
 	// is it correctly initialized?
 	bool IsValid() const;
@@ -73,9 +75,11 @@ public:
 	// get hull data
 	size_t GetMultiHullCount() const;
 	EveSOFDataHull::BuildClass GetBuildClass() const;
-	Vector4 GetHullBoundingSphere() const;
-	const Vector3* GetHullShapeEllipsoidCenter() const;
-	const Vector3* GetHullShapeEllipsoidRadius() const;
+	CcpMath::Sphere GetHullBoundingSphere() const;
+	CcpMath::Sphere GetParentBoundingSphere() const;
+	const CcpMath::AxisAlignedEllipsoid& GetHullShapeEllipsoid() const;
+	CcpMath::AxisAlignedEllipsoid& GetParentHullShapeEllipsoid();
+
 	bool IsHullAnimated() const;
 	bool IsHullUsingDecalSets() const;
 	bool DynamicBoundingSphereEnabled() const;
@@ -93,7 +97,7 @@ public:
 	const std::vector<EveSOFDataMgr::HullInstancedMesh>& GetHullInstancedMeshes() const;
 	const std::vector<EveSOFDataMgr::HullAnimation>& GetHullAnimations() const;
 	const std::vector<EveSOFDataMgr::HullSoundEmitter>& GetHullSoundEmitters() const;
-	const std::vector<BlueSharedString>& GetHullControllers() const;
+	const std::vector<EveSOFDataMgr::HullController>& GetHullControllers() const;
 	const std::vector<EveSOFDataMgr::HullDecalSetData>& GetHullDecalSets( size_t n ) const;
 	const std::vector<EveSOFDataMgr::HullLightSetData>& GetHullLightSets( size_t n ) const;
 	const std::vector<EveSOFDataMgr::HullPlaneSetData>& GetHullPlaneSets( size_t n ) const;
@@ -135,6 +139,11 @@ public:
 	const Vector4 GetMaterialTargets( const EveSOFDataMgr::PatternLayerData* ) const;
 	bool IsPatternLayerApplicableToArea( const EveSOFDataMgr::PatternLayerData* layerData, EveSOFDataArea::AreaType areaType ) const;
 
+	// get layout data
+	size_t GetLayoutCount() const;
+	const EveSOFDataMgr::LayoutData* GetLayoutData( size_t layoutIndex ) const;
+	const std::vector<EveSOFDataMgr::LocatorDirectionData>* GetPlacementLocators( size_t hullIndex, size_t layoutIndex, size_t placementIndex ) const;
+
 	// get mixed data
 	const char* GetDnaString() const;
 	const Vector4* GetMeshAreaParameter( EveSOFDataArea::AreaType areaType, const BlueSharedString& parameterName, const std::map<BlueSharedString, Vector4>* hullParameters = nullptr, unsigned int blockededMaterials = 0 ) const;
@@ -143,6 +152,14 @@ public:
 
 	bool IsUsingExperimentalFeatures() const;
 	EntityComponents::ReflectionMode GetReflectionMode() const;
+
+	BlueSharedString GetFactionName() const;
+	BlueSharedString GetRaceName() const;
+
+	// a few setters for layouts / nested layouts
+	void SetParentBoundingSphere( const CcpMath::Sphere& boundingSphere );
+	void SetParentShapeEllipsoidInfo( const CcpMath::AxisAlignedEllipsoid& ellipsoid );
+	void DisableAnimation();
 
 private:
 	// special cusomt data setup
@@ -166,6 +183,7 @@ private:
 	const EveSOFDataMgr::RaceData* m_raceData;
 	const EveSOFDataMgr::GenericData* m_genericData;
 	const EveSOFDataMgr::PatternData* m_patternData;
+	std::vector<const EveSOFDataMgr::LayoutData*> m_layoutData;
 
 	// custom data blocks
 	std::vector<EveSOFDataMgr::HullData> m_customHullData;
@@ -175,6 +193,13 @@ private:
 	std::string m_factionName;
 	std::string m_raceName;
 	std::map<std::string, std::vector<std::string>> m_commands;
+
+	// Parent data
+	CcpMath::Sphere m_parentBoundingSphere;
+	CcpMath::AxisAlignedEllipsoid m_parentHullShapeEllipsoid;
+
+	// We may have a skinned hull, but used in non skinned situations, like layouts
+	bool m_isSkinned;
 
 	bool m_experimental;
 };

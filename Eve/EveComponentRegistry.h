@@ -7,7 +7,7 @@
 
 BLUE_DECLARE_INTERFACE( ITr2Renderable );
 BLUE_DECLARE_INTERFACE( IEveSpaceObjectChild );
-BLUE_DECLARE_INTERFACE( IEveLightOwner );
+BLUE_DECLARE_INTERFACE( ITr2LightOwner );
 BLUE_DECLARE( EveEntity );
 
 struct RegistrationState
@@ -40,7 +40,7 @@ public:
 
 	void ReRegister( EveEntity * entity );
 
-	const std::vector<IEveLightOwner*>& GetLightOwners() const
+	const std::vector<ITr2LightOwner*>& GetLightOwners() const
 	{
 		return m_lightOwners;
 	};
@@ -57,9 +57,9 @@ public:
 
 private:
 	std::vector<ITr2Renderable*> m_reflectionRenderables;
-	std::vector<IEveLightOwner*> m_lightOwners;
+	std::vector<ITr2LightOwner*> m_lightOwners;
 
-	CcpMutex* m_entityReregisterMutex;;
+	CcpMutex* m_entityReregisterMutex;
 };
 
 TYPEDEF_BLUECLASS( EveComponentRegistry );

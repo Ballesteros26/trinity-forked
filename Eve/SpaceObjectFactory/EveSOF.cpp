@@ -10,6 +10,7 @@
 #include "EveSOFDNA.h"
 #include "EveSOFUtils.h"
 #include "Tr2ExternalParameter.h"
+#include "Controllers/ITr2ControllerOwner.h"
 #include "Audio/ITr2AudEmitter.h"
 #include "Eve/EveTransform.h"
 #include "Eve/Turret/EveTurretSet.h"
@@ -20,11 +21,13 @@
 #include "Eve/SpaceObject/Attachments/Sets/EveSpriteSet.h"
 #include "Eve/SpaceObject/Attachments/Sets/EveSpriteLineSet.h"
 #include "Eve/SpaceObject/Attachments/Sets/EveHazeSet.h"
+#include "Eve/SpaceObject/Attachments/Sets/IEveSpaceObjectAttachmentOwner.h"
 #include "Eve/SpaceObject/Attachments/EveTrailsSet.h"
 #include "Eve/SpaceObject/Attachments/Sets/EveSpotlightSet.h"
 #include "Eve/SpaceObject/Attachments/Sets/EvePlaneSet.h"
 #include "Eve/SpaceObject/Attachments/EveBoosterSet2.h"
 #include "Eve/SpaceObject/Attachments/EveSpaceObjectDecal.h"
+#include "Eve/SpaceObject/Attachments/IEveSpaceObjectDecalOwner.h"
 #include "Eve/SpaceObject/Children/EveChildMesh.h"
 #include "Eve/SpaceObject/Children/EveChildContainer.h"
 #include "Eve/SpaceObject/Children/EveChildParticleSystem.h"
@@ -49,7 +52,9 @@
 #include "Lights/Tr2PointLight.h"
 #include "Lights/Tr2TexturedPointLight.h"
 #include "Lights/Tr2SpotLight.h"
-
+#include "Lights/ITr2LightOwner.h"
+#include "Utilities/BoundingSphere.h"
+#include "blue/BlueObjectMetadata.h"
 
 namespace
 {
@@ -64,7 +69,8 @@ namespace
 // --------------------------------------------------------------------------------
 EveSOF::EveSOF( IRoot* lockobj ) :
 	PARENTLOCK( m_dataMgr ),
-	m_allowFileCaching( true )
+	m_allowFileCaching( true ),
+	m_editorMode( false )
 {
 	// hard-coded names
 	m_depthOnlyEffectName = BlueSharedString( "depthonlyv5.fx" );
@@ -133,15 +139,12 @@ bool EveSOF::LoadData( const char* filePath )
 // --------------------------------------------------------------------------------
 IRootPtr EveSOF::BuildFromDNA( const char* dnaString )
 {
-	CCP_STATS_ZONE( __FUNCTION__ );
+	std::string s = "BuildFromDna ";
+	s += std::string( dnaString );
+	CCP_STATS_ZONE( s.c_str() );
 
-	// create a temporary(!) DNA object
-	EveSOFDNAPtr dna;
-	dna.CreateInstance();
-
-	// init it with given dna string
-	dna->Setup( dnaString, &m_dataMgr );
-	if( !dna->IsValid() )
+	EveSOFDNAPtr dna = CreateDna(dnaString);
+	if( dna == nullptr )
 	{
 		return nullptr;
 	}
@@ -156,53 +159,68 @@ IRootPtr EveSOF::BuildFromDNA( const char* dnaString )
 	// set all easy consts
 	SetupConsts( newObj, dna );
 
+	auto centerOffset = std::vector<Matrix>( 1, IdentityMatrix() );
+	if( dna->GetBuildClass() == EveSOFDataHull::BUILDCLASS_EXTENSION )
+	{
+		// for extension we do things differently, since it is an EveChildMesh
+		newObj->SetBoundingSphereInformation( dna->GetHullBoundingSphere() );
+		EveSOFDataMgr::LocatorDirectionData center;
+		center.boneIndex = -1;
+		center.position = Vector3( 0, 0, 0 );
+		center.rotation = Quaternion( 0, 0, 0, 1 );
+		// Create a fake placement
+		EveSOFDataMgr::ExtensionPlacementData fakePlacement;
+		fakePlacement.isInstanced = false;
+		fakePlacement.name = BlueSharedString( "Solo Placement" );
+		fakePlacement.offset = Vector3( 0, 0, 0 );
+		fakePlacement.hasDistribution = false;
+		CreatePlacement( newObj, dna, fakePlacement, std::vector<EveSOFDataMgr::LocatorDirectionData>( 1, center ), centerOffset );
+
+		// create an empty mesh...
+		Tr2MeshPtr mesh;
+		mesh.CreateInstance();
+		newObj->SetMesh( mesh );
+
+		// ships needs a final ::Initialize call
+		newObj->SetInheritProperties( dna->GetColorSet() );
+		newObj->Initialize();
+
+
+		return newObj->GetRawRoot();
+	}
+	
 	// get us the base geometry
 	SetupMesh( newObj, dna );
 	SetupCustomMask( newObj, dna );
 
 	// decals
-	SetupDecalSets( newObj, dna );
+	SetupDecalSets( BlueCastPtr( newObj->GetRawRoot() ), dna );
 
-	// effects on ships
-	SetupSpriteSets( newObj, dna );
-	SetupSpotlightSets( newObj, dna );
-	SetupPlaneSets( newObj, dna );
-	SetupSpriteLineSets( newObj, dna );
-	SetupHazeSets( newObj, dna );
-	if( !dna->IsUsingExperimentalFeatures() )
-	{
-		SetupBanners( newObj, dna );
-	}
-	else
-	{
-		SetupBannerSets( newObj, dna );
-	}
-	SetupEffects( newObj, dna );
-	SetupLights( newObj, dna );
-
-	// attachments to ship
+	// locators to ship
 	SetupLocators( newObj, dna );
-
+	SetupLocatorSets( newObj, dna, centerOffset );
 	
-	if( !dna->IsUsingExperimentalFeatures() )
-	{
-		// children, animations and particles
-		SetupChildrenAndAnimations( newObj, dna );	
-	}
-	else
-	{
-		// children from childsets
-		SetupEffectChildren( newObj, dna );
-	}
+	// Attachments
+	SetupAttachments( BlueCastPtr( newObj->GetRawRoot() ), dna, centerOffset );
 
-	SetupAudio( newObj, dna );
-	SetupControllers( newObj, dna );
+	SetupImpactEffects( newObj, dna );
+
+	// Effects
+	SetupEffects( newObj, BlueCastPtr( newObj->GetRawRoot() ), dna, centerOffset, EveSOFDataHullBuildFilter::STANDALONE );
+
+	newObj->SetInheritProperties( dna->GetColorSet() );
+
+	SetupAudio( BlueCastPtr( newObj->GetRawRoot() ), dna );
+	SetupControllers( BlueCastPtr( newObj->GetRawRoot() ), dna, EveSOFDataHullBuildFilter::STANDALONE );
 
 	// model curves
 	SetupModelCurves( newObj, dna );
 
 	// instanced meshes
-	SetupInstancedMeshes( newObj, dna );
+	SetupInstancedMeshes( newObj, dna, centerOffset );
+
+	// layout
+	SetupLayout( newObj, dna, centerOffset );
 
 	// EveShip2-specific setups
 	EveShip2Ptr newShip;
@@ -222,6 +240,69 @@ IRootPtr EveSOF::BuildFromDNA( const char* dnaString )
 	newObj->Initialize();
 
 	return newObj->GetRawRoot();
+}
+
+void EveSOF::SetupAttachments( IEveSpaceObjectAttachmentOwnerPtr newObj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const
+{
+	// Add all the fluff!
+	SetupSpriteSets( newObj, dna, offsets );
+	SetupSpotlightSets( newObj, dna, offsets );
+	SetupPlaneSets( newObj, dna, offsets );
+	SetupSpriteLineSets( newObj, dna, offsets );
+	SetupHazeSets( newObj, dna, offsets );
+	
+        // Banners need to have external parameters, which we don't have for anything except for EveSpaceObject2Ptr...
+        // So no banners for layouts... yet
+	if( EveSpaceObject2Ptr spaceObject = BlueCastPtr( newObj->GetRootObject() ) )
+	{
+		if( !dna->IsUsingExperimentalFeatures() )
+		{
+			SetupBanners( spaceObject, dna, offsets );
+		}
+		else
+		{
+			SetupBannerSets( spaceObject, dna, offsets );
+		}
+	}
+	
+	if( ITr2LightOwnerPtr lightOwner = BlueCastPtr(newObj->GetRootObject() ) )
+	{
+		SetupLights( lightOwner, dna, offsets );	
+	}
+}
+
+void EveSOF::SetupEffects( EveSpaceObject2Ptr obj, IEveEffectChildrenOwnerPtr childContainer, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets, uint32_t buildFlags ) const
+{
+	if( !dna->IsUsingExperimentalFeatures() )
+	{
+		// children, animations and particles
+		SetupChildrenAndAnimations( obj, childContainer, dna, offsets, buildFlags );
+	}
+	else
+	{
+		// children from childsets
+		SetupEffectChildren( obj, childContainer, dna, offsets, buildFlags );
+	}
+}
+
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Creates a dna object from a dna string
+// --------------------------------------------------------------------------------
+EveSOFDNAPtr EveSOF::CreateDna( const char* dnaString )
+{
+	// create a temporary(!) DNA object
+	EveSOFDNAPtr dna;
+	dna.CreateInstance();
+
+	// init it with given dna string
+	dna->Setup( dnaString, &m_dataMgr );
+	if( !dna->IsValid() )
+	{
+		return nullptr;
+	}
+	return dna;
 }
 
 // --------------------------------------------------------------------------------
@@ -306,6 +387,13 @@ EveSpaceObject2Ptr EveSOF::CreateSpaceObject( const EveSOFDNAPtr dna ) const
 		spaceObject = newSwarm;
 	}
 	break;
+	case EveSOFDataHull::BUILDCLASS_EXTENSION: 
+	{
+		EveMobilePtr newRoot;
+		newRoot.CreateInstance();
+		spaceObject = newRoot;
+	}
+	break;
 	default:
 		break;
 	}
@@ -333,16 +421,9 @@ void EveSOF::SetupMesh( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
-	// need a mesh
-	Tr2MeshPtr mesh;
-	mesh.CreateInstance();
-
-	// gr2 res path
-	mesh->SetMeshResPath( dna->GetHullGeometryResPath().c_str() );
-
 	// bounding sphere comes from data, is faster
 	obj->SetBoundingSphereInformation( dna->GetHullBoundingSphere() );
-	obj->SetShapeEllipsoid( dna->GetHullShapeEllipsoidCenter(), dna->GetHullShapeEllipsoidRadius() );
+	obj->SetShapeEllipsoid( dna->GetHullShapeEllipsoid() );
 	obj->EnableDynamicBoundingSphere( dna->DynamicBoundingSphereEnabled() );
 
 	// shadow caster?
@@ -358,34 +439,34 @@ void EveSOF::SetupMesh( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
 		}
 	}
 
-	// multi-hull! so mesh index must be tracked
-	size_t meshIndexOffset = 0;
-	// cycle over all hulls in the multi-hull list
-	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
-	{
-		size_t cntr = 0;
-		cntr += FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_OPAQUE ), TRIBATCHTYPE_OPAQUE, dna, hullIdx, meshIndexOffset );
-		cntr += FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_OPAQUE ), TRIBATCHTYPE_DECAL, dna, hullIdx, meshIndexOffset );
-		cntr += FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_TRANSPARENT ), TRIBATCHTYPE_TRANSPARENT, dna, hullIdx, meshIndexOffset );
-		cntr += FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_ADDITIVE ), TRIBATCHTYPE_ADDITIVE, dna, hullIdx, meshIndexOffset );
-		cntr += FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_DISTORTION ), TRIBATCHTYPE_DISTORTION, dna, hullIdx, meshIndexOffset );
+	// assign mesh to ship
+	obj->SetMesh( CreateMesh( dna ) );
 
-		auto distortionAreas = mesh->GetAreas( TRIBATCHTYPE_DISTORTION );
-		for( auto ait = begin( *distortionAreas ); ait != end( *distortionAreas ); ++ait )
-		{
-			( *ait )->SetMinLod( TR2_LOD_HIGH );
-		}
-		meshIndexOffset += cntr;
-	}
+	// Set the reflectionMode based on the category
+	obj->SetReflectionMode( dna->GetReflectionMode() );
+}
+
+
+// --------------------------------------------------------------------------------
+// Description:
+//		Creates a meshlod based on a dna
+// --------------------------------------------------------------------------------
+Tr2MeshPtr EveSOF::CreateMesh( const EveSOFDNAPtr dna ) const
+{
+	// need a mesh
+	Tr2MeshPtr mesh;
+	mesh.CreateInstance();
+
+	// gr2 res path
+	mesh->SetMeshResPath( dna->GetHullGeometryResPath().c_str() );
+
+	
+	SetupShaders( dna, mesh );
 
 	// some areas need an accompanying depth area
 	GenerateDepthFromAreaVector( mesh, mesh->GetAreas( TRIBATCHTYPE_TRANSPARENT ), dna );
 
-	// assign mesh to ship
-	obj->SetMesh( mesh );
-
-	// Set the reflectionMode based on the category
-	obj->SetReflectionMode( dna->GetReflectionMode() );
+	return mesh;
 }
 
 // --------------------------------------------------------------------------------
@@ -578,7 +659,7 @@ bool EveSOF::GenerateLodResourcePaths( std::string& mediumResPath, std::string& 
 // Description:
 //   This is where it is all going to happen
 // --------------------------------------------------------------------------------
-void EveSOF::SetupSpriteSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupSpriteSets( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
@@ -592,7 +673,7 @@ void EveSOF::SetupSpriteSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 		{
 			const EveSOFDataMgr::HullSpriteSetData* spriteSetData = &(*ssit);
 
-			// vivible?
+			// visible?
 			if( dna->IsInVisibilityData( spriteSetData->visibilityGroup ) )
 			{
 				// create a spriteset for this ship
@@ -601,33 +682,37 @@ void EveSOF::SetupSpriteSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 				// set skinned or unskinned shader
 				spriteSet->SetEffect( m_spriteSetEffect );
 				spriteSet->SetSkinned( spriteSetData->skinned );
-				// add all the individual items
-				for( auto ssiit = spriteSetData->items.begin(); ssiit != spriteSetData->items.end(); ++ssiit )
+				for( auto& offset : offsets )
 				{
-					const EveSOFDataMgr::HullSpriteSetItemData* itemData = &(*ssiit);
+					// add all the individual items
+					for( auto ssiit = spriteSetData->items.begin(); ssiit != spriteSetData->items.end(); ++ssiit )
+					{
+						const EveSOFDataMgr::HullSpriteSetItemData* itemData = &(*ssiit);
 
-					// color data?
-					const Color* colorSet = dna->GetColorSet();
+						// color data?
+						const Color* colorSet = dna->GetColorSet();
 
-					// create spriteset items
-					EveSpriteSetItemPtr spriteSetItem;
-					spriteSetItem.CreateInstance();
+						// create spriteset items
+						EveSpriteSetItemPtr spriteSetItem;
+						spriteSetItem.CreateInstance();
 
-					// set it up the colorset data
-					spriteSetItem->m_color = itemData->intensity * colorSet[itemData->colorType];
+						// set it up the colorset data
+						spriteSetItem->m_color = itemData->intensity * colorSet[itemData->colorType];
 
-					// set it up the per-hull data
-					spriteSetItem->m_blinkPhase = itemData->blinkPhase;
-					spriteSetItem->m_blinkRate = itemData->blinkRate;
-					spriteSetItem->m_boneIndex = itemData->boneIndex;
-					spriteSetItem->m_falloff = itemData->falloff;
-					spriteSetItem->m_maxScale = itemData->maxScale;
-					spriteSetItem->m_minScale = itemData->minScale;
-					spriteSetItem->m_position = itemData->position + hullOffset;
+						// set it up the per-hull data
+						spriteSetItem->m_blinkPhase = itemData->blinkPhase;
+						spriteSetItem->m_blinkRate = itemData->blinkRate;
+						spriteSetItem->m_boneIndex = itemData->boneIndex;
+						spriteSetItem->m_falloff = itemData->falloff;
+						spriteSetItem->m_maxScale = itemData->maxScale;
+						spriteSetItem->m_minScale = itemData->minScale;
+						spriteSetItem->m_position = XMVector3TransformCoord( itemData->position + hullOffset, offset );
 
-					// put it into spriteset
-					spriteSet->Add( spriteSetItem );
+						// put it into spriteset
+						spriteSet->Add( spriteSetItem );
+					}
 				}
+				
 				// spriteset needs internal rebuild
 				spriteSet->Rebuild();
 				// put set onto ship
@@ -648,7 +733,7 @@ void EveSOF::SetupSpriteSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 // Description:
 //   This is where it is all going to happen
 // --------------------------------------------------------------------------------
-void EveSOF::SetupSpotlightSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupSpotlightSets( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
@@ -694,35 +779,41 @@ void EveSOF::SetupSpotlightSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna 
 			spotlightSet->SetGlowEffect( glowEffect );
 			spotlightSet->SetSkinned( spotlightSetData->skinned );
 
-			// add all individual items
-			for( auto ssiit = spotlightSetData->items.begin(); ssiit != spotlightSetData->items.end(); ++ssiit )
+			for( auto& offset: offsets)
 			{
-				// faction data?
-				const EveSOFDataMgr::FactionSpotlightSetColorData* factionSpotlightData = dna->GetFactionSpotlightSetData( ssiit->groupIndex );
-				if( !factionSpotlightData )
+				// add all individual items
+				for( auto ssiit = spotlightSetData->items.begin(); ssiit != spotlightSetData->items.end(); ++ssiit )
 				{
-					// This spotlight item is not used for this faction.
-					continue;
+					// faction data?
+					const EveSOFDataMgr::FactionSpotlightSetColorData* factionSpotlightData = dna->GetFactionSpotlightSetData( ssiit->groupIndex );
+					if( !factionSpotlightData )
+					{
+						// This spotlight item is not used for this faction.
+						continue;
+					}
+
+					// create it
+					EveSpotlightSetItemPtr spotlightSetItem;
+					spotlightSetItem.CreateInstance();
+
+					// set it up the per-faction data
+					spotlightSetItem->m_coneColor = ssiit->coneIntensity * factionSpotlightData->coneColor;
+					spotlightSetItem->m_flareColor = ssiit->flareIntensity * factionSpotlightData->flareColor;
+					spotlightSetItem->m_spriteColor = ssiit->spriteIntensity * factionSpotlightData->spriteColor;
+
+					// set it up the per-hull data
+					spotlightSetItem->m_boneIndex = ssiit->boneIndex;
+					spotlightSetItem->m_boosterGainInfluence = ssiit->boosterGainInfluence;
+					spotlightSetItem->m_spriteScale = ssiit->spriteScale;
+
+					Matrix transformed = XMMatrixMultiply( XMMatrixMultiply(ssiit->transform, TranslationMatrix(hullOffset)), offset );
+					TriMatrixTranslate( &spotlightSetItem->m_transform, &transformed, &hullOffset );
+
+					// add it
+					spotlightSet->AddSpotlightItem( spotlightSetItem );
 				}
-
-				// create it
-				EveSpotlightSetItemPtr spotlightSetItem;
-				spotlightSetItem.CreateInstance();
-
-				// set it up the per-faction data
-				spotlightSetItem->m_coneColor = ssiit->coneIntensity * factionSpotlightData->coneColor;
-				spotlightSetItem->m_flareColor = ssiit->flareIntensity * factionSpotlightData->flareColor;
-				spotlightSetItem->m_spriteColor = ssiit->spriteIntensity * factionSpotlightData->spriteColor;
-
-				// set it up the per-hull data
-				spotlightSetItem->m_boneIndex = ssiit->boneIndex;
-				spotlightSetItem->m_boosterGainInfluence = ssiit->boosterGainInfluence;
-				spotlightSetItem->m_spriteScale = ssiit->spriteScale;
-				TriMatrixTranslate( &spotlightSetItem->m_transform, &ssiit->transform, &hullOffset );
-
-				// add it
-				spotlightSet->AddSpotlightItem( spotlightSetItem );
 			}
+			
 			// spotlightset needs internal rebuild
 			spotlightSet->Rebuild();
 			// add to ship
@@ -742,15 +833,18 @@ void EveSOF::SetupSpotlightSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna 
 // Description:
 //   This is where it is all going to happen
 // --------------------------------------------------------------------------------
-void EveSOF::SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupPlaneSets( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	// cycle over all hulls in the multi-hull list
 	Vector3 hullOffset( 0.f, 0.f, 0.f );
+
+	EveSpaceObject2Ptr objAsSpaceObject = BlueCastPtr( obj->GetRootObject() );
+
 	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
 	{
-		// cycle over all spritesets of this hull
+		// cycle over all planesets of this hull
 		const std::vector<EveSOFDataMgr::HullPlaneSetData>& hullPlaneSets = dna->GetHullPlaneSets( hullIdx );
 		for( auto psit = hullPlaneSets.begin(); psit != hullPlaneSets.end(); ++psit )
 		{
@@ -797,7 +891,7 @@ void EveSOF::SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 			planeEffect->AddResourceTexture2D( BlueSharedString( "MaskMap" ), planeSetData->maskMapResPath.c_str() );
 
 			// Imagemap texture?
-			if( !imageMapResPath.empty() || !externalParamName.empty() )
+			if( objAsSpaceObject && (!imageMapResPath.empty() || !externalParamName.empty()) )
 			{
 				planeEffect->AddResourceTexture2D( BlueSharedString( "ImageMap" ), imageMapResPath.c_str() );
 
@@ -810,7 +904,7 @@ void EveSOF::SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 					externalParameter->SetDestinationObject( imageMapParameter );
 					externalParameter->SetDestinationAttribute( "resourcePath" );
 					externalParameter->Initialize();
-					obj->AddExternalParameter( externalParameter );
+					objAsSpaceObject->AddExternalParameter( externalParameter );
 				}
 			}
 
@@ -822,34 +916,42 @@ void EveSOF::SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 			planeEffect->EndUpdate();
 			planeSet->SetEffect( planeEffect );
 
-			// add all individual items
-			for( auto psiit = planeSetData->items.begin(); psiit != planeSetData->items.end(); ++psiit )
+			for( auto& offset : offsets )
 			{
-				// create it
-				EvePlaneSetItemPtr planeSetItem;
-				planeSetItem.CreateInstance();
-				// fill it up
-				planeSetItem->m_position = psiit->position + hullOffset;
-				planeSetItem->m_rotation = psiit->rotation;
-				planeSetItem->m_scaling = psiit->scaling;
-				planeSetItem->m_color = psiit->color;
-				planeSetItem->m_layer1Transform = psiit->layer1Transform;
-				planeSetItem->m_layer1Scroll = psiit->layer1Scroll;
-				planeSetItem->m_layer2Transform = psiit->layer2Transform;
-				planeSetItem->m_layer2Scroll = psiit->layer2Scroll;
-				planeSetItem->m_boneIndex = psiit->boneIndex;
-				planeSetItem->m_maskAtlasID = psiit->maskMapAtlasIndex;
-				planeSetItem->m_blinkData = Vector4( psiit->rate, psiit->phase, psiit->dutyCycle, (float)psiit->blinkMode );
-
-				// groupindex allows to overwrite color
-				const EveSOFDataMgr::FactionPlaneSetColorData* factionalData = dna->GetFactionPlaneSetData( psiit->groupIndex );
-				if( factionalData )
+				// add all individual items
+				for( auto psiit = planeSetData->items.begin(); psiit != planeSetData->items.end(); ++psiit )
 				{
-					planeSetItem->m_color = factionalData->color;
-				}
+					// create it
+					EvePlaneSetItemPtr planeSetItem;
+					planeSetItem.CreateInstance();
 
-				// add it
-				planeSet->AddPlaneItem( planeSetItem );
+					// set up the position data
+					Vector3 tmp;
+					Matrix m = TransformationMatrix( Vector3( 1.0f, 1.0f, 1.0f ), psiit->rotation, psiit->position + hullOffset ) * offset;
+					Decompose( tmp, planeSetItem->m_rotation, planeSetItem->m_position, m );
+
+
+					// fill it up
+					planeSetItem->m_scaling = psiit->scaling;
+					planeSetItem->m_color = psiit->color;
+					planeSetItem->m_layer1Transform = psiit->layer1Transform;
+					planeSetItem->m_layer1Scroll = psiit->layer1Scroll;
+					planeSetItem->m_layer2Transform = psiit->layer2Transform;
+					planeSetItem->m_layer2Scroll = psiit->layer2Scroll;
+					planeSetItem->m_boneIndex = psiit->boneIndex;
+					planeSetItem->m_maskAtlasID = psiit->maskMapAtlasIndex;
+					planeSetItem->m_blinkData = Vector4( psiit->rate, psiit->phase, psiit->dutyCycle, (float)psiit->blinkMode );
+
+					// groupindex allows to overwrite color
+					const EveSOFDataMgr::FactionPlaneSetColorData* factionalData = dna->GetFactionPlaneSetData( psiit->groupIndex );
+					if( factionalData )
+					{
+						planeSetItem->m_color = factionalData->color;
+					}
+
+					// add it
+					planeSet->AddPlaneItem( planeSetItem );
+				}
 			}
 			// rebuild it internally
 			planeSet->Rebuild();
@@ -870,12 +972,13 @@ void EveSOF::SetupPlaneSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) co
 // Description:
 //   This is where it is all going to happen
 // --------------------------------------------------------------------------------
-void EveSOF::SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupSpriteLineSets( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	// cycle over all hulls in the multi-hull list
 	Vector3 hullOffset( 0.f, 0.f, 0.f );
+
 	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
 	{
 		// cycle over all spritelinesets of this hull
@@ -884,7 +987,7 @@ void EveSOF::SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna
 		{
 			const EveSOFDataMgr::HullSpriteLineSetData* spriteLineSetData = &(*slsit);
 
-			// vivible?
+			// visible?
 			if( dna->IsInVisibilityData( spriteLineSetData->visibilityGroup ) )
 			{
 				// create a spriteset for this ship
@@ -892,37 +995,44 @@ void EveSOF::SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna
 				spriteLineSet.CreateInstance();
 				// set shader
 				spriteLineSet->Setup( m_spriteSetEffect, spriteLineSetData->skinned );
-				// add all the individual items
-				for( auto slsiit = spriteLineSetData->items.begin(); slsiit != spriteLineSetData->items.end(); ++slsiit )
+
+				for( auto& offset : offsets )
 				{
-					const EveSOFDataMgr::HullSpriteLineSetItemData* itemData = &(*slsiit);
+					// add all the individual items
+					for( auto slsiit = spriteLineSetData->items.begin(); slsiit != spriteLineSetData->items.end(); ++slsiit )
+					{
+						const EveSOFDataMgr::HullSpriteLineSetItemData* itemData = &( *slsiit );
 
-					// color data?
-					const Color* colorSet = dna->GetColorSet();
+						// color data?
+						const Color* colorSet = dna->GetColorSet();
 
-					// create spritelineset items
-					EveSpriteLineSetItemPtr spriteLineSetItem;
-					spriteLineSetItem.CreateInstance();
+						// create spritelineset items
+						EveSpriteLineSetItemPtr spriteLineSetItem;
+						spriteLineSetItem.CreateInstance();
 
-					// set it up the colorset data
-					spriteLineSetItem->m_color = itemData->intensity * colorSet[itemData->colorType];
+						// set it up the colorset data
+						spriteLineSetItem->m_color = itemData->intensity * colorSet[itemData->colorType];
+						
+						// set up the position data
+						Vector3 tmp;
+						Matrix m = TransformationMatrix( Vector3(1.0f, 1.0f, 1.0f), itemData->rotation, itemData->position + hullOffset ) * offset;
+						Decompose( tmp, spriteLineSetItem->m_rotation, spriteLineSetItem->m_position, m );
 
-					// set it up the per-hull data
-					spriteLineSetItem->m_blinkPhaseShift = itemData->blinkPhaseShift;
-					spriteLineSetItem->m_blinkPhase = itemData->blinkPhase;
-					spriteLineSetItem->m_blinkRate = itemData->blinkRate;
-					spriteLineSetItem->m_boneIndex = itemData->boneIndex;
-					spriteLineSetItem->m_falloff = itemData->falloff;
-					spriteLineSetItem->m_maxScale = itemData->maxScale;
-					spriteLineSetItem->m_minScale = itemData->minScale;
-					spriteLineSetItem->m_position = itemData->position + hullOffset;
-					spriteLineSetItem->m_rotation = itemData->rotation;
-					spriteLineSetItem->m_scaling = itemData->scaling;
-					spriteLineSetItem->m_spacing = itemData->spacing;
-					spriteLineSetItem->m_isCircle = itemData->isCircle;
+						// set it up the per-hull data
+						spriteLineSetItem->m_blinkPhaseShift = itemData->blinkPhaseShift;
+						spriteLineSetItem->m_blinkPhase = itemData->blinkPhase;
+						spriteLineSetItem->m_blinkRate = itemData->blinkRate;
+						spriteLineSetItem->m_boneIndex = itemData->boneIndex;
+						spriteLineSetItem->m_falloff = itemData->falloff;
+						spriteLineSetItem->m_maxScale = itemData->maxScale;
+						spriteLineSetItem->m_minScale = itemData->minScale;
+						spriteLineSetItem->m_scaling = itemData->scaling;
+						spriteLineSetItem->m_spacing = itemData->spacing;
+						spriteLineSetItem->m_isCircle = itemData->isCircle;
 
-					// put it into spriteset
-					spriteLineSet->Add( spriteLineSetItem );
+						// put it into spriteset
+						spriteLineSet->Add( spriteLineSetItem );
+					}
 				}
 				// spriteset needs internal rebuild
 				spriteLineSet->Rebuild();
@@ -944,12 +1054,13 @@ void EveSOF::SetupSpriteLineSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna
 // Description:
 //   This is where it is all going to happen
 // --------------------------------------------------------------------------------
-void EveSOF::SetupHazeSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupHazeSets( IEveSpaceObjectAttachmentOwnerPtr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	// cycle over all hulls in the multi-hull list
 	Vector3 hullOffset( 0.f, 0.f, 0.f );
+
 	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
 	{
 		// cycle over all hazesets of this hull
@@ -982,32 +1093,39 @@ void EveSOF::SetupHazeSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) con
 					hazeSet->Setup( m_hazeSetEffectHalfSpherical );
 					break;
 				}
-				// add all the individual items
-				for( auto hhsiit = hazeSetData->items.begin(); hhsiit != hazeSetData->items.end(); ++hhsiit )
+				for( auto& offset: offsets )
 				{
-					const EveSOFDataMgr::HullHazeSetItemData* itemData = &(*hhsiit);
+					// add all the individual items
+					for( auto hhsiit = hazeSetData->items.begin(); hhsiit != hazeSetData->items.end(); ++hhsiit )
+					{
+						const EveSOFDataMgr::HullHazeSetItemData* itemData = &(*hhsiit);
 
-					// color data from colorset
-					const Color* colorSet = dna->GetColorSet();
-					Color color = colorSet[itemData->colorType];
+						// color data from colorset
+						const Color* colorSet = dna->GetColorSet();
+						Color color = colorSet[itemData->colorType];
 
-					// create spritelineset items
-					EveHazeSetItemPtr hazeSetItem;
-					hazeSetItem.CreateInstance();
+						// create spritelineset items
+						EveHazeSetItemPtr hazeSetItem;
+						hazeSetItem.CreateInstance();
 
-					// set it up the colorset data
-					hazeSetItem->m_color = itemData->hazeBrightness * color;
+						// set it up the colorset data
+						hazeSetItem->m_color = itemData->hazeBrightness * color;
 
-					// set it up the per-hull data
-					hazeSetItem->m_position = itemData->position + hullOffset;
-					hazeSetItem->m_rotation = itemData->rotation;
-					hazeSetItem->m_scaling = itemData->scaling;
-					hazeSetItem->m_boneIndex = itemData->boneIndex;
-					hazeSetItem->m_hazeData = Vector4( itemData->hazeFalloff, itemData->sourceSize, itemData->sourceBrightness, itemData->boosterGainInfluence ? 1.f : 0.f );
+						// set up the position data
+						Vector3 tmp;
+						Matrix m = TransformationMatrix( Vector3( 1.0f, 1.0f, 1.0f ), itemData->rotation, itemData->position + hullOffset ) * offset;
+						Decompose( tmp, hazeSetItem->m_rotation, hazeSetItem->m_position, m );
 
-					// put it into hazeset
-					hazeSet->AddHazeItem( hazeSetItem );
+						// set it up the per-hull data
+						hazeSetItem->m_scaling = itemData->scaling;
+						hazeSetItem->m_boneIndex = itemData->boneIndex;
+						hazeSetItem->m_hazeData = Vector4( itemData->hazeFalloff, itemData->sourceSize, itemData->sourceBrightness, itemData->boosterGainInfluence ? 1.f : 0.f );
+
+						// put it into hazeset
+						hazeSet->AddHazeItem( hazeSetItem );
+					}
 				}
+				
 				// spriteset needs internal rebuild
 				hazeSet->Rebuild();
 				// put set onto ship
@@ -1025,7 +1143,7 @@ void EveSOF::SetupHazeSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) con
 }
 
 // --------------------------------------------------------------------------------
-void EveSOF::SetupBanners( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupBanners( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
@@ -1053,32 +1171,41 @@ void EveSOF::SetupBanners( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) cons
 				{
 					bannerSet.CreateInstance();
 				}
-
-				bannerSet->AddBanner( itemData.item );
-				// create the light
-				Tr2PointLightPtr light;
-				light.CreateInstance();
-
-				LightData data;
-				data.position = itemData.item.position;
-
-				float rad = itemData.bannerLight.radiusMultiplier *
-					max( itemData.item.scaling.x, max( itemData.item.scaling.y, itemData.item.scaling.z ) );
-				float innerRad = ( rad * itemData.bannerLight.innerRadiusMultiplier );
-				data.radius = rad;
-				data.innerRadius = innerRad;
 				
-				data.color = Color( 0.0, 0.0, 0.0, 0.0 );
-				data.brightness = itemData.bannerLight.brightness;
-				data.noiseAmplitude = itemData.bannerLight.noiseAmplitude;
-				data.noiseFrequency = itemData.bannerLight.noiseFrequency;
-				data.noiseOctaves = itemData.bannerLight.noiseOctaves;
+				for( auto& offset: offsets)
+				{
+					auto modifiedData = EveBannerItem( itemData.item );
+					
+					// set up the position data
+					Vector3 tmp;
+					Matrix m = TransformationMatrix( Vector3( 1.0f, 1.0f, 1.0f ), modifiedData.rotation, modifiedData.position + hullOffset ) * offset;
+					Decompose( tmp, modifiedData.rotation, modifiedData.position, m );
 
-				light->SetLightData( data );
-				bannerSet->AddLight( light );
+					bannerSet->AddBanner( modifiedData );
+					// create the light
+					Tr2PointLightPtr light;
+					light.CreateInstance();
 
-				bannerSet->SetLightColorSaturation( itemData.bannerLight.saturation );
+					LightData data;
+					data.position = modifiedData.position;
 
+					float rad = itemData.bannerLight.radiusMultiplier *
+						max( itemData.item.scaling.x, max( itemData.item.scaling.y, itemData.item.scaling.z ) );
+					float innerRad = ( rad * itemData.bannerLight.innerRadiusMultiplier );
+					data.radius = rad;
+					data.innerRadius = innerRad;
+				
+					data.color = Color( 0.0, 0.0, 0.0, 0.0 );
+					data.brightness = itemData.bannerLight.brightness;
+					data.noiseAmplitude = itemData.bannerLight.noiseAmplitude;
+					data.noiseFrequency = itemData.bannerLight.noiseFrequency;
+					data.noiseOctaves = itemData.bannerLight.noiseOctaves;
+
+					light->SetLightData( data );
+					bannerSet->AddLight( light );
+
+					bannerSet->SetLightColorSaturation( itemData.bannerLight.saturation );
+				}
 			}
 
 			if( !bannerSet )
@@ -1172,7 +1299,7 @@ void EveSOF::SetupBanners( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) cons
 // Description:
 //	Set up the bannersets on the space object from the bannerset information from the hull
 //
-void EveSOF::SetupBannerSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const 
+void EveSOF::SetupBannerSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
@@ -1204,31 +1331,42 @@ void EveSOF::SetupBannerSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 					{
 						bannerSet.CreateInstance();
 					}
-					bannerSet->AddBanner( banner.item );
 
-					// create the light
-					Tr2PointLightPtr light;
-					light.CreateInstance();
+					for( auto& offset : offsets )
+					{
+						auto modifiedItem = EveBannerItem( banner.item );
 
-					LightData data;
-					data.position = banner.item.position;
+						// set up the position data
+						Vector3 tmp;
+						Matrix m = TransformationMatrix( Vector3( 1.0f, 1.0f, 1.0f ), modifiedItem.rotation, modifiedItem.position + hullOffset ) * offset;
+						Decompose( tmp, modifiedItem.rotation, modifiedItem.position, m );
 
-					Vector3 scale = banner.item.scaling;
-					float rad = banner.bannerLight.radiusMultiplier * max( scale.x, max( scale.y, scale.z ) );
-					float innerRad = rad * banner.bannerLight.innerRadiusMultiplier;
-					data.radius = rad;
-					data.innerRadius = innerRad;
+						bannerSet->AddBanner( modifiedItem );
 
-					data.color = Color( 0.0, 0.0, 0.0, 0.0 );
-					data.brightness = banner.bannerLight.brightness;
-					data.noiseAmplitude = banner.bannerLight.noiseAmplitude;
-					data.noiseFrequency = banner.bannerLight.noiseFrequency;
-					data.noiseOctaves = banner.bannerLight.noiseOctaves;
+						// create the light
+						Tr2PointLightPtr light;
+						light.CreateInstance();
 
-					light->SetLightData( data );
-					bannerSet->AddLight( light );
+						LightData data;
+						data.position = modifiedItem.position;
 
-					bannerSet->SetLightColorSaturation( banner.bannerLight.saturation );
+						Vector3 scale = banner.item.scaling;
+						float rad = banner.bannerLight.radiusMultiplier * max( scale.x, max( scale.y, scale.z ) );
+						float innerRad = rad * banner.bannerLight.innerRadiusMultiplier;
+						data.radius = rad;
+						data.innerRadius = innerRad;
+
+						data.color = Color( 0.0, 0.0, 0.0, 0.0 );
+						data.brightness = banner.bannerLight.brightness;
+						data.noiseAmplitude = banner.bannerLight.noiseAmplitude;
+						data.noiseFrequency = banner.bannerLight.noiseFrequency;
+						data.noiseOctaves = banner.bannerLight.noiseOctaves;
+
+						light->SetLightData( data );
+						bannerSet->AddLight( light );
+
+						bannerSet->SetLightColorSaturation( banner.bannerLight.saturation );
+					}
 				}
 
 				// if no banners in set, then ignore it...
@@ -1424,9 +1562,11 @@ void RecursiveBindParticleEmitters( IEveSpaceObjectChild* child, TriCurveSet* cu
 //   Add Children and Animations to the ship
 //   
 // --------------------------------------------------------------------------------
-void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, IEveEffectChildrenOwnerPtr childOwner, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets, uint32_t buildFlags ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
+
+	auto postCopy = m_editorMode ? &PostCopyMetadata : nullptr;
 
 	std::map<int, std::vector<EveTransformPtr>> childrenToBindTo;
 	std::map<int, std::vector<IEveSpaceObjectChildPtr>> soChildrenToBindTo;
@@ -1434,6 +1574,11 @@ void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNA
 	const std::vector<EveSOFDataMgr::HullChild>& hullChildren = dna->GetHullChildren();
 	for( auto childIt = hullChildren.begin(); childIt != hullChildren.end(); ++childIt )
 	{
+		if( ( childIt->buildFilter & buildFlags ) == 0 )
+		{
+			continue;
+		}
+
 		const EveSOFDataMgr::FactionChildData* fcd = dna->GetFactionChildData( childIt->groupIndex );
 
 		// child can be invisibe for this faction
@@ -1452,29 +1597,58 @@ void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNA
 		p.Attach( tmp );
 
 		// is it of right type?
-		EveTransformPtr child;
-		IEveSpaceObjectChildPtr effectChild;
-		if( p->QueryInterface( BlueInterfaceIID<EveTransform>(), (void**)&child, BEQI_SILENT ) )
+		if( EveTransformPtr child = BlueCastPtr( p ) )
 		{
-			child->SetRotation( childIt->rotation );
-			child->SetScaling( childIt->scaling );
-			child->SetTranslation( childIt->translation );
-			if( childIt->id != -1 )
+			for(auto& offset: offsets)
 			{
-				childrenToBindTo[childIt->id].push_back( child );
-			}
+				EveTransformPtr transformedChild = BlueCastPtr( BlueCopy( child ) );
 
-			obj->AddToChildrenList( child );
+				// set up the position data
+				Vector3 tmp, pos;
+				Quaternion rot;
+				Matrix m = TransformationMatrix( Vector3( 1.0f, 1.0f, 1.0f ), childIt->rotation, childIt->translation ) * offset;
+				Decompose( tmp, rot, pos, m );
+				transformedChild->SetRotation( rot );
+				transformedChild->SetScaling( childIt->scaling );
+				transformedChild->SetTranslation( pos );
+				if( childIt->id != -1 )
+				{
+					childrenToBindTo[childIt->id].push_back( transformedChild );
+				}
+			
+				obj->AddToChildrenList( transformedChild );
+			}		
 		}
-		else if( p->QueryInterface( BlueInterfaceIID<IEveSpaceObjectChild>(), (void**)&effectChild, BEQI_SILENT ) )
+		else if( IEveSpaceObjectChildPtr effectChild = BlueCastPtr( p ) )
 		{
-			effectChild->Setup( &childIt->scaling, &childIt->rotation, &childIt->translation, childIt->lowestLodVisible );
-			effectChild->SetInheritProperties( dna->GetColorSet() );
-			effectChild->SetOrigin( IEveSpaceObjectChild::SOF );
-			obj->AddToEffectChildrenList( effectChild );
-			if( childIt->id != -1 )
+			size_t index = 0;
+			for( auto& offset : offsets )
 			{
-				soChildrenToBindTo[childIt->id].push_back( effectChild );
+				IEveSpaceObjectChildPtr transformedChild;
+				if( ++index < offsets.size() )
+				{
+					CCP_STATS_ZONE( "Child Copy" );
+					transformedChild = BlueCastPtr( BlueCopy( effectChild, nullptr, nullptr, postCopy ) );
+				}
+				else
+				{
+					transformedChild = effectChild;
+				}
+
+				// set up the position data
+				Vector3 tmp, pos;
+				Quaternion rot;
+				Matrix m = TransformationMatrix( Vector3( 1.0f, 1.0f, 1.0f ), childIt->rotation, childIt->translation ) * offset;
+				Decompose( tmp, rot, pos, m );
+
+				transformedChild->Setup( &childIt->scaling, &rot, &pos, childIt->lowestLodVisible );
+
+				transformedChild->SetOrigin( IEveSpaceObjectChild::SOF );
+				childOwner->AddToEffectChildrenList( transformedChild );
+				if( childIt->id != -1 )
+				{
+					soChildrenToBindTo[childIt->id].push_back( transformedChild );
+				}
 			}
 		}
 		else
@@ -1483,6 +1657,7 @@ void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNA
 			return;
 		}
 	}
+
 
 	const std::vector<EveSOFDataMgr::HullAnimation>& hullAnimations = dna->GetHullAnimations();
 	for( auto animIt = hullAnimations.begin(); animIt != hullAnimations.end(); ++animIt )
@@ -1549,7 +1724,6 @@ void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNA
 			// TODO
 		}
 	}
-	
 }
 
 
@@ -1557,8 +1731,9 @@ void EveSOF::SetupChildrenAndAnimations( EveSpaceObject2Ptr obj, const EveSOFDNA
 // Description:
 //   add effect children to the space object
 // --------------------------------------------------------------------------------
-void EveSOF::SetupEffectChildren( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupEffectChildren( EveSpaceObject2Ptr newObj, IEveEffectChildrenOwnerPtr childOwner, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets, uint32_t buildFlags ) const
 {
+	CCP_STATS_ZONE( __FUNCTION__ );
 	// Experimental features for PHASE-6
 	// Note that this will ignore the child id and the animation id thing... don't know what will happen with the rorqual...
 	const std::vector<EveSOFDataMgr::HullChildSetData>& hullChildSets = dna->GetHullChildSets();
@@ -1572,6 +1747,11 @@ void EveSOF::SetupEffectChildren( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr 
 
 		for( auto childSetItem : childSet.items )
 		{
+			if( ( childSetItem.buildFilter & buildFlags ) == 0 )
+			{
+				continue;
+			}
+
 			IRootPtr p;
 			IRoot* tmp = BeResMan->LoadObject( childSetItem.redFilePath.c_str() );
 			if( !tmp )
@@ -1586,17 +1766,40 @@ void EveSOF::SetupEffectChildren( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr 
 			IEveSpaceObjectChildPtr effectChild;
 			if( p->QueryInterface( BlueInterfaceIID<EveTransform>(), (void**)&child, BEQI_SILENT ) )
 			{
-				child->SetRotation( childSetItem.rotation );
-				child->SetScaling( childSetItem.scaling );
-				child->SetTranslation( childSetItem.translation );
-				newObj->AddToChildrenList( child );
+				for( auto& offset : offsets )
+				{
+					EveTransformPtr transformedChild;
+					BeClasses->CopyTo( child->GetRawRoot(), (IRoot**)&transformedChild );
+
+					// set up the position data
+					Vector3 tmp, pos;
+					Quaternion rot;
+					Matrix m = TransformationMatrix( Vector3( 1.0f, 1.0f, 1.0f ), childSetItem.rotation, childSetItem.translation ) * offset;
+					Decompose( tmp, rot, pos, m );
+					transformedChild->SetRotation( rot );
+					transformedChild->SetScaling( childSetItem.scaling );
+					transformedChild->SetTranslation( pos );
+					newObj->AddToChildrenList( transformedChild );
+				}
 			}
 			else if( p->QueryInterface( BlueInterfaceIID<IEveSpaceObjectChild>(), (void**)&effectChild, BEQI_SILENT ) )
 			{
-				effectChild->Setup( &childSetItem.scaling, &childSetItem.rotation, &childSetItem.translation, childSetItem.lowestLodVisible );
-				effectChild->SetInheritProperties( dna->GetColorSet() );
-				effectChild->SetOrigin( IEveSpaceObjectChild::SOF );
-				newObj->AddToEffectChildrenList( effectChild );
+				for( auto& offset : offsets )
+				{
+					IEveSpaceObjectChildPtr transformedChild;
+					BeClasses->CopyTo( effectChild->GetRootObject(), (IRoot**)&transformedChild );
+
+					// set up the position data
+					Vector3 tmp, pos;
+					Quaternion rot;
+					Matrix m = TransformationMatrix( Vector3( 1.0f, 1.0f, 1.0f ), childSetItem.rotation, childSetItem.translation ) * offset;
+					Decompose( tmp, rot, pos, m );
+
+					transformedChild->Setup( &childSetItem.scaling, &rot, &pos, childSetItem.lowestLodVisible );
+
+					transformedChild->SetOrigin( IEveSpaceObjectChild::SOF );
+					childOwner->AddToEffectChildrenList( transformedChild );
+				}
 			}
 			else
 			{
@@ -1612,18 +1815,23 @@ void EveSOF::SetupEffectChildren( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr 
 // Description:
 //   add controllers to the space object
 // --------------------------------------------------------------------------------
-void EveSOF::SetupControllers( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupControllers( ITr2ControllerOwnerPtr owner, const EveSOFDNAPtr dna, uint32_t buildFlags ) const
 {
 	auto& hullControllers = dna->GetHullControllers();
 	for( auto cit = begin( hullControllers ); cit != end( hullControllers ); ++cit )
 	{
-		if( auto controller = BeResMan->LoadObject<ITr2Controller>( cit->c_str() ) )
+		if( ( buildFlags & cit->buildFilter ) == 0 )
 		{
-			newObj->AddController( controller );
+			continue;
+		}
+
+		if( auto controller = BeResMan->LoadObject<ITr2Controller>( cit->path.c_str() ) )
+		{
+			owner->AddController( controller );
 		}
 		else
 		{
-			CCP_LOGERR( "controller resource file %s is invalid!", cit->c_str() );
+			CCP_LOGERR( "controller resource file %s is invalid!", cit->path.c_str() );
 		}
 	}
 }
@@ -1633,20 +1841,26 @@ void EveSOF::SetupControllers( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna
 // Description:
 //   add audio children to the space object
 // --------------------------------------------------------------------------------
-void EveSOF::SetupAudio( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupAudio( ITr2SoundEmitterOwnerPtr newObj, const EveSOFDNAPtr dna, const Matrix& parentOffset ) const
 {
 	auto& hullEmitters = dna->GetHullSoundEmitters();
+
+	Quaternion parentRotation;
+	Vector3 tmp, tmp2;
+	Decompose( tmp, parentRotation, tmp2, parentOffset );
+
 	for( auto cit = begin( hullEmitters ); cit != end( hullEmitters ); ++cit )
 	{
 		TriObserverLocalPtr observer;
 		observer.CreateInstance();
 		observer->m_name = cit->name;
-		observer->SetPosition( cit->position );
+		observer->SetPosition( XMVector3TransformCoord(cit->position, parentOffset) );
 
 		// Convert rotation to a front value
 		Vector3 front;
 		static const Vector3 zAxis( 0.f, 0.f, 1.f );
-		TriVectorRotateQuaternion( &front, &zAxis, &cit->rotation );
+		Quaternion rot = cit->rotation * parentRotation;
+		TriVectorRotateQuaternion( &front, &zAxis, &rot);
 
 		observer->SetFront( front );
 
@@ -1663,8 +1877,81 @@ void EveSOF::SetupAudio( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna ) con
 		ITr2AudEmitterPtr theRealEmitter;
 		if( emitter->QueryInterface( BlueInterfaceIID<ITr2AudEmitter>(), reinterpret_cast<void**>( &theRealEmitter.p ), BEQI_SILENT ) && theRealEmitter )
 		{
-			theRealEmitter->Initialize( cit->name.c_str(), cit->prefix.c_str(), cit->position );
+			theRealEmitter->Initialize( cit->name.c_str(), cit->prefix.c_str(), XMVector3TransformCoord( cit->position, parentOffset ) );
 		}
+	}
+}
+
+
+// --------------------------------------------------------------------------------
+// Description:
+//   helper method to create instanced child meshes
+// --------------------------------------------------------------------------------
+Tr2InstancedMeshPtr EveSOF::CreateInstancedMesh( std::vector<EveSOFDataMgr::HullMeshInstance> instances, std::string resPath ) const
+{
+	Tr2InstancedMeshPtr mesh;
+	mesh.CreateInstance();
+
+	Tr2VertexDefinition instanceDef;
+	instanceDef.Add( Tr2VertexDefinition::FLOAT32_4, Tr2VertexDefinition::TEXCOORD, 0 ); // transform0
+	instanceDef.Add( Tr2VertexDefinition::FLOAT32_4, Tr2VertexDefinition::TEXCOORD, 1 ); // transform1
+	instanceDef.Add( Tr2VertexDefinition::FLOAT32_4, Tr2VertexDefinition::TEXCOORD, 2 ); // transform2
+	instanceDef.Add( Tr2VertexDefinition::BYTE_4, Tr2VertexDefinition::TEXCOORD, 3 ); // boneindex
+
+	Tr2RuntimeInstanceDataPtr instanceData;
+	instanceData.CreateInstance();
+	instanceData->SetLayout( instanceDef );
+	auto dest = instanceData->GetData( unsigned( instances.size() ) );
+	memcpy( dest, &instances[0], sizeof( instances[0] ) * instances.size() );
+	instanceData->UpdateData();
+
+	float maxScale = 0;
+	CcpMath::AxisAlignedBox aabb;
+	for( auto& instance : instances )
+	{
+		aabb.Include( Vector3( instance.transform0.w, instance.transform1.w, instance.transform2.w ) );
+		maxScale = std::max( maxScale, LengthSq( instance.transform0.GetXYZ() ) );
+		maxScale = std::max( maxScale, LengthSq( instance.transform1.GetXYZ() ) );
+		maxScale = std::max( maxScale, LengthSq( instance.transform2.GetXYZ() ) );
+	}
+	instanceData->SetBoundingBox( aabb );
+	mesh->SetDynamicScaledBounds( sqrt( maxScale ) );
+	
+	mesh->SetInstanceGeometryRes( instanceData );
+	mesh->SetMeshResPath( resPath.c_str() );
+
+	return mesh;
+}
+
+
+// --------------------------------------------------------------------------------
+// Description:
+//   helper method to fill shaders of a mesh
+// --------------------------------------------------------------------------------
+void EveSOF::SetupShaders( const EveSOFDNAPtr dna, Tr2MeshBase* mesh ) const
+{
+	if( mesh == nullptr )
+	{
+		return;
+	}
+	// multi-hull! so mesh index must be tracked
+	size_t meshIndexOffset = 0;
+	// cycle over all hulls in the multi-hull list
+	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
+	{
+		size_t cntr = 0;
+		cntr += FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_OPAQUE ), TRIBATCHTYPE_OPAQUE, dna, hullIdx, meshIndexOffset );
+		cntr += FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_OPAQUE ), TRIBATCHTYPE_DECAL, dna, hullIdx, meshIndexOffset );
+		cntr += FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_TRANSPARENT ), TRIBATCHTYPE_TRANSPARENT, dna, hullIdx, meshIndexOffset );
+		cntr += FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_ADDITIVE ), TRIBATCHTYPE_ADDITIVE, dna, hullIdx, meshIndexOffset );
+		cntr += FillMeshAreaVector( mesh->GetAreas( TRIBATCHTYPE_DISTORTION ), TRIBATCHTYPE_DISTORTION, dna, hullIdx, meshIndexOffset );
+
+		auto distortionAreas = mesh->GetAreas( TRIBATCHTYPE_DISTORTION );
+		for( auto ait = begin( *distortionAreas ); ait != end( *distortionAreas ); ++ait )
+		{
+			( *ait )->SetMinLod( TR2_LOD_HIGH );
+		}
+		meshIndexOffset += cntr;
 	}
 }
 
@@ -1672,7 +1959,7 @@ void EveSOF::SetupAudio( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna ) con
 // Description:
 //   add instanced meshes to the ship
 // --------------------------------------------------------------------------------
-void EveSOF::SetupInstancedMeshes( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupInstancedMeshes( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const
 {
 	const std::vector<EveSOFDataMgr::HullInstancedMesh>& hullInstanced = dna->GetHullInstancedMeshes();
 	
@@ -1681,8 +1968,8 @@ void EveSOF::SetupInstancedMeshes( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr
 		// No need to do anything!
 		return;
 	}
-	// Create a child container named "Instanced Meshes" and place the instances there
 
+	// Create a child container named "Instanced Meshes" and place the instances there
 	EveChildContainerPtr meshContainer;
 	meshContainer.CreateInstance();
 	meshContainer->SetName( "Instanced Meshes" );
@@ -1694,40 +1981,44 @@ void EveSOF::SetupInstancedMeshes( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr
 		{
 			continue;
 		}
-
-		Tr2InstancedMeshPtr mesh;
-		mesh.CreateInstance();
-
-		Tr2VertexDefinition instanceDef;
-		instanceDef.Add( Tr2VertexDefinition::FLOAT32_4, Tr2VertexDefinition::TEXCOORD, 0 );
-		instanceDef.Add( Tr2VertexDefinition::FLOAT32_4, Tr2VertexDefinition::TEXCOORD, 1 );
-		instanceDef.Add( Tr2VertexDefinition::FLOAT32_4, Tr2VertexDefinition::TEXCOORD, 2 );
-		instanceDef.Add( Tr2VertexDefinition::BYTE_4, Tr2VertexDefinition::TEXCOORD, 3 );
-
-		Tr2RuntimeInstanceDataPtr instanceData;
-		instanceData.CreateInstance();
-		instanceData->SetLayout( instanceDef );
-		auto dest = instanceData->GetData( unsigned( him->instances.size() ) );
-		memcpy( dest, &him->instances[0], sizeof( him->instances[0] ) * him->instances.size() );
-		instanceData->UpdateData();
+		
+		EveChildMeshPtr childMesh;
+		childMesh.CreateInstance();
+		
+		std::vector<EveSOFDataMgr::HullMeshInstance> instances;
+		// propogate the instances to the offsets and resize the bounds
+		if( offsets.size() > 1 || offsets[0] != IdentityMatrix() )
 		{
-			float maxScale = 0;
-			CcpMath::AxisAlignedBox aabb;
-			for( auto& instance : him->instances )
+			instances.reserve( offsets.size() * him->instances.size() );
+			for( auto &offset : offsets )
 			{
-				aabb.Include( Vector3( instance.transform0.w, instance.transform1.w, instance.transform2.w ) );
-				maxScale = std::max( maxScale, LengthSq( instance.transform0.GetXYZ() ) );
-				maxScale = std::max( maxScale, LengthSq( instance.transform1.GetXYZ() ) );
-				maxScale = std::max( maxScale, LengthSq( instance.transform2.GetXYZ() ) );
+				std::transform( ( him->instances ).begin(), ( him->instances ).end(), std::back_inserter( instances ), [offset]( EveSOFDataMgr::HullMeshInstance instance ) -> EveSOFDataMgr::HullMeshInstance {
+					
+					EveSOFDataMgr::HullMeshInstance i( instance );
+					
+					Matrix m = Matrix( i.transform0.x, i.transform1.x, i.transform2.x, 0, 
+									   i.transform0.y, i.transform1.y, i.transform2.y, 0, 
+									   i.transform0.z, i.transform1.z, i.transform2.z, 0, 
+									   i.transform0.w, i.transform1.w, i.transform2.w, 1);
+					
+					m = Transpose( m * offset );
+					i.transform0 = *reinterpret_cast<Vector4*>( &m.GetX() );
+					i.transform1 = *reinterpret_cast<Vector4*>( &m.GetY() );
+					i.transform2 = *reinterpret_cast<Vector4*>( &m.GetZ() );
+
+					return i;
+				} );
+
 			}
-			instanceData->SetBoundingBox( aabb );
-			mesh->SetDynamicScaledBounds( sqrt( maxScale ) );
 		}
-		mesh->SetInstanceGeometryRes( instanceData );
+		else
+		{
+			instances = him->instances;
+		}
+		
+		auto instancedMesh = CreateInstancedMesh( instances, him->geometryResPath );
 
-		mesh->SetMeshResPath( him->geometryResPath.c_str() );
-
-		Tr2MeshAreaVector* areas = mesh->GetAreas( TRIBATCHTYPE_OPAQUE );
+		Tr2MeshAreaVector* areas = instancedMesh->GetAreas( TRIBATCHTYPE_OPAQUE );
 
 		// find data on this shader from generics, we need it!
 		const EveSOFDataMgr::GenericShaderData* shaderData = dna->GetGenericAreaShaderData( him->shader );
@@ -1779,9 +2070,8 @@ void EveSOF::SetupInstancedMeshes( EveSpaceObject2Ptr newObj, const EveSOFDNAPtr
 			newMeshArea->SetMaterial( newShader );
 			areas->Append( newMeshArea );
 		}
-		EveChildMeshPtr childMesh;
-		childMesh.CreateInstance();
-		childMesh->SetMesh( mesh );
+
+		childMesh->SetMesh( instancedMesh );
 		childMesh->Setup( nullptr, nullptr, nullptr, him->lowestLodVisible );
 
 		if( him->displayModifier != EveChildContainer::DisplayQualityModifier::SHADER_ALL )
@@ -1850,9 +2140,11 @@ void EveSOF::SetupCustomMask( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) c
 // Description:
 //   Add all kinds of effects to the ship
 // --------------------------------------------------------------------------------
-void EveSOF::SetupEffects( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupImpactEffects( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
 {
 	EveSOFDataHull::ImpactEffectType impactType = dna->GetImpactEffectType();
+	// todo - how in the hell do we create impact effects for instanced shit?
+
 	if( impactType != EveSOFDataHull::IMPACTEFFECT_NONE )
 	{
 		const EveSOFDataMgr::GenericDamageData* genericDamageData = dna->GetGenericDamageData();
@@ -2000,10 +2292,11 @@ void EveSOF::SetupEffects( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) cons
 // Description:
 //   Sets up lights for the new space object
 // --------------------------------------------------------------------------------
-void EveSOF::SetupLights( EveSpaceObject2Ptr spaceObject, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupLights( ITr2LightOwnerPtr spaceObject, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets ) const
 {
 	// cycle over all hulls in the multi-hull list
 	Vector3 hullOffset( 0.f, 0.f, 0.f );
+
 	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
 	{
 		const std::vector<EveSOFDataMgr::HullLightSetData>& hullLightSets = dna->GetHullLightSets( hullIdx );
@@ -2018,50 +2311,57 @@ void EveSOF::SetupLights( EveSpaceObject2Ptr spaceObject, const EveSOFDNAPtr dna
 			for( auto hlsi = hls->items.begin(); hlsi != hls->items.end(); ++hlsi )
 			{
 				auto lightSetItem = *hlsi;
-				Tr2LightPtr light;
+				for( auto& offset : offsets )
+				{
+					Tr2LightPtr light;
 
-				if( lightSetItem.type == EveSOFDataHullLightSetItem::POINT_LIGHT )
-				{
-					Tr2PointLightPtr pointLight;
-					pointLight.CreateInstance();
-					light = pointLight;
-				}
-				else if( lightSetItem.type == EveSOFDataHullLightSetItem::TEXTURED_POINT_LIGHT )
-				{
-					Tr2TexturedPointLightPtr texuredPointLight;
-					texuredPointLight.CreateInstance();
-					light = texuredPointLight;
-				}
-				else if( lightSetItem.type == EveSOFDataHullLightSetItem::SPOT_LIGHT )
-				{
-					Tr2SpotLightPtr spotLight;
-					spotLight.CreateInstance();
-					light = spotLight;
-				}
-				else 
-				{
-					CCP_LOGERR( "EveSOF::SetupLights: Invalid light set item type %s for hull %s", lightSetItem.type, dna->GetDnaString() );
-					continue;
-				}
-				
-				LightData data;
-				data.position = lightSetItem.position;
-				data.radius = lightSetItem.radius;
-				data.innerRadius = lightSetItem.innerRadius;
-				data.flags = lightSetItem.flags;
-				data.color = dna->GetColorSet()[lightSetItem.lightColor];
-				data.brightness = lightSetItem.brightness;
-				data.noiseAmplitude = lightSetItem.noiseAmplitude;
-				data.noiseFrequency = lightSetItem.noiseFrequency;
-				data.noiseOctaves = lightSetItem.noiseOctaves;
-				data.rotation = lightSetItem.rotation;
-				data.innerAngle = lightSetItem.innerAngle;
-				data.outerAngle = lightSetItem.outerAngle;
-				data.texturePath = lightSetItem.texturePath;
-				data.boneIndex = lightSetItem.boneIndex;
-				light->SetLightData( data );
+					if( lightSetItem.type == EveSOFDataHullLightSetItem::POINT_LIGHT )
+					{
+						Tr2PointLightPtr pointLight;
+						pointLight.CreateInstance();
+						light = pointLight;
+					}
+					else if( lightSetItem.type == EveSOFDataHullLightSetItem::TEXTURED_POINT_LIGHT )
+					{
+						Tr2TexturedPointLightPtr texuredPointLight;
+						texuredPointLight.CreateInstance();
+						light = texuredPointLight;
+					}
+					else if( lightSetItem.type == EveSOFDataHullLightSetItem::SPOT_LIGHT )
+					{
+						Tr2SpotLightPtr spotLight;
+						spotLight.CreateInstance();
+						light = spotLight;
+					}
+					else
+					{
+						CCP_LOGERR( "EveSOF::SetupLights: Invalid light set item type %s for hull %s", lightSetItem.type, dna->GetDnaString() );
+						continue;
+					}
 
-				spaceObject->AddLight( light );
+					LightData data;
+
+					// set up the position data
+					Vector3 tmp;
+					Matrix m = TransformationMatrix( Vector3( 1.0f, 1.0f, 1.0f ), lightSetItem.rotation, lightSetItem.position + hullOffset) * offset;
+					Decompose( tmp, data.rotation, data.position, m );
+
+					data.radius = lightSetItem.radius;
+					data.innerRadius = lightSetItem.innerRadius;
+					data.flags = lightSetItem.flags;
+					data.color = dna->GetColorSet()[lightSetItem.lightColor];
+					data.brightness = lightSetItem.brightness;
+					data.noiseAmplitude = lightSetItem.noiseAmplitude;
+					data.noiseFrequency = lightSetItem.noiseFrequency;
+					data.noiseOctaves = lightSetItem.noiseOctaves;
+					data.innerAngle = lightSetItem.innerAngle;
+					data.outerAngle = lightSetItem.outerAngle;
+					data.texturePath = lightSetItem.texturePath;
+					data.boneIndex = lightSetItem.boneIndex;
+					light->SetLightData( data );
+
+					spaceObject->AddLight( light );
+				}
 			}
 		}
 
@@ -2196,7 +2496,9 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 			set->SetTrail( trail );
 		}
 
-		// add all the indiviual items
+		// add all the indiviual items and make a locatorSet marking booster locations
+		std::vector<EveSOFDataMgr::LocatorDirectionData> locators;
+		locators.reserve(hdata->items.size());
 		for( auto biit = hdata->items.begin(); biit != hdata->items.end(); ++biit )
 		{
 			EveLocator2Ptr locator;
@@ -2214,8 +2516,29 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 
 			ship->AddLocator( locator );
 			set->Add( &m, &biit->functionality, biit->hasTrail, biit->atlasIndex0, biit->atlasIndex1, biit->lightScale );
+
+			EveSOFDataMgr::LocatorDirectionData data;
+			Vector3 scaling;
+			Decompose( scaling, data.rotation, data.position, biit->transform );
+			data.boneIndex = -1;
+			locators.push_back( data );
 		}
 		glow->Rebuild();
+
+		EveLocatorSetsPtr locSet;
+		std::vector<Locator> locatorList;
+		locSet.CreateInstance();
+		locatorList.reserve( locators.size() );
+		
+		for( auto locator : locators )
+		{
+			Locator loc = locator;  
+			locatorList.push_back( loc );
+		}
+
+		locSet->Set( "boosters", locatorList.data(), locators.size() );
+		locSet->Translate( hullOffset );
+		ship->MergeToLocatorSet( *locSet );
 
 		// next hull needs offset update from hull's locator
 		const Vector3* nextSubsystemOffset = dna->GetHullNextSubsystemOffset( hullIdx );
@@ -2233,12 +2556,13 @@ void EveSOF::SetupBoosters( EveShip2Ptr ship, const EveSOFDNAPtr dna ) const
 // Description:
 //   add the hull decals to the new ship based off the decal sets
 // --------------------------------------------------------------------------------
-void EveSOF::SetupDecalSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) const
+void EveSOF::SetupDecalSets( IEveSpaceObjectDecalOwnerPtr obj, const EveSOFDNAPtr dna ) const
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 
 	// cycle over all hulls in the multi-hull list
 	Vector3 hullOffset( 0.f, 0.f, 0.f );
+
 	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
 	{
 		const std::vector<EveSOFDataMgr::HullDecalSetData>& hullDecalSets = dna->GetHullDecalSets( hullIdx );
@@ -2394,21 +2718,6 @@ void EveSOF::SetupLocators( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) con
 			obj->AddLocator( loc );
 		}
 
-		// locator sets (like damage, explosions, etc.)
-		const std::vector<BlueSharedString> locatorSetsNames = dna->GetHullLocatorSetNames( hullIdx );
-		for( auto locatorSetName = locatorSetsNames.begin(); locatorSetName != locatorSetsNames.end(); ++locatorSetName )
-		{
-			auto locators = dna->GetHullLocators( locatorSetName->c_str(), hullIdx );
-			if( locators )
-			{
-				EveLocatorSetsPtr locSets;
-				locSets.CreateInstance();
-				locSets->Set( locatorSetName->c_str(), (const Locator*) &(*locators)[0], locators->size() );
-				locSets->Translate( hullOffset );
-				obj->MergeToLocatorSet( *locSets );
-			}
-		}
-
 		// audio locator
 		const Vector3* pos = dna->GetHullAudioPosition( hullIdx );
 		if( pos )
@@ -2429,6 +2738,511 @@ void EveSOF::SetupLocators( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna ) con
 			hullOffset += *nextSubsystemOffset;
 		}
 	}
+}
+
+
+// --------------------------------------------------------------------------------
+// Description:
+//   add the hull locator sets to the new ship
+// --------------------------------------------------------------------------------
+void EveSOF::SetupLocatorSets( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets )
+{
+	CCP_STATS_ZONE( __FUNCTION__ );
+
+	// cycle over all hulls in the multi-hull list
+	Vector3 hullOffset( 0.f, 0.f, 0.f );
+	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
+	{
+		// locator sets (like damage, explosions, etc.)
+		const std::vector<BlueSharedString> locatorSetsNames = dna->GetHullLocatorSetNames( hullIdx );
+		for( auto locatorSetName = locatorSetsNames.begin(); locatorSetName != locatorSetsNames.end(); ++locatorSetName )
+		{
+			auto locators = dna->GetHullLocators( locatorSetName->c_str(), hullIdx );
+			if( locators )
+			{
+				EveLocatorSetsPtr locSets;
+				locSets.CreateInstance();
+
+				if( offsets.size() > 1 )
+				{
+					// add the distributed locators
+					// need to move the locators by the hullOffset
+					std::vector<EveSOFDataMgr::LocatorDirectionData> distributedLocators;
+					distributedLocators.reserve( offsets.size() * locators->size() );
+					for( auto& offset : offsets )
+					{
+						std::transform( ( *locators ).begin(), ( *locators ).end(), std::back_inserter( distributedLocators ), [offset, hullOffset]( EveSOFDataMgr::LocatorDirectionData d ) -> EveSOFDataMgr::LocatorDirectionData {
+							Matrix m = TransformationMatrix( Vector3( 1.0, 1.0, 1.0 ), d.rotation, d.position + hullOffset ) * offset;
+							Vector3 tmp;
+							Decompose( tmp, d.rotation, d.position, m );
+							return d;
+						} );
+					}
+					locSets->Set( locatorSetName->c_str(), distributedLocators.data(), distributedLocators.size() );
+				}
+				else if( offsets.size() == 1 )
+				{
+					locSets->Set( locatorSetName->c_str(), locators->data(), locators->size() );
+					locSets->Translate( hullOffset + offsets.front().GetTranslation() );
+				}
+				obj->MergeToLocatorSet( *locSets );
+			}
+		}
+	}
+}
+
+void EveSOF::SetupLayout( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const std::vector<Matrix>& offsets )
+{
+	CCP_STATS_ZONE( __FUNCTION__ );
+
+	std::map<BlueSharedString, std::vector<EveSOFDataMgr::LocatorDirectionData>> locatorSets;
+	// map out all possible locators that the layouts can utilize
+	for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
+	{
+		const std::vector<BlueSharedString> locatorSetNames = dna->GetHullLocatorSetNames( hullIdx );
+
+		for(const auto & locatorSetName : locatorSetNames)
+		{
+			const std::vector<EveSOFDataMgr::LocatorDirectionData>* locators = dna->GetHullLocators( locatorSetName.c_str(), hullIdx );
+			std::vector<EveSOFDataMgr::LocatorDirectionData> locatorsCopy( *locators );
+
+			auto existingSet = locatorSets.find( locatorSetName );
+			if( existingSet == locatorSets.end())
+			{
+				locatorSets.insert({locatorSetName, locatorsCopy} );
+			}
+			else
+			{
+				locatorSets[locatorSetName].reserve( locatorSets[locatorSetName].size() + locatorsCopy.size() );
+				locatorSets[locatorSetName].insert( locatorSets[locatorSetName].end(), locatorsCopy.begin(), locatorsCopy.end() );
+			}
+		}
+	}
+
+	// dna can have multiple layouts
+	for( size_t layoutIdx = 0; layoutIdx < dna->GetLayoutCount(); ++layoutIdx )
+	{
+		auto layout = dna->GetLayoutData( layoutIdx );
+		size_t placementIdx = 0;
+		srand( layout->seed );
+
+		// Go over all the placements (each layout can have multiple mesh attachments)
+		for( auto placement : layout->placements )
+		{
+			auto locators = std::vector<EveSOFDataMgr::LocatorDirectionData>();
+
+			Vector3 hullOffset( 0, 0, 0 );
+
+			// Need to go over all the hulls
+			for( size_t hullIdx = 0; hullIdx < dna->GetMultiHullCount(); ++hullIdx )
+			{
+				auto hullLocators = dna->GetPlacementLocators( hullIdx, layoutIdx, placementIdx );
+				if( hullLocators && !hullLocators->empty())
+				{
+					std::vector<EveSOFDataMgr::LocatorDirectionData>  placementLocators( *hullLocators );
+
+					for( int32_t index = 0; index < placementLocators.size(); index++ )
+					{
+						bool inBoth = false;
+						int32_t pID = placementLocators.at(index).uniqueID;
+						for( auto mLoc : locatorSets[placement.locatorSetName] )
+						{
+							if( mLoc.uniqueID == pID )
+							{
+								inBoth = true;
+							}
+						}
+
+						if( !inBoth )
+						{
+							std::swap(placementLocators.at(index), placementLocators.back());
+							placementLocators.pop_back();
+							index--;
+						}
+					}
+
+					if( !placementLocators.empty() )
+					{
+						if(hullIdx == 0)
+						{
+							locators.insert( locators.end(), placementLocators.begin(), placementLocators.end() );
+						}
+						else
+						{
+							// need to move the locators by the hullOffset
+							std::transform( placementLocators.begin(), placementLocators.end(), std::back_inserter( locators ),
+											[hullOffset]( EveSOFDataMgr::LocatorDirectionData d ) -> EveSOFDataMgr::LocatorDirectionData {
+												d.position += hullOffset;
+												return d;
+											}
+							);
+						}
+					}
+				}
+
+				const Vector3* nextSubsystemOffset = dna->GetHullNextSubsystemOffset( hullIdx );
+				if( nextSubsystemOffset )
+				{
+					hullOffset += *nextSubsystemOffset;
+				}
+			}
+
+			if( locators.empty() )
+			{
+				continue;
+			}
+
+
+			if ( !ProcessLayoutDistributionConditions( placement, dna, locators, locatorSets[placement.locatorSetName]) )
+			{
+				continue;
+			}
+
+			if( placement.hasDistribution )
+			{
+				ProcessLayoutDistributionDistribute(placement.distribution, dna, locators, locatorSets[placement.locatorSetName]);
+			}
+			
+			EveSOFDNAPtr placementDna;
+			placementDna.CreateInstance();
+			placementDna->Setup( placement.name, placement.descriptor, dna, &m_dataMgr );
+			if( placement.isInstanced )
+			{
+				placementDna->DisableAnimation();
+			}
+
+			CreatePlacement( obj, placementDna, placement, locators, offsets);
+
+			placementIdx++;
+		}
+	}
+}
+
+bool EveSOF::ProcessLayoutDistributionConditions( EveSOFDataMgr::ExtensionPlacementData& placement,
+												  const EveSOFDNAPtr dna,
+												  std::vector<EveSOFDataMgr::LocatorDirectionData>& placementSet,
+												  std::vector<EveSOFDataMgr::LocatorDirectionData>& managedLocatorSet )
+{
+	bool distributionSuccessful = true;
+	for( auto condition : placement.placementConditions )
+	{
+		switch( condition.distributionType )
+		{
+		case EveSOFDataMgr::RANDOM_INCLUCION: {
+			distributionSuccessful = distributionSuccessful && condition.triggerChance > TriRand();
+		}
+		case EveSOFDataMgr::PARENT_MATCH: {
+			bool hull = condition.parentMatchMap.matchHull ? condition.spaceObjectParentDescriptor.hull == placement.descriptor.hull : true;
+			bool faction = condition.parentMatchMap.matchFaction ? condition.spaceObjectParentDescriptor.faction == placement.descriptor.faction : true;
+			bool race = condition.parentMatchMap.matchRace ? condition.spaceObjectParentDescriptor.race == placement.descriptor.race : true;
+			bool pattern = condition.parentMatchMap.matchPattern ? condition.spaceObjectParentDescriptor.pattern == placement.descriptor.pattern : true;
+			bool material1 = condition.parentMatchMap.matchMaterial1 ? condition.spaceObjectParentDescriptor.material1 == placement.descriptor.material1 : true;
+			bool material2 = condition.parentMatchMap.matchMaterial2 ? condition.spaceObjectParentDescriptor.material2 == placement.descriptor.material2 : true;
+			bool material3 = condition.parentMatchMap.matchMaterial3 ? condition.spaceObjectParentDescriptor.material3 == placement.descriptor.material3 : true;
+			bool material4 = condition.parentMatchMap.matchMaterial4 ? condition.spaceObjectParentDescriptor.material4 == placement.descriptor.material4 : true;
+			bool layout = condition.parentMatchMap.matchLayout ? condition.spaceObjectParentDescriptor.layout == placement.descriptor.layout : true;
+			distributionSuccessful = distributionSuccessful && hull && faction && race && pattern && material1 && material2 && material3 && material4 && layout;
+		}
+		case EveSOFDataMgr::DEPLETION_COUNTER: {
+			// TODO
+		}
+		default:
+			break;
+		}
+
+		if (!distributionSuccessful)
+		{
+			return false;
+		}
+	}
+
+	for( auto condition : placement.placementConditions )
+	{
+	    if( condition.distributionType == EveSOFDataMgr::DEPLETION_COUNTER)
+		{
+			// consume counters if enabled
+			// TODO
+		}
+	}
+
+	return true;
+}
+
+
+
+
+void EveSOF::ProcessLayoutDistributionDistribute( EveSOFDataMgr::ExtensionPlacementDistribution& distributionData,
+										const EveSOFDNAPtr dna,
+										std::vector<EveSOFDataMgr::LocatorDirectionData>& placementSet,
+										std::vector<EveSOFDataMgr::LocatorDirectionData>& managedLocatorSet )
+{
+	int32_t count = int( float( placementSet.size() ) * ( 1 - distributionData.completeness ) );
+
+	if( distributionData.cap > 0 )
+	{
+		count = max( count, int( placementSet.size() ) - distributionData.cap );
+	}
+
+	if( count <= 0 )
+	{
+		return;
+	}
+
+	std::map<int, Vector4> rankedLocators; // uniqueID, sorted rankings where =Vector4(Xaxis, Yaxis, Zaxis, distFromCenter)
+	for( auto locator : placementSet )
+	{
+		rankedLocators.insert({locator.uniqueID, Vector4(0,0,0,0)});
+	}
+
+	if( distributionData.placementBias.x != 0.f )
+	{
+		std::sort(placementSet.begin(), placementSet.end(),[] (auto &a,auto &b) { return a.position.x < b.position.x; });
+		for( size_t i = 0; i < placementSet.size(); i++) rankedLocators[placementSet[i].uniqueID].x = float(i);
+	}
+	if( distributionData.placementBias.y != 0.f )
+	{
+		std::sort(placementSet.begin(), placementSet.end(),[] (auto &a,auto &b) { return a.position.y < b.position.y; });
+		for( size_t i = 0; i < placementSet.size(); i++) rankedLocators[placementSet[i].uniqueID].y = float(i);
+	}
+	if( distributionData.placementBias.z != 0.f )
+	{
+		std::sort(placementSet.begin(), placementSet.end(),[] (auto &a,auto &b) { return a.position.z < b.position.z; });
+		for( size_t i = 0; i < placementSet.size(); i++) rankedLocators[placementSet[i].uniqueID].z = float(i);
+	}
+	if( distributionData.centerBias != 0.f )
+	{
+		std::sort(placementSet.begin(), placementSet.end(),[] (auto &a,auto &b) { return LengthSq(a.position) < LengthSq(b.position); });
+		for( size_t i = 0; i < placementSet.size(); i++) rankedLocators[placementSet[i].uniqueID].w = float(i);
+	}
+
+	float biasAmmount = Length(distributionData.placementBias) + abs(distributionData.centerBias);
+	float randomFactor = max(1.f - biasAmmount, 0.f); // BiasAmmount -> [0-2]
+
+	for( auto locator : placementSet )
+	{
+		uint32_t uID = locator.uniqueID;
+		float powerRank = rankedLocators[uID].x * distributionData.placementBias.x;
+		powerRank += rankedLocators[uID].y * distributionData.placementBias.y + rankedLocators[uID].z * distributionData.placementBias.z;
+		powerRank /= 1.73f*Length(distributionData.placementBias);
+		powerRank *= -1;
+		powerRank += float(placementSet.size())*TriRand()*randomFactor*4.f;
+		float cb = distributionData.centerBias;
+		cb = cb < 0 ?  ( float(placementSet.size()) - rankedLocators[uID].w ) * abs(cb) : rankedLocators[uID].w * cb;
+		powerRank += cb;
+
+		// reuse the map vector for sorting as we no longer need it
+		//rankedLocators[placementSet[i].uniqueID].w =
+		rankedLocators[uID].x = powerRank;
+	}
+
+	struct {
+		bool operator()(EveSOFDataMgr::LocatorDirectionData &a,EveSOFDataMgr::LocatorDirectionData &b, std::map<int, Vector4> &priorityMap) const
+		{
+			return priorityMap[a.uniqueID].x < priorityMap[b.uniqueID].x;
+		}
+	} prioritySort;
+
+	using namespace std::placeholders;
+	std::sort(placementSet.begin(), placementSet.end(), std::bind(prioritySort, _1, _2, rankedLocators ));
+
+	while( count > 0 )
+	{
+		placementSet.pop_back();
+		count--;
+	}
+
+	if( !distributionData.occupyLocators )
+	{
+		return;
+	}
+
+	// remove remaining locators that are about to be utilized from the spaceObj locator map
+	for( auto locator : placementSet )
+	{
+		for( int32_t index = 0; index < managedLocatorSet.size(); index++ )
+		{
+			if( managedLocatorSet[index].uniqueID == locator.uniqueID )
+			{
+				std::swap(managedLocatorSet[index], managedLocatorSet.back());
+				managedLocatorSet.pop_back();
+				break;
+			}
+		}
+	}
+}
+
+EveChildContainerPtr EveSOF::CreatePlacement( EveSpaceObject2Ptr parent, EveSOFDNAPtr extensionDna, EveSOFDataMgr::ExtensionPlacementData& placement, const std::vector<EveSOFDataMgr::LocatorDirectionData>& locators, const std::vector<Matrix>& nestedOffsets )
+{
+	Matrix placementOffset = TranslationMatrix( placement.offset );
+	// This is the container for all placements
+	EveChildContainerPtr container;
+	container.CreateInstance();
+	container->SetName( placement.name.c_str() );
+	container->SetOrigin( IEveSpaceObjectChild::SOF );
+	container->SetIsPlacementRoot( true );
+	// The top container needs to be always on so clipping/activation strength will work properly
+	// This will however not work properly for effects... sigh...
+	container->SetAlwaysOn( true ); // #vomit
+
+	std::vector<Matrix> placementOffsets;
+	placementOffsets.reserve( nestedOffsets.size() * locators.size() );
+	
+	CcpMath::Sphere updatedBoundingSphere(extensionDna->GetParentBoundingSphere());
+	CcpMath::AxisAlignedEllipsoid updatedEllipsoid(extensionDna->GetParentHullShapeEllipsoid());
+
+	// Stuff for non instanced placements
+	Vector3 scale = Vector3( 1, 1, 1 );
+
+	// Stuff for instanced placements
+	std::vector<EveSOFDataMgr::HullMeshInstance> instances;
+	instances.reserve( nestedOffsets.size() * locators.size() );
+
+	uint32_t buildFlags = placement.isInstanced ? EveSOFDataHullBuildFilter::INSTANCED_PLACEMENT : EveSOFDataHullBuildFilter::NON_INSTANCED_PLACEMENT;
+
+	// Placement Containers - used for non instanced meshes, controllers, effects and audio
+	std::vector<EveChildContainerPtr> placementContainers;
+	
+	BlueSharedString extensionName = BlueSharedString(extensionDna->GetDnaString());
+
+	for( auto& offset : nestedOffsets )
+	{
+		for( auto loc = locators.begin(); loc != locators.end(); ++loc )
+		{
+			Matrix transform = placementOffset * TransformationMatrix( Vector3( 1.0, 1.0, 1.0 ), Normalize( loc->rotation ), loc->position ) * offset;
+			placementOffsets.push_back( transform );
+
+			Matrix transposed( XMMatrixTranspose( transform ) );
+
+			EveChildContainerPtr placementContainer;
+			placementContainer.CreateInstance();
+			placementContainer->SetName( extensionName.c_str() );
+			placementContainers.push_back( placementContainer );
+
+			if( placement.isInstanced )
+			{
+				// add to the instance "buffer"
+				EveSOFDataMgr::HullMeshInstance i;
+				i.transform0 = *reinterpret_cast<Vector4*>( &transposed.GetX() );
+				i.transform1 = *reinterpret_cast<Vector4*>( &transposed.GetY() );
+				i.transform2 = *reinterpret_cast<Vector4*>( &transposed.GetZ() );
+				i.boneIndex = loc->boneIndex;
+				instances.push_back( i );
+			}
+			else
+			{
+				// create the child normally
+				Quaternion rotation;
+				Vector3 translation, tmp;
+				Decompose( tmp, rotation, translation, transform );
+
+				// create the non instanced extension mesh
+				EveChildMeshPtr child;
+				child.CreateInstance();
+				auto mesh = CreateMesh( extensionDna );
+				child->SetMesh( mesh );
+				if( extensionDna->IsHullAnimated() )
+				{ 
+					Tr2GrannyAnimationPtr animationPtr;
+					animationPtr.CreateInstance();
+					child->SetAnimationController( animationPtr );
+
+					// This will set the child as the animation owner of the parent, don't think this will be a problem...
+					placementContainer->SetAnimationOwner( child );
+				}
+				child->SetName( "Hull" );
+				child->Setup( &scale, &rotation, &translation, Tr2Lod::TR2_LOD_LOW );
+				SetupDecalSets( BlueCastPtr( child->GetRawRoot() ), extensionDna );
+				auto centerOffset = std::vector<Matrix>( 1, IdentityMatrix() );
+
+				SetupAttachments( BlueCastPtr( child->GetRawRoot() ), extensionDna, centerOffset );
+				
+				placementContainer->AddToEffectChildrenList( child );
+			}
+
+
+			CcpMath::Sphere instanceSphere( extensionDna->GetHullBoundingSphere() );
+			instanceSphere.Transform( transform );
+			
+			// update the bounding sphere of the parent
+			updatedBoundingSphere.IncludeSphere( instanceSphere );
+			// update the shield ellipsoid of the parent
+
+			CcpMath::AxisAlignedBox instanceBox( instanceSphere );
+			if( extensionDna->GetHullShapeEllipsoid() )
+			{
+				instanceBox = CcpMath::AxisAlignedBox( extensionDna->GetHullShapeEllipsoid() );
+				instanceBox.Transform( transform );
+			}
+
+			// include the instance box in the ellipsoid
+			updatedEllipsoid.IncludeBox( instanceBox );
+			
+			// Controllers!
+			SetupControllers( BlueCastPtr( placementContainer->GetRawRoot() ), extensionDna, buildFlags );
+
+			// And last but not least! AUDIO!
+			SetupAudio( BlueCastPtr( placementContainer->GetRawRoot() ), extensionDna, transform );
+		}
+	}
+
+	if( placement.isInstanced)
+	{
+		auto instancedMesh = CreateInstancedMesh( instances, extensionDna->GetHullGeometryResPath() );
+		SetupShaders( extensionDna, instancedMesh );
+
+		EveChildMeshPtr child;
+		child.CreateInstance();
+		child->SetMesh( instancedMesh );
+		child->SetName( "Instanced Hull" );
+
+		SetupDecalSets( BlueCastPtr( child->GetRawRoot() ), extensionDna );
+		// do this last so it sets all the needed shaders as instanced
+		child->SetShaderOption( BlueSharedString( "SPACE_OBJECT_INSTANCED_ATTACHMENT" ), BlueSharedString( "SOIA_ENABLED" ) );
+		
+		SetupAttachments( BlueCastPtr( container->GetRawRoot() ), extensionDna, placementOffsets );
+
+		container->AddToEffectChildrenList( child );
+	}
+
+	// change the bounding sphere of the parent, so clipping spheres etc will still be correct
+	parent->SetBoundingSphereInformation( updatedBoundingSphere );
+	// also store the parentBounds in the dna if we have nested layouts
+	extensionDna->SetParentBoundingSphere( updatedBoundingSphere );
+
+	// update the space object and the dna
+	parent->SetShapeEllipsoid( updatedEllipsoid );
+	extensionDna->SetParentShapeEllipsoidInfo( updatedEllipsoid );
+
+	SetupInstancedMeshes( parent, extensionDna, placementOffsets );
+
+	// Finish up setting up the common data
+	// Need to move the effects into the correct placement containers, this is a bit ugly, but kinda works :D
+	EveChildContainerPtr fakeContainer;
+	fakeContainer.CreateInstance();
+	SetupEffects( parent, (IEveEffectChildrenOwnerPtr)fakeContainer, extensionDna, placementOffsets, buildFlags );
+
+	uint32_t index = 0;
+	// We need to place the effects under the correct containers
+	for( auto& effect : fakeContainer->m_objects )
+	{
+		placementContainers[index++ % placementContainers.size()]->AddToEffectChildrenList( effect );
+	}
+
+	for( auto& placementContainer : placementContainers )
+	{
+		container->AddToEffectChildrenList( placementContainer );
+	}
+
+	parent->AddToEffectChildrenList( container );
+
+	//SetupCustomMask( newObj, dna );
+	SetupLocatorSets( parent, extensionDna, placementOffsets );
+	// setup nested layout
+	SetupLayout( parent, extensionDna, placementOffsets );
+
+	CCP_LOGNOTICE( "Creating %d extensions on %d places. Total: %d", placement.isInstanced ? " instanced" : "", locators.size(), nestedOffsets.size(), placementOffsets.size() );
+
+	return container;
 }
 
 // --------------------------------------------------------------------------------
@@ -2553,12 +3367,60 @@ void EveSOF::SetupTurretMaterialFromDNA( EveTurretSet* turretSet, const char* dn
 }
 
 
+void EveSOF::RegenerateLayout( EveSpaceObject2* owner, const char* dnaString )
+{
+	// get parent ship's DNA
+	EveSOFDNAPtr parentDna;
+	parentDna.CreateInstance();
+	parentDna->Setup( dnaString, &m_dataMgr );
+	if( owner == nullptr)
+	{
+		CCP_LOGERR( "EveSOF: RegenerateLayout failed, owner is nullptr!" );
+		return;
+	
+	}
+	if( !parentDna->IsValid() )
+	{
+		CCP_LOGERR( "EveSOF: RegenerateLayout failed, wrong dna string %s!", dnaString );
+		return;
+	}
 
+	// gather all the layout placement names
+	std::vector<std::string> placmentNames;
+	std::stack<EveSOFDNAPtr> dnaStrings;	
+	dnaStrings.push( parentDna );
 
+	while( !dnaStrings.empty() )
+	{
+		auto dna = dnaStrings.top();
+		dnaStrings.pop();
 
+		for( uint32_t layoutIndex = 0; layoutIndex < dna->GetLayoutCount(); ++layoutIndex )
+		{
+			auto layout = dna->GetLayoutData( layoutIndex );
 
-
-
-
-
-
+			for( auto placement : layout->placements )
+			{
+				auto existingChild = owner->GetEffectChildByName( placement.name.c_str() );
+				if( existingChild )
+				{
+					owner->RemoveFromEffectChildrenList( existingChild );
+				}
+				EveSOFDNAPtr placementDna;
+				placementDna.CreateInstance();
+				placementDna->Setup( layout->name, placement.descriptor, dna, &m_dataMgr );
+				if( placementDna->IsValid() && placementDna->GetLayoutCount() > 0 )
+				{
+					dnaStrings.push( placementDna );	
+				}
+			}
+		}
+	}
+	
+	auto offsets = std::vector<Matrix>( 1, IdentityMatrix() );
+	
+	// because the layout adds locatorsets we need to recreate them
+	owner->ClearLocatorSets();
+	SetupLocatorSets( owner, parentDna, offsets );
+	SetupLayout( owner, parentDna, offsets );
+}

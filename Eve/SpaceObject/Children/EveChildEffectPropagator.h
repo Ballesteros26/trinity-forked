@@ -32,6 +32,7 @@ public:
 	void Play();
 	void Stop();
 
+	bool Initialize() override;
 	bool OnModified( Be::Var* value ) override;
 
 	void UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform, Tr2Lod parentLod ) override;

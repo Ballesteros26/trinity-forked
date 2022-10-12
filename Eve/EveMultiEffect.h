@@ -81,7 +81,6 @@ public:
 	void UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform );
 	void GetRenderables( std::vector<ITr2Renderable*>& renderables, Tr2ImpostorManager* impostors );
 	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query = EVE_BOUNDS_NORMAL ) const;
-	void GetLights( Tr2LightManager& lightManager ) const;
 	void GetPerObjectStructs( EveSpaceObjectVSData& vsData, EveSpaceObjectPSData& psData ) const;
 	void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t );
 	void GetModelCenterWorldPosition( Vector3 &position ) const;

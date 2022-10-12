@@ -22,6 +22,7 @@ const Be::ClassInfo* EveStretch3::ExposeToBlue()
 		MAP_INTERFACE( ITr2CurveSetOwner )
 		MAP_INTERFACE( ITr2DynamicBindingOwner )
 		MAP_INTERFACE( ITr2SoundEmitterOwner )
+		MAP_INTERFACE( ITr2LightOwner )
 
 		MAP_ATTRIBUTE
 		(

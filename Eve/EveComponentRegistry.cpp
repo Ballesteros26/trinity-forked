@@ -10,7 +10,7 @@
 EveComponentRegistry::EveComponentRegistry(IRoot* lockobj)
 {
 	m_reflectionRenderables = std::vector<ITr2Renderable*>();
-	m_lightOwners = std::vector<IEveLightOwner*>();
+	m_lightOwners = std::vector<ITr2LightOwner*>();
 	m_entityReregisterMutex = CCP_NEW( "EveComponentRegistry::m_entityReregisterMutex" ) CcpMutex( "EveComponentRegistry", "m_entityReregisterMutex", 1000 );
 }
 

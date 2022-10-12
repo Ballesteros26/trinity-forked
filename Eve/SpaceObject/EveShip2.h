@@ -31,6 +31,7 @@ public:
 	virtual void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
 	virtual void AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer );
 	virtual void GetLights( Tr2LightManager& lightManager ) const;
+	virtual void GetParentData( EveSpaceObject2::ParentData * pd ) const;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable - overriding EveSpaceObject2 implementations
@@ -39,10 +40,6 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IBlueAsyncResNotifyTarget - overriding EveSpaceObject2 implementations
 	virtual void RebuildCachedData( BlueAsyncRes* p );
-
-	/////////////////////////////////////////////////////////////////////////////////////
-	// Overrides of decal data
-	virtual void FillDecalParentData( EveSpaceObjectDecal::ParentData* pd ) const;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2DebugRenderable

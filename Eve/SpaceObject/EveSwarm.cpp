@@ -215,7 +215,7 @@ void EveSwarmRenderable::PushDecals( std::vector<ITr2Renderable*>& renderables, 
 	}
 }
 
-void EveSwarmRenderable::UpdateDecalVisibility( const TriFrustum& frustum, EveSpaceObjectDecal::ParentData &pd, Tr2GrannyAnimation* animationUpdater )
+void EveSwarmRenderable::UpdateDecalVisibility( const TriFrustum& frustum, IEveSpaceObject2::ParentData &pd, Tr2GrannyAnimation* animationUpdater )
 {
 	TriGeometryResPtr geometryRes = m_mesh->GetGeometryResource();
 
@@ -395,11 +395,12 @@ void EveSwarm::UpdateTurretsAsyncronous( EveUpdateContext& updateContext )
 {
 	for( EveTurretSetVector::iterator it = m_turretSets.begin(); it != m_turretSets.end(); ++it )
 	{
-		EveTurretSet::ParentData pd;
+		IEveSpaceObject2::ParentData pd;
+		memset( &pd, 0, sizeof( ParentData ) );
+
 		pd.transform = *GetTurretTransform( (*it)->GetSwarmID() );
 		pd.shipData = m_spaceObjectShipData;
 		pd.clipData = m_psData.clipData;
-		pd.clipDataEx = m_psData.miscData;
 		(*it)->UpdateAsyncronous( updateContext, &pd );
 	}
 }
@@ -711,8 +712,8 @@ void EveSwarm::PushRenderables( std::vector<ITr2Renderable*>& renderables )
 	if (DisplayDecals() && m_mesh && m_isMeshVisible)
 	{
 		// put together parent data for the decals
-		EveSpaceObjectDecal::ParentData pd;
-		FillDecalParentData( &pd );
+		IEveSpaceObject2::ParentData pd;
+		GetParentData( &pd );
 
 		for (auto it = m_renderables.begin(); it != m_renderables.end(); it++)
 		{

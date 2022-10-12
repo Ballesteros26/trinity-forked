@@ -43,9 +43,12 @@ const Be::ClassInfo* EveChildContainer::ExposeToBlue()
 		MAP_INTERFACE( IListNotify )
 		MAP_INTERFACE( INotify )
 		MAP_INTERFACE( IEveEffectChildrenOwner )
-		MAP_INTERFACE ( IShaderConfigurer )
+		MAP_INTERFACE( IShaderConfigurer )
 		MAP_INTERFACE( ITr2SoundEmitterOwner )
 		MAP_INTERFACE( ITr2ControllerOwner )
+		MAP_INTERFACE( IEveInheritPropertiesOwner )
+		MAP_INTERFACE( IEveSpaceObjectAttachmentOwner )
+		MAP_INTERFACE( ITr2Renderable )
 
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "display", m_display, "", Be::READWRITE | Be::PERSIST | Be::NOTIFY )
@@ -73,8 +76,19 @@ const Be::ClassInfo* EveChildContainer::ExposeToBlue()
 		MAP_ATTRIBUTE( "controllers", m_controllers, "List of object controllers", Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( "inheritProperties", m_inheritProperties, "Properties inherited from the parent ship when loaded through SOF", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "origin", m_origin, "Where did this effect originate from", Be::READ )
+		MAP_ATTRIBUTE( "attachments", m_attachments, "Item sets attached to the object", Be::READ | Be::PERSIST )
+		MAP_ATTRIBUTE( "animationOwner", m_animationOwner, "The driving force for the animations", Be::READ )
+
 
 		MAP_METHOD_AND_WRAP( "RebuildLocalTransform", RebuildLocalTransform, "Rebuilds local transform." )
+
+        MAP_METHOD_AND_WRAP(
+            "SetProceduralContainerVariable",
+            SetProceduralContainerVariable,
+            "Set variable for all applicable ProceduralContainers\n"
+            ":param name: variable name\n"
+            ":param value: new variable value\n"
+        )
 
 		MAP_METHOD_AND_WRAP(
 			"SetControllerVariable",

@@ -13,6 +13,7 @@ const Be::ClassInfo* EveStretch::ExposeToBlue()
 		MAP_INTERFACE( IEveSpaceObject2 )
 		MAP_INTERFACE( IEveFiringEffectElement )
 		MAP_INTERFACE( ITr2DebugRenderable )
+		MAP_INTERFACE( ITr2LightOwner )
 
 		MAP_ATTRIBUTE
 		(

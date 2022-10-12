@@ -31,6 +31,7 @@ static std::string s_dnaCommands[] = {
 	"variant",				// CMD_VARIANT
 	"class",				// CMD_CLASS
 	"pattern",				// CMD_PATTERN
+	"layout",				// CMD_LAYOUT
 	"experimental",			// CMD_EXPERIMENTAL
 };
 
@@ -40,6 +41,7 @@ static std::string s_dnaClasses[] = {
 	"mobile",				// BUILDCLASS_MOBILE
 	"stationary",			// BUILDCLASS_STATIONARY
 	"swarm",				// BUILDCLASS_SWARM
+	"extension",			// BUILDCLASS_EXTENSION
 };
 
 static_assert( sizeof( s_dnaClasses ) / sizeof( s_dnaClasses[0] ) == EveSOFDataHull::BUILDCLASS_COUNT, 
@@ -190,6 +192,20 @@ bool EveSOFDNA::ValidateContent()
 				return false;
 			}
 			break;
+		case CMD_LAYOUT:
+			// Has at least 1 layout
+			if( cit->second.size() == 0)
+			{
+				return false;
+			}
+			for( size_t i = 0; i < cit->second.size(); i++ )
+			{
+				if( !m_dataMgr->HasLayoutData( cit->second[i].c_str() ) )
+				{
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 
@@ -297,6 +313,12 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 		m_patternData = m_dataMgr->GetPatternData( commandArgs[0].c_str() );
 	}
 
+	// do we have a layout DNA commmand?
+	if( GetDnaCommandArgs( CMD_LAYOUT, commandArgs ) )
+	{
+		m_layoutData = m_dataMgr->GetLayoutData( commandArgs );
+	}
+
 	// generics
 	m_genericData = m_dataMgr->GetGenericData();
 
@@ -308,7 +330,174 @@ void EveSOFDNA::Setup( const char* dnaString, EveSOFDataMgrPtr dataMgr )
 
 	// some dna commands require a custom block data
 	m_experimental = HasDnaCommand( CMD_EXPERIMENTAL );
+	// store the parent bounding sphere here as a copy of the hull bounding sphere...
+	m_parentBoundingSphere = GetHullBoundingSphere(); 
+	m_parentHullShapeEllipsoid = GetHullShapeEllipsoid();
+
+	m_isSkinned = m_hullDatas[0]->isSkinned;
 }
+
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Setup this dna object from a descriptor and a parent
+// --------------------------------------------------------------------------------
+void EveSOFDNA::Setup( const BlueSharedString layoutName, const EveSOFDataMgr::DNADescriptorData& descriptor, EveSOFDNAPtr parent, const EveSOFDataMgrPtr dataMgr )
+{
+	CCP_STATS_ZONE( __FUNCTION__ );
+	// remember the pointer to the BIG lib as long as this DNA object lives
+	m_dataMgr = dataMgr;
+
+	// The descriptor needs to have a hull!!!
+	m_hullDatas.clear();
+	StringSplit( m_hullNames, descriptor.hull.c_str(), s_dnaSeperatorList );
+	for( auto hullName: m_hullNames)
+	{
+		const EveSOFDataMgr::HullData* h = m_dataMgr->GetHullData( hullName.c_str() );
+		if( h == nullptr )
+		{
+			CCP_LOGERR( "Couldn't find the requested hull for layout: %s", hullName.c_str() );
+			return;
+		}
+		m_hullDatas.push_back( h );		
+	}
+	
+	if( m_hullDatas.empty() )
+	{
+		CCP_LOGERR( "Couldn't find at least one hull name for layout: %s", layoutName.c_str() );
+		return;
+	}
+ 
+	m_factionName = descriptor.faction.empty() ? parent->m_factionName : descriptor.faction.c_str();
+	m_raceName = descriptor.race.empty() ? parent->m_raceName : descriptor.race.c_str();
+
+	// make sure we find this faction
+	m_factionData = m_dataMgr->GetFactionData( m_factionName.c_str() );
+	if( m_factionData == nullptr )
+	{
+		CCP_LOGERR( "Couldn't find the requested faction for layout: %s", layoutName.c_str() );
+		return;
+	}
+	// make sure we find this race
+	m_raceData = m_dataMgr->GetRaceData( m_raceName.c_str() );
+	if( m_raceData == nullptr )
+	{
+		CCP_LOGERR( "Couldn't find the requested race for layout: %s", layoutName.c_str() );
+		return;
+	}
+
+	// Process Materials
+	std::vector<std::string> materialArgs(4, "None");
+	bool gotMaterials = parent->GetDnaCommandArgs( CMD_MATERIAL, materialArgs );
+	// Small question about how this should function, if the parent has 2 materials
+	// and the descriptor has 1 material, what should we do then? Override? Merge? TBD!
+	if( !descriptor.material1.empty() )
+	{
+		materialArgs[0] = descriptor.material1.c_str();
+		gotMaterials = true;
+	}
+	if( !descriptor.material2.empty() )
+	{
+		materialArgs[1] = descriptor.material2.c_str();
+		gotMaterials = true;
+	}
+	if( !descriptor.material3.empty() )
+	{
+		materialArgs[2] = descriptor.material3.c_str();
+		gotMaterials = true;
+	}
+	if( !descriptor.material4.empty() )
+	{
+		materialArgs[3] = descriptor.material4.c_str();
+		gotMaterials = true;
+	}
+
+	if( gotMaterials )
+	{
+		m_commands[s_dnaCommands[CMD_MATERIAL]] = materialArgs;
+	}
+
+	// Process respath insert
+	std::vector<std::string> respathInsert;
+	if( parent->GetDnaCommandArgs( CMD_RESPATHINSERT, respathInsert ) )
+	{
+		m_commands[s_dnaCommands[CMD_RESPATHINSERT]] = respathInsert;
+	}
+	
+	// Process respath insert
+	std::vector<std::string> variant;
+	if( parent->GetDnaCommandArgs( CMD_VARIANT, variant ) )
+	{
+		m_commands[s_dnaCommands[CMD_VARIANT]] = variant;
+	}
+
+	// are we in experimental mode
+	std::vector<std::string> experimental;
+	if( parent->GetDnaCommandArgs( CMD_EXPERIMENTAL, experimental ) )
+	{
+		m_commands[s_dnaCommands[CMD_EXPERIMENTAL]] = experimental;
+	}
+
+	// nested layouts!
+	if( !descriptor.layout.empty() )
+	{
+		m_commands[s_dnaCommands[CMD_LAYOUT]] = { std::string( descriptor.layout.c_str() ) };
+		m_layoutData = m_dataMgr->GetLayoutData( m_commands[s_dnaCommands[CMD_LAYOUT]] );
+	}
+
+	// patterns
+	// TODO make this work properly (inheriting the parent pattern)
+	std::vector<std::string> patterns;
+	if( !descriptor.pattern.empty() )
+	{
+		m_commands[s_dnaCommands[CMD_PATTERN]] = patterns;
+		m_patternData = m_dataMgr->GetPatternData( patterns[0].c_str() );
+	}
+	// generics
+	m_genericData = m_dataMgr->GetGenericData();
+
+	// some dna commands require a custom block data
+	if( parent->HasDnaCommand( CMD_VARIANT ) )
+	{
+		SetupCustomData();
+	}
+
+	// some dna commands require a custom block data
+	m_experimental = parent->HasDnaCommand( CMD_EXPERIMENTAL );
+
+	// contruct the dna string
+	m_dna = std::string( descriptor.hull.c_str() ) + s_dnaSeperatorCmd + std::string( m_factionName ) + s_dnaSeperatorCmd + std::string( m_raceName );
+	for( auto commands: m_commands )
+	{
+		auto commandType = commands.first;
+		auto commandArgs = commands.second;
+
+		m_dna += s_dnaSeperatorCmd + commandType + s_dnaSeperatorArg;
+
+		for( auto arg: commandArgs )
+		{
+			m_dna += arg + s_dnaSeperatorList;
+		}
+		m_dna.pop_back();
+	}
+
+        // This allows us to get the top parent hulls information
+	m_parentBoundingSphere = parent->GetParentBoundingSphere();
+	m_parentHullShapeEllipsoid = parent->GetParentHullShapeEllipsoid();
+
+	m_isSkinned = m_hullDatas[0]->isSkinned;
+}
+
+void EveSOFDNA::SetParentBoundingSphere( const CcpMath::Sphere& boundingSphere )
+{
+	m_parentBoundingSphere = boundingSphere;
+}
+
+void EveSOFDNA::SetParentShapeEllipsoidInfo( const CcpMath::AxisAlignedEllipsoid& ellipsoid )
+{
+	m_parentHullShapeEllipsoid = ellipsoid;
+}
+
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -323,8 +512,7 @@ void EveSOFDNA::SetupCustomData()
 		m_customHullData[i].buildClass = m_hullDatas[i]->buildClass;
 		m_customHullData[i].geometryResFilePath = m_hullDatas[i]->geometryResFilePath;
 		m_customHullData[i].boundingSphere = m_hullDatas[i]->boundingSphere;
-		m_customHullData[i].shapeEllipsoidCenter = m_hullDatas[i]->shapeEllipsoidCenter;
-		m_customHullData[i].shapeEllipsoidRadius = m_hullDatas[i]->shapeEllipsoidRadius;
+		m_customHullData[i].shapeEllipsoid = m_hullDatas[i]->shapeEllipsoid;
 		m_customHullData[i].isSkinned = m_hullDatas[i]->isSkinned;
 		m_customHullData[i].enableDynamicBoundingSphere = m_hullDatas[i]->enableDynamicBoundingSphere;
 		m_customHullData[i].castShadow = m_hullDatas[i]->castShadow;
@@ -741,7 +929,7 @@ const std::vector<EveSOFDataMgr::HullSoundEmitter>& EveSOFDNA::GetHullSoundEmitt
 }
 
 // --------------------------------------------------------------------------------
-const std::vector<BlueSharedString>& EveSOFDNA::GetHullControllers() const
+const std::vector<EveSOFDataMgr::HullController>& EveSOFDNA::GetHullControllers() const
 {
 	return m_hullDatas[0]->controllers;
 }
@@ -939,18 +1127,17 @@ EveSOFDataHull::BuildClass EveSOFDNA::GetBuildClass() const
 // Description:
 //   Return the bounding sphere info of this hull
 // --------------------------------------------------------------------------------
-Vector4 EveSOFDNA::GetHullBoundingSphere() const
+CcpMath::Sphere EveSOFDNA::GetHullBoundingSphere() const
 {
-	Vector4 boundingSphere;
-	BoundingSphereInitialize( boundingSphere );
+	CcpMath::Sphere boundingSphere = CcpMath::Sphere();
 
 	// cycle over all hulls in the multi-hull list
 	Vector3 hullOffset( 0.f, 0.f, 0.f );
 	for( size_t hullIdx = 0; hullIdx < GetMultiHullCount(); ++hullIdx )
 	{
-		Vector4 s( m_hullDatas[hullIdx]->boundingSphere );
-		BoundingSphereTranslate( hullOffset, s );
-		BoundingSphereUpdate( s, boundingSphere );
+		CcpMath::Sphere s( m_hullDatas[hullIdx]->boundingSphere );
+		s.center += hullOffset;
+		boundingSphere.IncludeSphere( s );
 
 		// next hull needs offset update from hull's locator
 		const Vector3* nextSubsystemOffset = GetHullNextSubsystemOffset( hullIdx );
@@ -965,24 +1152,32 @@ Vector4 EveSOFDNA::GetHullBoundingSphere() const
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Return a pointer to the center of this hull's shape ellipsoid
+//   Return the bounding sphere info of the parent
 // --------------------------------------------------------------------------------
-const Vector3* EveSOFDNA::GetHullShapeEllipsoidCenter() const
+CcpMath::Sphere EveSOFDNA::GetParentBoundingSphere() const
 {
-	// if multi-hull the ellipsoid is dynamically generated later
-	return ( m_hullDatas.size() == 1 ) ? &m_hullDatas[0]->shapeEllipsoidCenter : nullptr;
+	return m_parentBoundingSphere;
 }
 
 // --------------------------------------------------------------------------------
 // Description:
-//   Return a pointer to the radiuses of this hull's shape ellipsoid
+//   Returns the shape ellipsoid, needed for layouts to recalculate the 
+//	 ellipsoid data
 // --------------------------------------------------------------------------------
-const Vector3* EveSOFDNA::GetHullShapeEllipsoidRadius() const
+CcpMath::AxisAlignedEllipsoid& EveSOFDNA::GetParentHullShapeEllipsoid()
 {
-	// if multi-hull the ellipsoid is dynamically generated later
-	return ( m_hullDatas.size() == 1 ) ? &m_hullDatas[0]->shapeEllipsoidRadius : nullptr;
+	return m_parentHullShapeEllipsoid;
 }
 
+// --------------------------------------------------------------------------------
+// Description:
+//   Return a pointer to the center of this hull's shape ellipsoid
+// --------------------------------------------------------------------------------
+const CcpMath::AxisAlignedEllipsoid& EveSOFDNA::GetHullShapeEllipsoid() const
+{
+	// if multi-hull or using layout the ellipsoid is dynamically generated later
+	return m_hullDatas[0]->shapeEllipsoid;
+}
 // --------------------------------------------------------------------------------
 // Description:
 //   Return a pointer to the audio position of this hull
@@ -1003,7 +1198,12 @@ const Vector3* EveSOFDNA::GetHullAudioPosition( size_t n ) const
 // --------------------------------------------------------------------------------
 bool EveSOFDNA::IsHullAnimated() const
 {
-	return m_hullDatas[0]->isSkinned;
+	return m_isSkinned;
+}
+
+void EveSOFDNA::DisableAnimation()
+{
+	m_isSkinned = false;
 }
 
 // --------------------------------------------------------------------------------
@@ -1475,6 +1675,42 @@ bool EveSOFDNA::IsPatternLayerApplicableToArea( const EveSOFDataMgr::PatternLaye
 	return ( finder != layerData->applicableAreas.end() ) && finder->second;
 }
 
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return how many layouts are in specified in the dna
+// --------------------------------------------------------------------------------
+size_t EveSOFDNA::GetLayoutCount() const
+{
+	return m_layoutData.size();
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return layout data
+// --------------------------------------------------------------------------------
+const EveSOFDataMgr::LayoutData* EveSOFDNA::GetLayoutData( size_t layoutIndex ) const
+{
+	return m_layoutData[layoutIndex];
+}
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Return locator distribution for layout placement
+// --------------------------------------------------------------------------------
+const std::vector<EveSOFDataMgr::LocatorDirectionData>* EveSOFDNA::GetPlacementLocators( size_t hullIndex, size_t layoutIndex, size_t placementIndex ) const
+{
+	auto layout = m_layoutData[layoutIndex];
+	auto placement = layout->placements[placementIndex];
+	auto hull = m_hullDatas[hullIndex];
+	auto locators = hull->locatorSets.find( placement.locatorSetName );
+	if( locators == hull->locatorSets.end())
+	{
+		return nullptr;
+	}
+	return &locators->second;
+}
+
 // --------------------------------------------------------------------------------
 // Description:
 //   Sometimes it is good to know how high an ID of a mesharea can go!
@@ -1532,6 +1768,16 @@ bool EveSOFDNA::GetDnaCommandArgs( DnaCommand cmd, std::vector<std::string>& arg
 bool EveSOFDNA::IsUsingExperimentalFeatures() const
 {
 	return m_experimental;
+}
+
+BlueSharedString EveSOFDNA::GetFactionName() const
+{
+	return BlueSharedString(m_factionName);
+}
+
+BlueSharedString EveSOFDNA::GetRaceName() const
+{
+	return BlueSharedString(m_raceName);
 }
 
 EntityComponents::ReflectionMode EveSOFDNA::GetReflectionMode() const

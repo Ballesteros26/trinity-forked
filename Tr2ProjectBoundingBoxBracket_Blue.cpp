@@ -12,7 +12,7 @@ BLUE_DEFINE( Tr2ProjectBoundingBoxBracket );
 
 const Be::ClassInfo* Tr2ProjectBoundingBoxBracket::ExposeToBlue()
 {
-	EXPOSURE_BEGIN( Tr2ProjectBoundingBoxBracket, "Projects a 3D bounding box to 2D for brackets" )
+	EXPOSURE_BEGIN( Tr2ProjectBoundingBoxBracket, "Projects a 3D bounding box to 2D for brackets \n:jessica-deprecated: True" )
 		MAP_INTERFACE( ITriFunction )
 		MAP_INTERFACE( Tr2ProjectBoundingBoxBracket )
 		

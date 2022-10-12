@@ -17,6 +17,17 @@ class Tr2ImpostorManager;
 
 BLUE_INTERFACE( IEveSpaceObject2 ) : public IRoot
 {
+
+	// public struct to pass this info to children
+	struct ParentData
+	{
+		Matrix transform;
+		uint32_t killCount;
+		Vector4 shipData;
+		Vector4 clipData;
+		const Vector4* shLighting;
+	};
+
 	virtual void UpdateSyncronous( EveUpdateContext& updateContext ) = 0;
 	virtual void UpdateAsyncronous( EveUpdateContext& updateContext ) = 0;
 	virtual void UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform ) = 0;
@@ -41,11 +52,13 @@ BLUE_INTERFACE( IEveSpaceObject2 ) : public IRoot
 	// Adds quads from space object and its attachments to the quad renderer. ATTENTION: this function is called in-parallel
 	virtual void AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer ) {}
 
-	virtual void GetLights( Tr2LightManager& lightManager ) const {}
-
 	virtual void GetPerObjectStructs( EveSpaceObjectVSData& vsData, EveSpaceObjectPSData& psData ) const {}
 
 	virtual bool IsPickable() const { return true; }
+
+    virtual void SetProceduralContainerVariable( const char *name, float value ) {}
+
+	virtual void GetParentData( IEveSpaceObject2::ParentData * pd ) const {};
 };
 
 BLUE_DECLARE_IVECTOR( IEveSpaceObject2 );

@@ -12,7 +12,8 @@
 
 EveChildRef::EveChildRef( IRoot* lockobj ) :
 	EveChildTransform(),
-	m_display( true )
+	m_display( true ),
+    m_loadChildAutomatically( true )
 {
 }
 
@@ -30,18 +31,33 @@ void EveChildRef::SetResPath( const char* resPath )
 	if ( m_resPath != resPath )
 	{
 		m_resPath = resPath;
-		LoadChild();
+        if( m_loadChildAutomatically )
+        {
+            LoadChild();
+        }
 	}
 }
 
-void EveChildRef::Reload()
+void EveChildRef::Reload( bool bypassAutoLoadBlocker )
 {
-	LoadChild();
+    if( m_loadChildAutomatically || bypassAutoLoadBlocker )
+    {
+        LoadChild();
+    }
+}
+
+void EveChildRef::SetAutoLoadBlocker( bool shouldBlockAutoLoad )
+{
+    m_loadChildAutomatically = !shouldBlockAutoLoad;
 }
 
 bool EveChildRef::Initialize()
 {
-	LoadChild();
+    if( m_loadChildAutomatically )
+    {
+        LoadChild();
+    }
+
 	return true;
 }
 
@@ -49,7 +65,10 @@ bool EveChildRef::OnModified( Be::Var* value )
 {
 	if ( IsMatch( value, m_resPath ) )
 	{
-		LoadChild();
+        if( m_loadChildAutomatically )
+        {
+            LoadChild();
+        }
 	}
 	if( IsMatch( value, m_display ) )
 	{
@@ -113,6 +132,14 @@ void EveChildRef::RemoveFromEffectChildrenList( IEveSpaceObjectChild* child )
 	{
 		ref->RemoveFromEffectChildrenList( child );
 	}
+}
+
+void EveChildRef::SetProceduralContainerVariable(const char *name, float value)
+{
+    if ( m_child )
+    {
+        m_child->SetProceduralContainerVariable( name, value );
+    }
 }
 
 void EveChildRef::UpdateVisibility( const TriFrustum& frustum, const Matrix& parentTransform, Tr2Lod parentLod )
@@ -246,6 +273,14 @@ float EveChildRef::GetRangeDuration( const std::string& name, const std::string&
 	return 0.f;
 }
 
+void EveChildRef::PlayAllCurveSets()
+{
+    if ( auto owner = dynamic_cast<ITr2CurveSetOwner*>( m_child.p ) )
+    {
+        owner->PlayAllCurveSets();
+    }
+}
+
 void EveChildRef::SetShaderOption( const BlueSharedString& name, const BlueSharedString& value )
 {
 	if ( m_child )
@@ -295,7 +330,10 @@ void EveChildRef::SetInheritProperties( const Color* colorSet )
 {
 	if ( m_child )
 	{
-		m_child->SetInheritProperties( colorSet );
+		if( IEveInheritPropertiesOwnerPtr child = BlueCastPtr( m_child ) )
+		{
+			child->SetInheritProperties( colorSet );
+		}
 	}
 };
 

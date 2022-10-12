@@ -36,8 +36,7 @@ private:
 	void LinkToDestinationOwner();
 
 	BlueSharedString m_destinationOwner;
-	ITr2ControllerOwnerPtr m_destination;
-
+	BlueWeakRef<IRoot> m_destination;
 	BlueSharedString m_sourceVariable;
 	BlueSharedString m_variable;
 	float m_value;

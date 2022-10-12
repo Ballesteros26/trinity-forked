@@ -4,17 +4,21 @@
 #include "Tr2GrannyAnimation.h"
 #include "Utilities/MatrixUtils.h"
 #include "Eve/SpaceObject/Utils/EveLocator2.h"
+#include "Eve/SpaceObject/Children/EveChildInheritProperties.h"
 
 BLUE_DEFINE_INTERFACE( IEveSpaceObjectChild );
 BLUE_DEFINE_INTERFACE( IEveSpaceObject2 );
 BLUE_DEFINE_INTERFACE( IEveShadowCaster );
 BLUE_DEFINE_INTERFACE( IEveLightReceiver );
 BLUE_DEFINE_INTERFACE( IEveEffectChildrenOwner );
+BLUE_DEFINE_INTERFACE( IEveSpaceObjectDecalOwner );
+BLUE_DEFINE_INTERFACE( IEveInheritPropertiesOwner )
 BLUE_DEFINE_INTERFACE( IEveSpaceObjectAttachment );
 BLUE_DEFINE_INTERFACE( ITr2SoundEmitterOwner );
 BLUE_DEFINE_INTERFACE( IEveSceneRegistrationObject );
 BLUE_DEFINE_INTERFACE( IEveReflectionRenderable );
-BLUE_DEFINE_INTERFACE( IEveLightOwner );
+BLUE_DEFINE_INTERFACE( ITr2LightOwner );
+BLUE_DEFINE_INTERFACE( IEveSpaceObjectAttachmentOwner );
 BLUE_DEFINE_ABSTRACT( EveSpaceObject2 );
 
 #if BLUE_WITH_PYTHON
@@ -152,6 +156,10 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 		MAP_INTERFACE( ITr2SoundEmitterOwner )
 		MAP_INTERFACE( ITr2ControllerOwner )
 		MAP_INTERFACE( ITr2GrannyAnimationOwner )
+		MAP_INTERFACE( IEveInheritPropertiesOwner )
+		MAP_INTERFACE( IEveSpaceObjectDecalOwner )
+		MAP_INTERFACE( ITr2LightOwner )
+		MAP_INTERFACE( IEveSpaceObjectAttachmentOwner )
 
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::NOTIFY | Be::PERSIST )
 		MAP_ATTRIBUTE( "dna", m_dna, "If created by the SOF, this is the DNA string", Be::READ | Be::PERSIST )
@@ -354,6 +362,14 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 			m_curveSets,
 			"Curvesets for animating things",
 			Be::READ | Be::PERSIST
+		)
+
+		MAP_ATTRIBUTE
+		(
+			"inheritProperties",
+			m_inheritProperties,
+			"",
+			Be::READWRITE
 		)
 
 		MAP_ATTRIBUTE( "dynamicBoundingSphereEnabled", m_dynamicBoundingSphereEnabled, "Indicate if object uses dynamic bounding spheres", Be::READ | Be::PERSIST )
@@ -601,7 +617,7 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 
 	MAP_ATTRIBUTE_WITH_CHOOSER( "reflectionMode", m_reflectionMode, "When is this object rendered into the cubemap", Be::READWRITE | Be::PERSIST | Be::NOTIFY | Be::ENUM, EntityComponents::ReflectionModeChooser );
 
-	MAP_ATTRIBUTE( "lights", m_lights, "List of dynamic lights", Be::READ | Be::PERSIST );
+	MAP_ATTRIBUTE( "lights", m_lights, "List of dynamic lights", Be::READ | Be::PERSIST | Be::NOTIFY );
 
 	MAP_ATTRIBUTE( "externalParameters", m_externalParameters, "List of external parameters to bind to object elements", Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( "controllers", m_controllers, "List of object controllers", Be::READ | Be::PERSIST )
@@ -644,6 +660,14 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 			"GetLastUsedMeshLod",
 			GetLastUsedMeshLod,
 			"Returns last used mesh LOD index. For debugging purposes" )
+
+        MAP_METHOD_AND_WRAP(
+            "SetProceduralContainerVariable",
+            SetProceduralContainerVariable,
+            "Set variable for all applicable ProceduralContainer\n"
+            ":param name: variable name\n"
+            ":param value: new variable value\n"
+        )
 
 #if BLUE_WITH_PYTHON
 		MAP_METHOD(

@@ -22,6 +22,9 @@
 #include "Eve/SpaceObject/Attachments/EveImpactOverlay.h"
 #include "Eve/SpaceObject/Children/IEveSpaceObjectChild.h"
 #include "Eve/SpaceObject/Children/IEveEffectChildrenOwner.h"
+#include "Eve/SpaceObject/Children/IEveInheritPropertiesOwner.h"
+#include "Eve/SpaceObject/Attachments/IEveSpaceObjectDecalOwner.h"
+#include "Eve/SpaceObject/Attachments/Sets/IEveSpaceObjectAttachmentOwner.h"
 #include "Eve/SpaceObject/Utils/EveLocatorSets.h"
 #include "Tr2ImpostorManager.h"
 #include "Tr2DebugRenderer.h"
@@ -30,7 +33,7 @@
 #include "ITr2SoundEmitterOwner.h"
 #include "Controllers/ITr2ControllerOwner.h"
 #include "Eve/EveEntity.h"
-#include "Eve/Components/IEveLightOwner.h"
+#include "Lights/ITr2LightOwner.h"
 #include "Tr2GrannyAnimation.h"
 
 
@@ -39,6 +42,7 @@
 #define EVE_SPACEOBJECT_CUSTOWMASK_MAX (2)
 
 // forwards
+BLUE_DECLARE_INTERFACE( IEveSpaceObject2 );
 BLUE_DECLARE( EveSpaceObject2 );
 BLUE_DECLARE_VECTOR( EveSpaceObject2 );
 BLUE_DECLARE( TriGeometryRes );
@@ -56,6 +60,7 @@ BLUE_DECLARE( EveLocatorSets );
 BLUE_DECLARE_VECTOR( EveLocatorSets );
 BLUE_DECLARE( TriObserverLocal );
 BLUE_DECLARE_VECTOR( TriObserverLocal );
+BLUE_DECLARE( EveChildInheritProperties );
 
 BLUE_DECLARE( Tr2GPUParticleEmitter );
 BLUE_DECLARE_VECTOR( Tr2GPUParticleEmitter );
@@ -74,11 +79,12 @@ BLUE_DECLARE_IVECTOR( ITr2Controller );
 BLUE_DECLARE_INTERFACE( IEveSpaceObjectAttachment );
 BLUE_DECLARE_IVECTOR( IEveSpaceObjectAttachment );
 
+BLUE_DECLARE_INTERFACE( IEveSpaceObjectAttachmentOwner );
+BLUE_DECLARE_INTERFACE( ITr2LightOwner );
 
 struct granny_skeleton;
 
 class TriFrustum;
-class EveSpaceObjectDecalCache;
 struct Locator;
 
 // --------------------------------------------------------------------------------
@@ -165,6 +171,10 @@ BLUE_CLASS( EveSpaceObject2 ):
 	public ITr2SoundEmitterOwner,
 	public ITr2ControllerOwner,
 	public ITr2GrannyAnimationOwner,
+	public IEveInheritPropertiesOwner,
+	public IEveSpaceObjectDecalOwner,
+	public IEveSpaceObjectAttachmentOwner,
+	public ITr2LightOwner,
 	public EveEntity
 {
 public:
@@ -217,8 +227,9 @@ public:
 	virtual void GetLocalToWorldTransform( Matrix &transform ) const;
 	virtual void RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer );
 	virtual void AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer );
-	virtual void GetLights( Tr2LightManager& lightManager ) const;
+        virtual void SetProceduralContainerVariable( const char *name, float value ) override;
 	virtual bool IsPickable() const;
+	virtual void GetParentData( IEveSpaceObject2::ParentData * pd ) const;
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	// IEveShadowCaster
@@ -279,10 +290,6 @@ public:
 	// INotify
 	bool OnModified( Be::Var* value );
 
-	/////////////////////////////////////////////////////////////////////////////////////
-	// decal
-	virtual void FillDecalParentData( EveSpaceObjectDecal::ParentData* pd ) const;
-
 	//////////////////////////////////////////////////////////////////////////////////////
 	// EveEntity
 	void RegisterComponents() override;
@@ -321,6 +328,22 @@ public:
 	void HandleControllerEvent( const char* name ) override;
 	void StartControllers();
 	bool GetControllerValueByName( const char* name, float& out );
+	virtual void AddController( ITr2Controller* controller ) override;
+	
+	/////////////////////////////////////////////////////////////////////////////////////
+	// IEveSpaceObjectDecalOwner
+	virtual void AddDecal( EveSpaceObjectDecalPtr newDecal ) override;
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// IEveSpaceObjectAttachmentOwner
+	virtual void AddAttachment( IEveSpaceObjectAttachment * attachment ) override;
+	virtual void ClearAttachments() override;
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2LightOwner
+	virtual void GetLights( Tr2LightManager& lightManager ) const;
+	virtual void AddLight( Tr2Light* newLight );
+	virtual void ClearLights();
 
 	// For stateful GPU particles
 	ITriVectorFunctionPtr GetPositionFunction();
@@ -332,10 +355,10 @@ public:
 	bool IsAnimated() const; 
 
 	// bounding sphere
-	void SetBoundingSphereInformation( const Vector4& centerAndRadius );
+	void SetBoundingSphereInformation( const CcpMath::Sphere& boundingSphere );
 	Be::Result<std::string> GetLocalBoundingBoxFromScript( std::pair<Vector3, Vector3>& result );
 	void GetShapeEllipsoid( Vector3& center, Vector3& radius );
-	void SetShapeEllipsoid( const Vector3* center, const Vector3* radius );
+	void SetShapeEllipsoid( const CcpMath::AxisAlignedEllipsoid& ellipsoid );
 
 	// access to visiblity
 	float GetEstimatedPixelDiameter() const;
@@ -349,10 +372,7 @@ public:
 	float GetCurveSetDuration( const std::string& name ) const;
 	float GetRangeDuration( const std::string& name, const std::string& rangeName ) const;
 
-	// access spritesets & co
-	void AddAttachment( IEveSpaceObjectAttachment* attachment );
-	void AddDecal( EveSpaceObjectDecalPtr newDecal );
-	void AddLight( Tr2Light* newLight );
+	// access stuff
 	void AddCurveSet( TriCurveSetPtr newCurveSet );
 	void AddLocator( EveLocator2* newLocator );
 	void AddOverlayEffect( EveMeshOverlayEffectPtr newOverlayEffect );
@@ -363,6 +383,9 @@ public:
 	const LocatorStructureList* GetLocatorsForSet( const BlueSharedString& setName ) const;
 	void MergeToLocatorSet( const EveLocatorSets& locatorSet );
 
+	// clear stuff
+	void ClearLocatorSets();
+
 	void AddCustomMask( EveCustomMaskPtr newCustomMask );
 
 	// access to shadows
@@ -371,9 +394,7 @@ public:
 	// access to children
 	void AddToChildrenList( EveTransformPtr transform );
 
-	void AddController( ITr2Controller* controller );
-
-	void AddObserver( TriObserverLocal* observer );
+	void AddObserver( TriObserverLocalPtr observer ) override;
 
 	// Generic locator functions
 	int GetClosestLocatorIndex( const Vector3* position, BlueSharedString locatorSetName );
@@ -431,6 +452,8 @@ public:
 
 	int GetLastUsedMeshLod() const;
 
+	void SetInheritProperties( const Color* colorSet ) override;
+
 protected:
 	// Activation-Strength
 	float m_activationStrength;
@@ -447,8 +470,6 @@ protected:
 
 	void PrepareForAnimation();
 	void GetBatchesFromOverlayVector( ITriRenderBatchAccumulator * batches, const Tr2PerObjectData* perObjectData, TriBatchType batchType, Tr2MeshBase* mesh );
-
-	bool GetBoneList( const granny_matrix_3x4*& bones, size_t& boneCount ) const;
 
 	// Consideration for child classes
 	void PushChildrenAndDecalRenderables( std::vector<ITr2Renderable*>& renderables );
@@ -606,6 +627,7 @@ protected:
 	/////////////////////////////////////////////////////////////////////////////////////
 	// Effect children
 	PIEveSpaceObjectChildVector m_effectChildren;
+	EveChildInheritPropertiesPtr m_inheritProperties;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// custom masks

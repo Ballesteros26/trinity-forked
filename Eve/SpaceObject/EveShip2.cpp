@@ -294,18 +294,17 @@ void EveShip2::SetAudioParameter( IRoot* aud )
 
 // --------------------------------------------------------------------------------
 // Description:
-//   This funstion fills all the relevant data to pass to each decal as "parent's
-//   data. With it being virtual, sub classes can add more data.
+//   This function fills a parent data struct with parent data
 // Arguments:
 //   pd - the data buffer
 // --------------------------------------------------------------------------------
-void EveShip2::FillDecalParentData( EveSpaceObjectDecal::ParentData* pd ) const
+void EveShip2::GetParentData( EveSpaceObject2::ParentData* pd ) const
 {
 	// call base
-	EveSpaceObject2::FillDecalParentData( pd );
+	EveSpaceObject2::GetParentData( pd );
 
 	// add in the kill counter
-	pd->displayCounter = m_displayKillCounterValue;
+	pd->killCount = m_displayKillCounterValue;
 }
 
 // --------------------------------------------------------------------------------

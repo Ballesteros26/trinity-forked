@@ -30,16 +30,28 @@ EveChildContainer::EveChildContainer( IRoot* lockobj ) :
 	PARENTLOCK( m_transformModifiers ),
 	PARENTLOCK( m_controllers ),
 	PARENTLOCK( m_fxAttributes ),
+	PARENTLOCK( m_attachments ),
 	m_controllerVariables( "EveChildContainer::m_controllerVariables" ),
 	m_displayFilter( SHADER_ALL ),
 	m_worldVelocity( 0, 0, 0 ),
 	m_display( true ),
 	m_isAlwaysOn( false ),
+	m_isPlacementRoot( false ),
 	m_ownerMaxSpeed( 0 ),
-	m_origin( SPACE )
+	m_origin( SPACE ),
+	m_activationStrength( 1.0f )
 {
 	m_controllers.SetNotify( this );
-	m_objects.SetNotify( this );
+    m_objects.SetNotify( this );
+    m_lights.SetNotify( this );
+
+	memset( &m_vsData, 0, sizeof( EveSpaceObjectVSData ) );
+	memset( &m_psData, 0, sizeof( EveSpaceObjectPSData ) );
+	m_vsData.shipData.y = 1.f;
+	m_vsData.shipData.w = 1.f;
+	m_psData.shipData.y = 1.f;
+	m_psData.shipData.w = 1.f;
+	m_psData.screenSize = Vector4( 0.5f, 0.5f, 0.5f, 1.f );
 }
 
 EveChildContainer::~EveChildContainer()
@@ -123,7 +135,29 @@ void EveChildContainer::OnListModified( long event, ssize_t key, ssize_t key2, I
 			default:
 				break;
 			}
-		}		
+		}
+    }
+
+    if( list == &m_objects && (event & BELIST_EVENTMASK) == BELIST_INSERTED )
+    {
+        if( m_inheritProperties )
+        {
+			if( IEveInheritPropertiesOwnerPtr obj = BlueCastPtr( value) )
+			{
+				obj->SetInheritProperties( m_inheritProperties->GetProperties() );
+			}
+        }
+    }
+
+    if( list == &m_lights && (event & BELIST_EVENTMASK) == BELIST_INSERTED  )
+    {
+        if( m_inheritProperties )
+        {
+			if( IEveInheritPropertiesOwnerPtr light = BlueCastPtr( value) )
+			{
+				light->SetInheritProperties( m_inheritProperties->GetProperties() );
+			}
+        }		
 	}
 }
 
@@ -172,6 +206,11 @@ void EveChildContainer::SetShaderOption( const BlueSharedString& name, const Blu
 	{
 		IEveSpaceObjectChild* child = *it;
 		child->SetShaderOption( name, value );
+	}
+
+	for( auto& attachment: m_attachments )
+	{
+		attachment->SetShaderOption( name, value );
 	}
 }
 
@@ -243,6 +282,21 @@ void EveChildContainer::UpdateVisibility( const TriFrustum& frustum, const Matri
 	{
 		( *it )->UpdateVisibility( frustum, parentTransform, parentLod );
 	}
+
+	if( HasRenderables() )
+	{
+		size_t boneCount = 0;
+		const granny_matrix_3x4* bones = nullptr;
+		if( m_animationOwner && m_animationOwner->GetAnimationController() )
+		{
+			Tr2GrannyAnimationUtils::GetBoneList( m_animationOwner->GetAnimationController(), bones, boneCount );	
+		}
+
+		for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
+		{
+			( *it )->UpdateVisibility( frustum, m_worldTransform, bones, boneCount);
+		}
+	}
 }
 
 void EveChildContainer::GetRenderables( std::vector<ITr2Renderable*>& renderables )
@@ -254,6 +308,11 @@ void EveChildContainer::GetRenderables( std::vector<ITr2Renderable*>& renderable
 	if( !IsRendering() )
 	{
 		return;
+	}
+
+	if( HasRenderables() )
+	{
+		renderables.push_back( this );
 	}
 
 	for( auto it = m_objects.begin(); it != m_objects.end(); it++ )
@@ -288,6 +347,10 @@ void EveChildContainer::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer 
 	{
 		( *it )->RegisterWithQuadRenderer( quadRenderer );
 	}
+	for( auto& it: m_attachments )
+	{
+		it->RegisterWithQuadRenderer( quadRenderer );
+	}
 }
 
 void EveChildContainer::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer ) const
@@ -304,6 +367,20 @@ void EveChildContainer::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2Qu
 	{
 		( *it )->AddQuadsToQuadRenderer( frustum, quadRenderer );
 	}
+	if( !m_attachments.empty() )
+	{
+		size_t boneCount = 0;
+		const granny_matrix_3x4* bones = nullptr;
+
+		if( m_animationOwner && m_animationOwner->GetAnimationController() )
+		{
+			Tr2GrannyAnimationUtils::GetBoneList( m_animationOwner->GetAnimationController(), bones, boneCount );
+		}
+		for( auto& it : m_attachments )
+		{
+			it->AddToQuadRenderer( quadRenderer, m_worldTransform, 1.0, 0.0, bones, boneCount );
+		}
+	}	
 }
 
 void EveChildContainer::UpdateSyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params )
@@ -335,12 +412,27 @@ void EveChildContainer::UpdateAsyncronous( EveUpdateContext& updateContext, cons
 	{
 		return;
 	}
+	if( m_isPlacementRoot && updateContext.GetTaskGroup() )
+	{
+		updateContext.GetTaskGroup()->run( [this, &updateContext, params] {
+			CCP_STATS_ZONE( "Placement Child UpdateAsyncronous" );
+			this->DoUpdateAsyncronous( updateContext, params );
+		} );
+	}
+	else
+	{
+		DoUpdateAsyncronous( updateContext, params );
+	}
+}
 
+void EveChildContainer::DoUpdateAsyncronous( EveUpdateContext& updateContext, const EveChildUpdateParams& params )
+{
 	for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
 	{
 		( *it )->Update();
 	}
 
+	Matrix lastWorldTransform = m_worldTransform;
 	Matrix localToWorldTransform = params.localToWorldTransform;
 	if( params.childParent )
 	{
@@ -352,14 +444,48 @@ void EveChildContainer::UpdateAsyncronous( EveUpdateContext& updateContext, cons
 	}
 
 	UpdateTransform( localToWorldTransform );
-	for( auto it = m_transformModifiers.begin(); it != m_transformModifiers.end(); it++ )
+
+	auto boneCount = params.boneCount;
+	auto bones = params.bones;
+
+	if( m_animationOwner && m_animationOwner->GetAnimationController() )
 	{
-		m_worldTransform = ( *it )->ApplyTransform( m_worldTransform, params.boneCount, params.bones );
+		Tr2GrannyAnimationUtils::GetBoneList( m_animationOwner->GetAnimationController(), bones, boneCount );
 	}
 
+	for( auto it = m_transformModifiers.begin(); it != m_transformModifiers.end(); it++ )
+	{
+		m_worldTransform = ( *it )->ApplyTransform( m_worldTransform, boneCount, bones );
+	}
+
+	m_activationStrength = params.activationStrength;
+
+	// need to update the data we get from the parent to be relevant to us!
+	if( nullptr != params.spaceObjectParent )
+	{
+		params.spaceObjectParent->GetPerObjectStructs( m_vsData, m_psData );
+
+		// need to move the clipdata inversely of the translation of the childmesh
+		m_vsData.clipData = Vector4( m_vsData.clipData.GetXYZ() - m_translation, m_vsData.clipData.w );
+		m_psData.clipData = Vector4( m_psData.clipData.GetXYZ() - m_translation, m_psData.clipData.w );
+	}
+
+	m_activationStrength = params.activationStrength;
+
+	if( HasRenderables() )
+	{
+		m_perObjectDataVs.InvalidateBufferData();
+		m_perObjectDataPs.InvalidateBufferData();
+		m_vsData.worldTransform = Transpose( m_worldTransform );
+		m_vsData.invWorldTransform = Inverse( m_worldTransform );
+		m_vsData.worldTransformLast = Transpose( lastWorldTransform );
+	}
+	
 	EveChildUpdateParams newParams = params;
 	newParams.isVisible &= m_display;
 	newParams.childParent = this;
+	newParams.boneCount = boneCount;
+	newParams.bones = bones;
 
 	for( auto it = m_objects.begin(); it != m_objects.end(); it++ )
 	{
@@ -379,7 +505,7 @@ void EveChildContainer::UpdateAsyncronous( EveUpdateContext& updateContext, cons
 
 	for( auto it = m_lights.begin(); it != m_lights.end(); ++it)
 	{
-		( *it )->SetBoneMatrix( params.bones, params.boneCount );
+		( *it )->SetBoneMatrix( bones, boneCount );
 	}
 
 	if( params.spaceObjectParent && !params.childParent )
@@ -423,6 +549,11 @@ void EveChildContainer::GetLights( Tr2LightManager& lightManager ) const
 	for( auto it = m_objects.begin(); it != m_objects.end(); ++it )
 	{
 		( *it )->GetLights( lightManager );
+	}
+
+	for(auto& it: m_attachments)
+	{
+		it->GetLights( lightManager, worldTransform );
 	}
 }
 
@@ -596,6 +727,11 @@ void EveChildContainer::Setup( const Vector3* scale, const Quaternion* rotation,
 	EveChildTransform::Setup( scale, rotation, translation, lowestLodVisible );
 }
 
+void EveChildContainer::SetAlwaysOn( bool alwaysOn )
+{
+	m_isAlwaysOn = alwaysOn;
+}
+
 void EveChildContainer::GetDebugOptions( Tr2DebugRendererOptions& options )
 {
 	for( auto it = begin( m_objects ); it != end( m_objects ); ++it )
@@ -610,6 +746,11 @@ void EveChildContainer::GetDebugOptions( Tr2DebugRendererOptions& options )
 	for( auto it = m_observers.begin(); it != m_observers.end(); ++it )
 	{
 		( *it )->GetDebugOptions( options );
+	}
+
+	for( auto& it: m_attachments)
+	{
+		it->GetDebugOptions( options );
 	}
 }
 
@@ -640,6 +781,26 @@ void EveChildContainer::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 			( *it )->RenderDebugInfo( renderer, m_worldTransform );
 		}
 	}
+
+	if( !m_attachments.empty() )
+	{
+		size_t boneCount = 0;
+		const granny_matrix_3x4* bones = nullptr;
+
+		if( m_animationOwner && m_animationOwner->GetAnimationController() )
+		{
+			Tr2GrannyAnimationUtils::GetBoneList( m_animationOwner->GetAnimationController(), bones, boneCount );
+		}
+		for( auto& it: m_attachments )
+		{
+			it->RenderDebugInfo( renderer, m_worldTransform, bones, boneCount );
+		}
+	}
+}
+
+void EveChildContainer::AddController( ITr2Controller* controller )
+{
+	m_controllers.Append( controller );
 }
 
 void EveChildContainer::SetControllerVariable( const char* name, float value )
@@ -733,6 +894,22 @@ void EveChildContainer::SetInheritProperties( const Color* colorSet )
 		m_inheritProperties.CreateInstance();
 	}
 	m_inheritProperties->SetProperties( colorSet );
+
+    for( auto it = m_objects.begin(); it != m_objects.end(); it++ )
+    {
+		if( IEveInheritPropertiesOwnerPtr cast = BlueCastPtr(*it) )
+		{
+			cast->SetInheritProperties( colorSet );
+		}
+    }
+
+    for( auto it = m_lights.begin(); it != m_lights.end(); it++ )
+    {
+		if( IEveInheritPropertiesOwnerPtr light = BlueCastPtr( *it ) )
+		{
+			light->SetInheritProperties( colorSet );
+		}
+    }
 }
 
 ITr2AudEmitterPtr EveChildContainer::FindSoundEmitter( const char* name )
@@ -759,6 +936,11 @@ ITr2AudEmitterPtr EveChildContainer::FindSoundEmitter( const char* name )
 		}
 	}
 	return nullptr;
+}
+
+void EveChildContainer::AddObserver( TriObserverLocalPtr observer ) 
+{
+	m_observers.Append( observer );
 }
 
 float EveChildContainer::GetOwnerMaxSpeed() const
@@ -791,4 +973,115 @@ bool EveChildContainer::GetControllerValueByName( const char* name, float& out )
 void EveChildContainer::AddTransformModifier( IEveChildTransformModifier* modifier )
 {
 	m_transformModifiers.Append( modifier );
+}
+
+void EveChildContainer::SetProceduralContainerVariable( const char *name, float value )
+{
+    for( auto it = m_objects.begin(); it != m_objects.end(); it++ )
+    {
+        auto child = *it;
+        child->SetProceduralContainerVariable( name, value );
+    }
+}
+
+void EveChildContainer::SetAnimationOwner( ITr2GrannyAnimationOwner* animationOwner )
+{
+	m_animationOwner = animationOwner;
+}
+
+void EveChildContainer::AddAttachment( IEveSpaceObjectAttachment* attachment )
+{
+	m_attachments.Append( attachment );
+}
+
+void EveChildContainer::ClearAttachments()
+{
+	m_attachments.Clear();
+}
+
+bool EveChildContainer::HasRenderables() const
+{
+	return !m_attachments.empty();
+}
+
+void EveChildContainer::GetBatches( ITriRenderBatchAccumulator* batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData, Tr2RenderReason reason )
+{
+	if( m_display && reason == TR2RENDERREASON_NORMAL && m_activationStrength != 0.0 )
+	{
+		for( auto& it : m_attachments)
+		{
+			it->GetBatches( batches, batchType, perObjectData, reason );
+		}
+	}
+}
+
+bool EveChildContainer::HasTransparentBatches()
+{
+	return false;
+}
+
+float EveChildContainer::GetSortValue()
+{
+	return 0.0;
+}
+
+uint32_t EveChildContainer::GetPerObjectDataSize( Tr2RenderContextEnum::ShaderType shaderType ) const
+{
+	if( shaderType == Tr2RenderContextEnum::VERTEX_SHADER )
+	{
+		int boneCount = 0;
+		if( m_animationOwner && m_animationOwner->GetAnimationController() && m_animationOwner->GetAnimationController()->IsInitialized() )
+		{
+			boneCount = m_animationOwner->GetAnimationController()->GetMeshBoneCount();
+		}
+
+		return sizeof( m_vsData ) +
+			boneCount * 3 * 16; // m_vsBonesMatrix (3x4)
+	}
+	else if( shaderType == Tr2RenderContextEnum::PIXEL_SHADER)
+	{
+		return sizeof( m_psData );	
+	}
+	return 0;
+}
+
+void EveChildContainer::UpdatePerObjectBuffer( Tr2RenderContextEnum::ShaderType shaderType, uint32_t size, void* data )
+{
+	if( shaderType == Tr2RenderContextEnum::PIXEL_SHADER )
+	{
+		uint8_t* perObjectPS = (uint8_t*)data;
+		memcpy( perObjectPS, &m_psData, sizeof( m_psData ) );
+	}
+	else
+	{
+		uint8_t* perObjectVS = (uint8_t*)data;
+		memcpy( perObjectVS, &m_vsData, sizeof( m_vsData ) );
+		perObjectVS += sizeof( m_vsData );
+
+		size -= sizeof( m_vsData );
+		if( size )
+		{
+			if( m_animationOwner && m_animationOwner->GetAnimationController() && m_animationOwner->GetAnimationController()->IsInitialized() )
+			{
+				memcpy( perObjectVS, m_animationOwner->GetAnimationController()->GetMeshBoneMatrixList(), size );
+			}
+		}
+	}
+}
+
+Tr2PerObjectData* EveChildContainer::GetPerObjectData( ITriRenderBatchAccumulator* accumulator )
+{
+	Tr2PerObjectDataWithPersistentBuffers<EveChildContainer>* perObjectData = accumulator->Allocate<Tr2PerObjectDataWithPersistentBuffers<EveChildContainer>>();
+	if( !perObjectData )
+	{
+		return NULL;
+	}
+	perObjectData->Initialize( this, &m_perObjectDataVs, &m_perObjectDataPs );
+
+	return perObjectData;
+}
+
+void EveChildContainer::SetIsPlacementRoot( bool isPlacementRoot )
+{
+	m_isPlacementRoot = isPlacementRoot;
 }

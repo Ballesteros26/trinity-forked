@@ -5,7 +5,7 @@ BLUE_DEFINE( Tr2DistanceTracker );
 
 const Be::ClassInfo* Tr2DistanceTracker::ExposeToBlue()
 {
-    EXPOSURE_BEGIN( Tr2DistanceTracker, "" )
+    EXPOSURE_BEGIN( Tr2DistanceTracker, ":jessica-deprecated: True" )
 
         MAP_INTERFACE( ITriFunction )
         MAP_INTERFACE( INotify )

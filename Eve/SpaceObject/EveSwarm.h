@@ -54,7 +54,7 @@ public:
 	void SetShaderData( const EveSpaceObjectVSData& vsData, const EveSpaceObjectPSData& psData );
 	void InitDecals( const PEveSpaceObjectDecalVector &decals );
 	void PushDecals( std::vector<ITr2Renderable*>& renderables, float screensize );
-	void UpdateDecalVisibility( const TriFrustum& frustum, EveSpaceObjectDecal::ParentData &pd, Tr2GrannyAnimation* animationUpdater );
+	void UpdateDecalVisibility( const TriFrustum& frustum, IEveSpaceObject2::ParentData& pd, Tr2GrannyAnimation* animationUpdater );
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Pickable

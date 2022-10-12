@@ -45,10 +45,6 @@ EveSpriteSet::~EveSpriteSet()
 
 bool EveSpriteSet::Initialize()
 {
-	if( m_effect )
-	{
-		m_effectHash = m_effect->GetHashValue();
-	}
 	Rebuild();
 	return true;
 }
@@ -256,6 +252,11 @@ void EveSpriteSet::SetName( const char* name )
 // --------------------------------------------------------------------------------
 void EveSpriteSet::Rebuild()
 {
+	if( m_effect )
+	{
+		m_effectHash = m_effect->GetHashValue();
+	}
+
 	int n = (unsigned int)m_sprites.GetSize();
 	m_buffer.resize( n );
 	for( int i = 0; i < n; ++i )

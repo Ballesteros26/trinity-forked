@@ -16,6 +16,7 @@ Tr2CurveColor::Tr2CurveColor( IRoot* lockobj )
 	PARENTLOCK( m_g ),
 	PARENTLOCK( m_b ),
 	PARENTLOCK( m_a ),
+	m_timeOffset( 0.f ),
 	m_currentValue( 0, 0, 0, 1 ),
 	m_srgbOutput( false )
 {
@@ -24,10 +25,11 @@ Tr2CurveColor::Tr2CurveColor( IRoot* lockobj )
 // --------------------------------------------------------------------------------
 void Tr2CurveColor::UpdateValue( double time )
 {
-	m_currentValue.r = m_r.Update( time );
-	m_currentValue.g = m_g.Update( time );
-	m_currentValue.b = m_b.Update( time );
-	m_currentValue.a = m_a.Update( time );
+	double t = time - m_timeOffset;
+	m_currentValue.r = m_r.Update( t );
+	m_currentValue.g = m_g.Update( t );
+	m_currentValue.b = m_b.Update( t );
+	m_currentValue.a = m_a.Update( t );
 	if( m_a.IsEmpty() )
 	{
 		m_currentValue.a = 1;
@@ -47,7 +49,8 @@ float Tr2CurveColor::Length()
 // --------------------------------------------------------------------------------
 Color Tr2CurveColor::GetValue( double time ) const
 {
-	Color color( m_r.GetValue( time ), m_g.GetValue( time ), m_b.GetValue( time ), m_a.IsEmpty() ? 1.0f : m_a.GetValue( time ) );
+	double t = time - m_timeOffset;
+	Color color( m_r.GetValue( t ), m_g.GetValue( t ), m_b.GetValue( t ), m_a.IsEmpty() ? 1.0f : m_a.GetValue( t ) );
 	if( m_srgbOutput )
 	{
 		color.r = std::max( color.r, 0.f );

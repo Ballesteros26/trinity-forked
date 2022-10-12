@@ -22,37 +22,59 @@
 
 using namespace Tr2RenderContextEnum;
 
+Tr2SSAO::SSAOResources::SSAOResources()
+{
+	deinterleavedDepthTarget.CreateInstance();
+	deinterleavedNormalTarget.CreateInstance();
+	ssaoWorkerTargetA.CreateInstance();
+	ssaoWorkerTargetB.CreateInstance();
+	importanceTargetA.CreateInstance();
+	importanceTargetB.CreateInstance();
+}
+
+void Tr2SSAO::SSAOResources::ReleaseResources()
+{
+	deinterleavedDepthTexture = {};
+	deinterleavedNormalTexture = {};
+	ssaoWorkerTextureA = {};
+	ssaoWorkerTextureB = {};
+	importanceTargetA->Destroy();
+	importanceTargetB->Destroy();
+}
+
+void Tr2SSAO::Layer::ReleaseResources()
+{
+	effect->ClearAllResources();
+	effect->ClearAllParameters();
+
+	resources.ReleaseResources();
+}
+
+
 Tr2SSAO::Tr2SSAO( IRoot* lockobj )
 {
-	m_settings = FFX_CACAO_PRESETS[0].settings;
-	m_settings.radius = 6;
-	m_settings.shadowMultiplier = 1.0f;
-	m_settings.shadowPower = 2.6f;
-	m_settings.shadowClamp = 0.98f;
-	m_settings.sharpness = 0.5f;
-	m_settings.detailShadowStrength = 5;
+	m_detail.settings = FFX_CACAO_PRESETS[0].settings;
+	m_detail.settings.radius = 6;
+	m_detail.settings.shadowMultiplier = 1.0f;
+	m_detail.settings.shadowPower = 2.6f;
+	m_detail.settings.shadowClamp = 0.98f;
+	m_detail.settings.sharpness = 0.5f;
+	m_detail.settings.detailShadowStrength = 5;
+	m_detail.effect.CreateInstance();
 
-	m_settingsLarge = FFX_CACAO_PRESETS[0].settings;
-	m_settingsLarge.radius = 2.5f;
-	m_settingsLarge.shadowMultiplier = 1.0f;
-	m_settingsLarge.shadowPower = 2.6f;
-	m_settingsLarge.shadowClamp = 0.98f;
-	m_settingsLarge.sharpness = 0.5f;
-	m_settingsLarge.detailShadowStrength = 5;
+	m_large.settings = FFX_CACAO_PRESETS[0].settings;
+	m_large.settings.radius = 2.5f;
+	m_large.settings.shadowMultiplier = 1.0f;
+	m_large.settings.shadowPower = 2.6f;
+	m_large.settings.shadowClamp = 0.98f;
+	m_large.settings.sharpness = 0.5f;
+	m_large.settings.detailShadowStrength = 5;
+	m_large.effect.CreateInstance();
+	m_large.effect->SetOption( BlueSharedString( "SSAO_APPLICATION" ), BlueSharedString( "SSAO_APPLY_MIX" ) );
 
-	m_ssaoEffect.CreateInstance();
-	m_ssaoLargeEffect.CreateInstance();
-	m_deinterleavedDepthTarget.CreateInstance();
-	m_deinterleavedNormalTarget.CreateInstance();
-	m_ssaoWorkerTargetA.CreateInstance();
-	m_ssaoWorkerTargetB.CreateInstance();
 	m_loadCounterBuffer.CreateInstance();
-	m_importanceTargetA.CreateInstance();
-	m_importanceTargetB.CreateInstance();
 	m_blankOutputTexture.CreateInstance();
 	m_outputTarget.CreateInstance();
-
-	m_ssaoLargeEffect->SetOption( BlueSharedString( "SSAO_APPLICATION" ), BlueSharedString( "SSAO_APPLY_MIX" ) );
 
 	PrepareResources();
 }
@@ -70,16 +92,9 @@ bool Tr2SSAO::IsValid()
 void Tr2SSAO::ReleaseResources( TriStorage s )
 {
 	m_initialized = false;
-	m_ssaoEffect->ClearAllResources();
-	m_ssaoEffect->ClearAllParameters();
-	m_ssaoLargeEffect->ClearAllResources();
-	m_ssaoLargeEffect->ClearAllParameters();
-	m_deinterleavedDepthTexture = {};
-	m_deinterleavedNormalTexture = {};
-	m_ssaoWorkerTextureA = {};
-	m_ssaoWorkerTextureB = {};
-	m_importanceTargetA->Destroy();
-	m_importanceTargetB->Destroy();
+	m_detail.ReleaseResources();
+	m_large.ReleaseResources();
+
 	m_outputTarget->Destroy();
 }
 
@@ -95,8 +110,8 @@ void Tr2SSAO::SetInputBuffers( Tr2DepthStencilPtr depthBuffer, Tr2RenderTargetPt
 	}
 	if( m_inputDepthBuffer )
 	{
-		m_ssaoEffect->SetOption( BlueSharedString( "SSAO_INPUT_2D_TEXTURE_TYPE" ), BlueSharedString( m_inputDepthBuffer->GetMsaaSamples() > 1 ? "TEXTURE_2DMS" : "TEXTURE_2D" ) );
-		m_ssaoLargeEffect->SetOption( BlueSharedString( "SSAO_INPUT_2D_TEXTURE_TYPE" ), BlueSharedString( m_inputDepthBuffer->GetMsaaSamples() > 1 ? "TEXTURE_2DMS" : "TEXTURE_2D" ) );
+		m_detail.effect->SetOption( BlueSharedString( "SSAO_INPUT_2D_TEXTURE_TYPE" ), BlueSharedString( m_inputDepthBuffer->GetMsaaSamples() > 1 ? "TEXTURE_2DMS" : "TEXTURE_2D" ) );
+		m_large.effect->SetOption( BlueSharedString( "SSAO_INPUT_2D_TEXTURE_TYPE" ), BlueSharedString( m_inputDepthBuffer->GetMsaaSamples() > 1 ? "TEXTURE_2DMS" : "TEXTURE_2D" ) );
 	}
 }
 
@@ -125,6 +140,99 @@ FFX_CACAO_Settings GetSettings( bool useDownsampledSSAO, bool generateNormals, S
 	return settings;
 }
 
+bool Tr2SSAO::PrepareSsaoResources( Layer& layer, const Layer* prevLayer, Tr2PrimaryRenderContext& renderContext )
+{
+	bool hasNormals = m_inputNormalBuffer && m_inputNormalBuffer->IsValid();
+	FFX_CACAO_BufferSizeInfo size{};
+	FFX_CACAO_UpdateBufferSizeInfo( m_inputDepthBuffer->GetWidth(), m_inputDepthBuffer->GetHeight(), layer.downsampled, &size );
+	FFX_CACAO_Settings settings = GetSettings( layer.downsampled, !hasNormals, layer.quality );
+
+	if( !layer.resources.deinterleavedDepthTexture.IsValid() )
+	{
+		unsigned mipCount = settings.qualityLevel >= FFX_CACAO_QUALITY_MEDIUM ? 4 : 1;
+		Tr2BitmapDimensions dims( TEX_TYPE_2D, PIXEL_FORMAT_R16_FLOAT, size.deinterleavedDepthBufferWidth, size.deinterleavedDepthBufferHeight, 1, mipCount, SSAO_PASS_COUNT );
+		if( prevLayer && prevLayer->resources.deinterleavedDepthTexture.GetDesc() == dims )
+		{
+			layer.resources.deinterleavedDepthTexture = prevLayer->resources.deinterleavedDepthTexture;
+		}
+		else
+		{
+			CR_RETURN_VAL( layer.resources.deinterleavedDepthTexture.Create( dims, Tr2MsaaDesc( 0, 0 ), Tr2GpuUsage::UNORDERED_ACCESS | Tr2GpuUsage::RENDER_TARGET | Tr2GpuUsage::SHADER_RESOURCE, renderContext ), false );
+		}
+		layer.resources.deinterleavedDepthTarget->Attach( layer.resources.deinterleavedDepthTexture, this );
+	}
+
+	if( !layer.resources.deinterleavedNormalTexture.IsValid() )
+	{
+		Tr2BitmapDimensions dims( TEX_TYPE_2D, PIXEL_FORMAT_R8G8B8A8_SNORM, size.deinterleavedDepthBufferWidth, size.deinterleavedDepthBufferHeight, 1, 1, SSAO_PASS_COUNT );
+		if( prevLayer && prevLayer->resources.deinterleavedNormalTexture.GetDesc() == dims )
+		{
+			layer.resources.deinterleavedNormalTexture = prevLayer->resources.deinterleavedNormalTexture;
+		}
+		else
+		{
+			CR_RETURN_VAL( layer.resources.deinterleavedNormalTexture.Create( dims, Tr2MsaaDesc( 0, 0 ), Tr2GpuUsage::UNORDERED_ACCESS | Tr2GpuUsage::RENDER_TARGET | Tr2GpuUsage::SHADER_RESOURCE, renderContext ), false );
+		}
+		layer.resources.deinterleavedNormalTarget->Attach( layer.resources.deinterleavedNormalTexture, this );
+	}
+
+	if( !layer.resources.ssaoWorkerTextureA.IsValid() )
+	{
+		Tr2BitmapDimensions dims( TEX_TYPE_2D, PIXEL_FORMAT_R8G8_SNORM, size.ssaoBufferWidth, size.ssaoBufferHeight, 1, 1, SSAO_PASS_COUNT );
+		if( prevLayer && prevLayer->resources.ssaoWorkerTextureA.GetDesc() == dims )
+		{
+			layer.resources.ssaoWorkerTextureA = prevLayer->resources.ssaoWorkerTextureA;
+		}
+		else
+		{
+			CR_RETURN_VAL( layer.resources.ssaoWorkerTextureA.Create( dims, Tr2MsaaDesc( 0, 0 ), Tr2GpuUsage::UNORDERED_ACCESS | Tr2GpuUsage::RENDER_TARGET | Tr2GpuUsage::SHADER_RESOURCE, renderContext ), false );
+		}
+		layer.resources.ssaoWorkerTargetA->Attach( layer.resources.ssaoWorkerTextureA, this );
+	}
+
+	if( !layer.resources.ssaoWorkerTextureB.IsValid() )
+	{
+		Tr2BitmapDimensions dims( TEX_TYPE_2D, PIXEL_FORMAT_R8G8_SNORM, size.ssaoBufferWidth, size.ssaoBufferHeight, 1, 1, SSAO_PASS_COUNT );
+		if( prevLayer && prevLayer->resources.ssaoWorkerTextureB.GetDesc() == dims )
+		{
+			layer.resources.ssaoWorkerTextureB = prevLayer->resources.ssaoWorkerTextureB;
+		}
+		else
+		{
+			CR_RETURN_VAL( layer.resources.ssaoWorkerTextureB.Create( dims, Tr2MsaaDesc( 0, 0 ), Tr2GpuUsage::UNORDERED_ACCESS | Tr2GpuUsage::RENDER_TARGET | Tr2GpuUsage::SHADER_RESOURCE, renderContext ), false );
+		}
+		layer.resources.ssaoWorkerTargetB->Attach( layer.resources.ssaoWorkerTextureB, this );
+	}
+
+	if( settings.qualityLevel == FFX_CACAO_QUALITY_HIGHEST )
+	{
+		if( !layer.resources.importanceTargetA->IsValid() )
+		{
+			if( prevLayer && prevLayer->resources.importanceTargetA->GetRenderTarget().GetWidth() == size.importanceMapWidth )
+			{
+				layer.resources.importanceTargetA = prevLayer->resources.importanceTargetA;
+			}
+			else
+			{
+				CR_RETURN_VAL( layer.resources.importanceTargetA->Create( size.importanceMapWidth, size.importanceMapHeight, 1, PIXEL_FORMAT_R8_UNORM, 1, 0, EX_BIND_UNORDERED_ACCESS ), false );
+			}
+		}
+
+		if( !layer.resources.importanceTargetB->IsValid() )
+		{
+			if( prevLayer && prevLayer->resources.importanceTargetB->GetRenderTarget().GetWidth() == size.importanceMapWidth )
+			{
+				layer.resources.importanceTargetB = prevLayer->resources.importanceTargetB;
+			}
+			else
+			{
+				CR_RETURN_VAL( layer.resources.importanceTargetB->Create( size.importanceMapWidth, size.importanceMapHeight, 1, PIXEL_FORMAT_R8_UNORM, 1, 0, EX_BIND_UNORDERED_ACCESS ), false );
+			}
+		}
+	}
+	return true;
+}
+
 bool Tr2SSAO::OnPrepareResources()
 {
 	if( !m_blankOutputTexture->IsValid() )
@@ -137,7 +245,7 @@ bool Tr2SSAO::OnPrepareResources()
 		return false;
 	}
 
-	if( !m_enabled )
+	if( !m_detail.enabled && !m_large.enabled )
 	{
 		return false;
 	}
@@ -147,13 +255,9 @@ bool Tr2SSAO::OnPrepareResources()
 		return false;
 	}
 
-	bool hasNormals = m_inputNormalBuffer && m_inputNormalBuffer->IsValid();
-
-	FFX_CACAO_BufferSizeInfo size{};
-	FFX_CACAO_UpdateBufferSizeInfo( m_inputDepthBuffer->GetWidth(), m_inputDepthBuffer->GetHeight(), m_downsampledSSAO, &size );
-	FFX_CACAO_Settings settings = GetSettings( m_downsampledSSAO, !hasNormals, m_ssaoQuality );
-
 	// Check if the smallest map is still large enough
+	FFX_CACAO_BufferSizeInfo size{};
+	FFX_CACAO_UpdateBufferSizeInfo( m_inputDepthBuffer->GetWidth(), m_inputDepthBuffer->GetHeight(), m_detail.downsampled || m_large.downsampled, &size );
 	if( !size.importanceMapWidth || !size.importanceMapHeight )
 	{
 		return false;
@@ -169,111 +273,78 @@ bool Tr2SSAO::OnPrepareResources()
 		}
 	}
 
-	if( !m_deinterleavedDepthTexture.IsValid() )
-	{
-		unsigned mipCount = settings.qualityLevel >= FFX_CACAO_QUALITY_MEDIUM ? 4 : 1;
-		Tr2BitmapDimensions dims( TEX_TYPE_2D, PIXEL_FORMAT_R16_FLOAT, size.deinterleavedDepthBufferWidth, size.deinterleavedDepthBufferHeight, 1, mipCount, SSAO_PASS_COUNT );
-		CR_RETURN_VAL( m_deinterleavedDepthTexture.Create( dims, Tr2MsaaDesc( 0, 0 ), Tr2GpuUsage::UNORDERED_ACCESS | Tr2GpuUsage::RENDER_TARGET | Tr2GpuUsage::SHADER_RESOURCE, renderContext ), false );
-		m_deinterleavedDepthTarget->Attach( m_deinterleavedDepthTexture, this );
-	}
+	PrepareSsaoResources( m_detail, nullptr, renderContext );
+	PrepareSsaoResources( m_large, &m_detail, renderContext );
 
-	if( !m_deinterleavedNormalTexture.IsValid() )
-	{
-		Tr2BitmapDimensions dims( TEX_TYPE_2D, PIXEL_FORMAT_R8G8B8A8_SNORM, size.deinterleavedDepthBufferWidth, size.deinterleavedDepthBufferHeight, 1, 1, SSAO_PASS_COUNT );
-		CR_RETURN_VAL( m_deinterleavedNormalTexture.Create( dims, Tr2MsaaDesc( 0, 0 ), Tr2GpuUsage::UNORDERED_ACCESS | Tr2GpuUsage::RENDER_TARGET | Tr2GpuUsage::SHADER_RESOURCE, renderContext ), false );
-		m_deinterleavedNormalTarget->Attach( m_deinterleavedNormalTexture, this );
-	}
-
-	if( !m_ssaoWorkerTextureA.IsValid() )
-	{
-		Tr2BitmapDimensions dims( TEX_TYPE_2D, PIXEL_FORMAT_R8G8_SNORM, size.ssaoBufferWidth, size.ssaoBufferHeight, 1, 1, SSAO_PASS_COUNT );
-		CR_RETURN_VAL( m_ssaoWorkerTextureA.Create( dims, Tr2MsaaDesc( 0, 0 ), Tr2GpuUsage::UNORDERED_ACCESS | Tr2GpuUsage::RENDER_TARGET | Tr2GpuUsage::SHADER_RESOURCE, renderContext ), false );
-		m_ssaoWorkerTargetA->Attach( m_ssaoWorkerTextureA, this );
-	}
-
-	if( !m_ssaoWorkerTextureB.IsValid() )
-	{
-		Tr2BitmapDimensions dims( TEX_TYPE_2D, PIXEL_FORMAT_R8G8_SNORM, size.ssaoBufferWidth, size.ssaoBufferHeight, 1, 1, SSAO_PASS_COUNT );
-		CR_RETURN_VAL( m_ssaoWorkerTextureB.Create( dims, Tr2MsaaDesc( 0, 0 ), Tr2GpuUsage::UNORDERED_ACCESS | Tr2GpuUsage::RENDER_TARGET | Tr2GpuUsage::SHADER_RESOURCE, renderContext ), false );
-		m_ssaoWorkerTargetB->Attach( m_ssaoWorkerTextureB, this );
-	}
-
-	if( settings.qualityLevel == FFX_CACAO_QUALITY_HIGHEST )
+	if( m_detail.quality == SSAOQuality::HIGHEST || m_large.quality == SSAOQuality::HIGHEST )
 	{
 		if( !m_loadCounterBuffer->IsValid() )
 		{
 			CR_RETURN_VAL( m_loadCounterBuffer->Create( 1, PIXEL_FORMAT_R32_UINT, Tr2GpuBuffer::GPU_WRITABLE ), false);
-		}
-
-		if( !m_importanceTargetA->IsValid() )
-		{
-			CR_RETURN_VAL( m_importanceTargetA->Create( size.importanceMapWidth, size.importanceMapHeight, 1, PIXEL_FORMAT_R8_UNORM, 1, 0, EX_BIND_UNORDERED_ACCESS ), false );
-		}
-
-		if( !m_importanceTargetB->IsValid() )
-		{
-			CR_RETURN_VAL( m_importanceTargetB->Create( size.importanceMapWidth, size.importanceMapHeight, 1, PIXEL_FORMAT_R8_UNORM, 1, 0, EX_BIND_UNORDERED_ACCESS ), false );
 		}
 	}
 
 	if( !m_outputTarget->IsValid() || m_outputTarget->IsAttached() )
 	{
 		m_outputTarget->Detach();
-		CR_RETURN_VAL( m_outputTarget->Create( size.inputOutputBufferWidth, size.inputOutputBufferHeight, 1, PIXEL_FORMAT_R16_FLOAT, 1, 0, EX_BIND_UNORDERED_ACCESS ), false );
+		CR_RETURN_VAL( m_outputTarget->Create( m_inputDepthBuffer->GetWidth(), m_inputDepthBuffer->GetHeight(), 1, PIXEL_FORMAT_R16_FLOAT, 1, 0, EX_BIND_UNORDERED_ACCESS ), false );
 	}
 
 	if( !m_initialized )
 	{
-		UpdateEffect( m_ssaoEffect, settings.blurPassCount );
-		UpdateEffect( m_ssaoLargeEffect, settings.blurPassCount );
+		UpdateEffect( m_detail );
+		UpdateEffect( m_large );
 		m_initialized = true;
 	}
 
 	return true;
 }
 
-void Tr2SSAO::UpdateEffect( Tr2Effect* ssaoEffect, uint32_t blurPassCount )
+void Tr2SSAO::UpdateEffect( Layer& layer )
 {
-	ssaoEffect->SetEffectPathName( "res:/graphics/effect/managed/space/System/SSAO/SSAO.fx" );
+	bool hasNormals = m_inputNormalBuffer && m_inputNormalBuffer->IsValid();
+	FFX_CACAO_Settings settings = GetSettings( layer.downsampled, !hasNormals, layer.quality );
+
+	layer.effect->SetEffectPathName( "res:/graphics/effect/managed/space/System/SSAO/SSAO.fx" );
 
 	// Clear load counter pass
-	ssaoEffect->SetParameter( BlueSharedString( "g_ClearLoadCounter_LoadCounter" ), m_loadCounterBuffer );
+	layer.effect->SetParameter( BlueSharedString( "g_ClearLoadCounter_LoadCounter" ), m_loadCounterBuffer );
 
 	// Prepare pass
-	ssaoEffect->SetParameter( BlueSharedString( "g_DepthIn" ), m_inputDepthBuffer );
-	ssaoEffect->SetParameter( BlueSharedString( "g_PrepareNormalsFromNormalsInput" ), m_inputNormalBuffer );
-	ssaoEffect->SetParameter( BlueSharedString( "g_PrepareDepthsOut" ), m_deinterleavedDepthTarget );
-	ssaoEffect->SetParameter( BlueSharedString( "g_PrepareNormals_NormalOut" ), m_deinterleavedNormalTarget );
+	layer.effect->SetParameter( BlueSharedString( "g_DepthIn" ), m_inputDepthBuffer );
+	layer.effect->SetParameter( BlueSharedString( "g_PrepareNormalsFromNormalsInput" ), m_inputNormalBuffer );
+	layer.effect->SetParameter( BlueSharedString( "g_PrepareDepthsOut" ), layer.resources.deinterleavedDepthTarget );
+	layer.effect->SetParameter( BlueSharedString( "g_PrepareNormals_NormalOut" ), layer.resources.deinterleavedNormalTarget );
 
 	// SSAO pass
-	ssaoEffect->SetParameter( BlueSharedString( "g_ViewspaceDepthSource" ), m_deinterleavedDepthTarget );
-	ssaoEffect->SetParameter( BlueSharedString( "g_DeinterleavedNormals" ), m_deinterleavedNormalTarget );
-	ssaoEffect->SetParameter( BlueSharedString( "g_LoadCounter" ), m_loadCounterBuffer );
-	ssaoEffect->SetParameter( BlueSharedString( "g_ImportanceMap" ), m_importanceTargetA );
-	ssaoEffect->SetParameter( BlueSharedString( "g_FinalSSAO" ), m_ssaoWorkerTargetA );
+	layer.effect->SetParameter( BlueSharedString( "g_ViewspaceDepthSource" ), layer.resources.deinterleavedDepthTarget );
+	layer.effect->SetParameter( BlueSharedString( "g_DeinterleavedNormals" ), layer.resources.deinterleavedNormalTarget );
+	layer.effect->SetParameter( BlueSharedString( "g_LoadCounter" ), m_loadCounterBuffer );
+	layer.effect->SetParameter( BlueSharedString( "g_ImportanceMap" ), layer.resources.importanceTargetA );
+	layer.effect->SetParameter( BlueSharedString( "g_FinalSSAO" ), layer.resources.ssaoWorkerTargetA );
 
 	// Importance pass
-	ssaoEffect->SetParameter( BlueSharedString( "g_ImportanceFinalSSAO" ), m_ssaoWorkerTargetA );
-	ssaoEffect->SetParameter( BlueSharedString( "g_ImportanceOut" ), m_importanceTargetA );
-	ssaoEffect->SetParameter( BlueSharedString( "g_ImportanceAIn" ), m_importanceTargetA );
-	ssaoEffect->SetParameter( BlueSharedString( "g_ImportanceAOut" ), m_importanceTargetB );
-	ssaoEffect->SetParameter( BlueSharedString( "g_ImportanceBIn" ), m_importanceTargetB );
-	ssaoEffect->SetParameter( BlueSharedString( "g_ImportanceBOut" ), m_importanceTargetA );
-	ssaoEffect->SetParameter( BlueSharedString( "g_ImportanceBLoadCounter" ), m_loadCounterBuffer );
+	layer.effect->SetParameter( BlueSharedString( "g_ImportanceFinalSSAO" ), layer.resources.ssaoWorkerTargetA );
+	layer.effect->SetParameter( BlueSharedString( "g_ImportanceOut" ), layer.resources.importanceTargetA );
+	layer.effect->SetParameter( BlueSharedString( "g_ImportanceAIn" ), layer.resources.importanceTargetA );
+	layer.effect->SetParameter( BlueSharedString( "g_ImportanceAOut" ), layer.resources.importanceTargetB );
+	layer.effect->SetParameter( BlueSharedString( "g_ImportanceBIn" ), layer.resources.importanceTargetB );
+	layer.effect->SetParameter( BlueSharedString( "g_ImportanceBOut" ), layer.resources.importanceTargetA );
+	layer.effect->SetParameter( BlueSharedString( "g_ImportanceBLoadCounter" ), m_loadCounterBuffer );
 
 	// Edge sensitive blur pass
-	ssaoEffect->SetParameter( BlueSharedString( "g_EdgeSensitiveBlur_Input" ), m_ssaoWorkerTargetB );
-	ssaoEffect->SetParameter( BlueSharedString( "g_EdgeSensitiveBlur_Output" ), m_ssaoWorkerTargetA );
+	layer.effect->SetParameter( BlueSharedString( "g_EdgeSensitiveBlur_Input" ), layer.resources.ssaoWorkerTargetB );
+	layer.effect->SetParameter( BlueSharedString( "g_EdgeSensitiveBlur_Output" ), layer.resources.ssaoWorkerTargetA );
 
 	// Bilateral upsample pass
-	ssaoEffect->SetParameter( BlueSharedString( "g_BilateralUpscaleInput" ), blurPassCount ? m_ssaoWorkerTargetA : m_ssaoWorkerTargetB );
-	ssaoEffect->SetParameter( BlueSharedString( "g_BilateralUpscaleDepth" ), m_inputDepthBuffer );
-	ssaoEffect->SetParameter( BlueSharedString( "g_BilateralUpscaleDownscaledDepth" ), m_deinterleavedDepthTarget );
-	ssaoEffect->SetParameter( BlueSharedString( "g_BilateralUpscaleOutput" ), m_outputTarget );
+	layer.effect->SetParameter( BlueSharedString( "g_BilateralUpscaleInput" ), settings.blurPassCount ? layer.resources.ssaoWorkerTargetA : layer.resources.ssaoWorkerTargetB );
+	layer.effect->SetParameter( BlueSharedString( "g_BilateralUpscaleDepth" ), m_inputDepthBuffer );
+	layer.effect->SetParameter( BlueSharedString( "g_BilateralUpscaleDownscaledDepth" ), layer.resources.deinterleavedDepthTarget );
+	layer.effect->SetParameter( BlueSharedString( "g_BilateralUpscaleOutput" ), m_outputTarget );
 
 	// Apply pass
-	ssaoEffect->SetParameter( BlueSharedString( "g_ApplyFinalSSAO" ), blurPassCount ? m_ssaoWorkerTargetA : m_ssaoWorkerTargetB );
-	ssaoEffect->SetParameter( BlueSharedString( "g_ApplyOutput" ), m_outputTarget );
+	layer.effect->SetParameter( BlueSharedString( "g_ApplyFinalSSAO" ), settings.blurPassCount ? layer.resources.ssaoWorkerTargetA : layer.resources.ssaoWorkerTargetB );
+	layer.effect->SetParameter( BlueSharedString( "g_ApplyOutput" ), m_outputTarget );
 }
 
 bool Tr2SSAO::OnModified( Be::Var* value )
@@ -306,21 +377,22 @@ void Tr2SSAO::Filter( Tr2RenderContext& renderContext )
 	}
 
 	GPU_REGION( renderContext, "SSAO" );
+	if( m_detail.enabled )
 	{
 		GPU_REGION( renderContext, "Detail" );
-		PerformPass( m_ssaoQuality, m_settings, m_zoomLevel, m_ssaoEffect, renderContext );
+		PerformPass( m_detail, false, renderContext );
 	}
-	if( m_largeEffect )
+	if( m_large.enabled )
 	{
 		GPU_REGION( renderContext, "Large" );
-		PerformPass( SSAOQuality::LOW, m_settingsLarge, m_zoomLevelLarge, m_ssaoLargeEffect, renderContext );
+		PerformPass( m_large, m_detail.enabled && m_detail.downsampled == m_large.downsampled, renderContext );
 	}
 }
 
-void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settingsTemplate, float zoomLevel, Tr2Effect* ssaoEffect, Tr2RenderContext& renderContext )
+void Tr2SSAO::PerformPass( const Layer& layer, bool reuseNormals, Tr2RenderContext& renderContext )
 {
 	FFX_CACAO_BufferSizeInfo size{};
-	FFX_CACAO_UpdateBufferSizeInfo( m_inputDepthBuffer->GetWidth(), m_inputDepthBuffer->GetHeight(), m_downsampledSSAO, &size );
+	FFX_CACAO_UpdateBufferSizeInfo( m_inputDepthBuffer->GetWidth(), m_inputDepthBuffer->GetHeight(), layer.downsampled, &size );
 
 	// From CACAO sample project
 	FFX_CACAO_Matrix4x4 proj{}, normalsWorldToView{};
@@ -340,19 +412,19 @@ void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settin
 		normalsWorldToView.elements[3][0] = p._41; normalsWorldToView.elements[3][1] = p._42; normalsWorldToView.elements[3][2] = p._43; normalsWorldToView.elements[3][3] = p._44;
 	}
 
-	proj.elements[3][2] /= zoomLevel;
+	proj.elements[3][2] /= layer.zoomLevel;
 
 	bool hasNormals = m_inputNormalBuffer && m_inputNormalBuffer->IsValid();
 
-	unsigned settingsIndex = static_cast<int>( quality ) + m_downsampledSSAO * ( static_cast<int>( SSAOQuality::HIGHEST ) + 1 );
-	FFX_CACAO_Settings settings = GetSettings( m_downsampledSSAO, !hasNormals, quality );
+	unsigned settingsIndex = static_cast<int>( layer.quality ) + layer.downsampled * ( static_cast<int>( SSAOQuality::HIGHEST ) + 1 );
+	FFX_CACAO_Settings settings = GetSettings( layer.downsampled, !hasNormals, layer.quality );
 
-	settings.radius = settingsTemplate.radius;
-	settings.shadowMultiplier = settingsTemplate.shadowMultiplier;
-	settings.shadowPower = settingsTemplate.shadowPower;
-	settings.shadowClamp = settingsTemplate.shadowClamp;
-	settings.sharpness = settingsTemplate.sharpness;
-	settings.detailShadowStrength = settingsTemplate.detailShadowStrength;
+	settings.radius = layer.settings.radius;
+	settings.shadowMultiplier = layer.settings.shadowMultiplier;
+	settings.shadowPower = layer.settings.shadowPower;
+	settings.shadowClamp = layer.settings.shadowClamp;
+	settings.sharpness = layer.settings.sharpness;
+	settings.detailShadowStrength = layer.settings.detailShadowStrength;
 
 	{
 		GPU_REGION( renderContext, "Upload const buffers" );
@@ -380,7 +452,7 @@ void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settin
 	if( settings.qualityLevel == FFX_CACAO_QUALITY_HIGHEST )
 	{
 		GPU_REGION( renderContext, "Clear load counter" );
-		Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( "ClearLoadCounter" ), 1, 1, 1, renderContext );
+		Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( "ClearLoadCounter" ), 1, 1, 1, renderContext );
 	}
 
 	{
@@ -390,43 +462,46 @@ void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settin
 
 		if( settings.qualityLevel == FFX_CACAO_QUALITY_LOWEST)
 		{
-			std::string shader = m_downsampledSSAO ? "PrepareDownsampledDepthsHalf" : "PrepareNativeDepthsHalf";
+			std::string shader = layer.downsampled ? "PrepareDownsampledDepthsHalf" : "PrepareNativeDepthsHalf";
 
 			unsigned dimX = DispatchSize( FFX_CACAO_PREPARE_DEPTHS_HALF_WIDTH, size.deinterleavedDepthBufferWidth );
 			unsigned dimY = DispatchSize( FFX_CACAO_PREPARE_DEPTHS_HALF_HEIGHT, size.deinterleavedDepthBufferHeight );
-			Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
+			Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
 		}
 		else
 		{
-			std::string shader = m_downsampledSSAO ? "PrepareDownsampledDepths" : "PrepareNativeDepths";
+			std::string shader = layer.downsampled ? "PrepareDownsampledDepths" : "PrepareNativeDepths";
 
 			unsigned dimX = DispatchSize( FFX_CACAO_PREPARE_DEPTHS_WIDTH, size.deinterleavedDepthBufferWidth );
 			unsigned dimY = DispatchSize( FFX_CACAO_PREPARE_DEPTHS_HEIGHT, size.deinterleavedDepthBufferHeight );
-			Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
+			Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
 		}
 
-		if( settings.generateNormals )
+		if( !reuseNormals )
 		{
-			std::string shader = m_downsampledSSAO ? "PrepareDownsampledNormals" : "PrepareNativeNormals";
+			if( settings.generateNormals )
+			{
+				std::string shader = layer.downsampled ? "PrepareDownsampledNormals" : "PrepareNativeNormals";
 
-			unsigned dimX = DispatchSize( FFX_CACAO_PREPARE_NORMALS_WIDTH, size.deinterleavedDepthBufferWidth );
-			unsigned dimY = DispatchSize( FFX_CACAO_PREPARE_NORMALS_HEIGHT, size.deinterleavedDepthBufferHeight );
-			Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
-		}
-		else
-		{
-			std::string shader = m_downsampledSSAO ? "PrepareDownsampledNormalsFromInputNormals" : "PrepareNativeNormalsFromInputNormals";
+				unsigned dimX = DispatchSize( FFX_CACAO_PREPARE_NORMALS_WIDTH, size.deinterleavedDepthBufferWidth );
+				unsigned dimY = DispatchSize( FFX_CACAO_PREPARE_NORMALS_HEIGHT, size.deinterleavedDepthBufferHeight );
+				Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
+			}
+			else
+			{
+				std::string shader = layer.downsampled ? "PrepareDownsampledNormalsFromInputNormals" : "PrepareNativeNormalsFromInputNormals";
 
-			unsigned dimX = DispatchSize( PREPARE_NORMALS_FROM_INPUT_NORMALS_WIDTH, size.deinterleavedDepthBufferWidth );
-			unsigned dimY = DispatchSize( PREPARE_NORMALS_FROM_INPUT_NORMALS_HEIGHT, size.deinterleavedDepthBufferHeight );
-			Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
+				unsigned dimX = DispatchSize( PREPARE_NORMALS_FROM_INPUT_NORMALS_WIDTH, size.deinterleavedDepthBufferWidth );
+				unsigned dimY = DispatchSize( PREPARE_NORMALS_FROM_INPUT_NORMALS_HEIGHT, size.deinterleavedDepthBufferHeight );
+				Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
+			}
 		}
 	}
 
-	if( m_deinterleavedDepthTarget->GetMipCount() > 1 )
+	if( layer.resources.deinterleavedDepthTarget->GetMipCount() > 1 )
 	{
 		GPU_REGION( renderContext, "Prepare mips" );
-		m_deinterleavedDepthTarget->GenerateMipMaps();
+		layer.resources.deinterleavedDepthTarget->GenerateMipMaps();
 	}
 
 	if( settings.qualityLevel == FFX_CACAO_QUALITY_HIGHEST )
@@ -434,7 +509,7 @@ void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settin
 		{
 			GPU_REGION( renderContext, "Interactive base pass" );
 
-			ssaoEffect->SetParameter( BlueSharedString( "g_SSAOOutput" ), m_ssaoWorkerTargetA );
+			layer.effect->SetParameter( BlueSharedString( "g_SSAOOutput" ), layer.resources.ssaoWorkerTargetA );
 
 			unsigned dimX = DispatchSize( FFX_CACAO_GENERATE_WIDTH, size.ssaoBufferWidth );
 			unsigned dimY = DispatchSize( FFX_CACAO_GENERATE_HEIGHT, size.ssaoBufferHeight );
@@ -442,7 +517,7 @@ void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settin
 			for( unsigned i = 0; i < SSAO_PASS_COUNT; i++ )
 			{
 				CR_RETURN( ApplyConstBuffer( i, renderContext ) );
-				Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( "GenerateQ3Base" ), dimX, dimY, 1, renderContext );
+				Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( "GenerateQ3Base" ), dimX, dimY, 1, renderContext );
 			}
 		}
 
@@ -453,14 +528,14 @@ void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settin
 
 			unsigned dimX = DispatchSize( IMPORTANCE_MAP_WIDTH, size.importanceMapWidth );
 			unsigned dimY = DispatchSize( IMPORTANCE_MAP_HEIGHT, size.importanceMapHeight );
-			Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( "PostprocessImportanceMap" ), dimX, dimY, 1, renderContext );
+			Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( "PostprocessImportanceMap" ), dimX, dimY, 1, renderContext );
 		}
 	}
 
 	{
 		GPU_REGION( renderContext, "Main pass" );
 
-		ssaoEffect->SetParameter( BlueSharedString( "g_SSAOOutput" ), m_ssaoWorkerTargetB );
+		layer.effect->SetParameter( BlueSharedString( "g_SSAOOutput" ), layer.resources.ssaoWorkerTargetB );
 
 		unsigned dimX, dimY, dimZ;
 		if( settings.qualityLevel <= FFX_CACAO_QUALITY_MEDIUM )
@@ -483,7 +558,7 @@ void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settin
 		for( unsigned i = 0; i < SSAO_PASS_COUNT; i++ )
 		{
 			CR_RETURN( ApplyConstBuffer( i, renderContext ) );
-			Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( shader.c_str() ), dimX, dimY, dimZ, renderContext );
+			Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( shader.c_str() ), dimX, dimY, dimZ, renderContext );
 		}
 	}
 
@@ -504,11 +579,11 @@ void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settin
 			CR_RETURN( ApplyConstBuffer( i, renderContext ) );
 
 			std::string passName = "EdgeSensitiveBlur" + std::to_string( settings.blurPassCount );
-			Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( passName.c_str() ), dimX, dimY, 1, renderContext );
+			Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( passName.c_str() ), dimX, dimY, 1, renderContext );
 		}
 	}
 
-	if( m_downsampledSSAO )
+	if( layer.downsampled )
 	{
 		GPU_REGION( renderContext, "Bilateral upsample" );
 
@@ -531,7 +606,7 @@ void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settin
 			shader = "UpscaleBilateral5x5Smart";
 		}
 
-		Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
+		Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
 	}
 	else
 	{
@@ -555,6 +630,6 @@ void Tr2SSAO::PerformPass( SSAOQuality quality, const FFX_CACAO_Settings& settin
 			shader = "Apply";
 		}
 
-		Tr2Renderer::RunComputeShader( ssaoEffect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
+		Tr2Renderer::RunComputeShader( layer.effect, BlueSharedString( shader.c_str() ), dimX, dimY, 1, renderContext );
 	}
 }

@@ -154,11 +154,13 @@ void EveMobile::PrepareShaderData( EveUpdateContext& updateContext )
 void EveMobile::UpdateTurretsAsyncronous( EveUpdateContext& updateContext )
 {
 	// now prep to get the renderables
-	EveTurretSet::ParentData pd;
+	IEveSpaceObject2::ParentData pd;
+	memset( &pd, 0, sizeof( IEveSpaceObject2::ParentData ) );
+	
 	pd.transform = *GetTurretTransform( 0 );
 	pd.shipData = m_spaceObjectShipData;
 	pd.clipData = m_psData.clipData;
-	pd.clipDataEx = m_psData.miscData;
+	pd.clipData.x = m_clipSphereFactor;
 
 	for( auto it = m_turretSets.begin(); it != m_turretSets.end(); ++it )
 	{

@@ -81,10 +81,11 @@ bool EveChildEffectPropagator::OnModified( Be::Var* value )
 
 	if( IsMatch( value, m_frequency ) )
 	{
-		m_frequency = max( 0.00001f, m_frequency );
+		if( m_frequency != 0.f )
+		{
+			m_playTime = float( m_currentTriggerIndex ) / m_frequency;	
+		}
 	}
-	
-	m_trigger = true;
 
 	return EveChildContainer::OnModified( value );
 }
@@ -121,6 +122,15 @@ void EveChildEffectPropagator::Stop()
 	{
 		m_effect->ClearInstanceList();
 	}
+}
+
+bool EveChildEffectPropagator::Initialize()
+{
+	if( m_effect != nullptr )
+	{
+		m_effect->DisableEditMode( true );
+	}
+	return EveChildContainer::Initialize();
 }
 
 void EveChildEffectPropagator::ManageTriggers()
@@ -191,7 +201,14 @@ void EveChildEffectPropagator::UpdateSyncronous( EveUpdateContext& updateContext
 		UpdateTriggerCurve( updateContext );
 		break;
 	case INTERVAL_TRIGGERS:
-		UpdateTriggerInterval( updateContext );
+		if( m_frequency != 0.f )
+		{
+			UpdateTriggerInterval( updateContext );
+		}
+		else
+		{
+			Stop();
+		}
 		break;
 	case INSTANT_PERMANENT:
 		m_playTime += updateContext.GetDeltaT();
@@ -256,14 +273,19 @@ void EveChildEffectPropagator::UpdateTriggerInterval( EveUpdateContext& updateCo
 	auto dt = updateContext.GetDeltaT();
 	m_playTime += dt;
 
-	if( m_stopAfterNumTriggers != -1.0 && m_stopAfterNumTriggers < 0.0 && m_playTime > ( m_stopAfterNumTriggers / m_frequency + m_effectDuration ) )
+	if( m_processedTransforms.empty() )
+	{
+		return;
+	}
+	
+	if( m_stopAfterNumTriggers > 0.0 && m_playTime > ( m_stopAfterNumTriggers / m_frequency + m_effectDuration ) )
 	{
 		Stop();
 		return;
 	}
 
-	// triggers based on the frequency interval unless maximum ammount of spawns has been reached
-	if( m_playTime > m_currentTriggerIndex / m_frequency && ( m_currentTriggerIndex < m_stopAfterNumTriggers || m_stopAfterNumTriggers < 0 ) )
+	// triggers based on the frequency interval unless maximum amount of spawns has been reached
+	if( m_playTime > (float)m_currentTriggerIndex / m_frequency && ( (float)m_currentTriggerIndex < m_stopAfterNumTriggers || m_stopAfterNumTriggers < 0 ) )
 	{
 		int locatorIndex = GetSmartRandomLocatorIndex();
 		if( !m_lastTriggered.empty() )
@@ -277,7 +299,7 @@ void EveChildEffectPropagator::UpdateTriggerInterval( EveUpdateContext& updateCo
 		m_currentTriggerIndex++;
 	}
 	
-	if( m_playTime > ( m_numDeleted / m_frequency ) + m_effectDuration )
+	if( m_playTime > ( (float)m_numDeleted / m_frequency ) + m_effectDuration )
 	{
 		m_effect->PopFront();
 		m_numDeleted++;
@@ -296,16 +318,18 @@ int EveChildEffectPropagator::GetSmartRandomLocatorIndex()
 	int ptSize = (int) m_processedTransforms.size();
 	int ltSize = (int) m_lastTriggered.size();
 
-	if( ltSize >= ptSize )
+	if( ltSize >= ptSize || m_frequency * m_effectDuration > 0.75f * float(ptSize) )  // (*)
 	{
 		locatorIndex = TriRandInt( ptSize );
 	}
 	else
 	{
 		// this loop should never repeat more than 2-3 times and most often no 
-		// repeats at all. The assumtion is that this is faster than keeping an organized
-		// index array barring excleded indexes. The only bad scenario is when all of these 
+		// repeats at all. I also made an early exit condition ->(*).
+		// The assumption is that this is faster than keeping an organized
+		// index array barring excluded indexes. The only bad scenario is when all of these
 		// 3 things line up: small locatorSet, long effect duration and very frequent triggers
+		// and that's the reasoning for the early exit
 		while( locatorIndex == -1 )
 		{
 			locatorIndex = TriRandInt( ptSize );

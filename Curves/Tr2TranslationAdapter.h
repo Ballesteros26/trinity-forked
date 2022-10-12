@@ -35,6 +35,7 @@ private:
 
 	Be::Time m_start;
 	Be::Time m_offset;
+	Quaternion m_rotationOffset;
 	ITriVectorFunctionPtr m_curve;
 	Vector3 m_value;
 	Vector3 m_currentValue;

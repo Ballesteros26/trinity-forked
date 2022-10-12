@@ -18,7 +18,7 @@ const Be::ClassInfo* Tr2MatrixKey::ExposeToBlue()
 
 const Be::ClassInfo* Tr2BoneMatrixCurve::ExposeToBlue()
 {
-	EXPOSURE_BEGIN( Tr2BoneMatrixCurve, "" )
+	EXPOSURE_BEGIN( Tr2BoneMatrixCurve, ":jessica-deprecated: True" )
 		MAP_INTERFACE( Tr2BoneMatrixCurve )
 		MAP_INTERFACE( ITriFunction )
 		MAP_INTERFACE( IInitialize )

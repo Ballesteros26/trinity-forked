@@ -17,7 +17,8 @@ class EveStretch:
 	public IEveFiringEffectElement,
 	public IEveTransform,
 	public IEveSpaceObject2,
-	public ITr2DebugRenderable
+	public ITr2DebugRenderable,
+	public ITr2LightOwner
 {
 public:
     EXPOSE_TO_BLUE();
@@ -44,7 +45,12 @@ public:
 	virtual void GetModelCenterWorldPosition( Vector3 &position ) const {};
 	virtual bool GetLocalBoundingBox( Vector3 &min, Vector3 &max ) { return false; }
 	virtual void GetLocalToWorldTransform( Matrix &transform ) const { transform = IdentityMatrix(); }
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2LightOwner
 	virtual void GetLights( Tr2LightManager& lightManager ) const;
+	virtual void AddLight( Tr2Light* light ){};
+	virtual void ClearLights(){};
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// IEveTranfrom
