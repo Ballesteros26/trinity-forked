@@ -752,7 +752,7 @@ void EveSpaceObjectDecal::CreateDecalIndexBuffers( TriGeometryResPtr geomRes )
 		else
 		{
 			buffer.m_primitiveCount = unsigned( decalIndices32.size() / 3 );
-			allIndices.insert( end( allIndices ), begin( decalIndices16 ), end( decalIndices16 ) );
+			allIndices.insert( end( allIndices ), begin( decalIndices32 ), end( decalIndices32 ) );
 		}
 
 		m_indexBuffers.push_back( buffer );
