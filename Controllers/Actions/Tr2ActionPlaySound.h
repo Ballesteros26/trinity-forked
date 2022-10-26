@@ -21,6 +21,7 @@ public:
 private:
 	BlueSharedString m_emitterName;
 	BlueSharedString m_soundEvent;
+	BlueSharedString m_target;
 	bool m_bypassPrefix;
 };
 
