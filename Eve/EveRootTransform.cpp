@@ -51,11 +51,11 @@ void EveRootTransform::UpdateSyncronous( EveUpdateContext& updateContext )
 		m_lastUpdateMatrix.GetTranslation() = modelTranslation;
 	}
 	EveTransform::UpdateSyncronous( updateContext );
+	EveTransform::UpdateAsyncronous( updateContext );
 }
 
 void EveRootTransform::UpdateAsyncronous( EveUpdateContext& updateContext )
 {
-	EveTransform::UpdateAsyncronous( updateContext );
 }
 
 void EveRootTransform::Update( EveUpdateContext& updateContext )

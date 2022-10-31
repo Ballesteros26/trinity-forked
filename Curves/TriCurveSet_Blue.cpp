@@ -149,6 +149,8 @@ const Be::ClassInfo* TriCurveSet::ExposeToBlue()
 			"StopAfterWithCallback",
 			StopAfterWithCallback,
 			"Stop the playback of this curveset after the given number of seconds, issuing a callback to Python when the playback stops\n"
+			"WARNING! Callbacks work reliably only for UI curve sets (executed by device); callbacks for curve sets attached to 3D objects\n"
+			"in the scene may cause deadlocks.\n"
 			":param time: time in seconds\n"
 			":param cb: callback function"
 			)
