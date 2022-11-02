@@ -29,7 +29,7 @@ namespace EntityComponents
 		case REFLECT_MEDIUM_AND_HIGH:
 			return g_eveReflectionMode != ReflectionSetting::REFLECTION_SETTING_LOW; // we have either medium, high or highest settings
 		case REFLECT_HIGH:
-			return g_eveReflectionMode == ReflectionSetting::REFLECTION_SETTING_HIGH || g_eveReflectionMode == REFLECTION_SETTING_HIGHEST;
+			return g_eveReflectionMode == ReflectionSetting::REFLECTION_SETTING_HIGH || g_eveReflectionMode == REFLECTION_SETTING_ULTRA;
 		default:
 			return false;
 		}

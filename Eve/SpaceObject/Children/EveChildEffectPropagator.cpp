@@ -64,6 +64,14 @@ void EveChildEffectPropagator::UnRegisterComponents()
 
 bool EveChildEffectPropagator::OnModified( Be::Var* value )
 {
+	if( IsMatch( value, m_effect ) )
+	{
+		if( m_effect != nullptr )
+		{
+			m_effect->DisableEditMode( true );
+		}
+	}
+	
 	if( IsMatch( value, m_completeness ) )
 	{
 		m_completeness = min( 1.f, max( 0.f, m_completeness ) );

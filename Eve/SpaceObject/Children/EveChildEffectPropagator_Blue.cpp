@@ -33,7 +33,7 @@ const Be::ClassInfo* EveChildEffectPropagator::ExposeToBlue()
 
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
 
-		MAP_ATTRIBUTE( "effect", m_effect, "childInstanceContainer", Be::PERSISTONLY )
+		MAP_ATTRIBUTE( "effect", m_effect, "childInstanceContainer", Be::PERSISTONLY | Be::NOTIFY )
 		MAP_PROPERTY( "effect", GetEffect, SetEffect, "The instance container that manages the instances" )
 
 		MAP_ATTRIBUTE( "triggerSphereRadiusCurve",	m_triggerSphereRadiusCurve, "Manage the the triggering of effects based on a distance from the triggerSphereOffset", Be::READWRITE | Be::PERSIST )

@@ -1742,7 +1742,7 @@ void EveSpaceScene::RenderReflectionPass( Tr2RenderContext& renderContext )
 		// get the background reflection renderables from the component registry
 		RenderBackgroundPassObjects( renderContext, BackgroundRenderingReason::BACKGROUND_RENDER_REFLECTION);
 
-		if( !m_lensflares.empty() && g_eveReflectionMode == EntityComponents::REFLECTION_SETTING_HIGHEST )
+		if( !m_lensflares.empty() && g_eveReflectionMode == EntityComponents::REFLECTION_SETTING_ULTRA)
 		{
 			GPU_REGION( renderContext, "Lens Flares in reflections" );
 			std::vector<ITr2Renderable*> visible;
