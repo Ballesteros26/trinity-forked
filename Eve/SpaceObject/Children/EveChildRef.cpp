@@ -371,7 +371,7 @@ bool EveChildRef::LoadChild()
 	UnRegisterComponents();
 	
 	CCP_LOG( "Loading child red file...", m_resPath.c_str() );
-	m_child = BlueCastPtr( BeResMan->LoadObject( m_resPath.c_str() ) );
+	m_child = BeResMan->LoadObject<IEveSpaceObjectChild>( m_resPath.c_str() );
 	if ( !m_child )
 	{
 		CCP_LOGERR( "Red file %s is invalid or not an Eve Child type.", m_resPath.c_str() );
