@@ -55,6 +55,7 @@ Be::VarChooser EveVisualizerChooser[] =
 	},
 	{ 0 }
 };
+BLUE_REGISTER_ENUM_EX( "EveVisualizeMethod", EveSpaceScene::EveVisualizeMethod, EveVisualizerChooser, ENUM_REG_ENUM_OBJECT_ON_MODULE );
 
 
 #if BLUE_WITH_PYTHON
