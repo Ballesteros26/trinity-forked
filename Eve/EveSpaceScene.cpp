@@ -38,6 +38,8 @@
 #include "Eve/EveEntity.h"
 #include "Tr2SSAO.h"
 #include "Lights/ITr2LightOwner.h"
+#include "blue/Include/ScopedBlockTrap.h"
+
 
 using namespace Tr2RenderContextEnum;
 
@@ -404,6 +406,7 @@ void EveSpaceScene::Update( Be::Time realTime, Be::Time simTime )
 	}
 	{
 		CCP_STATS_ZONE( "UpdateAsyncronous" );
+		ScopedBlockTrap blockTrap;
 
 		Tr2ParallelTaskGroup taskGroup = {};
 		m_updateContext.SetTaskGroup( &taskGroup );
