@@ -30,6 +30,10 @@ const Be::ClassInfo* Tr2ManipulationTool::ExposeToBlue()
 			"The manipulation tools world transform", 
 			Be::READ 
 		)
+		MAP_ATTRIBUTE( "primitives", m_primitives, 
+			"List of primitives this tool will render", 
+			Be::READ 
+		)
 #if BLUE_WITH_PYTHON
 		MAP_ATTRIBUTE( "_userData", m_pythonUserData,
 			"Pure python user data attached to the primitive set",
