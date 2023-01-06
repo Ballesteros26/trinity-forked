@@ -65,47 +65,8 @@ Tr2TextureArrayElement Tr2TextureArray::AddElement( const ImageIO::HostBitmap& b
 		bitmap.GetTrueMipCount(),
 		uint32_t( ( m_elements.size() + m_increment - 1 ) / m_increment * m_increment ) );
 
-	USE_MAIN_THREAD_RENDER_CONTEXT();
-	std::vector<Tr2SubresourceData> initialData;
-	Tr2SubresourceData filler;
-	auto mipCount = m_dimensions.GetTrueMipCount();
-	for( auto& element : m_elements )
-	{
-		if( element.IsValid() )
-		{
-			filler = { element.GetMipRawData( 0 ),
-					   element.GetMipPitch( 0 ),
-					   element.GetMipSize( 0 ) };
-			for( uint32_t i = 0; i < mipCount; ++i )
-			{
-				initialData.push_back( { element.GetMipRawData( i ), element.GetMipPitch( i ), element.GetMipSize( i ) } );
-			}
-		}
-		else
-		{
-			for( uint32_t i = 0; i < mipCount; ++i )
-			{
-				initialData.push_back( { nullptr, 0, 0 } );
-			}
-		}
-	}
-	for( uint32_t i = uint32_t( m_elements.size() ); i < m_dimensions.GetArraySize(); ++i )
-	{
-		for( uint32_t i = 0; i < mipCount; ++i )
-		{
-			initialData.push_back( { nullptr, 0, 0 } );
-		}
-	}
-	for( auto& data : initialData )
-	{
-		if( !data.m_sysMem )
-		{
-			data = filler;
-		}
-	}
-
-	Tr2TextureAL newTexture;
-	if( FAILED( newTexture.Create( m_dimensions, Tr2MsaaDesc(), m_gpuUsage, m_cpuUsage, initialData.data(), renderContext ) ) )
+	Tr2TextureAL newTexture = CreateTexture();
+	if( !newTexture.IsValid() )
 	{
 		m_elements[index] = ImageIO::HostBitmap();
 		return Tr2TextureArrayElement();
@@ -164,6 +125,65 @@ uint32_t Tr2TextureArray::GetMipCount() const
 void Tr2TextureArray::RemoveElement( uint32_t index )
 {
 	m_elements[index] = ImageIO::HostBitmap();
+}
+
+void Tr2TextureArray::ReleaseResources( TriStorage )
+{
+}
+
+bool Tr2TextureArray::OnPrepareResources()
+{
+	if( !m_texture.IsValid() && !m_elements.empty() )
+	{
+		m_texture = CreateTexture();
+	}
+	return true;
+}
+
+Tr2TextureAL Tr2TextureArray::CreateTexture() const
+{
+	USE_MAIN_THREAD_RENDER_CONTEXT();
+	std::vector<Tr2SubresourceData> initialData;
+	Tr2SubresourceData filler;
+	auto mipCount = m_dimensions.GetTrueMipCount();
+	for( auto& element : m_elements )
+	{
+		if( element.IsValid() )
+		{
+			filler = { element.GetMipRawData( 0 ),
+					   element.GetMipPitch( 0 ),
+					   element.GetMipSize( 0 ) };
+			for( uint32_t i = 0; i < mipCount; ++i )
+			{
+				initialData.push_back( { element.GetMipRawData( i ), element.GetMipPitch( i ), element.GetMipSize( i ) } );
+			}
+		}
+		else
+		{
+			for( uint32_t i = 0; i < mipCount; ++i )
+			{
+				initialData.push_back( { nullptr, 0, 0 } );
+			}
+		}
+	}
+	for( uint32_t i = uint32_t( m_elements.size() ); i < m_dimensions.GetArraySize(); ++i )
+	{
+		for( uint32_t i = 0; i < mipCount; ++i )
+		{
+			initialData.push_back( { nullptr, 0, 0 } );
+		}
+	}
+	for( auto& data : initialData )
+	{
+		if( !data.m_sysMem )
+		{
+			data = filler;
+		}
+	}
+
+	Tr2TextureAL newTexture;
+	newTexture.Create( m_dimensions, Tr2MsaaDesc(), m_gpuUsage, m_cpuUsage, initialData.data(), renderContext );
+	return newTexture;
 }
 
 

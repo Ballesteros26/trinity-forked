@@ -7,6 +7,7 @@
 #pragma once
 
 #include "ITr2TextureProvider.h"
+#include "Tr2DeviceResource.h"
 
 
 BLUE_DECLARE( Tr2TextureArray );
@@ -37,7 +38,8 @@ private:
 
 
 BLUE_CLASS( Tr2TextureArray ) :
-	public ITr2TextureProvider
+	public ITr2TextureProvider,
+	public Tr2DeviceResource
 {
 public:
 	Tr2TextureArray( IRoot* = nullptr );
@@ -57,8 +59,14 @@ public:
 	Tr2RenderContextEnum::PixelFormat GetFormat() const;
 	uint32_t GetMipCount() const;
 
+	void ReleaseResources( TriStorage ) override;
+
+protected:
+	bool OnPrepareResources() override;
+
 private:
 	void RemoveElement( uint32_t index );
+	Tr2TextureAL CreateTexture() const;
 
 	friend struct Tr2TextureArrayElement::Data;
 
