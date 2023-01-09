@@ -6,7 +6,7 @@
 
 #include "StdAfx.h"
 #include "Tr2ExternalParameter.h"
-#include "BlueExposure/BlueVariable.h"
+#include <BlueVariable.h>
 #include "TriValueBinding.h"
 
 namespace

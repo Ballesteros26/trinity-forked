@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "ALResultBlue.h"
-#include "BlueExposure/include/BlueStdResult.h"
+#include <BlueStdResult.h>
 
 BLUE_DEFINE_EXCEPTION( ALError, BlueStdRuntimeError );
 BLUE_DEFINE_EXCEPTION( ALDeviceLostError, ALError );

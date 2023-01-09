@@ -43,8 +43,8 @@ using std::max;
 
 // Disable identifier truncation warning
 // #pragma warning( disable : 4786 )
-#include "BlueExposure/include/BlueExposure.h"
-#include "BlueExposure/include/BlueExposureMacrosDeprecated.h"
+#include <BlueExposure.h>
+#include <BlueExposureMacrosDeprecated.h>
 #include "blue/include/IBlueOS.h"
 #include "blue/include/IBluePaths.h"
 #include "blue/include/IBlueResMan.h"
