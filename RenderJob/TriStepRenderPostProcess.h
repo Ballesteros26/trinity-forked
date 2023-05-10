@@ -144,7 +144,7 @@ private:
 	Tr2EffectPtr m_depthOfFieldBokehBlurShader;
 	Tr2EffectPtr m_depthOfFieldBokehFillShader;
 	Tr2EffectPtr m_depthOfFieldBokehTAAShader;
-	uint32_t m_BokehFrameCounter;
+	uint32_t m_bokehFrameCounter;
 	
 	// fidelityFX
 	bool ProcessFidelityFX( Tr2RenderContext& renderContext, Tr2PPFidelityFXEffect* fx );

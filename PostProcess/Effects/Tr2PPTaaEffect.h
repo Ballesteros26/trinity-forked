@@ -26,11 +26,6 @@ public:
 	bool m_showEarlyOutMask;
 	float m_earlyOutThreshold;
 
-	bool IsActive() override
-	{
-		return m_display;
-	}
-
 };
 
 TYPEDEF_BLUECLASS( Tr2PPTaaEffect );

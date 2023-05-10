@@ -1558,7 +1558,7 @@ void TriStepRenderPostProcess::RenderDepthOfField( Tr2RenderTarget* dest, Tr2Ren
 
 				//Animate the bokeh to let TAA accumulate samples.
 				//m_BokehFrameCounter is only incremented when TAA is enabled.
-				int rotation = ( m_BokehFrameCounter++ * 4 ) % 9;
+				int rotation = ( m_bokehFrameCounter++ * 4 ) % 9;
 
 				float angle = (float)rotation * TRI_2PI / 9.0f;
 
