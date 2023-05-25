@@ -1627,6 +1627,8 @@ function(set_shared_trinity_properties target)
 
     target_precompile_headers(${target} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/StdAfx.h)
     target_include_directories(${target}
+        PUBLIC
+            ${CMAKE_CURRENT_SOURCE_DIR}/include
         PRIVATE
             ${CMAKE_CURRENT_SOURCE_DIR}
     )
