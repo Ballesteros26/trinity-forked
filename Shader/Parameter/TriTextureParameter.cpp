@@ -40,7 +40,7 @@ unsigned TriTextureParameter::GetHashValue( unsigned startingHash ) const
 	return CcpHashFNV1( &name, sizeof( name ), startingHash );
 }
 
-void TriTextureParameter::UsedWithScreenSize( float screenSize, const std::vector<float>& uvDensities )
+void TriTextureParameter::UsedWithScreenSize( float screenSize, float worldRadius, const std::vector<float>& uvDensities )
 {
 	if( m_textureRes )
 	{
@@ -48,9 +48,18 @@ void TriTextureParameter::UsedWithScreenSize( float screenSize, const std::vecto
 		{
 			size_t i = 0;
 			float resolution = 0;
+
+			{
+				auto density = worldRadius * m_uvDensityScale[0];
+				if( density > 0 )
+				{
+					resolution = std::max( resolution, screenSize / density );
+				}
+			}
+
 			for( auto uv : uvDensities )
 			{
-				auto scale = m_uvDensityScale[i++];
+				auto scale = m_uvDensityScale[1 + i++];
 				auto density = uv * scale;
 				if( density > 0 )
 				{

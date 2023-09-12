@@ -129,6 +129,7 @@ public:
 	// data
 	Vector3 m_position;
 	Quaternion m_rotation;
+	Vector3 m_scaling;
 	int32_t m_boneIndex;
 };
 TYPEDEF_BLUECLASS( EveSOFDataTransform );

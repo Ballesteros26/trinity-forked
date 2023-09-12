@@ -126,7 +126,7 @@ void EveChildMesh::UpdateVisibility( const TriFrustum& frustum, const Matrix& pa
 		bounds.Transform( m_worldTransform );
 
 		m_currentScreenSize = frustum.GetPixelSizeAccross( bounds );
-		m_mesh->UseWithScreenSize( m_currentScreenSize );
+		m_mesh->UseWithScreenSize( m_currentScreenSize, CcpMath::Sphere( bounds ).radius );
 		if( frustum.IsBoxVisible( bounds ) )
 		{
 			m_isVisible = parentLod >= m_lowestLodVisible && m_currentScreenSize >= m_minScreenSize * g_eveSpaceSceneLODFactor;

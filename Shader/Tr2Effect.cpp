@@ -1221,7 +1221,7 @@ const CcpParser::Variable* GetParserVariable( void* ctx, const CcpParser::String
 			std::unique_ptr<CcpParser::Variable> var( new CcpParser::Variable() );
 			var->name = param.name.c_str();
 			var->buffer = 0;
-			var->offset = uint32_t( reinterpret_cast<const uint8_t*>( &param.value ) - reinterpret_cast<const uint8_t*>( &( *arguments->constParams )[0] ) );
+			var->offset = uint32_t( reinterpret_cast<const uint8_t*>( &param.value ) - reinterpret_cast<const uint8_t*>( &( *arguments->constParams )[0] ) + swizzle * sizeof( float ) );
 			auto result = var.get();
 			arguments->variables.push_back( std::move( var ) );
 			return result;
@@ -1307,14 +1307,29 @@ bool ExtractLodingAnnotations( std::array<float, ITriEffectTextureParameter::UV_
 		{
 			char* strEnd;
 			auto uvIndex = strtol( annotation.name + length, &strEnd, 10 );
-			if( *strEnd != 0 || uvIndex < 0 || uvIndex >= ITriEffectTextureParameter::UV_SET_MAX_COUNT )
+			if( *strEnd != 0 || uvIndex < 0 || uvIndex + 1 >= ITriEffectTextureParameter::UV_SET_MAX_COUNT )
 			{
 				continue;
 			}
 			
 			if( auto paramScale = GetUvScaleFromAnnotation( name, annotation, constParams ) )
 			{
-				densityScale[uvIndex] = *paramScale;
+				densityScale[uvIndex + 1] = *paramScale;
+				if( *paramScale > 0 )
+				{
+					enabled = true;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if( strcmp( annotation.name, "LodPositionScale" ) == 0 )
+		{
+			if( auto paramScale = GetUvScaleFromAnnotation( name, annotation, constParams ) )
+			{
+				densityScale[0] = *paramScale;
 				if( *paramScale > 0 )
 				{
 					enabled = true;

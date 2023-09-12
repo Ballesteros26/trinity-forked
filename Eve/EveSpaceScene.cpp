@@ -36,9 +36,8 @@
 #include "Eve/EveEntity.h"
 #include "Tr2SSAO.h"
 #include "Lights/ITr2LightOwner.h"
-#include <ScopedBlockTrap.h>
 #include "../Tr2VolumetricsRenderer.h"
-
+#include <ScopedBlockTrap.h>
 
 using namespace Tr2RenderContextEnum;
 

@@ -168,6 +168,7 @@ IRootPtr EveSOF::BuildFromDNA( const char* dnaString )
 		center.boneIndex = -1;
 		center.position = Vector3( 0, 0, 0 );
 		center.rotation = Quaternion( 0, 0, 0, 1 );
+		center.scaling = Vector3( 1, 1, 1 );
 		// Create a fake placement
 		EveSOFDataMgr::ExtensionPlacementData fakePlacement;
 		fakePlacement.isInstanced = false;
@@ -2801,12 +2802,13 @@ void EveSOF::SetupLayout( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const 
 	for( size_t layoutIdx = 0; layoutIdx < dna->GetLayoutCount(); ++layoutIdx )
 	{
 		auto layout = dna->GetLayoutData( layoutIdx );
-		size_t placementIdx = 0;
+		size_t placementIdx = -1;
 		TriRandomSeed( layout->seed );
 
 		// Go over all the placements (each layout can have multiple mesh attachments)
 		for( auto placement : layout->placements )
 		{
+			placementIdx++;
 			auto locators = std::vector<EveSOFDataMgr::LocatorDirectionData>();
 
 			Vector3 hullOffset( 0, 0, 0 );
@@ -2893,8 +2895,6 @@ void EveSOF::SetupLayout( EveSpaceObject2Ptr obj, const EveSOFDNAPtr dna, const 
 			}
 
 			CreatePlacement( obj, placementDna, placement, locators, offsets);
-
-			placementIdx++;
 		}
 	}
 }
@@ -3122,9 +3122,6 @@ EveChildContainerPtr EveSOF::CreatePlacement( EveSpaceObject2Ptr parent, EveSOFD
 	CcpMath::Sphere updatedBoundingSphere(extensionDna->GetParentBoundingSphere());
 	CcpMath::AxisAlignedEllipsoid updatedEllipsoid(extensionDna->GetParentHullShapeEllipsoid());
 
-	// Stuff for non instanced placements
-	Vector3 scale = Vector3( 1, 1, 1 );
-
 	// Stuff for instanced placements
 	std::vector<EveSOFDataMgr::HullMeshInstance> instances;
 	instances.reserve( nestedOffsets.size() * locators.size() );
@@ -3140,10 +3137,13 @@ EveChildContainerPtr EveSOF::CreatePlacement( EveSpaceObject2Ptr parent, EveSOFD
 	{
 		for( auto loc = locators.begin(); loc != locators.end(); ++loc )
 		{
-			Vector3 randomScale( 1.f, 1.f, 1.f );
+			Vector3 randomScale = loc->scaling;
 			if( placement.hasDistribution )
 			{
-				randomScale = Lerp( placement.distribution.randomScaleMin, placement.distribution.randomScaleMax, TriFloatRandom01() );
+				auto factor = Lerp( placement.distribution.randomScaleMin, placement.distribution.randomScaleMax, TriFloatRandom01() );
+				randomScale.x *= factor.x;
+				randomScale.y *= factor.y;
+				randomScale.z *= factor.z;
 			}
 			Matrix transform = placementOffset * TransformationMatrix( randomScale, Normalize( loc->rotation ), loc->position ) * offset;
 			placementOffsets.push_back( transform );
@@ -3169,8 +3169,8 @@ EveChildContainerPtr EveSOF::CreatePlacement( EveSpaceObject2Ptr parent, EveSOFD
 			{
 				// create the child normally
 				Quaternion rotation;
-				Vector3 translation, tmp;
-				Decompose( tmp, rotation, translation, transform );
+				Vector3 translation, scale;
+				Decompose( scale, rotation, translation, transform );
 
 				// create the non instanced extension mesh
 				EveChildMeshPtr child;

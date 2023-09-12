@@ -38,6 +38,7 @@ public:
 	{
 		Vector3 position;
 		Quaternion rotation;
+		Vector3 scaling;
 		int32_t boneIndex;
 		int32_t uniqueID;
 

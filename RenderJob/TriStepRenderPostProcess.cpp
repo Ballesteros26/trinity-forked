@@ -375,7 +375,7 @@ TriStepResult TriStepRenderPostProcess::Execute( Be::Time realTime, Be::Time sim
 
 	if (ProcessTaa(taa))
 	{
-		RenderTaa( nonMsaaSource, renderContext, taa );
+		RenderTaa( nonMsaaSource, renderContext, taa, dynamicExposure );
 	}
 
 	if (ProcessDynamicExposure(renderContext, dynamicExposure, bloom))
@@ -1392,7 +1392,7 @@ bool TriStepRenderPostProcess::ProcessTaa(Tr2PPTaaEffect* taa)
 	return taa && taa->IsActive();
 }
 
-void TriStepRenderPostProcess::RenderTaa( Tr2RenderTarget* dest, Tr2RenderContext& renderContext, Tr2PPTaaEffect* taa )
+void TriStepRenderPostProcess::RenderTaa( Tr2RenderTarget* dest, Tr2RenderContext& renderContext, Tr2PPTaaEffect* taa, Tr2PPDynamicExposureEffect* dynamicExposure )
 {
 	GPU_REGION( renderContext, "TAA" );
 	renderContext.m_esm.ApplyStandardStates( Tr2EffectStateManager::RM_FULLSCREEN );
@@ -1415,6 +1415,28 @@ void TriStepRenderPostProcess::RenderTaa( Tr2RenderTarget* dest, Tr2RenderContex
 	{
 		input = m_accumulationBuffer1;
 		output = m_accumulationBuffer0;
+	}
+
+	Tr2EffectPtr effects[] = {m_taaEffect, m_taaCopyEffect};
+	for( Tr2EffectPtr effect : effects )
+	{
+		effect->StartUpdate();
+
+		if( dynamicExposure && dynamicExposure->IsActive() )
+		{
+			effect->SetParameter( BlueSharedString( "Exposure" ), m_exposure );
+			effect->SetParameter( BlueSharedString( "ExposureAdjust" ), pow( 2.0f, dynamicExposure->m_adjustment ) );
+			effect->SetParameter( BlueSharedString( "ExposureMiddleValue" ), dynamicExposure->m_middleValue );
+			effect->SetParameter( BlueSharedString( "ExposureInfluence" ), dynamicExposure->m_influence );
+
+			effect->SetOption( BlueSharedString( "DYNAMIC_EXPOSURE_TOGGLE" ), BlueSharedString( "DYNAMIC_EXPOSURE_ENABLED" ) );
+		}
+		else
+		{
+			effect->SetOption( BlueSharedString( "DYNAMIC_EXPOSURE_TOGGLE" ), BlueSharedString( "DYNAMIC_EXPOSURE_DISABLED" ) );
+		}
+
+		effect->EndUpdate();
 	}
 
 	m_taaEffect->SetParameter( BlueSharedString( "FrameIndex" ), frame_count );
