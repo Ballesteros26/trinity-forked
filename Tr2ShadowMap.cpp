@@ -94,7 +94,12 @@ void Tr2ShadowMap::ReleaseResources( TriStorage s )
 	{
 		m_cascadedShadowMapHandle->Clear();
 	}
-	
+
+	if( m_shadowMapHandle )
+	{
+		m_shadowMapHandle->Clear();
+	}
+
 	m_cascadedShadowMapDS = Tr2DepthStencilPtr();
 	m_shadowMapResultRT = Tr2RenderTargetPtr();
 
@@ -107,6 +112,11 @@ void Tr2ShadowMap::ClearVariableStore()
 	if( m_cascadedShadowMapHandle )
 	{
 		m_cascadedShadowMapHandle->Clear();
+	}
+
+	if( m_shadowMapHandle )
+	{
+		m_shadowMapHandle->Clear();
 	}
 }
 
@@ -311,6 +321,7 @@ void Tr2ShadowMap::DrawToShadowMapResult( Tr2RenderContext& renderContext, ITr2T
 	{
 		m_shadowMapResultRT = nullptr;
 		m_shadowMapResultRT.CreateInstance();
+		m_shadowMapResultRT->SetName("shadow_map_rt");
 		m_shadowMapResultRT->Create( width, height, 1, PixelFormat::PIXEL_FORMAT_R8_UNORM );
 	}
 

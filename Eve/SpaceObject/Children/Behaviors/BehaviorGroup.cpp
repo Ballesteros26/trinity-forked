@@ -605,6 +605,7 @@ void BehaviorGroup::UpdateVisibility( const TriFrustum& frustum, const Matrix& w
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 	m_currentScreenSize = 0.0f;
+	float worldRadius = 1;
 	// Check if an agent is visible and calculate the xfade value
 	for( auto agent = m_agents.begin(); agent != m_agents.end(); ++agent )
 	{
@@ -614,7 +615,7 @@ void BehaviorGroup::UpdateVisibility( const TriFrustum& frustum, const Matrix& w
 			float pixelSize = frustum.GetPixelSizeAccross( agentPosInWorld, m_boundingSphereRadius * m_scale );
 			agent->screenSize = pixelSize; // Store the screen size for each agent
 			m_currentScreenSize = max( m_currentScreenSize, pixelSize );
-			m_mesh->UseWithScreenSize( m_currentScreenSize );
+			worldRadius = max( worldRadius, m_boundingSphereRadius * m_scale );
 			if( pixelSize >= m_blendScreenSizeMax )
 			{
 				agent->xfade = 0.0; // Render as mesh
@@ -635,6 +636,7 @@ void BehaviorGroup::UpdateVisibility( const TriFrustum& frustum, const Matrix& w
 			agent->isVisible = false;
 		}
 	}
+	m_mesh->UseWithScreenSize( m_currentScreenSize, worldRadius );
 
 	m_frustum = frustum;
 	m_parentTransform = worldTransform;

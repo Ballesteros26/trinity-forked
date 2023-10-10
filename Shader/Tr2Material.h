@@ -155,7 +155,7 @@ public:
 
 	void InvalidateResourceSets();
 
-	void UsedWithScreenSize( float screenSize, const std::vector<float>& uvDensities );
+	void UsedWithScreenSize( float screenSize, float worldRadius, const std::vector<float>& uvDensities );
 
 protected:
 	bool ApplyShaderInputs( uint32_t techniqueIndex, unsigned int passIndex, Tr2RenderContextEnum::ShaderType shaderType, Tr2RenderContext& renderContext ) const;

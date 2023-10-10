@@ -950,6 +950,7 @@ void EveSOFDataMgr::GenerateHullData( HullData& hd, EveSOFDataHullPtr srcData ) 
 			LocatorDirectionData ldd;
 			ldd.position = locatorData->m_position;
 			ldd.rotation = locatorData->m_rotation;
+			ldd.scaling = locatorData->m_scaling;
 			ldd.boneIndex = locatorData->m_boneIndex;
 			ldd.uniqueID = uniqueID++;
 			hd.locatorSets[locatorSet->m_name].push_back( ldd );

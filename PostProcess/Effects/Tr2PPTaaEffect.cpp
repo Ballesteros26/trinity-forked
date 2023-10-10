@@ -13,7 +13,7 @@ Tr2PPTaaEffect::Tr2PPTaaEffect( IRoot* lockobj ) :
 	m_applyMipBias( true ),
 	m_showMotionVectors( false ),
 	m_showEarlyOutMask( false ),
-	m_earlyOutThreshold( 0.03 )
+	m_earlyOutThreshold( 0.04 )
 {
 
 }

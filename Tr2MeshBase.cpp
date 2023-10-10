@@ -322,7 +322,7 @@ const wchar_t* Tr2MeshBase::GetGeometryResPath() const
 	const TriGeometryRes* currentRes = GetGeometryResource();
 	if( !currentRes )
 	{
-		return nullptr;
+		return L"";
 	}
 	return currentRes->GetPath();
 }
@@ -432,7 +432,7 @@ void Tr2MeshBase::SetMaterialBoundsAdjustment( const Tr2MaterialBoundsAdjustment
 	CacheBounds();
 }
 
-void Tr2MeshBase::UseWithScreenSize( float screenSize ) const
+void Tr2MeshBase::UseWithScreenSize( float screenSize, float worldRadius ) const
 {
 	if (auto geometry = GetGeometryResource() )
 	{
@@ -446,7 +446,7 @@ void Tr2MeshBase::UseWithScreenSize( float screenSize ) const
 					{
 						if( area && area->GetMaterialInterface() )
 						{
-							area->GetMaterialInterface()->UsedWithScreenSize( screenSize, mesh->m_uvDensities );
+							area->GetMaterialInterface()->UsedWithScreenSize( screenSize, worldRadius, mesh->m_uvDensities );
 						}
 					}
 				}

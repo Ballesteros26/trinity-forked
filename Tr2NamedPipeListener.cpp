@@ -4,7 +4,7 @@
 
 #include "Tr2NamedPipeListener.h"
 #if BLUE_WITH_PYTHON
-#include <BluePyCpp.h>	
+#include <BluePyCpp.h>
 #endif
 #define BUFSIZE 512
 

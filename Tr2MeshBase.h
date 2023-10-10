@@ -103,7 +103,7 @@ public:
 	Tr2MaterialBoundsAdjustment GetMaterialBoundsAdjustment() const;
 	void SetMaterialBoundsAdjustment( const Tr2MaterialBoundsAdjustment& adjustment );
 
-	void UseWithScreenSize( float screenSize ) const;
+	void UseWithScreenSize( float screenSize, float worldRadius ) const;
 
 protected:
 	unsigned int FindJoint( const std::string* boneList, const int numBones, const char* name ) const;

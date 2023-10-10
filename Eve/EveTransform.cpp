@@ -312,7 +312,7 @@ void EveTransform::UpdateVisibility( const TriFrustum& frustum, const Matrix& pa
 			{
 				float estimatedSize = frustum.GetPixelSizeAccross( &boundingSphere );
 
-				m_mesh->UseWithScreenSize( estimatedSize );
+				m_mesh->UseWithScreenSize( estimatedSize, boundingSphere.w );
 
 				if( estimatedSize >= g_eveSpaceSceneMediumDetailThreshold )
 				{

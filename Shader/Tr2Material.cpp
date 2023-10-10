@@ -312,10 +312,10 @@ void Tr2Material::InvalidateResourceSets()
 	m_resourceSetHash = 0;
 }
 
-void Tr2Material::UsedWithScreenSize( float screenSize, const std::vector<float>& uvDensities )
+void Tr2Material::UsedWithScreenSize( float screenSize, float worldRadius, const std::vector<float>& uvDensities )
 {
 	for( auto& value : m_lodTextureParameters )
 	{
-		value->UsedWithScreenSize( screenSize, uvDensities );
+		value->UsedWithScreenSize( screenSize, worldRadius, uvDensities );
 	}
 }

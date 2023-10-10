@@ -161,7 +161,7 @@ bool EveBannerSet::UpdateVisibility( const TriFrustum& frustum, const Matrix& pa
 
 	if( m_effect )
 	{
-		m_effect->UsedWithScreenSize( screenSize, s_fullScreenSize );
+		m_effect->UsedWithScreenSize( screenSize, m_maxBannerRadius, { 1.f } );
 	}
 
 	if( isLoddedOut )

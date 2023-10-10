@@ -68,7 +68,7 @@ public:
 		uint32_t registerIndex ) const;
 	unsigned GetHashValue( unsigned startingHash ) const;
 
-	void UsedWithScreenSize( float screenSize, const std::vector<float>& uvDensities ) override;
+	void UsedWithScreenSize( float screenSize, float worldRadius, const std::vector<float>& uvDensities ) override;
 	void EnableTextureLoding( const std::array<float, UV_SET_MAX_COUNT>& uvDensityScale ) override;
 	void DisableTextureLoding() override;
 

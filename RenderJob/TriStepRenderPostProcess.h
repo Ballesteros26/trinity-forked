@@ -161,7 +161,7 @@ private:
 
 	// TAA
 	bool ProcessTaa( Tr2PPTaaEffect* taa );
-	void RenderTaa( Tr2RenderTarget* dest, Tr2RenderContext& renderContext, Tr2PPTaaEffect* taa );
+	void RenderTaa( Tr2RenderTarget* dest, Tr2RenderContext& renderContext, Tr2PPTaaEffect* taa, Tr2PPDynamicExposureEffect* dynamic_exposure );
 	Tr2RenderTargetPtr m_velocityBuffer;
 	Tr2EffectPtr m_taaEffect, m_taaCopyEffect;
 	Tr2RenderTargetPtr m_accumulationBuffer0, m_accumulationBuffer1;

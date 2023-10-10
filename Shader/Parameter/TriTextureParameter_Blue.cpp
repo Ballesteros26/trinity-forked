@@ -47,10 +47,11 @@ const Be::ClassInfo* TriTextureParameter::ExposeToBlue()
 		)
 		MAP_ATTRIBUTE( "uavMipLevel", m_uavMipLevel, "", Be::READWRITE | Be::PERSIST )
 
-		MAP_ATTRIBUTE( "uvDensityScale0", m_uvDensityScale[0], "UV0 density scale modifier for texture LOD\n:jessica-group: LOD", Be::READ )
-		MAP_ATTRIBUTE( "uvDensityScale1", m_uvDensityScale[1], "UV1 density scale modifier for texture LOD\n:jessica-group: LOD", Be::READ )
-		MAP_ATTRIBUTE( "uvDensityScale2", m_uvDensityScale[2], "UV2 density scale modifier for texture LOD\n:jessica-group: LOD", Be::READ )
-		MAP_ATTRIBUTE( "uvDensityScale3", m_uvDensityScale[3], "UV3 density scale modifier for texture LOD\n:jessica-group: LOD", Be::READ )
+		MAP_ATTRIBUTE( "positionScale", m_uvDensityScale[0], "Model position sampling density scale modifier for texture LOD\n:jessica-group: LOD", Be::READ )
+		MAP_ATTRIBUTE( "uvDensityScale0", m_uvDensityScale[1], "UV0 density scale modifier for texture LOD\n:jessica-group: LOD", Be::READ )
+		MAP_ATTRIBUTE( "uvDensityScale1", m_uvDensityScale[2], "UV1 density scale modifier for texture LOD\n:jessica-group: LOD", Be::READ )
+		MAP_ATTRIBUTE( "uvDensityScale2", m_uvDensityScale[3], "UV2 density scale modifier for texture LOD\n:jessica-group: LOD", Be::READ )
+		MAP_ATTRIBUTE( "uvDensityScale3", m_uvDensityScale[4], "UV3 density scale modifier for texture LOD\n:jessica-group: LOD", Be::READ )
 
 		////////////////////////////////////////////////////////////////////////////
 		MAP_ATTRIBUTE("usedByCurrentTechnique", m_isUsedByEffect, "na", Be::READ)
