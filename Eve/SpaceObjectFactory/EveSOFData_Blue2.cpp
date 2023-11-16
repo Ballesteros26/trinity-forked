@@ -252,11 +252,15 @@ const Be::ClassInfo* EveSOFDataPatternPerHull::ExposeToBlue()
 	EXPOSURE_END()
 }
 
+BLUE_DEFINE_INTERFACE( IEveSOFDataHullExtensionPlacement );
+
 BLUE_DEFINE( EveSOFDataHullExtensionPlacement );
 const Be::ClassInfo* EveSOFDataHullExtensionPlacement::ExposeToBlue(){
-	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacement, "" )
+	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacement, ":jessica-icon:far-folder" )
 		MAP_INTERFACE( EveSOFDataHullExtensionPlacement )
+		MAP_INTERFACE( IEveSOFDataHullExtensionPlacement )
 		MAP_ATTRIBUTE( "name", m_name, "The name of the placement", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "enabled", m_enabled, "Mostly for use during Authoring to prevent loading segments while working on others", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "locatorSetName", m_locatorSetName, "The name of the locatorset to distribute the extension", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "offset", m_offset, "The offset of the extension (", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "distribution", m_distribution, "The distribution of the extensions. If empty, the extension are distributed to every locator", Be::READWRITE | Be::PERSIST )
@@ -266,12 +270,26 @@ const Be::ClassInfo* EveSOFDataHullExtensionPlacement::ExposeToBlue(){
 	EXPOSURE_END()
 }
 
+BLUE_DEFINE( EveSOFDataHullExtensionPlacementGroup );
+const Be::ClassInfo* EveSOFDataHullExtensionPlacementGroup::ExposeToBlue(){
+	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementGroup, ":jessica-icon:far-folder-tree" )
+		MAP_INTERFACE( EveSOFDataHullExtensionPlacementGroup )
+		MAP_INTERFACE( IEveSOFDataHullExtensionPlacement )
+		MAP_ATTRIBUTE( "name", m_name, "The name of the placement", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "enabled", m_enabled, "Mostly for use during Authoring to prevent loading segments while working on others", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "placements", m_placements, "", Be::READ | Be::PERSIST )
+		MAP_ATTRIBUTE( "distributionConditions", m_distributionConditions, "", Be::READ | Be::PERSIST )
+		MAP_ATTRIBUTE( "depletionCounters", m_depletionCounters, "", Be::READ | Be::PERSIST ) 
+	EXPOSURE_END()
+}
+
 BLUE_DEFINE( EveSOFDataLayout );
 const Be::ClassInfo* EveSOFDataLayout::ExposeToBlue(){
 	EXPOSURE_BEGIN( EveSOFDataLayout, "" )
 		MAP_INTERFACE( EveSOFDataLayout )
 		MAP_ATTRIBUTE( "name", m_name, "The name of the layout", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "seed", m_seed, "used in all random processing for the placements", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "randomizeSeedOnLoad", m_randomizeSeedOnLoad, "this will non-proceduraly scramble the seed on load", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "depletionCounters", m_depletionCounters, "", Be::READ | Be::PERSIST )
 		MAP_ATTRIBUTE( "placements", m_placements, "The placements of the layout", Be::READ | Be::PERSIST )
 
@@ -290,10 +308,9 @@ const Be::ClassInfo* EveSOFDataHullExtensionBucket::ExposeToBlue(){
 }
 
 
-
 BLUE_DEFINE( EveSOFDataDistributionDepletionCounter );
 const Be::ClassInfo* EveSOFDataDistributionDepletionCounter::ExposeToBlue(){
-	EXPOSURE_BEGIN( EveSOFDataDistributionDepletionCounter, "" )
+	EXPOSURE_BEGIN( EveSOFDataDistributionDepletionCounter, ":jessica-icon:far-cookie" )
 		MAP_INTERFACE( EveSOFDataDistributionDepletionCounter )
 		MAP_ATTRIBUTE( "name", m_name, "The name the counter to Add or subtract from", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "value", m_value, "", Be::READWRITE | Be::PERSIST )
@@ -304,54 +321,58 @@ BLUE_DEFINE_INTERFACE( IEveSOFDataHullExtensionPlacementDistribution );
 
 BLUE_DEFINE( EveSOFDataHullExtensionPlacementDistributionParentMatch );
 const Be::ClassInfo* EveSOFDataHullExtensionPlacementDistributionParentMatch::ExposeToBlue(){
-	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementDistributionParentMatch, "" )
+	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementDistributionParentMatch, ":jessica-icon:far-child" )
 		MAP_INTERFACE( EveSOFDataHullExtensionPlacementDistributionParentMatch )
 		MAP_INTERFACE( IEveSOFDataHullExtensionPlacementDistribution )
-		MAP_ATTRIBUTE( "name", m_name, "The name of the layout", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "name", m_name, "The name of the distribution", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "parentDescriptor", m_parentDescriptor, "", Be::READWRITE | Be::PERSIST )
 	EXPOSURE_END()
 }
 
 BLUE_DEFINE( EveSOFDataHullExtensionPlacementDistributionDepletionCounter );
 const Be::ClassInfo* EveSOFDataHullExtensionPlacementDistributionDepletionCounter::ExposeToBlue(){
-	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementDistributionDepletionCounter, "" )
+	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementDistributionDepletionCounter, ":jessica-icon:far-cookie-bite" )
 		MAP_INTERFACE( EveSOFDataHullExtensionPlacementDistributionDepletionCounter )
 		MAP_INTERFACE( IEveSOFDataHullExtensionPlacementDistribution )
+		MAP_ATTRIBUTE( "name", m_name, "The name the counter to Add or subtract from", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "depletionCounters", m_depletionCounters, "", Be::READ | Be::PERSIST )
 	EXPOSURE_END()
 }
 
 BLUE_DEFINE( EveSOFDataHullExtensionPlacementDistributionRandomChance );
 const Be::ClassInfo* EveSOFDataHullExtensionPlacementDistributionRandomChance::ExposeToBlue(){
-	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementDistributionRandomChance, "" )
+	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementDistributionRandomChance, ":jessica-icon:far-dice" )
 		MAP_INTERFACE( EveSOFDataHullExtensionPlacementDistributionRandomChance )
 		MAP_INTERFACE( IEveSOFDataHullExtensionPlacementDistribution )
+		MAP_ATTRIBUTE( "name", m_name, "The name of the distribution", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "chanceOfUsage", m_chanceOfUsage, "[0:1], 1 = 100%", Be::READWRITE | Be::PERSIST )
 	EXPOSURE_END()
 }
 
 BLUE_DEFINE( EveSOFDataHullExtensionPlacementDistributionMapGraphicSettings );
 const Be::ClassInfo* EveSOFDataHullExtensionPlacementDistributionMapGraphicSettings::ExposeToBlue(){
-	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementDistributionMapGraphicSettings, "" )
+	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementDistributionMapGraphicSettings, ":jessica-icon:far-gear" )
 		MAP_INTERFACE( EveSOFDataHullExtensionPlacementDistributionMapGraphicSettings )
 		MAP_INTERFACE( IEveSOFDataHullExtensionPlacementDistribution )
+		MAP_ATTRIBUTE( "name", m_name, "The name of the distribution", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE_WITH_CHOOSER( "displayFilter", m_displayFilter, "Selects when this instance is picked based on shader quality", Be::READWRITE | Be::PERSIST | Be::ENUM, DisplayFlagModifierChooser )
 	EXPOSURE_END()
 }
 
 BLUE_DEFINE( EveSOFDataHullExtensionPlacementDistributionPlacement );
 const Be::ClassInfo* EveSOFDataHullExtensionPlacementDistributionPlacement::ExposeToBlue(){
-	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementDistributionPlacement, "ParentMatch\n:jessica-icon-color: (123, 28, 212)\n:jessica-icon:fa-equals" )
+	EXPOSURE_BEGIN( EveSOFDataHullExtensionPlacementDistributionPlacement, "ParentMatch\n:jessica-icon-color: (123, 28, 212)\n:jessica-icon:far-slot-machine" )
 		MAP_INTERFACE( EveSOFDataHullExtensionPlacementDistributionPlacement )
 		MAP_ATTRIBUTE( "name", m_name, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "completeness", m_completeness, "chance per locator of being utilized, 0.5=50%", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "placementBias", m_placementBias, "Vector to direct the spread of placements towards a direction", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "centerBias", m_centerBias, "0=doesn't care, -1=prioritizes edges, 1=starts from center", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "cap", m_cap, "cap on how many locators this distribution can utilize (0=uncapped)", Be::READWRITE | Be::PERSIST )
-		MAP_ATTRIBUTE( "randomRotationStepSizeYPR", m_randomRotationStepSizeYPR, "step size for randomizing rotations, (yaw, pitch, roll) [-1:1] ", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "randomRotationStepSizeYPR", m_randomRotationStepSizeYPR, "step size for randomizing rotations, (yaw, pitch, roll) in degrees (90 = quarter circle)", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "randomRotationMaxSteps", m_randomRotationMaxSteps, "max number of times the above stepSize can be added per locator", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "randomScaleMin", m_randomScaleMin, "", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "randomScaleMax", m_randomScaleMax, "", Be::READWRITE | Be::PERSIST )
+		MAP_ATTRIBUTE( "uniformScale", m_uniformScale, "when toggled the random value is on the linear axis between min and max", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "occupyLocators", m_occupyLocators, "when toggled the placement will reserve locator from other layouts", Be::READWRITE | Be::PERSIST )
 
 	EXPOSURE_END()
@@ -360,7 +381,7 @@ const Be::ClassInfo* EveSOFDataHullExtensionPlacementDistributionPlacement::Expo
 BLUE_DEFINE( EveSOFDNADescriptor );
 const Be::ClassInfo* EveSOFDNADescriptor::ExposeToBlue()
 {
-	EXPOSURE_BEGIN( EveSOFDNADescriptor, "" )
+	EXPOSURE_BEGIN( EveSOFDNADescriptor, ":jessica-icon:far-dna" )
 		MAP_INTERFACE( EveSOFDNADescriptor )
 		MAP_ATTRIBUTE( "hull", m_hull, "The hull extension of the dna (only hulls with buildclass BUILDCLASS_EXTENSION are permitted)\n:jessica-widget: hullextensionpicker", Be::READWRITE | Be::PERSIST )
 		MAP_ATTRIBUTE( "faction", m_faction, "The faction of the dna\n:jessica-widget: factionpicker", Be::READWRITE | Be::PERSIST )

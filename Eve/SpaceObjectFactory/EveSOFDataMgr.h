@@ -135,6 +135,7 @@ public:
 		Vector3 randomRotationMaxSteps; 
 		Vector3 randomScaleMin; 
 		Vector3 randomScaleMax; 
+		bool uniformScaling;
 		bool occupyLocators;
 	};
 
@@ -170,14 +171,21 @@ public:
 		DNADescriptorData descriptor;
 		bool isInstanced;
 		bool hasDistribution;
+		bool enabled;
 		ExtensionPlacementDistribution distribution;
 		std::vector<ExtensionPlacementDistributionCondition> placementConditions;
+
+		//Group/Bucket related attributes
+		bool isAGroup;
+		std::vector<ExtensionPlacementDepletionCounter> depletionCounters;
+		std::vector<ExtensionPlacementData> placements;
 	};
 
 	struct LayoutData
 	{
 		BlueSharedString name;
 		uint32_t seed;
+		bool scrambleSeed;
 		std::vector<ExtensionPlacementData> placements;
 		std::vector<ExtensionPlacementDepletionCounter> depletionCounters;
 	};
@@ -201,17 +209,23 @@ public:
 
 	struct HullSpotlightSetItemData
 	{
+		explicit HullSpotlightSetItemData( const EveSOFDataHullSpotlightSetItem& item );
+
 		Matrix transform;
 		int boneIndex, groupIndex;
 		bool boosterGainInfluence;
+		SOFDataFactionColorChooser::ColorType colorType;
 		Vector3 spriteScale;
 		float coneIntensity, flareIntensity, spriteIntensity;
 	};
 
 	struct HullSpotlightSetData
 	{
+		explicit HullSpotlightSetData( const EveSOFDataHullSpotlightSet& spotLightSet );
+
 		bool skinned;
 		float zOffset;
+		uint32_t visibilityGroup;
 		std::string glowTextureResPath;
 		std::string coneTextureResPath;
 		std::vector<HullSpotlightSetItemData> items;
@@ -219,10 +233,14 @@ public:
 
 	struct HullPlaneSetItemData
 	{
+		explicit HullPlaneSetItemData( const EveSOFDataHullPlaneSetItem& item );
+
 		Vector3 position;
 		Vector3 scaling;
 		Quaternion rotation;
 		Color color;
+		SOFDataFactionColorChooser::ColorType colorType;
+		float intensity;
 		Vector4 layer1Transform, layer2Transform, layer1Scroll, layer2Scroll;
 		int boneIndex, groupIndex, maskMapAtlasIndex;
 		// BlinkData - combined into a float4 in the vertex buffer;
@@ -232,11 +250,14 @@ public:
 
 	struct HullPlaneSetData
 	{
+		explicit HullPlaneSetData( const EveSOFDataHullPlaneSet& planeSet );
+
 		bool skinned;
 		std::string layer1MapResPath;
 		std::string layer2MapResPath;
 		std::string maskMapResPath;
 		EveSOFDataHullPlaneSet::Usage usage;
+		uint32_t visibilityGroup;
 		uint32_t atlasSize;
 		std::vector<HullPlaneSetItemData> items;
 	};
@@ -458,6 +479,7 @@ public:
 		bool isUsingDecalSets;
 		bool enableDynamicBoundingSphere;
 		bool castShadow;
+		bool sof6;
 		Vector3 audioPosition;
 		std::vector<HullSpriteSetData> spriteSets;
 		std::vector<HullSpotlightSetData> spotlightSets;
@@ -799,9 +821,11 @@ private:
 	void GenerateMaterialData( MaterialData& rd, EveSOFDataMaterialPtr srcData ) const;
 	void GeneratePatternData( PatternData& rd, EveSOFDataPatternPtr srcData ) const;
 	void GenerateLayoutData( LayoutData& ld, EveSOFDataLayoutPtr srcData ) const;
+	void LoadLocatorData( HullData & hd, EveSOFDataHullPtr srcData, IEveSOFDataHullLocatorSetPtr locatorSetOrGroup, uint32_t & uniqueID ) const;
 
-	// helper function to get the hash
-	uint32_t GetVisibilityGroupHash( const BlueSharedString visibilityGroup ) const;
+	
+	ExtensionPlacementData UnpackPlacementData( IEveSOFDataHullExtensionPlacementPtr placement ) const;
+
 	// helper function to deal with layout Distributions
 	ExtensionPlacementDistribution generateDistributionData( EveSOFDataHullExtensionPlacementDistributionPlacementPtr distributionObj ) const;
 	ExtensionPlacementDistributionCondition generateDistributionConditionData( IEveSOFDataHullExtensionPlacementDistributionPtr distributionObj ) const;
