@@ -774,11 +774,13 @@ void MetalWorkQueue::SetRenderStatesDirty()
 	m_dirtyRenderEncoderState = METAL_RENDERENCODERDIRTYSTATE_ALL;
 
 	m_dirtyConstBuffersMask[VERTEX_SHADER] = ~0u;
+    m_dirtyConstBufferPageMask[VERTEX_SHADER] = ~0u;
 	m_dirtyBuffersMask[VERTEX_SHADER] = ~0u;
 	m_dirtyTexturesMask[VERTEX_SHADER] = ~0u;
 	m_dirtySamplersMask[VERTEX_SHADER] = ~0u;
 
 	m_dirtyConstBuffersMask[PIXEL_SHADER] = ~0u;
+    m_dirtyConstBufferPageMask[PIXEL_SHADER] = ~0u;
 	m_dirtyBuffersMask[PIXEL_SHADER] = ~0u;
 	m_dirtyTexturesMask[PIXEL_SHADER] = ~0u;
 	m_dirtySamplersMask[PIXEL_SHADER] = ~0u;
@@ -865,7 +867,8 @@ void MetalWorkQueue::SetCurrentEncoder( MetalEncoderType encoderType, NSString *
 		m_currentComputeEncoder.label = encoderLabel ? encoderLabel : @"Standard compute encoder";
 		METAL_LOG(@"Log:SetCurrentEncoder(Compute) %@", m_currentBlitEncoder.label);
 
-		m_dirtyConstBuffersMask[COMPUTE_SHADER] = ~0u;
+        m_dirtyConstBuffersMask[COMPUTE_SHADER] = ~0u;
+        m_dirtyConstBufferPageMask[COMPUTE_SHADER] = ~0u;
 		m_dirtyBuffersMask[COMPUTE_SHADER] = ~0u;
 		m_dirtyTexturesMask[COMPUTE_SHADER] = ~0u;
 		m_dirtySamplersMask[COMPUTE_SHADER] = ~0u;
@@ -2311,6 +2314,10 @@ void MetalWorkQueue::SetConstants( Tr2RenderContextEnum::ShaderType shaderType, 
     }
 	if( bufferSlot.offset != offset || bufferSlot.page != page )
 	{
+        if( bufferSlot.page != page )
+        {
+            m_dirtyConstBufferPageMask[shaderType] |= flag;
+        }
 		bufferSlot = { page, offset };
 		m_dirtyConstBuffersMask[shaderType] |= flag;
 	}
@@ -2418,6 +2425,7 @@ void MetalWorkQueue::ResetBuffers( Tr2RenderContextEnum::ShaderType shaderType )
 	m_activeConstBuffersMask[shaderType] = 0;
 	m_activeBuffersMask[shaderType] = 0;
 	m_dirtyConstBuffersMask[shaderType] = ~0u;
+    m_dirtyConstBufferPageMask[shaderType] = ~0u;
 	m_dirtyBuffersMask[shaderType] = ~0u;
 }
 
@@ -2495,7 +2503,8 @@ void MetalWorkQueue::SetVertexBufferBindings()
 		mask &= ~flag;
 		m_dirtyBuffersMask[VERTEX_SHADER] &= ~flag;
 		m_dirtyConstBuffersMask[VERTEX_SHADER] |= flag;
-		
+        m_dirtyConstBufferPageMask[VERTEX_SHADER] |= flag;
+
 		[m_currentRenderEncoder setVertexBuffer:m_buffers[VERTEX_SHADER][i].buffer
 										 offset:m_buffers[VERTEX_SHADER][i].offset
 										atIndex:i];
@@ -2515,9 +2524,17 @@ void MetalWorkQueue::SetVertexBufferBindings()
 		m_dirtyBuffersMask[VERTEX_SHADER] |= flag;
 
         auto& cbd = m_constBuffers[VERTEX_SHADER][i];
-        [m_currentRenderEncoder setVertexBuffer:allocator.GetPage( cbd.page )
-                                         offset:cbd.offset
-                                        atIndex:i];
+        if( ( m_dirtyConstBufferPageMask[VERTEX_SHADER] & flag ) != 0 )
+        {
+            m_dirtyConstBufferPageMask[VERTEX_SHADER] &= ~flag;
+            [m_currentRenderEncoder setVertexBuffer:allocator.GetPage( cbd.page )
+                                             offset:cbd.offset
+                                            atIndex:i];
+        }
+        else
+        {
+            [m_currentRenderEncoder setVertexBufferOffset:cbd.offset atIndex:i];
+        }
 	}
 
 	dirtyMask = m_dirtyTexturesMask[VERTEX_SHADER];
@@ -2563,7 +2580,8 @@ void MetalWorkQueue::SetFragmentBufferBindings()
 
 		mask &= ~flag;
 		m_dirtyBuffersMask[PIXEL_SHADER] &= ~flag;
-		m_dirtyConstBuffersMask[PIXEL_SHADER] |= flag;
+        m_dirtyConstBuffersMask[PIXEL_SHADER] |= flag;
+        m_dirtyConstBufferPageMask[PIXEL_SHADER] |= flag;
 
 		[m_currentRenderEncoder setFragmentBuffer:m_buffers[PIXEL_SHADER][i].buffer
 										   offset:m_buffers[PIXEL_SHADER][i].offset
@@ -2584,9 +2602,17 @@ void MetalWorkQueue::SetFragmentBufferBindings()
 		m_dirtyBuffersMask[PIXEL_SHADER] |= flag;
 
         auto& cbd = m_constBuffers[PIXEL_SHADER][i];
-        [m_currentRenderEncoder setFragmentBuffer:allocator.GetPage( cbd.page )
-                                           offset:cbd.offset
-                                          atIndex:i];
+        if( ( m_dirtyConstBufferPageMask[PIXEL_SHADER] & flag ) != 0 )
+        {
+            m_dirtyConstBufferPageMask[PIXEL_SHADER] &= ~flag;
+            [m_currentRenderEncoder setFragmentBuffer:allocator.GetPage( cbd.page )
+                                               offset:cbd.offset
+                                              atIndex:i];
+        }
+        else
+        {
+            [m_currentRenderEncoder setFragmentBufferOffset:cbd.offset atIndex:i];
+        }
 	}
 
 	dirtyMask = m_dirtyTexturesMask[PIXEL_SHADER];
@@ -2634,6 +2660,7 @@ void MetalWorkQueue::SetComputeBufferBindings()
 		mask &= ~flag;
 		m_dirtyBuffersMask[COMPUTE_SHADER] &= ~flag;
 		m_dirtyConstBuffersMask[COMPUTE_SHADER] |= flag;
+        m_dirtyConstBufferPageMask[COMPUTE_SHADER] |= flag;
 
 		[m_currentComputeEncoder setBuffer:m_buffers[COMPUTE_SHADER][i].buffer
 									offset:m_buffers[COMPUTE_SHADER][i].offset
@@ -2654,9 +2681,17 @@ void MetalWorkQueue::SetComputeBufferBindings()
 		m_dirtyBuffersMask[COMPUTE_SHADER] |= flag;
 
         auto& cbd = m_constBuffers[COMPUTE_SHADER][i];
-        [m_currentComputeEncoder setBuffer:allocator.GetPage( cbd.page )
-                                    offset:cbd.offset
-                                   atIndex:i];
+        if( ( m_dirtyConstBufferPageMask[COMPUTE_SHADER] & flag ) != 0 )
+        {
+            m_dirtyConstBufferPageMask[COMPUTE_SHADER] &= ~flag;
+            [m_currentComputeEncoder setBuffer:allocator.GetPage( cbd.page )
+                                        offset:cbd.offset
+                                       atIndex:i];
+        }
+        else
+        {
+            [m_currentComputeEncoder setBufferOffset:cbd.offset atIndex:i];
+        }
 	}
 
 	dirtyMask = m_dirtyTexturesMask[COMPUTE_SHADER];
