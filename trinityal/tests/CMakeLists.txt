@@ -72,6 +72,12 @@ function(set_shared_trinityaltest_properties target)
         target_link_libraries(${target} PRIVATE "-framework Cocoa")
     elseif(WIN32)
         target_link_options(${target} PRIVATE "/IGNORE:4049")
+
+        add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${target}> $<TARGET_FILE_DIR:${target}>
+                COMMAND_EXPAND_LISTS
+                VERBATIM
+        )
     endif()
 
     # override the output directory to ensure that all TrinityALTest outputs end up in the same folder.
@@ -83,12 +89,6 @@ function(set_shared_trinityaltest_properties target)
             RUNTIME_OUTPUT_DIRECTORY ${output_directory}
             PDB_OUTPUT_DIRECTORY ${output_directory}
             FOLDER Trinity/Tests
-    )
-
-    add_custom_command(TARGET ${target} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:${target}> $<TARGET_FILE_DIR:${target}>
-        COMMAND_EXPAND_LISTS
-        VERBATIM
     )
 
 endfunction()
