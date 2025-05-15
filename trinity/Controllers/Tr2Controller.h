@@ -34,7 +34,7 @@ public:
 
 	virtual void Start();
 	virtual void Stop();
-	virtual void Update();
+	virtual void Update( float distanceToParent = 0.f ) override;
 
 	virtual void SetVariable( const char* name, float value );
 
@@ -61,6 +61,7 @@ public:
 
 private:
 	size_t GetCallbackCount() { return m_callbacks.size(); };
+	void RecalculateUpdateFrequency( float distanceToPlayer );
 
 	std::string m_name;
 	PTr2StateMachineVector m_stateMachines;
@@ -79,6 +80,11 @@ private:
 	IRoot* m_owner;
 	bool m_isActive;
 	bool m_isShared;
+
+	float m_minUpdateFrequency;
+	float m_maxUpdateFrequency;
+	double m_currentUpdateFrequency;
+	Be::Time m_nextUpdateTS;
 };
 
 TYPEDEF_BLUECLASS( Tr2Controller );

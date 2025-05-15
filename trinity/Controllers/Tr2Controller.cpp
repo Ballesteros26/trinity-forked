@@ -22,6 +22,8 @@ CCP_STATS_DECLARE( controllerLinkCount, "Trinity/Controllers/LinkCount", false, 
 
 CcpMutex g_controllerMutex( "", "g_controllerMutex" );
 
+// SpaceObject distance from player when at minimum update frequency
+const float UPDATE_FREQUENCY_LOD_DISTANCE = 42000.f; 
 
 Tr2Controller::Tr2Controller( IRoot* lockobj )
 	:PARENTLOCK( m_stateMachines ),
@@ -31,7 +33,11 @@ Tr2Controller::Tr2Controller( IRoot* lockobj )
 	m_dirtyVariables( 0xffffffffffffffffull ),
 	m_owner( nullptr ),
 	m_isActive( false ),
-	m_isShared( false )
+	m_isShared( false ),
+	m_minUpdateFrequency( 1.f ),
+	m_maxUpdateFrequency( 20.f ),
+	m_currentUpdateFrequency( 10.f ),
+	m_nextUpdateTS( 0 )
 {
 	m_stateMachines.SetNotify( this );
 	m_variables.SetNotify( this );
@@ -232,12 +238,23 @@ void Tr2Controller::Stop()
 	m_isActive = false;
 }
 
-void Tr2Controller::Update()
+void Tr2Controller::Update( float distanceToPlayer )
 {
 	if( !m_isActive )
 	{
 		return;
 	}
+
+	auto currentTime = BeOS->GetActualTime();
+
+	// skip updates based on the current distance related update frequency
+	if( currentTime < m_nextUpdateTS )
+	{
+		return;
+	}
+	
+	this->RecalculateUpdateFrequency( distanceToPlayer );
+	m_nextUpdateTS = currentTime + TimeFromDouble( 1.0 / m_currentUpdateFrequency );
 
 	{
 		CCP_STATS_INC( controllerUpdateCount );
@@ -254,18 +271,23 @@ void Tr2Controller::Update()
 		{
 			CCP_STATS_SCOPED_TIME( controllerUpdateablesTime );
 
-			auto realTime = BeOS->GetActualTime();
 			auto simTime = BeOS->GetCurrentFrameTime();
 
 			CcpAutoMutex lock( g_controllerMutex );
 
 			for( auto& updatable : m_updateables )
 			{
-				updatable->Update( realTime, simTime );
+				updatable->Update( currentTime, simTime );
 			}
 		}
 	}
+}
 
+void Tr2Controller::RecalculateUpdateFrequency( float distanceToParent )
+{
+	float lerpValue = max( 1.f - ( distanceToParent / UPDATE_FREQUENCY_LOD_DISTANCE ), 0.f );
+	float updateFrequency = m_minUpdateFrequency + lerpValue * ( m_maxUpdateFrequency - m_minUpdateFrequency );
+	m_currentUpdateFrequency = double( max( updateFrequency, 0.1f ) ); // floor: update every 10 sec at least to prevent weird issues
 }
 
 void Tr2Controller::SetVariable( const char* name, float value )

@@ -479,9 +479,11 @@ void EveSpaceObject2::UpdateAsyncronous( const EveUpdateContext& updateContext )
 		return;
 	}
 
+	float distanceFromSceneCenter = Length( m_worldTransform.GetTranslation() );
+
 	for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
 	{
-		( *it )->Update();
+		( *it )->Update( distanceFromSceneCenter );
 	}
 
 	Be::Time time = updateContext.GetTime();

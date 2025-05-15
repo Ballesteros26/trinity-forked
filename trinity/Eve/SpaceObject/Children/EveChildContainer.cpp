@@ -458,11 +458,6 @@ void EveChildContainer::UpdateAsyncronous( const EveUpdateContext& updateContext
 
 void EveChildContainer::DoUpdateAsyncronous( const EveUpdateContext& updateContext, const EveChildUpdateParams& params )
 {
-	for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
-	{
-		( *it )->Update();
-	}
-
 	Matrix lastWorldTransform = m_worldTransform;
 	Matrix localToWorldTransform = params.localToWorldTransform;
 	if( params.childParent )
@@ -478,6 +473,12 @@ void EveChildContainer::DoUpdateAsyncronous( const EveUpdateContext& updateConte
 
 	auto boneCount = params.boneCount;
 	auto bones = params.bones;
+	float distanceFromSceneCenter = Length( localToWorldTransform.GetTranslation() );
+
+	for( auto it = begin( m_controllers ); it != end( m_controllers ); ++it )
+	{
+		( *it )->Update( distanceFromSceneCenter );
+	}
 
 	if( m_animationOwner && m_animationOwner->GetAnimationController() )
 	{
