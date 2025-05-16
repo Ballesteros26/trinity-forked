@@ -34,7 +34,7 @@ public:
 
 	virtual void Start();
 	virtual void Stop();
-	virtual void Update( float normalizedUpdateFrequency = 0.5f ) override;
+	virtual void Update( float normalizedUpdateFrequency ) override;
 
 	virtual void SetVariable( const char* name, float value );
 

@@ -236,7 +236,7 @@ void Tr2Controller::Stop()
 }
 
 
-// param updateFrequency : normalized value [0:1] on how freqeuntly the controller should be updating
+// param normalizedUpdateFrequency : value [0:1] on how freqeuntly the controller should be updating
 void Tr2Controller::Update( float normalizedUpdateFrequency )
 {
 	if( !m_isActive )
