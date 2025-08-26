@@ -733,6 +733,9 @@ set(_SOURCES
     Eve/EveDistanceField.cpp
     Eve/EveDistanceField.h
     Eve/EveDistanceField_Blue.cpp
+    Eve/EveAudioObject.cpp
+    Eve/EveAudioObject.h
+    Eve/EveAudioObject_Blue.cpp
     Eve/EveEffectRoot2.cpp
     Eve/EveEffectRoot2.h
     Eve/EveEffectRoot2_Blue.cpp
