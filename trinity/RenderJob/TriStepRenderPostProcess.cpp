@@ -558,7 +558,7 @@ TriStepResult TriStepRenderPostProcess::Execute( Be::Time realTime, Be::Time sim
 		auto upscalingContext = renderContext.GetPrimaryRenderContext().GetUpscalingContext( m_upscalingContextID );
 		upscalingContext->SetHudLessTexture( output->GetTexture() );
 
-		upscaledSource = RenderUpscaling( nonMsaaSource, renderContext, upscalingContext, dynamicExposure, sourceBuffer.GetRenderTarget()->GetFormat() );
+		upscaledSource = RenderUpscaling( nonMsaaSource, renderContext, upscalingContext, dynamicExposure, nonMsaaSource.GetRenderTarget()->GetFormat() );
 		// upscale the temp textures so everything hence forth is correct
 		uint32_t w, h;
 		upscalingContext->GetDisplayDimensions( w, h );
