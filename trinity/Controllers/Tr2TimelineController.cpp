@@ -28,6 +28,7 @@ namespace
 BlueStructureDefinition Tr2TimelineEntryDef[] = {
 	{ "startTime", Be::FLOAT32_1, 0 },
 	{ "endTime", Be::FLOAT32_1, 4 },
+	{ "trackID", Be::UINT32_1, 8 },
 	{ 0 }
 };
 
@@ -38,7 +39,7 @@ bool InRange( float time, const Tr2TimelineEntry& range )
 
 }
 
-Tr2TimelineContoller::Tr2TimelineContoller( IRoot* lockobj ) :
+Tr2TimelineController::Tr2TimelineController( IRoot* lockobj ) :
 	PARENTLOCK( m_actions ),
 	PARENTLOCK( m_entries ),
 	PARENTLOCK( m_variables ),
@@ -48,13 +49,13 @@ Tr2TimelineContoller::Tr2TimelineContoller( IRoot* lockobj ) :
 	BeOS->RegisterForSimTimeRebase( this );
 }
 
-Tr2TimelineContoller::~Tr2TimelineContoller()
+Tr2TimelineController::~Tr2TimelineController()
 {
 	BeOS->UnregisterForSimTimeRebase( this );
 }
 
 
-void Tr2TimelineContoller::Link( IRoot& owner )
+void Tr2TimelineController::Link( IRoot& owner )
 {
 	CCP_STATS_ZONE( __FUNCTION__ );
 	{
@@ -92,7 +93,7 @@ void Tr2TimelineContoller::Link( IRoot& owner )
 	}
 }
 
-void Tr2TimelineContoller::Unlink()
+void Tr2TimelineController::Unlink()
 {
 	if( !m_owner )
 	{
@@ -119,12 +120,12 @@ void Tr2TimelineContoller::Unlink()
 	m_owner = nullptr;
 }
 
-bool Tr2TimelineContoller::IsLinked() const
+bool Tr2TimelineController::IsLinked() const
 {
 	return m_owner != nullptr;
 }
 
-void Tr2TimelineContoller::Start()
+void Tr2TimelineController::Start()
 {
 	ScopedBlockTrap blockTrap;
 
@@ -134,28 +135,32 @@ void Tr2TimelineContoller::Start()
 	}
 	m_isActive = true;
 	m_lastUpdateTime = BeOS->GetCurrentFrameTime();
+
+	CcpAutoMutex lock( g_controllerMutex );
+
 	for( size_t i = 0; i < m_actions.size(); ++i )
 	{
 		auto action = m_actions[i];
 		auto& entry = m_entries[i];
-		if( InRange( m_time, entry ) )
+		if( InRange( m_time, entry ) && IsActionEnabled( i ) )
 		{
 			action->Start( *this );
 		}
 	}
 }
 
-void Tr2TimelineContoller::Stop()
+void Tr2TimelineController::Stop()
 {
 	if( !m_isActive )
 	{
 		return;
 	}
+	CcpAutoMutex lock( g_controllerMutex );
 	for( size_t i = 0; i < m_actions.size(); ++i )
 	{
 		auto action = m_actions[i];
 		auto& entry = m_entries[i];
-		if( InRange( m_time, entry ) )
+		if( InRange( m_time, entry ) && IsActionEnabled( i ) )
 		{
 			action->Stop( *this );
 		}
@@ -185,11 +190,17 @@ void Tr2TimelineContoller::Update( float normalizedUpdateFrequency )
 		m_lastUpdateTime = simTime;
 		if( !m_isPaused )
 		{
+			CcpAutoMutex lock( g_controllerMutex );
+
 			auto oldTime = m_time;
 			m_time += dt;
 
 			for( size_t i = 0; i < m_actions.size(); ++i )
 			{
+				if( !IsActionEnabled( i ) )
+				{
+					continue;
+				}
 				auto action = m_actions[i];
 				auto& entry = m_entries[i];
 				auto wasActive = InRange( oldTime, entry );
@@ -204,8 +215,8 @@ void Tr2TimelineContoller::Update( float normalizedUpdateFrequency )
 				}
 				else if( InRange( entry.startTime, { oldTime, m_time } ) && InRange( entry.endTime, { oldTime, m_time } ) )
 				{
-					action->Stop( *this );
 					action->Start( *this );
+					action->Stop( *this );
 				}
 			}
 		}
@@ -226,7 +237,7 @@ void Tr2TimelineContoller::Update( float normalizedUpdateFrequency )
 	}
 }
 
-void Tr2TimelineContoller::SetVariable( const char* name, float value )
+void Tr2TimelineController::SetVariable( const char* name, float value )
 {
 	for( auto& var : m_variables )
 	{
@@ -238,7 +249,7 @@ void Tr2TimelineContoller::SetVariable( const char* name, float value )
 	}
 }
 
-void Tr2TimelineContoller::HandleEvent( const char* eventName )
+void Tr2TimelineController::HandleEvent( const char* eventName )
 {
 	if( !m_isActive )
 	{
@@ -253,12 +264,12 @@ void Tr2TimelineContoller::HandleEvent( const char* eventName )
 	}
 }
 
-IRoot* Tr2TimelineContoller::GetOwner() const
+IRoot* Tr2TimelineController::GetOwner() const
 {
 	return m_owner;
 }
 
-void Tr2TimelineContoller::Callback( BlueSharedString callbackName )
+void Tr2TimelineController::Callback( BlueSharedString callbackName )
 {
 	if( !m_isActive || m_callbacks.empty() )
 	{
@@ -275,7 +286,7 @@ void Tr2TimelineContoller::Callback( BlueSharedString callbackName )
 	}
 }
 
-void Tr2TimelineContoller::RegisterUpdateable( ITr2Updateable& updateable )
+void Tr2TimelineController::RegisterUpdateable( ITr2Updateable& updateable )
 {
 	auto found = std::find( begin( m_updateables ), end( m_updateables ), &updateable );
 	if( found == end( m_updateables ) )
@@ -284,7 +295,7 @@ void Tr2TimelineContoller::RegisterUpdateable( ITr2Updateable& updateable )
 	}
 }
 
-void Tr2TimelineContoller::UnRegisterUpdateable( ITr2Updateable& updateable )
+void Tr2TimelineController::UnRegisterUpdateable( ITr2Updateable& updateable )
 {
 	auto found = std::find( begin( m_updateables ), end( m_updateables ), &updateable );
 	if( found != end( m_updateables ) )
@@ -293,7 +304,7 @@ void Tr2TimelineContoller::UnRegisterUpdateable( ITr2Updateable& updateable )
 	}
 }
 
-const std::vector<std::pair<std::string, IRoot*>>& Tr2TimelineContoller::GetBindingPathRoots() const
+const std::vector<std::pair<std::string, IRoot*>>& Tr2TimelineController::GetBindingPathRoots() const
 {
 	if( m_bindingPathRoots.empty() )
 	{
@@ -310,7 +321,7 @@ const std::vector<std::pair<std::string, IRoot*>>& Tr2TimelineContoller::GetBind
 	return m_bindingPathRoots;
 }
 
-std::optional<float> Tr2TimelineContoller::GetFloatVariableByName( const char* name ) const
+std::optional<float> Tr2TimelineController::GetFloatVariableByName( const char* name ) const
 {
 	for( auto& var : m_variables )
 	{
@@ -322,7 +333,7 @@ std::optional<float> Tr2TimelineContoller::GetFloatVariableByName( const char* n
 	return std::nullopt;
 }
 
-void Tr2TimelineContoller::GetExpressionTermInfo( std::vector<Tr2ExpressionTermInfoPtr>& out ) const
+void Tr2TimelineController::GetExpressionTermInfo( std::vector<Tr2ExpressionTermInfoPtr>& out ) const
 {
 	for( auto it = begin( m_variables ); it != end( m_variables ); ++it )
 	{
@@ -330,17 +341,17 @@ void Tr2TimelineContoller::GetExpressionTermInfo( std::vector<Tr2ExpressionTermI
 	}
 }
 
-CcpParser::VariableView Tr2TimelineContoller::GetVariableView() const
+CcpParser::VariableView Tr2TimelineController::GetVariableView() const
 {
 	return m_variableView;
 }
 
-void* Tr2TimelineContoller::GetVariableBuffer() const
+void* Tr2TimelineController::GetVariableBuffer() const
 {
 	return m_variableData.get();
 }
 
-void Tr2TimelineContoller::EnsureTempArenaSize( size_t size ) const
+void Tr2TimelineController::EnsureTempArenaSize( size_t size ) const
 {
 	if( m_tempArena.size() < size )
 	{
@@ -348,12 +359,12 @@ void Tr2TimelineContoller::EnsureTempArenaSize( size_t size ) const
 	}
 }
 
-void* Tr2TimelineContoller::GetTempArena() const
+void* Tr2TimelineController::GetTempArena() const
 {
 	return m_tempArena.get();
 }
 
-void Tr2TimelineContoller::OnSimClockRebase( Be::Time oldTime, Be::Time newTime )
+void Tr2TimelineController::OnSimClockRebase( Be::Time oldTime, Be::Time newTime )
 {
 	Be::Time diff = newTime - oldTime;
 	m_lastUpdateTime += diff;
@@ -364,12 +375,12 @@ void Tr2TimelineContoller::OnSimClockRebase( Be::Time oldTime, Be::Time newTime 
 	}
 }
 
-size_t Tr2TimelineContoller::GetActionCount() const
+size_t Tr2TimelineController::GetActionCount() const
 {
 	return m_actions.size();
 }
 
-BlueStdResult Tr2TimelineContoller::GetAction( size_t index, ITr2ControllerActionPtr& action )
+BlueStdResult Tr2TimelineController::GetAction( size_t index, ITr2ControllerActionPtr& action )
 {
 	if( index >= m_actions.size() )
 	{
@@ -379,7 +390,7 @@ BlueStdResult Tr2TimelineContoller::GetAction( size_t index, ITr2ControllerActio
 	return {};
 }
 
-BlueStdResult Tr2TimelineContoller::GetActionStartTime( size_t index, float& value ) const
+BlueStdResult Tr2TimelineController::GetActionStartTime( size_t index, float& value ) const
 {
 	if( index >= m_actions.size() )
 	{
@@ -389,7 +400,7 @@ BlueStdResult Tr2TimelineContoller::GetActionStartTime( size_t index, float& val
 	return {};
 }
 
-BlueStdResult Tr2TimelineContoller::GetActionEndTime( size_t index, float& value ) const
+BlueStdResult Tr2TimelineController::GetActionEndTime( size_t index, float& value ) const
 {
 	if( index >= m_actions.size() )
 	{
@@ -399,13 +410,23 @@ BlueStdResult Tr2TimelineContoller::GetActionEndTime( size_t index, float& value
 	return {};
 }
 
-BlueStdResult Tr2TimelineContoller::SetActionStartTime( size_t index, float startTime )
+BlueStdResult Tr2TimelineController::GetActionTrackID( size_t index, uint32_t& trackID ) const
 {
 	if( index >= m_actions.size() )
 	{
 		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, "Index out of range" );
 	}
-	if( m_isActive )
+	trackID = m_entries[index].trackID;
+	return {};
+}
+
+BlueStdResult Tr2TimelineController::SetActionStartTime( size_t index, float startTime )
+{
+	if( index >= m_actions.size() )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, "Index out of range" );
+	}
+	if( m_isActive && IsActionEnabled( index ) )
 	{
 		auto action = m_actions[index];
 		auto& entry = m_entries[index];
@@ -413,10 +434,12 @@ BlueStdResult Tr2TimelineContoller::SetActionStartTime( size_t index, float star
 		auto nowActive = InRange( m_time, { startTime, entry.endTime } );
 		if( wasActive && !nowActive )
 		{
+			CcpAutoMutex lock( g_controllerMutex );
 			action->Stop( *this );
 		}
 		else if( !wasActive && nowActive )
 		{
+			CcpAutoMutex lock( g_controllerMutex );
 			action->Start( *this );
 		}
 	}
@@ -424,14 +447,15 @@ BlueStdResult Tr2TimelineContoller::SetActionStartTime( size_t index, float star
 	return {};
 }
 
-BlueStdResult Tr2TimelineContoller::SetActionEndTime( size_t index, float endTime )
+BlueStdResult Tr2TimelineController::SetActionEndTime( size_t index, float endTime )
 {
 	if( index >= m_actions.size() )
 	{
 		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, "Index out of range" );
 	}
-	if( m_isActive )
+	if( m_isActive && IsActionEnabled( index ) )
 	{
+		CcpAutoMutex lock( g_controllerMutex );
 		auto action = m_actions[index];
 		auto& entry = m_entries[index];
 		auto wasActive = InRange( m_time, entry );
@@ -449,7 +473,36 @@ BlueStdResult Tr2TimelineContoller::SetActionEndTime( size_t index, float endTim
 	return {};
 }
 
-void Tr2TimelineContoller::AddAction( ITr2ControllerAction* action, float startTime, float endTime )
+BlueStdResult Tr2TimelineController::SetActionTrackID( size_t index, uint32_t trackID )
+{
+	if( index >= m_actions.size() )
+	{
+		return BlueStdResult( BLUE_STD_RESULT_VALUE_ERROR, "Index out of range" );
+	}
+	auto wasActive = IsActionEnabled( index );
+	m_entries[index].trackID = trackID;
+	auto nowActive = IsActionEnabled( index );
+	if( m_isActive && wasActive != nowActive )
+	{
+		auto action = m_actions[index];
+		auto& entry = m_entries[index];
+		if( InRange( m_time, entry ) )
+		{
+			CcpAutoMutex lock( g_controllerMutex );
+			if( nowActive )
+			{
+				action->Start( *this );
+			}
+			else
+			{
+				action->Stop( *this );
+			}
+		}
+	}
+	return {};
+}
+
+void Tr2TimelineController::AddAction( ITr2ControllerAction* action, float startTime, float endTime, uint32_t trackID )
 {
 	if( !action )
 	{
@@ -462,19 +515,20 @@ void Tr2TimelineContoller::AddAction( ITr2ControllerAction* action, float startT
 	{
 		action->Link( *this );
 	}
-	Tr2TimelineEntry entry = { startTime, endTime };
+	Tr2TimelineEntry entry = { startTime, endTime, trackID };
 	m_entries.Append( &entry );
 
 	if( m_isActive )
 	{
-		if( InRange( m_time, entry ) )
+		if( InRange( m_time, entry ) && IsActionEnabled( m_entries.size() - 1 ) )
 		{
+			CcpAutoMutex lock( g_controllerMutex );
 			action->Start( *this );
 		}
 	}
 }
 
-BlueStdResult Tr2TimelineContoller::RemoveAction( size_t index )
+BlueStdResult Tr2TimelineController::RemoveAction( size_t index )
 {
 	if( index >= m_actions.size() )
 	{
@@ -482,12 +536,13 @@ BlueStdResult Tr2TimelineContoller::RemoveAction( size_t index )
 	}
 	if( m_owner )
 	{
-		if( m_isActive )
+		if( m_isActive && IsActionEnabled( index ) )
 		{
 			auto action = m_actions[index];
 			auto& entry = m_entries[index];
 			if( InRange( m_time, entry ) )
 			{
+				CcpAutoMutex lock( g_controllerMutex );
 				action->Stop( *this );
 			}
 		}
@@ -498,22 +553,79 @@ BlueStdResult Tr2TimelineContoller::RemoveAction( size_t index )
 	return {};
 }
 
-void Tr2TimelineContoller::RegisterCallback( const BlueSharedString& callbackName, const BlueScriptCallback& callback )
+bool Tr2TimelineController::IsActionEnabled( size_t index ) const
+{
+	return find( begin( m_disabledTracks ), end( m_disabledTracks ), m_entries[index].trackID ) == end( m_disabledTracks );
+}
+
+bool Tr2TimelineController::IsTrackEnabled( uint32_t trackID ) const
+{
+	return find( begin( m_disabledTracks ), end( m_disabledTracks ), trackID ) == end( m_disabledTracks );
+}
+
+void Tr2TimelineController::EnableTrack( uint32_t trackID, bool enable )
+{
+	auto found = find( begin( m_disabledTracks ), end( m_disabledTracks ), trackID );
+	if( enable )
+	{
+		if( found != end( m_disabledTracks ) )
+		{
+			m_disabledTracks.erase( found );
+		}
+		else
+		{
+			return;
+		}
+	}
+	else
+	{
+		if( found == end( m_disabledTracks ) )
+		{
+			m_disabledTracks.push_back( trackID );
+		}
+		else
+		{
+			return;
+		}
+	}
+	if( m_isActive )
+	{
+		CcpAutoMutex lock( g_controllerMutex );
+		for( size_t i = 0; i < m_actions.size(); ++i )
+		{
+			auto action = m_actions[i];
+			auto& entry = m_entries[i];
+			if ( InRange( m_time, entry ) && entry.trackID == trackID )
+			{
+				if( enable )
+				{
+					action->Start( *this );
+				}
+				else
+				{
+					action->Stop( *this );
+				}
+			}
+		}
+	}
+}
+
+void Tr2TimelineController::RegisterCallback( const BlueSharedString& callbackName, const BlueScriptCallback& callback )
 {
 	m_callbacks.push_back( { callbackName, callback } );
 }
 
-void Tr2TimelineContoller::ClearCallbacks()
+void Tr2TimelineController::ClearCallbacks()
 {
 	m_callbacks.clear();
 }
 
-float Tr2TimelineContoller::GetTime() const
+float Tr2TimelineController::GetTime() const
 {
 	return m_time;
 }
 
-void Tr2TimelineContoller::SetTime( float time )
+void Tr2TimelineController::SetTime( float time )
 {
 	if( !m_isActive )
 	{
@@ -527,8 +639,13 @@ void Tr2TimelineContoller::SetTime( float time )
 	auto oldTime = m_time;
 	m_time = time;
 
+	CcpAutoMutex lock( g_controllerMutex );
 	for( size_t i = 0; i < m_actions.size(); ++i )
 	{
+		if( !IsActionEnabled( i ) )
+		{
+			continue;
+		}
 		auto action = m_actions[i];
 		auto& entry = m_entries[i];
 		auto wasActive = InRange( oldTime, entry );
@@ -544,7 +661,17 @@ void Tr2TimelineContoller::SetTime( float time )
 	}
 }
 
-void Tr2TimelineContoller::ReLink()
+void Tr2TimelineController::Pause()
+{
+	m_isPaused = true;
+}
+
+void Tr2TimelineController::Resume()
+{
+	m_isPaused = false;
+}
+
+void Tr2TimelineController::ReLink()
 {
 	if( !m_owner )
 	{
