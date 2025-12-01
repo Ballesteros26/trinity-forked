@@ -169,7 +169,7 @@ void Tr2TimelineController::Stop()
 	m_time = 0;
 }
 
-void Tr2TimelineContoller::Update( float normalizedUpdateFrequency )
+void Tr2TimelineController::Update( float normalizedUpdateFrequency )
 {
 	if( !m_isActive )
 	{
