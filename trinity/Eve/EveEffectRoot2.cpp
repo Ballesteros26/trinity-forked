@@ -211,7 +211,6 @@ void EveEffectRoot2::UpdateAsyncronous( const EveUpdateContext& updateContext )
 		{
 			controllerUpdateFrequency = 0.5f;
 		}
-		
 	}
 
 	UpdateControllers( controllerUpdateFrequency );
