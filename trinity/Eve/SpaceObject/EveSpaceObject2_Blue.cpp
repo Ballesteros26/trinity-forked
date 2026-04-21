@@ -32,7 +32,7 @@ namespace
 			size_t boneCount = size_t( animation->GetMeshBoneCount() );
 			if( boneCount )
 			{
-				const granny_matrix_3x4* bones = animation->GetMeshBoneMatrixList();
+				const Float4x3* bones = animation->GetMeshBoneMatrixList();
 				Matrix boneTF = IdentityMatrix();
 				TriMatrixCopyFrom3x4( &boneTF, &bones[boneIndex] );
 				position = XMVector3TransformCoord( position, boneTF );
@@ -144,6 +144,7 @@ const Be::ClassInfo* EveSpaceObject2::ExposeToBlue()
 		MAP_INTERFACE( IEveShadowCaster )
 		MAP_INTERFACE( IInitialize )
 		MAP_INTERFACE( ITr2Pickable )
+		MAP_INTERFACE( ITr2BoundingBox )
 		MAP_INTERFACE( ITriTargetable )
 		MAP_INTERFACE( IWorldPosition )
 		MAP_INTERFACE( ITr2ShLightingReceiver )

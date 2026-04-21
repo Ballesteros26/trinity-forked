@@ -224,6 +224,11 @@ EveSpaceObject2::~EveSpaceObject2()
 	{
 		m_geometryResFromMesh->RemoveNotifyTarget( this );
 	}
+
+	for( auto& controller : m_controllers )
+	{
+		controller->Unlink( UnlinkReason::DELETING );
+	}
 }
 
 bool EveSpaceObject2::Initialize()
@@ -268,6 +273,12 @@ void EveSpaceObject2::OnListModified( long event, ssize_t key, ssize_t key2, IRo
 			break;
 		case BELIST_REMOVED:
 			if( ITr2ControllerPtr controller = BlueCastPtr( value ) )
+			{
+				controller->Unlink();
+			}
+			break;
+		case BELIST_UNLOADSTART:
+			for( auto& controller : m_controllers )
 			{
 				controller->Unlink();
 			}
@@ -673,7 +684,7 @@ void EveSpaceObject2::UpdateAsyncronous( const EveUpdateContext& updateContext )
 	if( !m_attachments.empty() )
 	{
 		size_t boneCount = 0;
-		const granny_matrix_3x4* bones = nullptr;
+		const Float4x3* bones = nullptr;
 		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
 
 		for( auto& attachment : m_attachments )
@@ -902,7 +913,7 @@ void EveSpaceObject2::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 	if( renderer.HasOption( this, "Lights" ) )
 	{
 		size_t boneCount = 0;
-		const granny_matrix_3x4* bones = nullptr;
+		const Float4x3* bones = nullptr;
 		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
 		for( auto it = m_lights.begin(); it != m_lights.end(); ++it )
 		{
@@ -964,13 +975,13 @@ void EveSpaceObject2::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 				auto rotation = locator.direction;
 
 				size_t boneCount;
-				const granny_matrix_3x4* bones;
+				const Float4x3* bones;
 
 				if( locator.boneIndex >= 0 && Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount ) )
 				{
 					if( locator.boneIndex < int( boneCount ) )
 					{
-						const granny_matrix_3x4* bones = m_animationUpdater->GetMeshBoneMatrixList();
+						const Float4x3* bones = m_animationUpdater->GetMeshBoneMatrixList();
 						Matrix boneTF = IdentityMatrix();
 						TriMatrixCopyFrom3x4( &boneTF, &bones[locator.boneIndex] );
 						position = XMVector3TransformCoord( position, boneTF );
@@ -998,7 +1009,7 @@ void EveSpaceObject2::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 	if( !m_attachments.empty() )
 	{
 		size_t boneCount = 0;
-		const granny_matrix_3x4* bones = nullptr;
+		const Float4x3* bones = nullptr;
 		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
 
 		for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
@@ -1543,7 +1554,7 @@ void EveSpaceObject2::UpdateVisibility( const EveUpdateContext& updateContext, c
 	if( !m_attachments.empty() )
 	{
 		size_t boneCount = 0;
-		const granny_matrix_3x4* bones = nullptr;
+		const Float4x3* bones = nullptr;
 		Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
 
 		for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
@@ -1829,7 +1840,7 @@ void EveSpaceObject2::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2Quad
 		return;
 	}
 	size_t boneCount = 0;
-	const granny_matrix_3x4* bones = nullptr;
+	const Float4x3* bones = nullptr;
 	Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
 
 	for( auto it = begin( m_attachments ); it != end( m_attachments ); ++it )
@@ -2811,8 +2822,33 @@ void EveSpaceObject2::AddOverlayEffect( EveMeshOverlayEffectPtr newOverlayEffect
 void EveSpaceObject2::RemoveOverlayEffect( EveMeshOverlayEffectPtr overlayEffectToRemove )
 {
 	ssize_t index = m_overlayEffects.FindKey( overlayEffectToRemove->GetRawRoot() );
-	m_overlayEffects.Remove( index );
+	if( index >= 0 )
+	{
+		m_overlayEffects.Remove( index );
+	}
 }
+
+// --------------------------------------------------------------------------------
+// Description:
+//   Get an overlay effect by name. Returns nullptr if no effect with this name exists on this object.
+// --------------------------------------------------------------------------------
+EveMeshOverlayEffectPtr EveSpaceObject2::GetOverlayEffectByName( const char* name ) const
+{
+	if( name == nullptr )
+	{
+		return nullptr;
+	}
+
+	for( auto overlay : m_overlayEffects )
+	{
+		if( strcmp( overlay->m_name.c_str(), name ) == 0 )
+		{
+			return overlay;
+		}
+	}
+	return nullptr;
+}
+
 
 // --------------------------------------------------------------------------------
 // Description:
@@ -3126,7 +3162,7 @@ void EveSpaceObject2::GetLocatorInObjectSpace( Vector3& position, Vector3& direc
 	{
 		if( locator.boneIndex < m_animationUpdater->GetMeshBoneCount() )
 		{
-			const granny_matrix_3x4* bones = m_animationUpdater->GetMeshBoneMatrixList();
+			const Float4x3* bones = m_animationUpdater->GetMeshBoneMatrixList();
 			Matrix boneTF = IdentityMatrix();
 			TriMatrixCopyFrom3x4( &boneTF, &bones[locator.boneIndex] );
 			position = XMVector3TransformCoord( locator.position, boneTF );
@@ -3395,7 +3431,7 @@ void EveSpaceObject2::GetLights( Tr2LightManager& lightManager ) const
 	XMMATRIX worldTransform = m_worldTransform;
 
 	size_t boneCount = 0;
-	const granny_matrix_3x4* bones = nullptr;
+	const Float4x3* bones = nullptr;
 	Tr2GrannyAnimationUtils::GetBoneList( m_animationUpdater, bones, boneCount );
 
 	for( auto it = std::begin( m_lights ); it != std::end( m_lights ); ++it )
@@ -3517,6 +3553,31 @@ void EveSpaceObject2::GetPickingBatches( ITriRenderBatchAccumulator* batches, Tr
 			m_mesh->GetBatches( batches, areas, perObjectData );
 		}
 	}
+}
+
+bool EveSpaceObject2::GetWorldBoundingBox( Vector3& min, Vector3& max ) const
+{
+	min = m_localAabbMin;
+	max = m_localAabbMax;
+	BoundingBoxTransform( min, max, m_worldTransform );
+	return true;
+}
+
+bool EveSpaceObject2::IsBoundingBoxReady() const
+{
+	Tr2MeshBase* mesh = m_mesh;
+
+	if( !mesh )
+	{
+		return false;
+	}
+
+	TriGeometryRes* geomRes = mesh->GetGeometryResource();
+	if( !geomRes || !geomRes->IsGood() )
+	{
+		return false;
+	}
+	return true;
 }
 
 bool EveSpaceObject2::IsImpostor() const

@@ -58,6 +58,10 @@ EveChildContainer::EveChildContainer( IRoot* lockobj ) :
 
 EveChildContainer::~EveChildContainer()
 {
+	for( auto& controller : m_controllers )
+	{
+		controller->Unlink( UnlinkReason::DELETING );
+	}
 }
 
 bool EveChildContainer::Initialize()
@@ -126,6 +130,12 @@ void EveChildContainer::OnListModified( long event, ssize_t key, ssize_t key2, I
 			break;
 		case BELIST_REMOVED:
 			if( ITr2ControllerPtr controller = BlueCastPtr( value ) )
+			{
+				controller->Unlink();
+			}
+			break;
+		case BELIST_UNLOADSTART:
+			for( auto& controller : m_controllers )
 			{
 				controller->Unlink();
 			}
@@ -390,7 +400,7 @@ void EveChildContainer::UpdateVisibility( const EveUpdateContext& updateContext,
 	if( HasRenderables() )
 	{
 		size_t boneCount = 0;
-		const granny_matrix_3x4* bones = nullptr;
+		const Float4x3* bones = nullptr;
 		if( m_animationOwner && m_animationOwner->GetAnimationController() )
 		{
 			Tr2GrannyAnimationUtils::GetBoneList( m_animationOwner->GetAnimationController(), bones, boneCount );	
@@ -405,7 +415,7 @@ void EveChildContainer::UpdateVisibility( const EveUpdateContext& updateContext,
 
 void EveChildContainer::GetRenderables( std::vector<ITr2Renderable*>& renderables )
 {
-	if( !m_display )
+	if( !m_display || !m_hasUpdated )
 	{
 		return;
 	}
@@ -459,7 +469,7 @@ void EveChildContainer::RegisterWithQuadRenderer( Tr2QuadRenderer& quadRenderer 
 
 void EveChildContainer::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2QuadRenderer& quadRenderer ) const
 {
-	if( !m_display )
+	if( !m_display || !m_hasUpdated )
 	{
 		return;
 	}
@@ -474,7 +484,7 @@ void EveChildContainer::AddQuadsToQuadRenderer( const TriFrustum& frustum, Tr2Qu
 	if( !m_attachments.empty() )
 	{
 		size_t boneCount = 0;
-		const granny_matrix_3x4* bones = nullptr;
+		const Float4x3* bones = nullptr;
 
 		if( m_animationOwner && m_animationOwner->GetAnimationController() )
 		{
@@ -631,6 +641,7 @@ void EveChildContainer::DoUpdateAsyncronous( const EveUpdateContext& updateConte
 	{
 		attachment->UpdateLights( m_worldTransform, bones, boneCount, m_activationStrength, 0.0 );
 	}
+	m_hasUpdated = true;
 }
 
 
@@ -649,7 +660,7 @@ void EveChildContainer::ChangeLOD( Tr2Lod lod )
 
 void EveChildContainer::GetLights( Tr2LightManager& lightManager ) const
 {
-	if( !m_display )
+	if( !m_display || !m_hasUpdated )
 	{
 		return;
 	}
@@ -895,7 +906,7 @@ void EveChildContainer::RenderDebugInfo( ITr2DebugRenderer2& renderer )
 	if( !m_attachments.empty() )
 	{
 		size_t boneCount = 0;
-		const granny_matrix_3x4* bones = nullptr;
+		const Float4x3* bones = nullptr;
 
 		if( m_animationOwner && m_animationOwner->GetAnimationController() )
 		{
