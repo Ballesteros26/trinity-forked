@@ -263,36 +263,6 @@ ALResult Tr2RenderContextAL::ClearUav( const Tr2TextureAL& texture, uint32_t mip
 	return S_OK;
 }
 
-ALResult Tr2RenderContextAL::SetIndices( const Tr2BufferAL& buffer ) throw( )
-{
-	return S_OK;
-}
-
-ALResult Tr2RenderContextAL::SetIndices( const Tr2BufferAL& buffer, int stride ) throw()
-{
-	return S_OK;
-}
-
-ALResult Tr2RenderContextAL::ClearUav( const Tr2BufferAL& buffer, const float values[4] ) throw()
-{
-	return S_OK;
-}
-
-ALResult Tr2RenderContextAL::ClearUav( const Tr2BufferAL& buffer, const uint32_t values[4] ) throw()
-{
-	return S_OK;
-}
-
-ALResult Tr2RenderContextAL::ClearUav( const Tr2TextureAL& texture, uint32_t mipLevel, const float values[4] ) throw()
-{
-	return S_OK;
-}
-
-ALResult Tr2RenderContextAL::ClearUav( const Tr2TextureAL& texture, uint32_t mipLevel, const uint32_t values[4] ) throw()
-{
-	return S_OK;
-}
-
 ALResult Tr2RenderContextAL::SetSrv( Tr2RenderContextEnum::ShaderType stage, uint32_t registerIndex, const Tr2BufferAL& buffer ) throw()
 {
 	return S_OK;
