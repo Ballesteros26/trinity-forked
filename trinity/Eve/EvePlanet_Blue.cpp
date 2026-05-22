@@ -15,6 +15,7 @@ const Be::ClassInfo* EvePlanet::ExposeToBlue()
 		MAP_INTERFACE( IShaderConfigurer )
 		MAP_INTERFACE( ITr2SoundEmitterOwner )
 		MAP_INTERFACE( IWorldPosition )
+		MAP_INTERFACE( ITr2BoundingBox )
 		MAP_ATTRIBUTE
 		(
 			"radius",

@@ -14,6 +14,7 @@ const Be::ClassInfo* EveTransform::ExposeToBlue()
 		MAP_INTERFACE( ITr2Pickable )
 		MAP_INTERFACE( IWorldPosition )
 		MAP_INTERFACE( IInitialize )
+		MAP_INTERFACE( ITr2BoundingBox )
 
 		MAP_ATTRIBUTE
 		( 

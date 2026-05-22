@@ -14,6 +14,7 @@
 
 #include "IEveTransform.h"
 #include "IWorldPosition.h"
+#include "ITr2BoundingBox.h"
 
 BLUE_DECLARE( Tr2ParticleSystem );
 BLUE_DECLARE_VECTOR( Tr2ParticleSystem );
@@ -35,6 +36,7 @@ BLUE_CLASS( EveTransform ):
 	public IWorldPosition,
 	public IInitialize,
 	public ITr2CurveSetOwner,
+	public ITr2BoundingBox,
 	public ITr2DebugRenderable
 {
 public:
@@ -57,8 +59,13 @@ public:
 	bool GetBoundingSphere( Vector4& sphere, BoundingSphereQuery query=EVE_BOUNDS_NORMAL ) const override;
 	void UpdateModelCenterWorldPosition( Vector3 &position, Be::Time t ) override;
 	void GetModelCenterWorldPosition( Vector3 &position ) const override;
-	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max ) override { return false; }
-	void GetLocalToWorldTransform( Matrix &transform ) const override { transform = IdentityMatrix(); }
+	bool GetLocalBoundingBox( Vector3 &min, Vector3 &max ) override;
+	void GetLocalToWorldTransform( Matrix &transform ) const override { transform = m_worldTransform; }
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	// ITr2BoundingBox
+	bool GetWorldBoundingBox( Vector3& min, Vector3& max ) const override;
+	bool IsBoundingBoxReady() const override;
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	// ITr2Renderable - mostly implemented by Tr2Transform except for these
