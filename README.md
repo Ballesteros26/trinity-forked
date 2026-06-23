@@ -8,7 +8,7 @@ Build using provided `CMakeLists.txt` in the repository root.
 ## 🤝 Contributing
 Contribution follows the standard GIT PR model.
 
-By submitting a pull request or otherwise contributing to this project, you agree to license your contribution under the (to be determined) License, and you confirm that you have the right to do so.
+By submitting a pull request or otherwise contributing to this project, you agree to license your contribution under the [MIT License](LICENSE.md) License, and you confirm that you have the right to do so.
 
 ## 📄 License and Legal Notices
 
