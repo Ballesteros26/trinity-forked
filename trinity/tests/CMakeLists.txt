@@ -40,11 +40,25 @@ set(_ENGINE_SOURCES_UNDER_TEST
     ../ContinueOnMainThread.cpp
 )
 
+# Unit harness: tasklet-free tests only. Its main() does NOT run a Stackless tasklet, so any test
+# that exercises engine code requiring a current tasklet must NOT live here.
 set(_SOURCES
     TrinityEngineTest.cpp
     EveComponentRegistryTest.cpp
-    ContinueOnMainThreadTest.cpp
     ${_ENGINE_SOURCES_UNDER_TEST}
+)
+
+# Integration harness: same engine sources, but its main() runs the gtest cases INSIDE a Stackless
+# tasklet (see TrinityEngineIntegrationTest.cpp). The ContinueOnMainThread tests call
+# ExecuteMainThreadActions, which uses ScopedBlockTrap and therefore needs a current tasklet — so
+# they belong here, not in the bare unit harness above.
+# Only the engine source actually under test here — NOT ${_ENGINE_SOURCES_UNDER_TEST}, which pulls in
+# EveComponentRegistry/EveEntity and their g_eveReflectionMode stub (defined in EveComponentRegistryTest.cpp,
+# which isn't part of this target).
+set(_INTEGRATION_SOURCES
+    TrinityEngineIntegrationTest.cpp
+    ContinueOnMainThreadTest.cpp
+    ../ContinueOnMainThread.cpp
 )
 
 # These engine files show up in this target's IDE project because they're compiled into it
@@ -160,5 +174,49 @@ if(WIN32)
     gtest_discover_tests(TrinityEngineTest_dx12
         DISCOVERY_MODE PRE_TEST
         WORKING_DIRECTORY "$<TARGET_FILE_DIR:TrinityEngineTest_dx12>"
+    )
+
+    # -----------------------------------------------------------------------------------------
+    # Integration target: runs the gtest cases INSIDE a Stackless tasklet (TrinityEngineIntegrationTest.cpp),
+    # so engine code that needs a current tasklet (ScopedBlockTrap in ExecuteMainThreadActions, etc.)
+    # behaves as it does in the client instead of crashing on a null current-tasklet. Links the
+    # `Python` target (python27 import lib + Stackless headers) for the embedding C-API used by main()
+    # (Py_InitModule / PyRun_SimpleString / stackless). `Python` is defined under BUILD_FOR_PYTHON_2;
+    # if it isn't in scope here, add the matching find_package(Python) the engine uses.
+    # -----------------------------------------------------------------------------------------
+    ccp_add_executable(TrinityEngineIntegrationTest_dx12 ${_INTEGRATION_SOURCES})
+    set_shared_trinityenginetest_properties(TrinityEngineIntegrationTest_dx12)
+    target_link_libraries(TrinityEngineIntegrationTest_dx12 PRIVATE Python)
+
+    # Same runtime DLLs (Blue.dll, etc.) + the Stackless python27.dll next to the exe.
+    add_custom_command(
+        TARGET TrinityEngineIntegrationTest_dx12 POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:TrinityEngineIntegrationTest_dx12> $<TARGET_FILE_DIR:TrinityEngineIntegrationTest_dx12>
+        COMMAND_EXPAND_LISTS
+    )
+    if(_stackless_python27)   # reuses the glob result from the unit target above
+        add_custom_command(
+            TARGET TrinityEngineIntegrationTest_dx12 POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_stackless_python27}" "$<TARGET_FILE_DIR:TrinityEngineIntegrationTest_dx12>"
+        )
+    endif()
+
+    # Deploy a Python 2.7 stdlib as Lib/ next to the exe, so the integration main()'s Py_Initialize()
+    # (PYTHONHOME = exe dir) can import `encodings` and friends. Without this, Py_Initialize fatals.
+    set(_py27_stdlib "${BRANCH_ROOT_DIR}/carbon/common/stdlib")
+    if(EXISTS "${_py27_stdlib}")
+        add_custom_command(
+            TARGET TrinityEngineIntegrationTest_dx12 POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${_py27_stdlib}" "$<TARGET_FILE_DIR:TrinityEngineIntegrationTest_dx12>/Lib"
+        )
+    else()
+        message(WARNING "py2.7 stdlib not found at ${_py27_stdlib}; TrinityEngineIntegrationTest_dx12 cannot initialize Python.")
+    endif()
+
+    set_target_properties(TrinityEngineIntegrationTest_dx12 PROPERTIES FOLDER "Tests")
+
+    gtest_discover_tests(TrinityEngineIntegrationTest_dx12
+        DISCOVERY_MODE PRE_TEST
+        WORKING_DIRECTORY "$<TARGET_FILE_DIR:TrinityEngineIntegrationTest_dx12>"
     )
 endif()
