@@ -1214,7 +1214,7 @@ void EveSpaceObject2::GetBatchesFromOverlayVector( ITriRenderBatchAccumulator* b
 	}
 
 	TriGeometryRes* geomRes = mesh->GetGeometryResource();
-	if( !geomRes->IsGood() )
+	if( !geomRes || !geomRes->IsGood() )
 	{
 		return;
 	}
