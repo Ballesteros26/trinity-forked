@@ -110,6 +110,7 @@ public:
 	// ITr2Renderable
 	virtual bool HasTransparentBatches();
 	virtual void GetBatches( ITriRenderBatchAccumulator * batches, TriBatchType batchType, const Tr2PerObjectData* perObjectData, Tr2RenderReason reason = TR2RENDERREASON_NORMAL );
+	void GetBatchesFromOverlayVector( ITriRenderBatchAccumulator * batches, const Tr2PerObjectData* perObjectData, TriBatchType batchType );
 	virtual float GetSortValue();
 	virtual Tr2PerObjectData* GetPerObjectData( ITriRenderBatchAccumulator * accumulator );
 	virtual bool IsVisible( const EveUpdateContext& updateContext ) const override;
@@ -212,6 +213,11 @@ protected:
 	Tr2MeshBasePtr m_mesh;
 	Tr2InstancedMeshPtr m_instancedMesh; // Cached downcast of m_mesh
 	IEveSpaceObject2::ParentData m_parentData;
+
+	const PEveMeshOverlayEffectVector* m_parentOverlayEffects = nullptr;
+	std::vector<TriRenderBatchAreaBlock> m_overlayMeshAreaBlocks[EveMeshOverlayEffect::TYPE_COUNT];
+	bool m_overlayAreaBlocksBuilt = false;
+	void RebuildOverlayAreaBlocks();
 
 	PIEveChildTransformModifierVector m_transformModifiers;
 	Tr2GrannyAnimationPtr m_animationUpdater;
