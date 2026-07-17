@@ -60,9 +60,6 @@ protected:
 	bool m_containsCamera;
 	bool m_extendsOffscreen;
 	bool m_coversViewport;
-
-	// An optional callback to call when projectBracket is updated.
-	BlueScriptCallback m_bracketUpdateCallback;
 };
 
 TYPEDEF_BLUECLASS( Tr2ProjectBoundingBoxBracket );

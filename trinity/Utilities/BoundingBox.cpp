@@ -1,6 +1,7 @@
 // Copyright © 2023 CCP ehf.
 
 #include "StdAfx.h"
+#include "Include/TriMath.h"
 #include "BoundingBox.h"
 #include "BoundingSphere.h"
 #include "MatrixUtils.h"
@@ -206,6 +207,26 @@ void BoundingBoxUpdate( Vector3& min, Vector3& max, const Vector4& sphere )
 {
 	BoundingBoxUpdate( min, max, Vector3( sphere.x - sphere.w, sphere.y - sphere.w, sphere.z - sphere.w ) );
 	BoundingBoxUpdate( min, max, Vector3( sphere.x + sphere.w, sphere.y + sphere.w, sphere.z + sphere.w ) );
+}
+
+void BoundingBoxInclude( CcpMath::AxisAlignedBox& box, const Vector3& min, const Vector3& max )
+{
+	if( !IsFinite( min ) || !IsFinite( max ) )
+	{
+		return;
+	}
+
+	box.Include( CcpMath::AxisAlignedBox( min, max ) );
+}
+
+void BoundingBoxInclude( CcpMath::AxisAlignedBox& box, const Vector4& sphere )
+{
+	if( !BoundingSphereIsValid( sphere ) )
+	{
+		return;
+	}
+
+	box.Include( CcpMath::AxisAlignedBox( sphere ) );
 }
 
 void BoundingBoxTransform( Vector3& min, Vector3& max, const Matrix& tf )

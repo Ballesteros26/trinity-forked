@@ -10,6 +10,7 @@
 #include "Particle/Tr2ParticleSystem.h"
 #include "Particle/ITr2GenericEmitter.h"
 #include "EveUpdateContext.h"
+#include "EveChildBounds.h"
 #include "EveLODHelper.h"
 #include "Curves/TriCurveSet.h"
 #include "Tr2Mesh.h"
@@ -22,33 +23,6 @@ namespace
 bool HasOverrideBounds( const Vector3& boundsMin, const Vector3& boundsMax )
 {
 	return boundsMax.x != boundsMin.x || boundsMax.y != boundsMin.y || boundsMax.z != boundsMin.z;
-}
-
-void IncludeBounds( const Vector3& boundsMin, const Vector3& boundsMax, Vector3& min, Vector3& max, bool& valid )
-{
-	if( !valid )
-	{
-		min = boundsMin;
-		max = boundsMax;
-		valid = true;
-	}
-	else
-	{
-		BoundingBoxUpdate( min, max, boundsMin, boundsMax );
-	}
-}
-
-void IncludeSphereBounds( const Vector4& sphere, Vector3& min, Vector3& max, bool& valid )
-{
-	if( sphere.w <= 0.0f )
-	{
-		return;
-	}
-
-	Vector3 sphereMin;
-	Vector3 sphereMax;
-	BoundingBoxInitialize( sphere, sphereMin, sphereMax );
-	IncludeBounds( sphereMin, sphereMax, min, max, valid );
 }
 
 bool GetDirectLocalBounds( const Vector3& overrideBoundsMin, const Vector3& overrideBoundsMax, Tr2MeshBase* mesh, Vector3& min, Vector3& max )
@@ -400,78 +374,72 @@ void EveTransform::GetRenderables( std::vector<ITr2Renderable*>& renderables )
 
 bool EveTransform::GetLocalBoundingBox( Vector3& min, Vector3& max )
 {
-	bool valid = GetDirectLocalBounds( m_overrideBoundsMin, m_overrideBoundsMax, m_mesh, min, max );
+	CcpMath::AxisAlignedBox bounds;
+
+	Vector3 directMin;
+	Vector3 directMax;
+	if( GetDirectLocalBounds( m_overrideBoundsMin, m_overrideBoundsMax, m_mesh, directMin, directMax ) )
+	{
+		BoundingBoxInclude( bounds, directMin, directMax );
+	}
 
 	Matrix inverseWorldTransform;
-	const bool hasInverseWorldTransform = Inverse( inverseWorldTransform, m_worldTransform );
-
-	if( hasInverseWorldTransform )
+	if( Inverse( inverseWorldTransform, m_worldTransform ) )
 	{
 		for( auto it = m_children.begin(); it != m_children.end(); ++it )
 		{
+			const IEveTransform* child = *it;
 			Vector3 childMin;
 			Vector3 childMax;
-			bool hasChildBounds = false;
-
-			if( auto childBoundingBox = dynamic_cast<ITr2BoundingBox*>( *it ) )
-			{
-				hasChildBounds = childBoundingBox->GetWorldBoundingBox( childMin, childMax );
-			}
-
-			if( !hasChildBounds )
-			{
-				Vector4 childSphere;
-				if( ( *it )->GetBoundingSphere( childSphere, EVE_BOUNDS_WITH_CHILDREN ) && childSphere.w > 0.0f )
-				{
-					BoundingBoxInitialize( childSphere, childMin, childMax );
-					hasChildBounds = true;
-				}
-			}
-
-			if( hasChildBounds )
+			if( GetChildWorldBounds( child, childMin, childMax ) )
 			{
 				BoundingBoxTransform( childMin, childMax, inverseWorldTransform );
-				IncludeBounds( childMin, childMax, min, max, valid );
+				BoundingBoxInclude( bounds, childMin, childMax );
 			}
 		}
 	}
 
-	return valid;
+	if( !bounds.IsInitialized() )
+	{
+		return false;
+	}
+
+	min = bounds.m_min;
+	max = bounds.m_max;
+	return true;
 }
 
 bool EveTransform::GetWorldBoundingBox( Vector3& min, Vector3& max ) const
 {
-	bool valid = false;
+	CcpMath::AxisAlignedBox bounds;
 
 	Vector3 localMin;
 	Vector3 localMax;
 	if( GetDirectLocalBounds( m_overrideBoundsMin, m_overrideBoundsMax, m_mesh, localMin, localMax ) )
 	{
 		BoundingBoxTransform( localMin, localMax, m_worldTransform );
-		IncludeBounds( localMin, localMax, min, max, valid );
+		BoundingBoxInclude( bounds, localMin, localMax );
 	}
 
 	for( auto it = m_children.begin(); it != m_children.end(); ++it )
 	{
+		const IEveTransform* child = *it;
 		Vector3 childMin;
 		Vector3 childMax;
-		if( auto childBoundingBox = dynamic_cast<const ITr2BoundingBox*>( *it ) )
+		if( GetChildWorldBounds( child, childMin, childMax ) )
 		{
-			if( childBoundingBox->GetWorldBoundingBox( childMin, childMax ) )
-			{
-				IncludeBounds( childMin, childMax, min, max, valid );
-				continue;
-			}
-		}
-
-		Vector4 childSphere;
-		if( ( *it )->GetBoundingSphere( childSphere, EVE_BOUNDS_WITH_CHILDREN ) )
-		{
-			IncludeSphereBounds( childSphere, min, max, valid );
+			BoundingBoxInclude( bounds, childMin, childMax );
 		}
 	}
 
-	return valid;
+	if( !bounds.IsInitialized() )
+	{
+		return false;
+	}
+
+	min = bounds.m_min;
+	max = bounds.m_max;
+	return true;
 }
 
 bool EveTransform::IsBoundingBoxReady() const
@@ -494,7 +462,7 @@ bool EveTransform::IsBoundingBoxReady() const
 		}
 
 		Vector4 childSphere;
-		if( ( *it )->GetBoundingSphere( childSphere, EVE_BOUNDS_WITH_CHILDREN ) && childSphere.w > 0.0f )
+		if( ( *it )->GetBoundingSphere( childSphere, EVE_BOUNDS_WITH_CHILDREN ) && BoundingSphereIsValid( childSphere ) )
 		{
 			return true;
 		}

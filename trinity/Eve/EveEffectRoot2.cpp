@@ -10,6 +10,7 @@
 #include "Tr2LightManager.h"
 #include "Controllers/ITr2Controller.h"
 #include "Curves/TriCurveSet.h"
+#include "Eve/EveChildBounds.h"
 #include "Eve/EveUpdateContext.h"
 #include "Eve/SpaceObject/EveSpaceObject2.h"
 #include "Eve/SpaceObject/Children/EveChildContainer.h"
@@ -17,56 +18,6 @@
 #include <cmath>
 
 extern float g_eveSpaceObjectResourceUnloadingTimeThreshold;
-
-namespace
-{
-bool IsFinite( const Vector3& v )
-{
-	return std::isfinite( v.x ) && std::isfinite( v.y ) && std::isfinite( v.z );
-}
-
-bool IsValidBoundingSphere( const Vector4& sphere )
-{
-	return sphere.w > 0.0f &&
-		std::isfinite( sphere.x ) &&
-		std::isfinite( sphere.y ) &&
-		std::isfinite( sphere.z ) &&
-		std::isfinite( sphere.w );
-}
-
-void IncludeWorldBounds( const Vector3& boundsMin, const Vector3& boundsMax, Vector3& min, Vector3& max, bool& valid )
-{
-	if( !IsFinite( boundsMin ) || !IsFinite( boundsMax ) )
-	{
-		return;
-	}
-
-	if( !valid )
-	{
-		min = boundsMin;
-		max = boundsMax;
-		valid = true;
-	}
-	else
-	{
-		BoundingBoxUpdate( min, max, boundsMin, boundsMax );
-	}
-}
-
-void IncludeWorldSphereBounds( const Vector4& sphere, Vector3& min, Vector3& max, bool& valid )
-{
-	if( !IsValidBoundingSphere( sphere ) )
-	{
-		return;
-	}
-
-	Vector3 sphereMin;
-	Vector3 sphereMax;
-	BoundingBoxInitialize( sphere, sphereMin, sphereMax );
-	IncludeWorldBounds( sphereMin, sphereMax, min, max, valid );
-}
-}
-
 
 EveEffectRoot2::EveEffectRoot2( IRoot* lockobj ) :
 	PARENTLOCK( m_observers ),
@@ -451,7 +402,7 @@ void EveEffectRoot2::GetModelCenterWorldPosition( Vector3& position ) const
 
 bool EveEffectRoot2::GetLocalBoundingBox( Vector3& min, Vector3& max )
 {
-	if( !IsValidBoundingSphere( m_boundingSphere ) )
+	if( !BoundingSphereIsValid( m_boundingSphere ) )
 	{
 		return false;
 	}
@@ -468,32 +419,41 @@ void EveEffectRoot2::GetLocalToWorldTransform( Matrix& transform ) const
 
 bool EveEffectRoot2::GetWorldBoundingBox( Vector3& min, Vector3& max ) const
 {
-	bool valid = false;
+	CcpMath::AxisAlignedBox bounds;
 
-	if( IsValidBoundingSphere( m_boundingSphere ) )
+	if( BoundingSphereIsValid( m_boundingSphere ) )
 	{
 		Vector3 rootMin;
 		Vector3 rootMax;
 		BoundingBoxInitialize( m_boundingSphere, rootMin, rootMax );
 		BoundingBoxTransform( rootMin, rootMax, m_lastUpdateMatrix );
-		IncludeWorldBounds( rootMin, rootMax, min, max, valid );
+		BoundingBoxInclude( bounds, rootMin, rootMax );
 	}
 
 	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
 	{
-		Vector4 childBounds;
-		if( ( *it )->GetBoundingSphere( childBounds, EVE_BOUNDS_WITH_CHILDREN ) )
+		const IEveSpaceObjectChild* child = *it;
+		Vector3 childMin;
+		Vector3 childMax;
+		if( GetChildWorldBounds( child, childMin, childMax ) )
 		{
-			IncludeWorldSphereBounds( childBounds, min, max, valid );
+			BoundingBoxInclude( bounds, childMin, childMax );
 		}
 	}
 
-	return valid;
+	if( !bounds.IsInitialized() )
+	{
+		return false;
+	}
+
+	min = bounds.m_min;
+	max = bounds.m_max;
+	return true;
 }
 
 bool EveEffectRoot2::IsBoundingBoxReady() const
 {
-	if( IsValidBoundingSphere( m_boundingSphere ) )
+	if( BoundingSphereIsValid( m_boundingSphere ) )
 	{
 		return true;
 	}
@@ -501,7 +461,7 @@ bool EveEffectRoot2::IsBoundingBoxReady() const
 	for( auto it = m_effectChildren.begin(); it != m_effectChildren.end(); ++it )
 	{
 		Vector4 childBounds;
-		if( ( *it )->GetBoundingSphere( childBounds, EVE_BOUNDS_WITH_CHILDREN ) && IsValidBoundingSphere( childBounds ) )
+		if( ( *it )->GetBoundingSphere( childBounds, EVE_BOUNDS_WITH_CHILDREN ) && BoundingSphereIsValid( childBounds ) )
 		{
 			return true;
 		}

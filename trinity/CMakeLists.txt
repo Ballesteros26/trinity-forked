@@ -754,6 +754,7 @@ set(_SOURCES
     Eve/EveCamera.cpp
     Eve/EveCamera.h
     Eve/EveCamera_Blue.cpp
+    Eve/EveChildBounds.h
     Eve/EveComponentRegistry.cpp
     Eve/EveComponentRegistry.h
     Eve/EveComponentRegistry_Blue.cpp

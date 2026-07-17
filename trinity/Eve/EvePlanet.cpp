@@ -152,6 +152,18 @@ Quaternion EvePlanet::GetWorldRotation()
 
 bool EvePlanet::GetWorldBoundingBox( Vector3& min, Vector3& max ) const
 {
+	Vector4 sphere;
+	if( !GetWorldBoundingSphere( sphere ) )
+	{
+		return false;
+	}
+
+	BoundingBoxInitialize( sphere, min, max );
+	return true;
+}
+
+bool EvePlanet::GetWorldBoundingSphere( Vector4& sphere ) const
+{
 	if( m_radius <= 0.0f )
 	{
 		return false;
@@ -159,11 +171,7 @@ bool EvePlanet::GetWorldBoundingBox( Vector3& min, Vector3& max ) const
 
 	const float renderScale = m_renderScale > 0.0f ? m_renderScale : 1.0f;
 	const Matrix scaledTransform = CalculatePlanetScaleTransform( m_worldTransform, renderScale );
-	const Vector3 center = scaledTransform.GetTranslation();
-	const float radius = m_radius / renderScale;
-	const Vector4 sphere( center, radius );
-
-	BoundingBoxInitialize( sphere, min, max );
+	sphere = Vector4( scaledTransform.GetTranslation(), m_radius / renderScale );
 	return true;
 }
 
