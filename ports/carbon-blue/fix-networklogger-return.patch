@@ -1,0 +1,12 @@
+diff --git a/src/NetworkLogger.cpp b/src/NetworkLogger.cpp  
+--- a/src/NetworkLogger.cpp  
++++ b/src/NetworkLogger.cpp  
+@@ -632,7 +632,8 @@  
+ 		bool ret = CCP::SetupNetworkLogging(  serverName, serverPort, (CCP::LogType) threshold, role, errorMessage, errorMessageBufferSize );  
+ 		if (!ret)  
+ 		{  
+-			return PyErr_SetString(PyExc_RuntimeError, errorMessage), 0;  
++			PyErr_SetString(PyExc_RuntimeError, errorMessage);  
++			return nullptr;  
+ 		}  
+ 		Py_RETURN_TRUE;
