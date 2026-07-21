@@ -1,4 +1,4 @@
-name: Build patched Win x64  
+name: Build Windows x64  
   
 on:  
   push:  
@@ -17,15 +17,14 @@ jobs:
     runs-on: windows-2022  
   
     steps:  
-      # 此步骤必须在 actions/checkout@v4 之前执行。
-      # 用于配置 Windows 运行器上的 Git，开启 core.longpaths 选项。
-      # 从而绕过 Windows 默认的 260 字符路径长度限制，解决深层嵌套目录克隆失败的问题。
-      - name: Enable Git long paths support
-        run: git config --system core.longpaths true
-
+      # 此步骤必须在 actions/checkout@v4 之前执行。  
+      # 用于配置 Windows 运行器上的 Git，开启 core.longpaths 选项。  
+      # 从而绕过 Windows 默认的 260 字符路径长度限制，解决深层嵌套目录克隆失败的问题。  
+      - name: Enable Git long paths support  
+        run: git config --system core.longpaths true  
+  
       - name: Checkout repository  
         uses: actions/checkout@v4  
-        # 后续保持不变...
   
       - name: Configure git global SSH-to-HTTPS URL rewrite  
         shell: pwsh  
@@ -76,12 +75,7 @@ jobs:
         run: |  
           New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\regcache"  
           New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\vcpkg-binary-cache"  
-          cmake --preset x64-windows-release -S . -B ${{ env.CMAKE_BUILD_FOLDER }} `  
-            -DCMAKE_MAKE_PROGRAM=ninja `  
-            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}\.build-artifact" `  
-            -DVCPKG_INSTALL_OPTIONS="--x-buildtrees-root=${{ github.workspace }}\buildtrees" `  
-            -DVCPKG_OVERLAY_PORTS="${{ github.workspace }}/ports" `  
-            -DBUILD_DX11=ON -DBUILD_DX12=ON -DBUILD_SHADER_COMPILER=ON  
+          cmake --preset x64-windows-release -S . -B ${{ env.CMAKE_BUILD_FOLDER }} -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}\.build-artifact" -DVCPKG_INSTALL_OPTIONS="--x-buildtrees-root=${{ github.workspace }}\buildtrees" -DVCPKG_OVERLAY_PORTS="${{ github.workspace }}/ports" -DBUILD_DX11=ON -DBUILD_DX12=ON -DBUILD_SHADER_COMPILER=ON  
   
       - name: Print vcpkg build logs on failure  
         if: failure()  
