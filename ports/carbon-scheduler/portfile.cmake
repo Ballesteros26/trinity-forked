@@ -1,0 +1,31 @@
+set(SOURCE_PATH "${CURRENT_BUILDTREES_DIR}/src/carbon-scheduler-local")  
+  
+file(COPY  
+    "${CMAKE_CURRENT_LIST_DIR}/../../vcpkg-dependency-source/carbon-scheduler-327303b539aaf1850ebcc4ad73460e3a61855cff/"  
+    DESTINATION "${SOURCE_PATH}"  
+)  
+  
+vcpkg_apply_patches(  
+    SOURCE_PATH "${SOURCE_PATH}"  
+    PATCHES fix-stdafx-missing-telemetry-include.patch  
+)  
+  
+vcpkg_cmake_configure(  
+    SOURCE_PATH "${SOURCE_PATH}"  
+    OPTIONS  
+        -DBUILD_TESTING=OFF  
+        -DBUILD_DOCUMENTATION=OFF  
+        -DCMAKE_BUILD_TYPE=${CARBON_BUILD_TYPE}  
+)  
+  
+vcpkg_cmake_install()  
+vcpkg_cmake_config_fixup()  
+  
+set(BUILD_PATHS  
+    "${CURRENT_PACKAGES_DIR}/bin/*.dll"  
+    "${CURRENT_PACKAGES_DIR}/debug/bin/*.dll"  
+    "${CURRENT_PACKAGES_DIR}/bin/*.pyd"  
+    "${CURRENT_PACKAGES_DIR}/debug/bin/*.pyd"  
+)  
+vcpkg_copy_pdbs(BUILD_PATHS ${BUILD_PATHS})  
+ccp_externalize_apple_debuginfo()
