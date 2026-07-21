@@ -1,0 +1,12 @@
+{
+  "dependencies": [
+    {
+      "name": "gtest",
+      "version>=": "1.16.0"
+    },
+    {
+      "name": "directxmath",
+      "version>=": "2025-04-03"
+    }
+  ]
+}

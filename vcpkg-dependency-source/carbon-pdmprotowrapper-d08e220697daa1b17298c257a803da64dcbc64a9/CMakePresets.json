@@ -1,0 +1,267 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 31,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "common",
+      "toolchainFile": "${sourceDir}/vendor/github.com/microsoft/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "binaryDir": "${sourceDir}/.cmake-build-${presetName}",
+      "cacheVariables": {
+        "VCPKG_USE_HOST_TOOLS": "ON",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/cmake/triplets"
+      },
+      "hidden": true
+    },
+    {
+      "name": "windows",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL"
+      },
+      "hidden": true
+    },
+    {
+      "name": "osx",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES":  "arm64;x86_64"
+      },
+      "hidden": true
+    },
+    {
+      "name": "visual-studio",
+      "generator": "Visual Studio 17 2022",
+      "inherits": ["common", "windows"],
+      "toolset": {
+        "value": "v141"
+      },
+      "hidden": true
+    },
+    {
+      "name": "ninja-multi-config",
+      "generator": "Ninja Multi-Config",
+      "inherits": "common",
+      "hidden": true
+    },
+    {
+      "name": "vs-x64-windows-static-internal",
+      "inherits": "visual-studio",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Internal",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-internal",
+        "VCPKG_HOST_TRIPLET": "x64-windows-internal",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "vs-x64-windows-static-release",
+      "inherits": "visual-studio",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-release",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-release",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "vs-x64-windows-static-debug",
+      "inherits": "visual-studio",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-debug",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-debug",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "vs-x64-windows-static-trinitydev",
+      "inherits": "visual-studio",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "TrinityDev",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-trinitydev",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-trinitydev",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "nmc-x64-windows-static-internal",
+      "inherits": ["ninja-multi-config", "windows"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Internal",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-internal",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-internal",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "nmc-x64-windows-static-release",
+      "inherits": ["ninja-multi-config", "windows"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-release",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-release",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "nmc-x64-windows-static-debug",
+      "inherits": ["ninja-multi-config", "windows"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-debug",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-debug",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "nmc-x64-windows-static-trinitydev",
+      "inherits": ["ninja-multi-config", "windows"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "TrinityDev",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-trinitydev",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-trinitydev",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreadedDLL",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "vs-x64-windows-static-internal-mt",
+      "inherits": "visual-studio",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Internal",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-internal-mt",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-internal-mt",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
+      }
+    },
+    {
+      "name": "vs-x64-windows-static-release-mt",
+      "inherits": "visual-studio",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-release-mt",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-release-mt",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
+      }
+    },
+    {
+      "name": "vs-x64-windows-static-debug-mt",
+      "inherits": "visual-studio",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-debug-mt",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-debug-mt",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
+      }
+    },
+    {
+      "name": "vs-x64-windows-static-trinitydev-mt",
+      "inherits": "visual-studio",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "TrinityDev",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-trinitydev-mt",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-trinitydev-mt",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
+      }
+    },
+    {
+      "name": "nmc-x64-windows-static-internal-mt",
+      "inherits": ["ninja-multi-config", "windows"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Internal",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-internal-mt",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-internal-mt",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
+      }
+    },
+    {
+      "name": "nmc-x64-windows-static-release-mt",
+      "inherits": ["ninja-multi-config", "windows"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-release-mt",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-release-mt",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
+      }
+    },
+    {
+      "name": "nmc-x64-windows-static-debug-mt",
+      "inherits": ["ninja-multi-config", "windows"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-debug-mt",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-debug-mt",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
+      }
+    },
+    {
+      "name": "nmc-x64-windows-static-trinitydev-mt",
+      "inherits": ["ninja-multi-config", "windows"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "TrinityDev",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static-trinitydev-mt",
+        "VCPKG_HOST_TRIPLET": "x64-windows-static-trinitydev-mt",
+        "CMAKE_MSVC_RUNTIME_LIBRARY": "MultiThreaded"
+      }
+    },
+    {
+      "name": "nmc-universal-osx-static-internal",
+      "inherits": ["ninja-multi-config", "osx"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Internal",
+        "VCPKG_TARGET_TRIPLET": "universal-osx-static-internal",
+        "VCPKG_HOST_TRIPLET": "universal-osx-static-internal",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "nmc-universal-osx-static-release",
+      "inherits": ["ninja-multi-config", "osx"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "VCPKG_TARGET_TRIPLET": "universal-osx-static-release",
+        "VCPKG_HOST_TRIPLET": "universal-osx-static-release",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "nmc-universal-osx-static-debug",
+      "inherits": ["ninja-multi-config", "osx"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "VCPKG_TARGET_TRIPLET": "universal-osx-static-debug",
+        "VCPKG_HOST_TRIPLET": "universal-osx-static-debug",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    },
+    {
+      "name": "nmc-universal-osx-static-trinitydev",
+      "inherits": ["ninja-multi-config", "osx"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "TrinityDev",
+        "VCPKG_TARGET_TRIPLET": "universal-osx-static-trinitydev",
+        "VCPKG_HOST_TRIPLET": "universal-osx-static-trinitydev",
+        "COMBINE_STATIC_LIBS": "ON"
+      }
+    }
+  ]
+}

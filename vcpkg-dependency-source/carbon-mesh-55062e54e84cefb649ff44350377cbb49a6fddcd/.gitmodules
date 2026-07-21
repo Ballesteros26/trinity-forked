@@ -1,0 +1,12 @@
+[submodule "vendor/github.com/microsoft/vcpkg"]
+	path = vendor/github.com/microsoft/vcpkg
+	url = git@github.com:microsoft/vcpkg.git
+[submodule "vendor/github.com/moltenVK"]
+	path = vendor/github.com/moltenVK
+	url = https://github.com/KhronosGroup/MoltenVK.git
+[submodule "vendor/github.com/ufbx/ufbx"]
+	path = vendor/github.com/ufbx/ufbx
+	url = https://github.com/ufbx/ufbx.git
+[submodule "vendor/github.com/carbonengine/vcpkg-registry"]
+	path = vendor/github.com/carbonengine/vcpkg-registry
+	url = git@github.com:carbonengine/vcpkg-registry.git
