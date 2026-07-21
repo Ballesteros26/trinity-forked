@@ -80,8 +80,11 @@ jobs:
       - name: Print vcpkg build logs on failure  
         if: failure()  
         shell: pwsh  
-        run: Get-ChildItem "${{ github.workspace }}\buildtrees" -Filter "*-out.log" -Recurse | ForEach-Object { Write-Host "=== $($_.FullName) ==="; Get-Content $_.FullName | Select-Object -Last 100 }  
-  
+        run: |  
+          Get-ChildItem "${{ github.workspace }}\buildtrees" -Filter "*-out.log" -Recurse | ForEach-Object { Write-Host "=== $($_.FullName) ==="; Get-Content $_.FullName | Select-Object -Last 100 }  
+          $manifestLog = "${{ github.workspace }}\.cmake-build-release\vcpkg-manifest-install.log"  
+          if (Test-Path $manifestLog) { Write-Host "=== vcpkg-manifest-install.log ==="; Get-Content $manifestLog | Select-Object -Last 200 }
+ 
       - name: Build  
         shell: pwsh  
         env:  
